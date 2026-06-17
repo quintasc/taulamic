@@ -31,6 +31,7 @@ Incluye:
 - El sistema valida filas y genera reporte de errores legible.
 - Las filas validas se procesan aunque otras fallen.
 - Las sugerencias de restricciones nunca se aplican sin aprobacion del admin.
+- En modo `anfitrion_exclusivo`, la precarga/importacion puede actuar como fuente principal de preferencias.
 
 ## Consecuencias positivas
 

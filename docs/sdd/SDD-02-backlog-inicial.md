@@ -79,20 +79,27 @@ Traducir SDD-01 en trabajo ejecutable en GitHub Issues, priorizado por valor y r
 - HU-36 Crear/actualizar invitados en lote con preclasificacion por categorias.
 - HU-37 Sugerir restricciones desde observaciones y requerir confirmacion manual.
 
+### EP-13 - Gobernanza de preferencias y regla de acompanantes
+
+- HU-38 Definir modo de control de preferencias por evento (colaborativo/anfitrion_exclusivo).
+- HU-39 Aplicar permisos de edicion de preferencias segun modo seleccionado.
+- HU-40 Aplicar regla de acompanantes juntos por defecto con excepciones explicitas.
+
 ## 3) Priorizacion sugerida (orden de ejecucion)
 
 1. EP-01
 2. EP-11
 3. EP-12
-4. EP-02
-5. EP-09
-6. EP-10
-7. EP-08
-8. EP-07
-9. EP-03
-10. EP-04
-11. EP-05
-12. EP-06
+4. EP-13
+5. EP-02
+6. EP-09
+7. EP-10
+8. EP-08
+9. EP-07
+10. EP-03
+11. EP-04
+12. EP-05
+13. EP-06
 
 ## 4) Definicion de Ready (DoR) para empezar una Issue
 

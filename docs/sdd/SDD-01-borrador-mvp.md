@@ -27,6 +27,8 @@ Definir con claridad que entra en el MVP, como debe comportarse el sistema y com
 14. Registrar y gestionar confirmacion de asistencia (RSVP).
 15. Importar plano del salon desde imagen o PDF para autoconfigurar mesas (con validacion manual).
 16. Precargar invitados desde Excel estandar descargable con validacion de datos.
+17. Permitir modo de control de preferencias: colaborativo (invitados) o exclusivo de anfitriones.
+18. Aplicar regla de acompanantes juntos por defecto, con excepcion explicita.
 
 ### 2.2 No entra en MVP
 
@@ -37,8 +39,8 @@ Definir con claridad que entra en el MVP, como debe comportarse el sistema y com
 
 ## 3) Roles y permisos
 
-- `Admin`: crea evento, define reglas, calcula, ajusta, aprueba y publica.
-- `Invitado`: completa perfil, preferencias y consulta su informacion publicada.
+- `Admin`: crea evento, define reglas, decide modo de preferencias, calcula, ajusta, aprueba y publica.
+- `Invitado`: completa perfil y consulta su informacion publicada; puede editar preferencias solo en modo colaborativo.
 - `Salon`: consulta documentos operativos habilitados por admin.
 
 ## 4) Entidades funcionales principales
@@ -59,6 +61,7 @@ Definir con claridad que entra en el MVP, como debe comportarse el sistema y com
 - Plantilla de mensaje
 - Lote de precarga de invitados
 - Plantilla Excel de invitados
+- Modo de control de preferencias
 
 ## 5) Flujos funcionales clave
 
@@ -70,9 +73,10 @@ Definir con claridad que entra en el MVP, como debe comportarse el sistema y com
 
 ### Flujo B - Captura de datos de invitados
 
-1. Invitado completa grupos (maximo configurable).
-2. Invitado define afinidades/incompatibilidades.
-3. Invitado declara necesidades especiales y acompanante.
+1. Invitado completa datos base y estado de acompanante.
+2. En modo `colaborativo`, invitado define afinidades/incompatibilidades (segun reglas del evento).
+3. En modo `anfitrion_exclusivo`, preferencias de asiento solo se gestionan por admin.
+4. Invitado declara necesidades especiales permitidas por rol.
 
 ### Flujo C - Calculo y revision
 
@@ -118,6 +122,16 @@ Definir con claridad que entra en el MVP, como debe comportarse el sistema y com
 4. Sistema valida formato y datos (errores y advertencias).
 5. Sistema crea invitados y categorias; mapea observaciones a restricciones sugeridas.
 6. Admin revisa sugerencias de restricciones y confirma aplicacion.
+
+### Flujo I - Modo de control de preferencias
+
+1. Admin define modo del evento: `colaborativo` o `anfitrion_exclusivo`.
+2. Sistema aplica permisos segun modo:
+   - colaborativo: invitados pueden indicar preferencias de asiento.
+   - anfitrion_exclusivo: solo admins crean/editan preferencias.
+3. Regla por defecto de acompanantes:
+   - si vienen acompanados, se sientan juntos por defecto.
+   - puede romperse solo si existe indicacion explicita en contra por regla del evento o accion admin.
 
 ## 6) Historias de usuario prioritarias y criterios de aceptacion
 
@@ -282,16 +296,39 @@ Criterios de aceptacion:
 - El admin puede aceptar, rechazar o editar cada sugerencia antes de confirmar.
 - El origen de cada restriccion debe quedar trazado (manual o sugerida por importacion).
 
+### HU-16 (Admin): definir modo de control de preferencias
+
+Como admin, quiero elegir si las preferencias las aportan invitados o solo anfitriones, para adaptar el nivel de control del evento.
+
+Criterios de aceptacion:
+
+- El evento permite seleccionar `colaborativo` o `anfitrion_exclusivo`.
+- En modo colaborativo, invitados autorizados pueden editar preferencias de asiento.
+- En modo anfitrion_exclusivo, invitados no pueden editar afinidades/incompatibilidades.
+- El cambio de modo queda auditado con fecha y usuario admin.
+
+### HU-17 (Regla de acompanantes): sentar juntos por defecto
+
+Como organizador, quiero que acompanantes se sienten juntos por defecto, salvo excepcion explicita.
+
+Criterios de aceptacion:
+
+- Si dos personas vienen acompanadas, el motor prioriza misma mesa y posicion cercana.
+- La regla puede desactivarse para un caso concreto por admin o por campo explicito en datos de evento.
+- El sistema debe explicar cuando no puede cumplir la regla (por restricciones duras de capacidad o incompatibilidad).
+
 ## 7) Reglas de negocio
 
 ### 7.1 Reglas duras (obligatorias)
 
 - No superar capacidad de mesa.
 - No asignar posiciones de asiento invalidas para la forma de mesa definida.
+- Acompanantes deben sentarse juntos por defecto, salvo excepcion explicita configurada.
 - Respetar incompatibilidades obligatorias.
 - Respetar restricciones de accesibilidad obligatorias.
 - Respetar bloqueos manuales definidos por admin.
 - No publicar despues de fecha del evento.
+- En modo `anfitrion_exclusivo`, invitados no pueden modificar preferencias de asiento.
 
 ### 7.2 Reglas blandas (optimizables)
 
@@ -331,6 +368,7 @@ Criterios de aceptacion:
 - Error de deteccion no debe bloquear el flujo: siempre debe existir correccion manual completa.
 - Importacion de 500 invitados desde Excel en <= 90 segundos objetivo.
 - Validacion de archivo debe devolver reporte legible por fila en <= 15 segundos objetivo.
+- Cambio de modo de control (colaborativo/exclusivo) reflejado en permisos en <= 2 segundos objetivo.
 
 ## 10) Seguridad y privacidad
 
@@ -339,6 +377,7 @@ Criterios de aceptacion:
 - Invitados no ven preferencias privadas de otros invitados.
 - Registro de accesos a datos sensibles y descargas de documentos.
 - Datos de contacto y direccion tratados como datos personales con controles de acceso por rol.
+- En modo `anfitrion_exclusivo`, permisos de edicion de preferencias quedan restringidos a admins.
 
 ## 11) Documentos y publicacion
 
@@ -447,6 +486,7 @@ Referencia:
 - `docs/arquitectura/estudio-estrategia-optimizacion-asientos.md`
 - `docs/adr/ADR-006-estrategia-optimizacion-motor-asignacion.md`
 - `docs/adr/ADR-007-top-k-soluciones-candidatas.md`
+- `docs/adr/ADR-012-modo-control-preferencias-y-regla-acompanantes.md`
 - `docs/arquitectura/decision-motor-para-principiantes.md`
 - `docs/sdd/SDD-01B-comparacion-visual-candidatas.md`
 

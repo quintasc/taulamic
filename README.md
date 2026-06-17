@@ -33,6 +33,7 @@ Este repositorio guarda decisiones de producto y tecnologia antes de programar e
 - `docs/adr/ADR-009-forma-mesa-y-topologia-de-asientos.md`: decision sobre geometria de mesas y cercania real.
 - `docs/adr/ADR-010-importacion-plano-imagen-pdf.md`: decision de importacion automatica asistida.
 - `docs/adr/ADR-011-precarga-invitados-excel-estandar.md`: decision de precarga de invitados por lote.
+- `docs/adr/ADR-012-modo-control-preferencias-y-regla-acompanantes.md`: decision de gobernanza de preferencias por evento.
 - `docs/arquitectura/patrones-diseno-mvp.md`: guia practica de patrones en este dominio.
 - `docs/arquitectura/estudio-estrategia-optimizacion-asientos.md`: disertacion comparativa IA vs optimizacion clasica.
 - `docs/arquitectura/decision-motor-para-principiantes.md`: explicacion sencilla de la decision del motor.

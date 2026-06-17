@@ -56,6 +56,11 @@ Regla clave:
 
 - toda sugerencia requiere aprobacion manual del admin.
 
+## 5.1) Relacion con modo de control de preferencias
+
+- En modo `anfitrion_exclusivo`, esta importacion es una fuente principal de preferencias.
+- En modo `colaborativo`, la importacion inicial puede complementarse despues con aportes del invitado.
+
 ## 6) Reporte de importacion
 
 Tras procesar archivo, mostrar:

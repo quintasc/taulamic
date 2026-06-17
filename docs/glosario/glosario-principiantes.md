@@ -94,6 +94,12 @@ Este glosario explica terminos de forma sencilla, pensado para personas que esta
 - **Carga por lote:** importacion de muchos invitados de una sola vez.
 - **Validacion por fila:** revisar cada fila y reportar errores exactos para corregir.
 
+## Gobernanza de preferencias
+
+- **Modo colaborativo:** invitados pueden indicar preferencias de asiento.
+- **Modo anfitrion_exclusivo:** solo admins controlan afinidades e incompatibilidades.
+- **Regla por defecto:** comportamiento aplicado automaticamente salvo excepcion explicita.
+
 ## Agile
 
 - **Agile:** forma de trabajo iterativa con entregas frecuentes y feedback continuo.

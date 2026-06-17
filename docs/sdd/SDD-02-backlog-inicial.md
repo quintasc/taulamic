@@ -37,14 +37,21 @@ Traducir SDD-01 en trabajo ejecutable en GitHub Issues, priorizado por valor y r
 - HU-12 Roles, permisos y proteccion de datos sensibles.
 - HU-13 Registro de acciones criticas.
 
+### EP-07 - Contrato API y documentacion OpenAPI
+
+- HU-14 Publicar documentacion API en `/api/docs`.
+- HU-15 Mantener especificacion OpenAPI versionada y alineada con DTOs.
+- HU-16 Definir versionado de API y politica de cambios breaking.
+
 ## 3) Priorizacion sugerida (orden de ejecucion)
 
 1. EP-01
 2. EP-02
-3. EP-03
-4. EP-04
-5. EP-05
-6. EP-06
+3. EP-07
+4. EP-03
+5. EP-04
+6. EP-05
+7. EP-06
 
 ## 4) Definicion de Ready (DoR) para empezar una Issue
 

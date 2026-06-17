@@ -18,6 +18,7 @@ Este glosario explica terminos de forma sencilla, pensado para personas que esta
 - **Frontend:** parte visual que usa la persona (botones, formularios, pantallas).
 - **Backend:** parte que procesa reglas y devuelve resultados.
 - **API:** puerta de comunicacion entre frontend y backend.
+- **Endpoint:** URL concreta de una API con un metodo HTTP (GET, POST, etc.).
 - **Base de datos:** lugar estructurado donde se guarda informacion.
 - **Monolito modular:** una aplicacion unica, separada internamente por modulos.
 - **Microservicios:** varias aplicaciones pequenas que se comunican entre si.
@@ -28,13 +29,31 @@ Este glosario explica terminos de forma sencilla, pensado para personas que esta
 - **Escalabilidad:** capacidad de crecer sin perder rendimiento.
 - **Responsive:** interfaz que se adapta a movil, tablet y escritorio.
 
+## Patrones de diseno
+
+- **Patron de diseno:** solucion reutilizable para un problema comun de software.
+- **Strategy:** permite cambiar un algoritmo sin tocar todo el sistema.
+- **Specification:** representa reglas como piezas combinables.
+- **State:** controla cambios de estado permitidos de una entidad.
+- **Repository:** separa logica de negocio de acceso a base de datos.
+- **Factory:** crea objetos complejos sin mezclar la creacion con la logica.
+
 ## Seguridad y operacion
 
 - **Autenticacion:** comprobar quien eres.
 - **Autorizacion:** definir que puedes hacer.
+- **RBAC:** autorizacion basada en roles (admin, invitado, salon).
 - **Datos sensibles:** informacion que requiere proteccion especial.
 - **Auditoria:** registro de acciones para trazabilidad.
 - **Backup:** copia de seguridad para recuperar datos.
+
+## API y OpenAPI
+
+- **OpenAPI:** formato estandar para describir APIs REST.
+- **Swagger UI:** interfaz web para consultar y probar endpoints.
+- **Contrato API:** acuerdo exacto de entrada/salida entre cliente y servidor.
+- **DTO:** estructura de datos que viaja por la API.
+- **Breaking change:** cambio que rompe clientes existentes.
 
 ## Agile
 

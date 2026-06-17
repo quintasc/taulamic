@@ -248,7 +248,52 @@ Regla practica:
 - Riesgo: bajo completado de perfiles invitados -> Mitigacion: formularios simples y recordatorios.
 - Riesgo: sobrecarga de calculo -> Mitigacion: worker asincrono y limites por evento.
 
-## 14) Comentarios para principiantes
+## 14) Patrones de diseno a contemplar en MVP
+
+Patrones recomendados:
+
+- **Strategy:** para cambiar estrategia de asignacion sin romper el dominio.
+- **Specification:** para componer reglas duras y blandas de forma mantenible.
+- **State:** para transiciones seguras del plan (`Borrador` a `Publicado`).
+- **Command + cola:** para calculo y documentos en segundo plano.
+- **Repository:** para desacoplar dominio de persistencia.
+- **Factory:** para generadores de documentos por tipo.
+- **Policy/RBAC:** para permisos por rol y proteccion de datos sensibles.
+
+Regla de aplicacion:
+
+- Aplicar estos patrones donde reduzcan complejidad real.
+- Evitar sobreingenieria en fase MVP.
+
+Referencia:
+
+- `docs/arquitectura/patrones-diseno-mvp.md`
+- `docs/adr/ADR-004-patrones-diseno-mvp.md`
+
+## 15) Documentacion de API (OpenAPI/Swagger en NestJS)
+
+Decision:
+
+- Estandar de API con OpenAPI 3 usando `@nestjs/swagger`.
+
+Salida:
+
+- UI interactiva en `/api/docs`
+- Especificacion JSON en `/api-json`
+
+Reglas minimas:
+
+- Endpoints con `@ApiTags`, `@ApiOperation` y `@ApiResponse`.
+- DTOs publicos con `@ApiProperty`.
+- Endpoints protegidos documentan esquema Bearer JWT.
+- Cambios breaking requieren versionado de API.
+
+Referencia:
+
+- `docs/api/openapi-nestjs-guia.md`
+- `docs/adr/ADR-005-documentacion-api-openapi-nestjs.md`
+
+## 16) Comentarios para principiantes
 
 ### Que es un criterio de aceptacion
 

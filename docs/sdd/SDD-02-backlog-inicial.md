@@ -50,17 +50,32 @@ Traducir SDD-01 en trabajo ejecutable en GitHub Issues, priorizado por valor y r
 - HU-19 Definir benchmark por tamano de evento y KPIs de rendimiento/calidad.
 - HU-20 Evaluar uso de refinamiento exacto (Branch and Bound o CP-SAT) por umbrales.
 - HU-21 Guardar y exponer Top-K candidatas validas (K configurable, default 3).
+- HU-22 Implementar comparador visual rapido de candidatas para decision admin.
+
+### EP-09 - Invitaciones y confirmacion de asistencia (RSVP)
+
+- HU-23 Enviar invitaciones individuales y masivas.
+- HU-24 Gestionar estado RSVP (`si`, `no`, `pendiente`) en tiempo real.
+- HU-25 Reenviar recordatorios a invitados pendientes.
+
+### EP-10 - UX/UI sobria y de baja friccion
+
+- HU-26 Definir guia visual (sobria, elegante, no recargada).
+- HU-27 Validar flujo de invitado con respuesta en <= 45 segundos.
+- HU-28 Validar flujo admin de parametrizacion y envio rapido.
 
 ## 3) Priorizacion sugerida (orden de ejecucion)
 
 1. EP-01
 2. EP-02
-3. EP-08
-4. EP-07
-5. EP-03
-6. EP-04
-7. EP-05
-8. EP-06
+3. EP-09
+4. EP-10
+5. EP-08
+6. EP-07
+7. EP-03
+8. EP-04
+9. EP-05
+10. EP-06
 
 ## 4) Definicion de Ready (DoR) para empezar una Issue
 

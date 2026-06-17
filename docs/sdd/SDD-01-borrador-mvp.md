@@ -23,6 +23,8 @@ Definir con claridad que entra en el MVP, como debe comportarse el sistema y com
 10. Programar fecha de visibilidad para invitados.
 11. Generar documentos operativos descargables.
 12. Conservar ranking Top-K de mejores distribuciones validas antes de aprobar.
+13. Crear y enviar invitaciones digitales a invitados (individual o masivo).
+14. Registrar y gestionar confirmacion de asistencia (RSVP).
 
 ### 2.2 No entra en MVP
 
@@ -48,6 +50,9 @@ Definir con claridad que entra en el MVP, como debe comportarse el sistema y com
 - Plan de asientos (versionado)
 - Documento generado
 - Configuracion de publicacion
+- Invitacion
+- RSVP
+- Plantilla de mensaje
 
 ## 5) Flujos funcionales clave
 
@@ -68,7 +73,8 @@ Definir con claridad que entra en el MVP, como debe comportarse el sistema y com
 1. Admin pulsa "calcular distribucion".
 2. Sistema cambia a estado `Calculando`.
 3. Sistema genera ranking Top-K de candidatas en estado `Propuesto`.
-4. Admin compara candidatas y ajusta manualmente si hace falta.
+4. Admin compara candidatas en vista rapida y visual.
+5. Admin selecciona candidata base y ajusta manualmente si hace falta.
 
 ### Flujo D - Aprobacion y publicacion
 
@@ -81,6 +87,14 @@ Definir con claridad que entra en el MVP, como debe comportarse el sistema y com
 
 1. Tras aprobar, sistema genera documentos para salon/cocina.
 2. Admin descarga documentos y comparte segun permisos.
+
+### Flujo F - Invitaciones y confirmacion de asistencia (RSVP)
+
+1. Admin selecciona invitados objetivo (todos, grupo o individuales).
+2. Admin envia invitacion con plantilla basica.
+3. Invitado responde asistencia (`si`, `no`, `pendiente`).
+4. Sistema actualiza estado de asistencia en tiempo real para el evento.
+5. Admin puede reenviar o recordar invitacion a pendientes.
 
 ## 6) Historias de usuario prioritarias y criterios de aceptacion
 
@@ -173,7 +187,29 @@ Criterios de aceptacion:
 - El sistema guarda Top-K candidatas validas por score global.
 - K es configurable por evento (valor por defecto: 3).
 - Solo se incluyen candidatas sin violaciones de reglas duras.
-- El admin puede seleccionar una candidata para aprobarla o editarla.
+- La comparacion visual debe mostrar: score global, score por criterio y alertas clave por candidata.
+- La comparacion visual debe resaltar diferencias entre candidatas sin requerir abrir cada mesa manualmente.
+- El admin puede seleccionar una candidata para aprobarla o editarla en maximo 3 acciones.
+
+### HU-10 (Admin): enviar invitaciones
+
+Como admin, quiero enviar invitaciones de forma simple para iniciar la captacion de respuestas.
+
+Criterios de aceptacion:
+
+- Debe ser posible enviar invitacion individual o masiva.
+- Debe existir plantilla base editable (asunto y cuerpo corto).
+- El sistema registra fecha/hora y estado de envio por invitado.
+
+### HU-11 (Invitado): confirmar asistencia (RSVP)
+
+Como invitado, quiero confirmar asistencia de forma rapida para no perder tiempo.
+
+Criterios de aceptacion:
+
+- La respuesta se completa en maximo 2 pasos (`si/no` + confirmacion opcional).
+- El estado se guarda como `si`, `no` o `pendiente`.
+- El admin ve el cambio actualizado sin recargar todo el evento.
 
 ## 7) Reglas de negocio
 
@@ -215,6 +251,10 @@ Criterios de aceptacion:
 - Disponibilidad objetivo mensual >= 99.5% en MVP.
 - Auditoria de acciones criticas.
 - Copias de seguridad periodicas de base de datos.
+- Pantalla de comparacion de candidatas con carga objetivo p95 < 700 ms.
+- Comparacion de 3 candidatas debe poder completarse en menos de 2 minutos por un admin novato.
+- Flujo RSVP completado por invitado en <= 45 segundos objetivo.
+- Flujo de envio masivo de invitaciones por admin en <= 3 minutos para 150 invitados.
 
 ## 10) Seguridad y privacidad
 
@@ -330,8 +370,34 @@ Referencia:
 - `docs/adr/ADR-006-estrategia-optimizacion-motor-asignacion.md`
 - `docs/adr/ADR-007-top-k-soluciones-candidatas.md`
 - `docs/arquitectura/decision-motor-para-principiantes.md`
+- `docs/sdd/SDD-01B-comparacion-visual-candidatas.md`
 
-## 17) Comentarios para principiantes
+## 17) Benchmark y estilo UX/UI
+
+Referencias de mercado (como inspiracion, no copia):
+
+- PerfectTablePlan
+- Planning Pod
+- Prismm
+
+Direccion visual del producto:
+
+- Estilo sobrio y elegante.
+- Interfaz poco cargada y de lectura limpia.
+- Tonos alegres no distractores (baja saturacion, contraste comodo).
+- Interacciones amables, directas y de baja friccion.
+
+Principios de baja friccion:
+
+- Configuracion de evento en pasos guiados.
+- Respuesta de invitado en el menor numero de acciones posible.
+- Mensajes claros en lenguaje no tecnico.
+
+Referencia:
+
+- `docs/sdd/SDD-01C-principios-estilo-y-baja-friccion.md`
+
+## 18) Comentarios para principiantes
 
 ### Que es un criterio de aceptacion
 

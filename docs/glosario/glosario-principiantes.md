@@ -67,6 +67,14 @@ Este glosario explica terminos de forma sencilla, pensado para personas que esta
 - **CP-SAT:** solver de restricciones y optimizacion muy usado en problemas complejos.
 - **Top-K:** conjunto de las K mejores soluciones encontradas.
 
+## Invitaciones y experiencia de usuario
+
+- **Invitacion digital:** mensaje enviado al invitado para participar en el evento.
+- **RSVP:** confirmacion de asistencia (`si`, `no` o `pendiente`).
+- **Benchmark:** referencia de otras apps para aprender buenas practicas.
+- **Baja friccion:** completar una accion con pocos pasos y poco esfuerzo.
+- **Microcopy:** textos pequenos de la interfaz que guian al usuario.
+
 ## Agile
 
 - **Agile:** forma de trabajo iterativa con entregas frecuentes y feedback continuo.

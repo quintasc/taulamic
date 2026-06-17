@@ -8,6 +8,7 @@ Organizar a personas en mesas para eventos puede ser lento y estresante cuando h
 - incompatibilidades personales,
 - acompanantes,
 - necesidades especiales (alergias, movilidad, tipo de comida),
+- gestion de invitaciones y confirmacion de asistencia,
 - y criterios del organizador que deben priorizarse.
 
 ## 2) Propuesta de valor
@@ -17,6 +18,7 @@ Crear una app que ayude a construir una distribucion de mesas que:
 - maximice la satisfaccion general,
 - respete restricciones importantes,
 - permita ajustes manuales,
+- simplifique envio de invitaciones y RSVP,
 - y genere documentos operativos para salon/restaurante e invitados.
 
 ## 3) Segmentos objetivo (fase inicial y evolucion)
@@ -33,6 +35,7 @@ Crear una app que ayude a construir una distribucion de mesas que:
 - Cola de trabajos: `Redis` (jobs asincronos).
 - Motor de asignacion: estrategia hibrida de optimizacion clasica (sin IA generativa como nucleo).
 - Salida de optimizacion: conservar Top-K candidatas validas para revision (K configurable, default 3).
+- UX/UI: estilo sobrio, elegante, poco cargado y de baja friccion.
 
 ## 5) Criterios de decision (pesos iniciales)
 

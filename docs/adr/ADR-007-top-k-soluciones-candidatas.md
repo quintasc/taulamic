@@ -28,6 +28,7 @@ El sistema conservara las **K mejores soluciones validas** por evento antes de l
 - Si llega una solucion mejor, puede desplazar a la peor del Top-K.
 - Al aprobar, una de las candidatas pasa a `Aprobado`.
 - El resto puede conservarse como historico de calculo (segun politica de retencion).
+- La UI debe ofrecer comparacion visual rapida de candidatas (score global, score por criterio y diferencias clave).
 
 ## Consecuencias positivas
 

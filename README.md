@@ -17,6 +17,8 @@ Este repositorio guarda decisiones de producto y tecnologia antes de programar e
 - `docs/sdd/SDD-00-vision-y-estrategia.md`: contexto, segmento objetivo y KPIs.
 - `docs/sdd/SDD-01-borrador-mvp.md`: alcance MVP, historias y criterios de aceptacion.
 - `docs/sdd/SDD-01A-figma-ui-ux.md`: cuando y como usar Figma dentro de SDD.
+- `docs/sdd/SDD-01B-comparacion-visual-candidatas.md`: como comparar rapido Top-K candidatas.
+- `docs/sdd/SDD-01C-principios-estilo-y-baja-friccion.md`: direccion visual y criterios UX de uso simple.
 - `docs/sdd/SDD-02-backlog-inicial.md`: backlog base para convertir SDD en Issues.
 - `docs/adr/ADR-001-tipo-app-web-primero.md`: decision sobre tipo de app inicial.
 - `docs/adr/ADR-002-arquitectura-monolito-modular-worker.md`: decision de arquitectura.
@@ -25,6 +27,7 @@ Este repositorio guarda decisiones de producto y tecnologia antes de programar e
 - `docs/adr/ADR-005-documentacion-api-openapi-nestjs.md`: decision de contrato API y docs OpenAPI.
 - `docs/adr/ADR-006-estrategia-optimizacion-motor-asignacion.md`: decision de estrategia del motor NP-hard.
 - `docs/adr/ADR-007-top-k-soluciones-candidatas.md`: decision de conservar mejores candidatas antes de aprobar.
+- `docs/adr/ADR-008-alcance-invitaciones-rsvp-y-principios-ux.md`: decision de alcance funcional y direccion UX.
 - `docs/arquitectura/patrones-diseno-mvp.md`: guia practica de patrones en este dominio.
 - `docs/arquitectura/estudio-estrategia-optimizacion-asientos.md`: disertacion comparativa IA vs optimizacion clasica.
 - `docs/arquitectura/decision-motor-para-principiantes.md`: explicacion sencilla de la decision del motor.
@@ -38,12 +41,14 @@ Este repositorio guarda decisiones de producto y tecnologia antes de programar e
 1. Leer `SDD-00` para entender problema, estrategia y objetivos.
 2. Leer `SDD-01` para revisar funcionalidades y reglas de MVP.
 3. Revisar `SDD-01A` para preparar flujos/pantallas en Figma.
-4. Revisar `SDD-02` para pasar funcionalidades a Issues.
-5. Revisar ADRs para entender decisiones tecnicas ya tomadas.
-6. Revisar estudio de optimizacion y ADR-006 antes de implementar el motor.
-7. Revisar guia de arquitectura y API antes de implementar backend.
-8. Consultar glosario cuando aparezca un termino desconocido.
-9. Actualizar documentos con Pull Requests pequenos y claros.
+4. Revisar `SDD-01B` para definir comparacion visual de candidatas.
+5. Revisar `SDD-01C` para estilo visual y baja friccion.
+6. Revisar `SDD-02` para pasar funcionalidades a Issues.
+7. Revisar ADRs para entender decisiones tecnicas ya tomadas.
+8. Revisar estudio de optimizacion y ADR-006 antes de implementar el motor.
+9. Revisar guia de arquitectura y API antes de implementar backend.
+10. Consultar glosario cuando aparezca un termino desconocido.
+11. Actualizar documentos con Pull Requests pequenos y claros.
 
 ## Nota para principiantes
 

@@ -51,7 +51,16 @@ Crear una app que ayude a construir una distribucion de mesas que:
 - Porcentaje de invitados que completan su perfil.
 - Incidencias operativas reportadas por salon/cocina.
 
-## 7) Comentarios para principiantes
+## 7) Principio de diseno UX/UI (Figma)
+
+El diseno UX/UI empieza temprano, en paralelo al cierre de SDD-01.
+No se deja para el final porque decisiones de interfaz pueden cambiar funcionalidad.
+
+- Primero se define que debe hacer el producto (SDD).
+- Despues se prototipa flujo y pantallas en Figma.
+- Luego se ajusta SDD con aprendizaje real de uso.
+
+## 8) Comentarios para principiantes
 
 ### Que significa "vision"
 

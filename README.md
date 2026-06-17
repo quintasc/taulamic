@@ -15,16 +15,24 @@ Este repositorio guarda decisiones de producto y tecnologia antes de programar e
 ## Estructura inicial
 
 - `docs/sdd/SDD-00-vision-y-estrategia.md`: contexto, segmento objetivo y KPIs.
-- `docs/sdd/SDD-01-borrador-mvp.md`: alcance inicial del MVP y reglas funcionales.
+- `docs/sdd/SDD-01-borrador-mvp.md`: alcance MVP, historias y criterios de aceptacion.
+- `docs/sdd/SDD-01A-figma-ui-ux.md`: cuando y como usar Figma dentro de SDD.
+- `docs/sdd/SDD-02-backlog-inicial.md`: backlog base para convertir SDD en Issues.
+- `docs/adr/ADR-001-tipo-app-web-primero.md`: decision sobre tipo de app inicial.
+- `docs/adr/ADR-002-arquitectura-monolito-modular-worker.md`: decision de arquitectura.
+- `docs/adr/ADR-003-stack-tecnologico-inicial.md`: decision de stack base.
 - `docs/glosario/glosario-principiantes.md`: terminos explicados de forma simple.
 - `docs/agile/agile-para-principiantes.md`: guia basica de Agile para este proyecto.
 
 ## Como usar este repositorio
 
-1. Leer `SDD-00` para entender el problema y la estrategia.
-2. Leer `SDD-01` para revisar alcance funcional.
-3. Consultar glosario cuando aparezca un termino desconocido.
-4. Actualizar documentos con Pull Requests pequenos y claros.
+1. Leer `SDD-00` para entender problema, estrategia y objetivos.
+2. Leer `SDD-01` para revisar funcionalidades y reglas de MVP.
+3. Revisar `SDD-01A` para preparar flujos/pantallas en Figma.
+4. Revisar `SDD-02` para pasar funcionalidades a Issues.
+5. Revisar ADRs para entender decisiones tecnicas ya tomadas.
+6. Consultar glosario cuando aparezca un termino desconocido.
+7. Actualizar documentos con Pull Requests pequenos y claros.
 
 ## Nota para principiantes
 

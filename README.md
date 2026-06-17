@@ -23,6 +23,7 @@ Este repositorio guarda decisiones de producto y tecnologia antes de programar e
 - `docs/adr/ADR-003-stack-tecnologico-inicial.md`: decision de stack base.
 - `docs/glosario/glosario-principiantes.md`: terminos explicados de forma simple.
 - `docs/agile/agile-para-principiantes.md`: guia basica de Agile para este proyecto.
+- `docs/agile/sprint-01-plan.md`: plan de trabajo y cierre para Sprint 01.
 
 ## Como usar este repositorio
 

@@ -61,3 +61,18 @@ Reevaluar cuando:
 - **Hibrida:** combina varias tecnicas para aprovechar lo mejor de cada una.
 - **Simulated annealing:** tecnica que explora soluciones evitando quedarse rapido en una mala.
 - **CP-SAT:** solver de restricciones muy potente, gratuito y orientado a optimizacion.
+
+## Resumen en lenguaje sencillo
+
+Esta decision significa:
+
+- No buscamos la solucion perfecta probando todo, porque seria demasiado lento.
+- Primero creamos una solucion buena y valida.
+- Luego la mejoramos de forma automatica.
+- Si el caso lo permite, la afinamos aun mas.
+
+Resultado esperado:
+
+- solucion rapida,
+- reglas duras siempre respetadas,
+- y calidad alta sin coste extra por usar IA de pago.

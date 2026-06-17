@@ -26,6 +26,7 @@ Este repositorio guarda decisiones de producto y tecnologia antes de programar e
 - `docs/adr/ADR-006-estrategia-optimizacion-motor-asignacion.md`: decision de estrategia del motor NP-hard.
 - `docs/arquitectura/patrones-diseno-mvp.md`: guia practica de patrones en este dominio.
 - `docs/arquitectura/estudio-estrategia-optimizacion-asientos.md`: disertacion comparativa IA vs optimizacion clasica.
+- `docs/arquitectura/decision-motor-para-principiantes.md`: explicacion sencilla de la decision del motor.
 - `docs/api/openapi-nestjs-guia.md`: guia de documentacion API para NestJS.
 - `docs/glosario/glosario-principiantes.md`: terminos explicados de forma simple.
 - `docs/agile/agile-para-principiantes.md`: guia basica de Agile para este proyecto.

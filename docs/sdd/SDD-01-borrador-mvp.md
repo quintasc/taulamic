@@ -315,6 +315,7 @@ Referencia:
 
 - `docs/arquitectura/estudio-estrategia-optimizacion-asientos.md`
 - `docs/adr/ADR-006-estrategia-optimizacion-motor-asignacion.md`
+- `docs/arquitectura/decision-motor-para-principiantes.md`
 
 ## 17) Comentarios para principiantes
 

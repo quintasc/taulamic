@@ -32,6 +32,7 @@ Crear una app que ayude a construir una distribucion de mesas que:
 - Base de datos: `PostgreSQL`.
 - Cola de trabajos: `Redis` (jobs asincronos).
 - Motor de asignacion: estrategia hibrida de optimizacion clasica (sin IA generativa como nucleo).
+- Salida de optimizacion: conservar Top-K candidatas validas para revision (K configurable, default 3).
 
 ## 5) Criterios de decision (pesos iniciales)
 

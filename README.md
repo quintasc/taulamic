@@ -24,6 +24,7 @@ Este repositorio guarda decisiones de producto y tecnologia antes de programar e
 - `docs/adr/ADR-004-patrones-diseno-mvp.md`: decision de patrones de diseno para MVP.
 - `docs/adr/ADR-005-documentacion-api-openapi-nestjs.md`: decision de contrato API y docs OpenAPI.
 - `docs/adr/ADR-006-estrategia-optimizacion-motor-asignacion.md`: decision de estrategia del motor NP-hard.
+- `docs/adr/ADR-007-top-k-soluciones-candidatas.md`: decision de conservar mejores candidatas antes de aprobar.
 - `docs/arquitectura/patrones-diseno-mvp.md`: guia practica de patrones en este dominio.
 - `docs/arquitectura/estudio-estrategia-optimizacion-asientos.md`: disertacion comparativa IA vs optimizacion clasica.
 - `docs/arquitectura/decision-motor-para-principiantes.md`: explicacion sencilla de la decision del motor.

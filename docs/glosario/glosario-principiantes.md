@@ -65,6 +65,7 @@ Este glosario explica terminos de forma sencilla, pensado para personas que esta
 - **Metaheuristica:** estrategia general para mejorar heuristicas.
 - **Branch and Bound:** metodo exacto que poda ramas para reducir busqueda.
 - **CP-SAT:** solver de restricciones y optimizacion muy usado en problemas complejos.
+- **Top-K:** conjunto de las K mejores soluciones encontradas.
 
 ## Agile
 

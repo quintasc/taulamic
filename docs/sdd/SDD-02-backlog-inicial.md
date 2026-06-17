@@ -49,6 +49,7 @@ Traducir SDD-01 en trabajo ejecutable en GitHub Issues, priorizado por valor y r
 - HU-18 Implementar heuristica + mejora metaheuristica en worker.
 - HU-19 Definir benchmark por tamano de evento y KPIs de rendimiento/calidad.
 - HU-20 Evaluar uso de refinamiento exacto (Branch and Bound o CP-SAT) por umbrales.
+- HU-21 Guardar y exponer Top-K candidatas validas (K configurable, default 3).
 
 ## 3) Priorizacion sugerida (orden de ejecucion)
 

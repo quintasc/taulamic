@@ -22,6 +22,7 @@ Definir con claridad que entra en el MVP, como debe comportarse el sistema y com
 9. Aprobar version final de distribucion.
 10. Programar fecha de visibilidad para invitados.
 11. Generar documentos operativos descargables.
+12. Conservar ranking Top-K de mejores distribuciones validas antes de aprobar.
 
 ### 2.2 No entra en MVP
 
@@ -66,8 +67,8 @@ Definir con claridad que entra en el MVP, como debe comportarse el sistema y com
 
 1. Admin pulsa "calcular distribucion".
 2. Sistema cambia a estado `Calculando`.
-3. Sistema genera propuesta en estado `Propuesto`.
-4. Admin revisa y ajusta manualmente.
+3. Sistema genera ranking Top-K de candidatas en estado `Propuesto`.
+4. Admin compara candidatas y ajusta manualmente si hace falta.
 
 ### Flujo D - Aprobacion y publicacion
 
@@ -162,6 +163,17 @@ Criterios de aceptacion:
 - Hay documento por mesa con nombres.
 - Hay resumen cocina con dietas/alergias.
 - Solo se muestran datos necesarios para operacion.
+
+### HU-09 (Admin): comparar mejores candidatas antes de aprobar
+
+Como admin, quiero ver varias propuestas buenas para elegir la mejor antes de cerrar el plan.
+
+Criterios de aceptacion:
+
+- El sistema guarda Top-K candidatas validas por score global.
+- K es configurable por evento (valor por defecto: 3).
+- Solo se incluyen candidatas sin violaciones de reglas duras.
+- El admin puede seleccionar una candidata para aprobarla o editarla.
 
 ## 7) Reglas de negocio
 
@@ -310,11 +322,13 @@ Reglas de producto:
 - Regla dura violada = solucion invalida.
 - Si el tiempo limite expira, devolver mejor solucion valida encontrada.
 - Registrar score y metadatos del calculo para auditoria y mejora continua.
+- Mantener ranking Top-K de soluciones validas hasta la aprobacion (K por defecto: 3, parametrizable).
 
 Referencia:
 
 - `docs/arquitectura/estudio-estrategia-optimizacion-asientos.md`
 - `docs/adr/ADR-006-estrategia-optimizacion-motor-asignacion.md`
+- `docs/adr/ADR-007-top-k-soluciones-candidatas.md`
 - `docs/arquitectura/decision-motor-para-principiantes.md`
 
 ## 17) Comentarios para principiantes

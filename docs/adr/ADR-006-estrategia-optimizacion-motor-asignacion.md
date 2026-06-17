@@ -22,6 +22,8 @@ Adicionalmente:
 
 - IA generativa **no** se usa como optimizador principal.
 - IA generativa puede usarse solo para explicabilidad o asistencia textual.
+- Computacion cuantica queda descartada para roadmap MVP/pro actual.
+- El motor conserva un ranking de mejores soluciones validas (Top-K), con K parametrizable por evento (valor inicial: 3).
 
 ## Motivos de la decision
 
@@ -35,6 +37,7 @@ Adicionalmente:
 - Mejor tiempo de respuesta que enfoque exacto puro.
 - Mejores resultados que heuristica simple.
 - Estrategia escalable por fases sin ruptura de arquitectura.
+- Permite a admins comparar varias alternativas buenas antes de aprobar.
 
 ## Consecuencias negativas
 

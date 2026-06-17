@@ -99,6 +99,7 @@ Adoptar una estrategia **hibrida sin IA generativa como motor principal**:
    - instancias pequenas,
    - o cuando haya tiempo de calculo extra.
 4. Devolver siempre la mejor solucion valida encontrada dentro de limite de tiempo.
+5. Conservar un ranking Top-K de candidatas validas para revision admin (K parametrizable, valor inicial: 3).
 
 ## 6) Justificacion de la decision
 
@@ -117,6 +118,16 @@ IA generativa puede usarse en funciones auxiliares:
 - redactar mensajes de conflicto de reglas.
 
 Pero **no** como mecanismo de optimizacion principal.
+
+## 7.1) Computacion cuantica (decision actual)
+
+Se descarta en roadmap MVP/pro actual por:
+
+- madurez limitada para este caso de uso en produccion,
+- coste/operacion superiores al beneficio esperado hoy,
+- y falta de garantia de mejora estable frente a enfoque clasico hibrido.
+
+Se podria reevaluar en el futuro solo como modo experimental.
 
 ## 8) Plan de evaluacion (benchmark) para validar estrategia
 

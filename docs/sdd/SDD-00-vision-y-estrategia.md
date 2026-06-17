@@ -46,6 +46,7 @@ Crear una app que ayude a construir una distribucion de mesas que:
 - Configuracion de salon: entrada manual y tambien importacion asistida desde imagen/PDF.
 - Datos de invitados: entrada manual y tambien importacion masiva desde Excel estandar.
 - Gobernanza de preferencias: modo configurable por evento + regla de acompanantes juntos por defecto.
+- IA: uso asistivo para acelerar operaciones, no para decidir aprobaciones finales.
 
 ## 5) Criterios de decision (pesos iniciales)
 

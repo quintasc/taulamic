@@ -66,6 +66,8 @@ Este glosario explica terminos de forma sencilla, pensado para personas que esta
 - **Branch and Bound:** metodo exacto que poda ramas para reducir busqueda.
 - **CP-SAT:** solver de restricciones y optimizacion muy usado en problemas complejos.
 - **Top-K:** conjunto de las K mejores soluciones encontradas.
+- **Algoritmo genetico (GA):** metodo inspirado en evolucion para mejorar soluciones por generaciones.
+- **Mutacion:** cambio aleatorio pequeno para explorar nuevas soluciones en GA.
 
 ## Invitaciones y experiencia de usuario
 

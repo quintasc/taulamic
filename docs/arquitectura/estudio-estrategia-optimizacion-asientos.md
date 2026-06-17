@@ -90,6 +90,24 @@ Conclusion:
 
 - Excelente opcion para MVP por equilibrio coste/tiempo/calidad.
 
+### Opcion E - Algoritmos geneticos (GA)
+
+Ventajas:
+
+- Muy utiles para explorar gran diversidad de soluciones.
+- Encajan bien cuando se busca Top-K candidatas variadas.
+- Permiten paralelizar evaluacion de poblacion.
+
+Desventajas:
+
+- Requieren diseno cuidadoso de codificacion, cruces y mutacion.
+- Pueden converger prematuramente sin buena configuracion.
+- No garantizan optimo global.
+
+Conclusion:
+
+- Recomendables como estrategia complementaria a evaluar por benchmark.
+
 ## 5) Decision recomendada para este proyecto
 
 Adoptar una estrategia **hibrida sin IA generativa como motor principal**:
@@ -102,6 +120,7 @@ Adoptar una estrategia **hibrida sin IA generativa como motor principal**:
 4. Devolver siempre la mejor solucion valida encontrada dentro de limite de tiempo.
 5. Conservar un ranking Top-K de candidatas validas para revision admin (K parametrizable, valor inicial: 3).
 6. Calcular score de cercania usando topologia de mesa (adyacente, enfrente, lateral) segun forma.
+7. Evaluar GA como estrategia complementaria cuando aporte mejor diversidad/calidad en benchmark.
 
 ## 6) Justificacion de la decision
 
@@ -110,6 +129,7 @@ Adoptar una estrategia **hibrida sin IA generativa como motor principal**:
 - Garantiza reglas duras (lo mas importante).
 - Evita dependencia de IA generativa para decisiones criticas.
 - Permite evolucion futura a CP-SAT sin rehacer todo.
+- Permite incorporar GA de forma controlada si demuestra mejora real.
 
 ## 7) Recomendacion sobre IA
 

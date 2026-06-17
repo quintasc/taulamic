@@ -82,3 +82,7 @@ Tras procesar archivo, mostrar:
 - **Precarga:** cargar datos de golpe antes de empezar a operar manualmente.
 - **Plantilla estandar:** formato fijo para evitar errores de interpretacion.
 - **Mapeo:** convertir texto libre en datos estructurados que entiende el sistema.
+
+## 9) Referencias
+
+- `docs/product/especificacion-plantilla-excel-v1.md`

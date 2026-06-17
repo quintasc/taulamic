@@ -17,6 +17,7 @@ Se adopta una estrategia **hibrida** para el motor de asignacion:
 3. Refinamiento exacto opcional (Branch and Bound o CP-SAT) cuando:
    - el tamano del problema lo permita,
    - o se asigne mayor presupuesto de tiempo de calculo.
+4. Evaluacion de GA como estrategia complementaria, sujeta a benchmark.
 
 Adicionalmente:
 
@@ -58,6 +59,11 @@ Reevaluar cuando:
 - Tiempo p95 de calculo por tamano de evento.
 - Score medio de satisfaccion por evento.
 - Porcentaje de cambios manuales tras autoasignacion.
+
+## Referencias relacionadas
+
+- `docs/adr/ADR-014-evaluacion-ga-complementario.md`
+- `docs/arquitectura/comparativa-ga-sa-cpsat.md`
 
 ## Comentarios para principiantes
 

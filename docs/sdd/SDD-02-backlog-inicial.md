@@ -85,6 +85,19 @@ Traducir SDD-01 en trabajo ejecutable en GitHub Issues, priorizado por valor y r
 - HU-39 Aplicar permisos de edicion de preferencias segun modo seleccionado.
 - HU-40 Aplicar regla de acompanantes juntos por defecto con excepciones explicitas.
 
+### EP-14 - IA asistiva para operaciones de evento
+
+- HU-41 Detectar mesas/forma/capacidad con ayuda de IA en importacion de plano.
+- HU-42 Sugerir restricciones estructuradas desde observaciones de Excel.
+- HU-43 Generar explicaciones legibles de diferencias entre candidatas.
+- HU-44 Asistir redaccion de invitaciones y recordatorios.
+
+### EP-15 - Benchmark comparativo de algoritmos (GA/SA/CP-SAT)
+
+- HU-45 Definir protocolo benchmark reproducible por escenarios.
+- HU-46 Medir calidad, tiempo y diversidad Top-K por algoritmo.
+- HU-47 Decidir adopcion de GA segun umbrales definidos.
+
 ## 3) Priorizacion sugerida (orden de ejecucion)
 
 1. EP-01
@@ -94,12 +107,14 @@ Traducir SDD-01 en trabajo ejecutable en GitHub Issues, priorizado por valor y r
 5. EP-02
 6. EP-09
 7. EP-10
-8. EP-08
-9. EP-07
-10. EP-03
-11. EP-04
-12. EP-05
-13. EP-06
+8. EP-14
+9. EP-08
+10. EP-15
+11. EP-07
+12. EP-03
+13. EP-04
+14. EP-05
+15. EP-06
 
 ## 4) Definicion de Ready (DoR) para empezar una Issue
 

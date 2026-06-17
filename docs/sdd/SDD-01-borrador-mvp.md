@@ -487,7 +487,9 @@ Referencia:
 - `docs/adr/ADR-006-estrategia-optimizacion-motor-asignacion.md`
 - `docs/adr/ADR-007-top-k-soluciones-candidatas.md`
 - `docs/adr/ADR-012-modo-control-preferencias-y-regla-acompanantes.md`
+- `docs/adr/ADR-014-evaluacion-ga-complementario.md`
 - `docs/arquitectura/decision-motor-para-principiantes.md`
+- `docs/arquitectura/comparativa-ga-sa-cpsat.md`
 - `docs/sdd/SDD-01B-comparacion-visual-candidatas.md`
 
 ## 17) Benchmark y estilo UX/UI
@@ -517,7 +519,30 @@ Referencia:
 - `docs/sdd/SDD-01D-importacion-plano-salon.md`
 - `docs/sdd/SDD-01E-precarga-invitados-excel.md`
 
-## 18) Comentarios para principiantes
+## 18) IA asistiva en el producto
+
+Principio:
+
+- La IA puede sugerir, nunca aprobar o decidir por si sola distribuciones finales o restricciones criticas.
+
+Ambitos con prioridad:
+
+- deteccion asistida de plano del salon,
+- sugerencias desde observaciones de Excel,
+- explicabilidad de candidatas Top-K,
+- apoyo de redaccion en invitaciones y recordatorios.
+
+Guardarrailes:
+
+- toda sugerencia sensible requiere validacion humana,
+- registrar origen de sugerencia y permitir correccion/deshacer.
+
+Referencia:
+
+- `docs/adr/ADR-013-ia-asistiva-en-producto.md`
+- `docs/sdd/SDD-03-ia-asistiva-priorizada.md`
+
+## 19) Comentarios para principiantes
 
 ### Que es un criterio de aceptacion
 

@@ -7,6 +7,9 @@ Organizar a personas en mesas para eventos puede ser lento y estresante cuando h
 - afinidades entre invitados,
 - incompatibilidades personales,
 - acompanantes,
+- mesas con formas distintas que cambian proximidades reales,
+- configuracion manual lenta cuando el salon solo aporta plano/imagen,
+- listado inicial de invitados en hojas de calculo sin formato unificado,
 - necesidades especiales (alergias, movilidad, tipo de comida),
 - gestion de invitaciones y confirmacion de asistencia,
 - y criterios del organizador que deben priorizarse.
@@ -19,6 +22,8 @@ Crear una app que ayude a construir una distribucion de mesas que:
 - respete restricciones importantes,
 - permita ajustes manuales,
 - simplifique envio de invitaciones y RSVP,
+- acelere la carga inicial desde imagen/PDF del plano del salon,
+- permita precarga masiva de invitados desde plantilla Excel estandar,
 - y genere documentos operativos para salon/restaurante e invitados.
 
 ## 3) Segmentos objetivo (fase inicial y evolucion)
@@ -36,6 +41,8 @@ Crear una app que ayude a construir una distribucion de mesas que:
 - Motor de asignacion: estrategia hibrida de optimizacion clasica (sin IA generativa como nucleo).
 - Salida de optimizacion: conservar Top-K candidatas validas para revision (K configurable, default 3).
 - UX/UI: estilo sobrio, elegante, poco cargado y de baja friccion.
+- Configuracion de salon: entrada manual y tambien importacion asistida desde imagen/PDF.
+- Datos de invitados: entrada manual y tambien importacion masiva desde Excel estandar.
 
 ## 5) Criterios de decision (pesos iniciales)
 

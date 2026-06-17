@@ -8,7 +8,7 @@ Definir con claridad que entra en el MVP, como debe comportarse el sistema y com
 
 ### 2.1 Entra en MVP
 
-1. Crear evento y configurar mesas (cantidad, capacidad, nombre/numero).
+1. Crear evento y configurar mesas (cantidad, capacidad, nombre/numero, forma y disposicion de asientos).
 2. Registrar invitados y estado de asistencia (confirmado, pendiente, no asiste).
 3. Definir grupos/categorias personalizadas por evento.
 4. Permitir afinidades e incompatibilidades entre invitados.
@@ -25,6 +25,8 @@ Definir con claridad que entra en el MVP, como debe comportarse el sistema y com
 12. Conservar ranking Top-K de mejores distribuciones validas antes de aprobar.
 13. Crear y enviar invitaciones digitales a invitados (individual o masivo).
 14. Registrar y gestionar confirmacion de asistencia (RSVP).
+15. Importar plano del salon desde imagen o PDF para autoconfigurar mesas (con validacion manual).
+16. Precargar invitados desde Excel estandar descargable con validacion de datos.
 
 ### 2.2 No entra en MVP
 
@@ -50,16 +52,20 @@ Definir con claridad que entra en el MVP, como debe comportarse el sistema y com
 - Plan de asientos (versionado)
 - Documento generado
 - Configuracion de publicacion
+- Forma de mesa / topologia de asientos
+- Plano de salon importado
 - Invitacion
 - RSVP
 - Plantilla de mensaje
+- Lote de precarga de invitados
+- Plantilla Excel de invitados
 
 ## 5) Flujos funcionales clave
 
 ### Flujo A - Configuracion inicial
 
 1. Admin crea evento.
-2. Admin crea mesas y capacidades.
+2. Admin crea mesas, capacidades y forma (ejemplo: redonda, rectangular, imperial, ovalada).
 3. Admin crea grupos/categorias y reglas base.
 
 ### Flujo B - Captura de datos de invitados
@@ -96,6 +102,23 @@ Definir con claridad que entra en el MVP, como debe comportarse el sistema y com
 4. Sistema actualiza estado de asistencia en tiempo real para el evento.
 5. Admin puede reenviar o recordar invitacion a pendientes.
 
+### Flujo G - Importacion de plano del salon (imagen/PDF)
+
+1. Admin sube imagen o PDF del plano del salon.
+2. Sistema detecta mesas candidatas, forma y capacidad estimada.
+3. Sistema muestra propuesta con nivel de confianza por mesa.
+4. Admin corrige manualmente y confirma la configuracion final.
+5. Evento queda configurado para continuar con invitados y asignacion.
+
+### Flujo H - Precarga de invitados por Excel
+
+1. Admin descarga plantilla Excel oficial de invitados.
+2. Admin completa plantilla con datos base y preclasificacion.
+3. Admin sube archivo Excel completo.
+4. Sistema valida formato y datos (errores y advertencias).
+5. Sistema crea invitados y categorias; mapea observaciones a restricciones sugeridas.
+6. Admin revisa sugerencias de restricciones y confirma aplicacion.
+
 ## 6) Historias de usuario prioritarias y criterios de aceptacion
 
 ### HU-01 (Admin): configurar mesas
@@ -107,6 +130,9 @@ Criterios de aceptacion:
 - No se permite capacidad 0 o negativa.
 - Se puede editar capacidad antes de aprobar plan final.
 - El sistema muestra capacidad total disponible del evento.
+- El admin debe poder escoger forma de mesa desde catalogo configurable.
+- El sistema debe representar vecindad de asientos en funcion de la forma elegida.
+- Cambiar la forma de mesa recalcula proximidades para el motor de asignacion.
 
 ### HU-02 (Invitado): registrar perfil social y preferencias
 
@@ -211,11 +237,57 @@ Criterios de aceptacion:
 - El estado se guarda como `si`, `no` o `pendiente`.
 - El admin ve el cambio actualizado sin recargar todo el evento.
 
+### HU-12 (Admin): importar plano y autoconfigurar mesas
+
+Como admin, quiero subir un plano del salon para reducir el trabajo manual de configuracion.
+
+Criterios de aceptacion:
+
+- El sistema acepta formatos comunes de entrada (JPG, PNG y PDF).
+- El sistema propone numero de mesas, forma y capacidad estimada por mesa.
+- Cada mesa detectada muestra nivel de confianza de deteccion.
+- El admin puede editar, eliminar o crear mesas antes de confirmar.
+- La confirmacion manual del admin es obligatoria antes de guardar la configuracion final.
+
+### HU-13 (Admin): descargar plantilla Excel estandar de invitados
+
+Como admin, quiero descargar una plantilla unica para cargar invitados sin errores de formato.
+
+Criterios de aceptacion:
+
+- Debe existir plantilla descargable en formato `.xlsx`.
+- La plantilla debe incluir columnas obligatorias: nombre, correo, telefono.
+- La plantilla debe incluir columnas opcionales: direccion, categoria_1, categoria_2, observaciones.
+- La plantilla debe incluir instrucciones breves de uso para principiantes.
+
+### HU-14 (Admin): subir Excel para precarga masiva de invitados
+
+Como admin, quiero subir un Excel para crear invitados en bloque y ahorrar trabajo manual.
+
+Criterios de aceptacion:
+
+- El sistema acepta archivo `.xlsx` con estructura de plantilla oficial.
+- El sistema valida duplicados, campos obligatorios y formato de correo/telefono.
+- El sistema muestra resumen de importacion (nuevos, actualizados, rechazados).
+- Errores por fila deben mostrarse de forma clara para poder corregir y reintentar.
+
+### HU-15 (Admin): mapear observaciones a restricciones del sistema
+
+Como admin, quiero que ciertas observaciones se conviertan en restricciones sugeridas para acelerar la configuracion.
+
+Criterios de aceptacion:
+
+- El sistema propone mapeos de observaciones hacia restricciones conocidas (amor, odio, intolerancia, etc.).
+- Las sugerencias nunca se aplican automaticamente sin revision del admin.
+- El admin puede aceptar, rechazar o editar cada sugerencia antes de confirmar.
+- El origen de cada restriccion debe quedar trazado (manual o sugerida por importacion).
+
 ## 7) Reglas de negocio
 
 ### 7.1 Reglas duras (obligatorias)
 
 - No superar capacidad de mesa.
+- No asignar posiciones de asiento invalidas para la forma de mesa definida.
 - Respetar incompatibilidades obligatorias.
 - Respetar restricciones de accesibilidad obligatorias.
 - Respetar bloqueos manuales definidos por admin.
@@ -255,6 +327,10 @@ Criterios de aceptacion:
 - Comparacion de 3 candidatas debe poder completarse en menos de 2 minutos por un admin novato.
 - Flujo RSVP completado por invitado en <= 45 segundos objetivo.
 - Flujo de envio masivo de invitaciones por admin en <= 3 minutos para 150 invitados.
+- Importacion y preconfiguracion de plano en <= 60 segundos objetivo para tamano medio.
+- Error de deteccion no debe bloquear el flujo: siempre debe existir correccion manual completa.
+- Importacion de 500 invitados desde Excel en <= 90 segundos objetivo.
+- Validacion de archivo debe devolver reporte legible por fila en <= 15 segundos objetivo.
 
 ## 10) Seguridad y privacidad
 
@@ -262,6 +338,7 @@ Criterios de aceptacion:
 - Datos sensibles visibles por minimo privilegio necesario.
 - Invitados no ven preferencias privadas de otros invitados.
 - Registro de accesos a datos sensibles y descargas de documentos.
+- Datos de contacto y direccion tratados como datos personales con controles de acceso por rol.
 
 ## 11) Documentos y publicacion
 
@@ -363,6 +440,7 @@ Reglas de producto:
 - Si el tiempo limite expira, devolver mejor solucion valida encontrada.
 - Registrar score y metadatos del calculo para auditoria y mejora continua.
 - Mantener ranking Top-K de soluciones validas hasta la aprobacion (K por defecto: 3, parametrizable).
+- Calcular afinidades/incompatibilidades considerando topologia real de mesa (adyacencia, frente y mismo lateral segun forma).
 
 Referencia:
 
@@ -396,6 +474,8 @@ Principios de baja friccion:
 Referencia:
 
 - `docs/sdd/SDD-01C-principios-estilo-y-baja-friccion.md`
+- `docs/sdd/SDD-01D-importacion-plano-salon.md`
+- `docs/sdd/SDD-01E-precarga-invitados-excel.md`
 
 ## 18) Comentarios para principiantes
 

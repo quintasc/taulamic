@@ -21,6 +21,7 @@ Vamos a usar un metodo por pasos que da soluciones muy buenas en poco tiempo.
 2. Mejorarla automaticamente para subir la calidad (metaheuristica).
 3. Si hay tiempo y el caso es pequeno, afinar aun mas con metodo exacto.
 4. Guardar las mejores N propuestas (por defecto 3) para que el admin elija.
+5. Tener en cuenta la forma de cada mesa para calcular cercanias reales.
 
 ## 5) Por que esta decision es buena
 

@@ -19,6 +19,8 @@ Este repositorio guarda decisiones de producto y tecnologia antes de programar e
 - `docs/sdd/SDD-01A-figma-ui-ux.md`: cuando y como usar Figma dentro de SDD.
 - `docs/sdd/SDD-01B-comparacion-visual-candidatas.md`: como comparar rapido Top-K candidatas.
 - `docs/sdd/SDD-01C-principios-estilo-y-baja-friccion.md`: direccion visual y criterios UX de uso simple.
+- `docs/sdd/SDD-01D-importacion-plano-salon.md`: carga asistida de plano desde imagen/PDF.
+- `docs/sdd/SDD-01E-precarga-invitados-excel.md`: plantilla y carga masiva de invitados por Excel.
 - `docs/sdd/SDD-02-backlog-inicial.md`: backlog base para convertir SDD en Issues.
 - `docs/adr/ADR-001-tipo-app-web-primero.md`: decision sobre tipo de app inicial.
 - `docs/adr/ADR-002-arquitectura-monolito-modular-worker.md`: decision de arquitectura.
@@ -28,6 +30,9 @@ Este repositorio guarda decisiones de producto y tecnologia antes de programar e
 - `docs/adr/ADR-006-estrategia-optimizacion-motor-asignacion.md`: decision de estrategia del motor NP-hard.
 - `docs/adr/ADR-007-top-k-soluciones-candidatas.md`: decision de conservar mejores candidatas antes de aprobar.
 - `docs/adr/ADR-008-alcance-invitaciones-rsvp-y-principios-ux.md`: decision de alcance funcional y direccion UX.
+- `docs/adr/ADR-009-forma-mesa-y-topologia-de-asientos.md`: decision sobre geometria de mesas y cercania real.
+- `docs/adr/ADR-010-importacion-plano-imagen-pdf.md`: decision de importacion automatica asistida.
+- `docs/adr/ADR-011-precarga-invitados-excel-estandar.md`: decision de precarga de invitados por lote.
 - `docs/arquitectura/patrones-diseno-mvp.md`: guia practica de patrones en este dominio.
 - `docs/arquitectura/estudio-estrategia-optimizacion-asientos.md`: disertacion comparativa IA vs optimizacion clasica.
 - `docs/arquitectura/decision-motor-para-principiantes.md`: explicacion sencilla de la decision del motor.
@@ -43,12 +48,14 @@ Este repositorio guarda decisiones de producto y tecnologia antes de programar e
 3. Revisar `SDD-01A` para preparar flujos/pantallas en Figma.
 4. Revisar `SDD-01B` para definir comparacion visual de candidatas.
 5. Revisar `SDD-01C` para estilo visual y baja friccion.
-6. Revisar `SDD-02` para pasar funcionalidades a Issues.
-7. Revisar ADRs para entender decisiones tecnicas ya tomadas.
-8. Revisar estudio de optimizacion y ADR-006 antes de implementar el motor.
-9. Revisar guia de arquitectura y API antes de implementar backend.
-10. Consultar glosario cuando aparezca un termino desconocido.
-11. Actualizar documentos con Pull Requests pequenos y claros.
+6. Revisar `SDD-01D` para importacion de plano del salon.
+7. Revisar `SDD-01E` para precarga de invitados con plantilla Excel.
+8. Revisar `SDD-02` para pasar funcionalidades a Issues.
+9. Revisar ADRs para entender decisiones tecnicas ya tomadas.
+10. Revisar estudio de optimizacion y ADR-006 antes de implementar el motor.
+11. Revisar guia de arquitectura y API antes de implementar backend.
+12. Consultar glosario cuando aparezca un termino desconocido.
+13. Actualizar documentos con Pull Requests pequenos y claros.
 
 ## Nota para principiantes
 

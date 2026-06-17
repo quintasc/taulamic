@@ -8,6 +8,7 @@
 La aplicacion necesita:
 
 - operaciones normales de CRUD (eventos, mesas, invitados),
+- importacion asistida de planos de salon (imagen/PDF),
 - calculo de distribucion de asientos con reglas y optimizacion,
 - generacion de documentos (listados, etiquetas, resumen cocina),
 - buena respuesta de interfaz sin bloqueos.
@@ -39,7 +40,7 @@ Se elige **Opcion A: monolito modular + worker de calculo en segundo plano**.
 - **API backend:** reglas de negocio y control de acceso.
 - **Base de datos:** persistencia de entidades y resultados.
 - **Cola de trabajos:** encola calculos y documentos.
-- **Worker:** ejecuta calculo de distribucion y generacion de documentos.
+- **Worker:** ejecuta calculo de distribucion, generacion de documentos e importacion asistida de plano cuando aplique.
 
 ## Motivos de la decision
 

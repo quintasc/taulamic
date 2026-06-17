@@ -10,6 +10,7 @@ Traducir SDD-01 en trabajo ejecutable en GitHub Issues, priorizado por valor y r
 
 - HU-01 Configurar evento y mesas.
 - HU-02 Gestion de capacidad y validaciones.
+- HU-29 Configurar forma de mesa y topologia de asientos (adyacencia/proximidad).
 
 ### EP-02 - Captura de datos de invitados
 
@@ -51,6 +52,7 @@ Traducir SDD-01 en trabajo ejecutable en GitHub Issues, priorizado por valor y r
 - HU-20 Evaluar uso de refinamiento exacto (Branch and Bound o CP-SAT) por umbrales.
 - HU-21 Guardar y exponer Top-K candidatas validas (K configurable, default 3).
 - HU-22 Implementar comparador visual rapido de candidatas para decision admin.
+- HU-30 Incorporar geometria de mesa en score de cercania (lado/frente/distancia relativa).
 
 ### EP-09 - Invitaciones y confirmacion de asistencia (RSVP)
 
@@ -64,18 +66,33 @@ Traducir SDD-01 en trabajo ejecutable en GitHub Issues, priorizado por valor y r
 - HU-27 Validar flujo de invitado con respuesta en <= 45 segundos.
 - HU-28 Validar flujo admin de parametrizacion y envio rapido.
 
+### EP-11 - Importacion de plano y autoconfiguracion de mesas
+
+- HU-31 Subir imagen/PDF del plano del salon.
+- HU-32 Detectar mesas, forma y capacidad estimada con nivel de confianza.
+- HU-33 Corregir manualmente detecciones y confirmar configuracion final.
+
+### EP-12 - Precarga de invitados por Excel estandar
+
+- HU-34 Descargar plantilla oficial de invitados.
+- HU-35 Subir `.xlsx` y validar filas con reporte de errores.
+- HU-36 Crear/actualizar invitados en lote con preclasificacion por categorias.
+- HU-37 Sugerir restricciones desde observaciones y requerir confirmacion manual.
+
 ## 3) Priorizacion sugerida (orden de ejecucion)
 
 1. EP-01
-2. EP-02
-3. EP-09
-4. EP-10
-5. EP-08
-6. EP-07
-7. EP-03
-8. EP-04
-9. EP-05
-10. EP-06
+2. EP-11
+3. EP-12
+4. EP-02
+5. EP-09
+6. EP-10
+7. EP-08
+8. EP-07
+9. EP-03
+10. EP-04
+11. EP-05
+12. EP-06
 
 ## 4) Definicion de Ready (DoR) para empezar una Issue
 

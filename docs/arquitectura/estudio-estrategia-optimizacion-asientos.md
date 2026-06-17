@@ -20,6 +20,7 @@ En la practica se comporta como problema NP-hard (o NP-completo en variantes de 
 - Coste economico (preferencia por herramientas gratuitas).
 - Mantenibilidad del codigo en equipo pequeno.
 - Explicabilidad del resultado para admins.
+- Capacidad de modelar proximidad real segun forma de mesa.
 
 ## 4) Opciones evaluadas
 
@@ -100,6 +101,7 @@ Adoptar una estrategia **hibrida sin IA generativa como motor principal**:
    - o cuando haya tiempo de calculo extra.
 4. Devolver siempre la mejor solucion valida encontrada dentro de limite de tiempo.
 5. Conservar un ranking Top-K de candidatas validas para revision admin (K parametrizable, valor inicial: 3).
+6. Calcular score de cercania usando topologia de mesa (adyacente, enfrente, lateral) segun forma.
 
 ## 6) Justificacion de la decision
 

@@ -37,6 +37,7 @@ Cada candidata debe mostrar de forma visible:
 
 - Lista de mesas con indicador de estabilidad (alto/medio/bajo).
 - Al abrir una mesa, mostrar cambios de comensales entre candidatas.
+- Debe visualizarse la forma real de la mesa para entender cercanias (no solo lista plana).
 
 ## 4) Reglas de visualizacion
 
@@ -55,6 +56,7 @@ Cada candidata debe mostrar de forma visible:
   - mesas con accesibilidad,
   - mesas con restricciones sensibles.
 - Opcion de "comparar A vs B" para foco en dos candidatas.
+- Opcion de resaltar cambios de posicion relativa (al lado, enfrente, mismo lateral) segun forma de mesa.
 
 ## 6) Criterios de aceptacion UX
 

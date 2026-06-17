@@ -22,6 +22,9 @@ Secuencia recomendada:
 - Mapa de navegacion (que pantallas existen).
 - Flujos principales:
   - alta/configuracion de evento,
+  - configuracion de forma de mesa y vista previa de asientos,
+  - importacion de plano de salon y correccion de detecciones,
+  - descarga de plantilla y precarga de invitados por Excel,
   - envio de invitaciones y confirmacion RSVP,
   - formulario de invitado,
   - tablero de distribucion para admin,
@@ -37,6 +40,9 @@ Secuencia recomendada:
 Estas decisiones SI afectan alcance tecnico:
 
 - como mover invitados entre mesas (drag and drop o selector),
+- como representar cercania real entre invitados segun forma de mesa,
+- como mostrar confianza de deteccion en importacion de plano,
+- como validar y corregir errores de importacion en Excel sin frustrar al admin,
 - como mostrar conflictos de reglas duras,
 - como comparar rapido candidatas sin analizar mesa por mesa,
 - como minimizar esfuerzo en envio y respuesta de invitaciones,
@@ -64,6 +70,8 @@ Referencia:
 
 - `docs/sdd/SDD-01B-comparacion-visual-candidatas.md`
 - `docs/sdd/SDD-01C-principios-estilo-y-baja-friccion.md`
+- `docs/sdd/SDD-01D-importacion-plano-salon.md`
+- `docs/sdd/SDD-01E-precarga-invitados-excel.md`
 
 ## 6) Direccion visual y tono de interfaz
 

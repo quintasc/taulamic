@@ -47,6 +47,8 @@ Traduccion operativa:
 ## 5) Objetivos de usabilidad (MVP)
 
 - Configuracion inicial de evento (admin) en <= 10 minutos.
+- Importacion de plano y correccion manual en <= 5 minutos objetivo.
+- Precarga de 500 invitados por Excel (con validacion y confirmacion) en <= 10 minutos objetivo.
 - Envio de invitaciones masivo (150 invitados) en <= 3 minutos.
 - Respuesta RSVP de invitado en <= 45 segundos.
 - Comparacion de candidatas Top-3 en <= 2 minutos por admin novato.

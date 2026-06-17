@@ -75,6 +75,25 @@ Este glosario explica terminos de forma sencilla, pensado para personas que esta
 - **Baja friccion:** completar una accion con pocos pasos y poco esfuerzo.
 - **Microcopy:** textos pequenos de la interfaz que guian al usuario.
 
+## Mesas y distribucion
+
+- **Forma de mesa:** geometria fisica de la mesa (redonda, rectangular, etc.).
+- **Topologia de asientos:** relaciones entre asientos segun la forma de la mesa.
+- **Proximidad relativa:** cercania social entre invitados (al lado, enfrente, mismo lateral).
+
+## Importacion de planos
+
+- **OCR:** tecnologia para leer texto en imagenes o PDFs.
+- **Vision por computador:** tecnologia para detectar elementos visuales (por ejemplo, mesas en un plano).
+- **Deteccion asistida:** propuesta automatica que luego revisa una persona.
+- **Nivel de confianza:** indicador de cuan fiable es una deteccion automatica.
+
+## Precarga de invitados
+
+- **Plantilla Excel:** archivo modelo con columnas esperadas por el sistema.
+- **Carga por lote:** importacion de muchos invitados de una sola vez.
+- **Validacion por fila:** revisar cada fila y reportar errores exactos para corregir.
+
 ## Agile
 
 - **Agile:** forma de trabajo iterativa con entregas frecuentes y feedback continuo.

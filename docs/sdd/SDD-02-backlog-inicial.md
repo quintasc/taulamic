@@ -43,15 +43,23 @@ Traducir SDD-01 en trabajo ejecutable en GitHub Issues, priorizado por valor y r
 - HU-15 Mantener especificacion OpenAPI versionada y alineada con DTOs.
 - HU-16 Definir versionado de API y politica de cambios breaking.
 
+### EP-08 - Estrategia de optimizacion y benchmark del motor
+
+- HU-17 Definir funcion objetivo y pesos iniciales de satisfaccion.
+- HU-18 Implementar heuristica + mejora metaheuristica en worker.
+- HU-19 Definir benchmark por tamano de evento y KPIs de rendimiento/calidad.
+- HU-20 Evaluar uso de refinamiento exacto (Branch and Bound o CP-SAT) por umbrales.
+
 ## 3) Priorizacion sugerida (orden de ejecucion)
 
 1. EP-01
 2. EP-02
-3. EP-07
-4. EP-03
-5. EP-04
-6. EP-05
-7. EP-06
+3. EP-08
+4. EP-07
+5. EP-03
+6. EP-04
+7. EP-05
+8. EP-06
 
 ## 4) Definicion de Ready (DoR) para empezar una Issue
 

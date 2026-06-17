@@ -31,6 +31,7 @@ Crear una app que ayude a construir una distribucion de mesas que:
 - Arquitectura: `monolito modular` + `worker` para calculos pesados.
 - Base de datos: `PostgreSQL`.
 - Cola de trabajos: `Redis` (jobs asincronos).
+- Motor de asignacion: estrategia hibrida de optimizacion clasica (sin IA generativa como nucleo).
 
 ## 5) Criterios de decision (pesos iniciales)
 

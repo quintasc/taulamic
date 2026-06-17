@@ -55,6 +55,17 @@ Este glosario explica terminos de forma sencilla, pensado para personas que esta
 - **DTO:** estructura de datos que viaja por la API.
 - **Breaking change:** cambio que rompe clientes existentes.
 
+## Optimizacion combinatoria
+
+- **NP-hard / NP-completo:** tipo de problema donde encontrar el optimo puede ser muy costoso.
+- **Funcion objetivo:** formula que dice que significa "mejor solucion".
+- **Restriccion dura:** regla que no puede romperse.
+- **Restriccion blanda:** preferencia que intenta cumplirse con pesos.
+- **Heuristica:** metodo rapido para obtener una buena solucion.
+- **Metaheuristica:** estrategia general para mejorar heuristicas.
+- **Branch and Bound:** metodo exacto que poda ramas para reducir busqueda.
+- **CP-SAT:** solver de restricciones y optimizacion muy usado en problemas complejos.
+
 ## Agile
 
 - **Agile:** forma de trabajo iterativa con entregas frecuentes y feedback continuo.

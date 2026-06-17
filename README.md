@@ -23,7 +23,9 @@ Este repositorio guarda decisiones de producto y tecnologia antes de programar e
 - `docs/adr/ADR-003-stack-tecnologico-inicial.md`: decision de stack base.
 - `docs/adr/ADR-004-patrones-diseno-mvp.md`: decision de patrones de diseno para MVP.
 - `docs/adr/ADR-005-documentacion-api-openapi-nestjs.md`: decision de contrato API y docs OpenAPI.
+- `docs/adr/ADR-006-estrategia-optimizacion-motor-asignacion.md`: decision de estrategia del motor NP-hard.
 - `docs/arquitectura/patrones-diseno-mvp.md`: guia practica de patrones en este dominio.
+- `docs/arquitectura/estudio-estrategia-optimizacion-asientos.md`: disertacion comparativa IA vs optimizacion clasica.
 - `docs/api/openapi-nestjs-guia.md`: guia de documentacion API para NestJS.
 - `docs/glosario/glosario-principiantes.md`: terminos explicados de forma simple.
 - `docs/agile/agile-para-principiantes.md`: guia basica de Agile para este proyecto.
@@ -36,9 +38,10 @@ Este repositorio guarda decisiones de producto y tecnologia antes de programar e
 3. Revisar `SDD-01A` para preparar flujos/pantallas en Figma.
 4. Revisar `SDD-02` para pasar funcionalidades a Issues.
 5. Revisar ADRs para entender decisiones tecnicas ya tomadas.
-6. Revisar guia de arquitectura y API antes de implementar backend.
-7. Consultar glosario cuando aparezca un termino desconocido.
-8. Actualizar documentos con Pull Requests pequenos y claros.
+6. Revisar estudio de optimizacion y ADR-006 antes de implementar el motor.
+7. Revisar guia de arquitectura y API antes de implementar backend.
+8. Consultar glosario cuando aparezca un termino desconocido.
+9. Actualizar documentos con Pull Requests pequenos y claros.
 
 ## Nota para principiantes
 

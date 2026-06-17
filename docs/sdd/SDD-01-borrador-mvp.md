@@ -293,7 +293,30 @@ Referencia:
 - `docs/api/openapi-nestjs-guia.md`
 - `docs/adr/ADR-005-documentacion-api-openapi-nestjs.md`
 
-## 16) Comentarios para principiantes
+## 16) Estrategia del motor de optimizacion (NP-hard)
+
+Decision:
+
+- Usar estrategia hibrida basada en optimizacion clasica, no IA generativa como motor principal.
+
+Enfoque operativo:
+
+1. Solucion inicial factible con heuristica constructiva.
+2. Mejora por busqueda local + simulated annealing.
+3. Refinamiento exacto opcional (Branch and Bound o CP-SAT) segun tamano/tiempo.
+
+Reglas de producto:
+
+- Regla dura violada = solucion invalida.
+- Si el tiempo limite expira, devolver mejor solucion valida encontrada.
+- Registrar score y metadatos del calculo para auditoria y mejora continua.
+
+Referencia:
+
+- `docs/arquitectura/estudio-estrategia-optimizacion-asientos.md`
+- `docs/adr/ADR-006-estrategia-optimizacion-motor-asignacion.md`
+
+## 17) Comentarios para principiantes
 
 ### Que es un criterio de aceptacion
 

@@ -1,5 +1,8 @@
 # Sprint 01 - Plan de ejecucion MVP
 
+> **Estado actual (2026-06-17):** **POSPUESTO** por decision `DECISION-001-sprint-01-pospuesto-opcion-b.md`.  
+> El sprint activo de ejecucion es Sprint 02. Issue de seguimiento: #8.
+
 ## 1) Objetivo del sprint
 
 Construir la base funcional y de UX para iniciar el producto sin bloquear iteraciones futuras.

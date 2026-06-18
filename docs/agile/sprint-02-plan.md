@@ -67,9 +67,9 @@ El sprint se considera cerrado cuando:
 
 ## 9) Definition of Done del Sprint 02
 
-- Historias cerradas con criterios verificados.
+- Historias cerradas con criterios verificados contra el SDD (sin degradacion funcional; ver `docs/sdd/SDD-GOVERNANZA-PROTECCION-SDD.md`).
 - Contrato API documentado en OpenAPI para endpoints nuevos.
-- Tests unitarios/e2e minimos en flujos de importacion.
+- Tests unitarios/e2e minimos derivados del SDD en flujos de importacion.
 - Backlog de Sprint 03 preparado.
 
 ## 10) Comentarios para principiantes

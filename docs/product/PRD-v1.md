@@ -146,6 +146,7 @@ IA como asistente, no como arbitro final de asignacion:
 
 ## 16) Trazabilidad (documentos fuente)
 
+- Gobernanza obligatoria: `docs/sdd/SDD-GOVERNANZA-PROTECCION-SDD.md`
 - Vision/estrategia: `docs/sdd/SDD-00-vision-y-estrategia.md`
 - Alcance y requisitos: `docs/sdd/SDD-01-borrador-mvp.md`
 - UX y flujos: `docs/sdd/SDD-01A-figma-ui-ux.md`

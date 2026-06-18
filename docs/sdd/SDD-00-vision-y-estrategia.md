@@ -2,6 +2,10 @@
 
 Producto: **Taulame** (`taulame.com` objetivo). Mercado inicial: Espana.
 
+## 0) Gobernanza del SDD
+
+Este proyecto aplica la regla obligatoria de **proteccion del SDD y no degradacion funcional**. El SDD es la fuente de verdad funcional; los tests validan el SDD y no lo redefinen. Detalle completo en `SDD-GOVERNANZA-PROTECCION-SDD.md`.
+
 ## 1) Problema a resolver
 
 Organizar a personas en mesas para eventos puede ser lento y estresante cuando hay:

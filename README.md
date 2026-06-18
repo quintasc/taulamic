@@ -13,6 +13,8 @@ Repositorio privado (SDD + Agile) para definir y construir Taulame: una aplicaci
 
 Este repositorio guarda decisiones de producto y tecnologia antes de programar en grande, usando enfoque SDD (Spec-Driven Development).
 
+**Regla obligatoria:** el SDD es la fuente de verdad funcional. Ver `docs/sdd/SDD-GOVERNANZA-PROTECCION-SDD.md`.
+
 ## Para quien esta pensado este contenido
 
 - Personas muy principiantes en SDD.
@@ -21,6 +23,7 @@ Este repositorio guarda decisiones de producto y tecnologia antes de programar e
 
 ## Estructura inicial
 
+- `docs/sdd/SDD-GOVERNANZA-PROTECCION-SDD.md`: regla obligatoria de proteccion del SDD y no degradacion funcional.
 - `docs/sdd/SDD-00-vision-y-estrategia.md`: contexto, segmento objetivo y KPIs.
 - `docs/sdd/SDD-01-borrador-mvp.md`: alcance MVP, historias y criterios de aceptacion.
 - `docs/sdd/SDD-01A-figma-ui-ux.md`: cuando y como usar Figma dentro de SDD.
@@ -74,21 +77,22 @@ npm run start:dev
 
 ## Como usar este repositorio
 
-1. Leer `SDD-00` para entender problema, estrategia y objetivos.
-2. Leer `PRD-v1` para vista ejecutiva consolidada.
-3. Leer `SDD-01` para revisar funcionalidades y reglas de MVP.
-4. Revisar `SDD-01A` para preparar flujos/pantallas en Figma.
-5. Revisar `SDD-01B` para definir comparacion visual de candidatas.
-6. Revisar `SDD-01C` para estilo visual y baja friccion.
-7. Revisar `SDD-01D` para importacion de plano del salon.
-8. Revisar `SDD-01E` para precarga de invitados con plantilla Excel.
-9. Revisar `SDD-03` para estrategia de IA asistiva.
-10. Revisar `SDD-02` para pasar funcionalidades a Issues.
-11. Revisar ADRs para entender decisiones tecnicas ya tomadas.
-12. Revisar estudio de optimizacion y ADR-006 antes de implementar el motor.
-13. Revisar guia de arquitectura y API antes de implementar backend.
-14. Consultar glosario cuando aparezca un termino desconocido.
-15. Actualizar documentos con Pull Requests pequenos y claros.
+1. Leer `SDD-GOVERNANZA-PROTECCION-SDD` antes de implementar o escribir tests.
+2. Leer `SDD-00` para entender problema, estrategia y objetivos.
+3. Leer `PRD-v1` para vista ejecutiva consolidada.
+4. Leer `SDD-01` para revisar funcionalidades y reglas de MVP.
+5. Revisar `SDD-01A` para preparar flujos/pantallas en Figma.
+6. Revisar `SDD-01B` para definir comparacion visual de candidatas.
+7. Revisar `SDD-01C` para estilo visual y baja friccion.
+8. Revisar `SDD-01D` para importacion de plano del salon.
+9. Revisar `SDD-01E` para precarga de invitados con plantilla Excel.
+10. Revisar `SDD-03` para estrategia de IA asistiva.
+11. Revisar `SDD-02` para pasar funcionalidades a Issues.
+12. Revisar ADRs para entender decisiones tecnicas ya tomadas.
+13. Revisar estudio de optimizacion y ADR-006 antes de implementar el motor.
+14. Revisar guia de arquitectura y API antes de implementar backend.
+15. Consultar glosario cuando aparezca un termino desconocido.
+16. Actualizar documentos con Pull Requests pequenos y claros.
 
 ## Nota para principiantes
 

@@ -22,6 +22,7 @@ Como [rol], quiero [objetivo] para [beneficio].
 
 ## Referencias
 
+- Gobernanza SDD: `docs/sdd/SDD-GOVERNANZA-PROTECCION-SDD.md`
 - SDD: `docs/sdd/SDD-01-borrador-mvp.md`
 - Figma (si aplica): [enlace]
 

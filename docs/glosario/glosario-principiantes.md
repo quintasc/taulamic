@@ -5,6 +5,8 @@ Este glosario explica terminos de forma sencilla, pensado para personas que esta
 ## SDD y producto
 
 - **SDD (Spec-Driven Development):** trabajar guiados por especificaciones claras antes de programar en grande.
+- **Proteccion del SDD:** regla obligatoria del proyecto; el SDD manda sobre codigo y tests, sin rebajar requisitos para “cerrar rapido”. Ver `docs/sdd/SDD-GOVERNANZA-PROTECCION-SDD.md`.
+- **No degradacion funcional:** no entregar menos de lo especificado en el SDD para simplificar implementacion o hacer pasar tests.
 - **Especificacion:** documento que describe que debe hacer el sistema.
 - **MVP:** primera version util, minima pero con valor real.
 - **Requisito funcional:** comportamiento que el sistema debe ofrecer.

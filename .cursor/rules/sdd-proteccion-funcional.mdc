@@ -1,0 +1,33 @@
+---
+description: SDD como fuente de verdad; prohibida degradacion funcional para pasar tests
+alwaysApply: true
+---
+
+# Proteccion del SDD (regla obligatoria)
+
+Documento canonico: `docs/sdd/SDD-GOVERNANZA-PROTECCION-SDD.md`
+
+## Obligaciones
+
+- El SDD manda sobre implementacion y tests (requisitos, objetivos, criterios de aceptacion, prioridades, ponderaciones).
+- Deriva tests del SDD; no adaptes requisitos para que pasen tests.
+- Si un test falla, corrige primero la implementacion para cumplir el SDD.
+- Puedes refactorizar, mejorar arquitectura y corregir bugs tecnicos sin cambiar alcance funcional.
+
+## Prohibido sin aprobacion explicita del usuario
+
+- Rebajar, eliminar, reinterpretar o sustituir requisitos del SDD.
+- Cambiar criterios de aceptacion, prioridades o comportamiento funcional esperado.
+
+## Ante conflicto SDD ↔ tests ↔ codigo
+
+Detente. No apliques cambios funcionales. Explica:
+
+1. que entra en conflicto;
+2. por que;
+3. alternativas propuestas;
+4. impacto de cada alternativa.
+
+Espera aprobacion manual antes de tocar SDD o alcance funcional.
+
+**Principio rector:** los tests validan el SDD; no redefinen el SDD.

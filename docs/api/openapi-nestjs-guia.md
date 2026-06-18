@@ -69,6 +69,7 @@ Checklist de PR:
 - SDD-01 define que debe hacer el endpoint.
 - OpenAPI define como se consume el endpoint.
 - Ambos deben mantenerse alineados.
+- Los tests de API deben derivarse del SDD (`docs/sdd/SDD-GOVERNANZA-PROTECCION-SDD.md`): si un test falla, se corrige la implementacion antes que el requisito.
 
 ## 10) Comentarios para principiantes
 

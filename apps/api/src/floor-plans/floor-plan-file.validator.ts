@@ -3,7 +3,8 @@ import { extname } from 'node:path';
 import {
   FLOOR_PLAN_ALLOWED_EXTENSIONS,
   FLOOR_PLAN_ALLOWED_MIME_TYPES,
-  FloorPlanMimeType,
+  isAllowedFloorPlanExtension,
+  isAllowedFloorPlanMimeType,
 } from './floor-plan-upload.constants';
 
 export type FloorPlanUploadFile = {
@@ -25,7 +26,7 @@ export function assertValidFloorPlanFile(
   }
 
   const extension = extname(file.originalname).toLowerCase();
-  if (!FLOOR_PLAN_ALLOWED_EXTENSIONS.includes(extension)) {
+  if (!isAllowedFloorPlanExtension(extension)) {
     throw new BadRequestException({
       code: 'INVALID_FILE_TYPE',
       message: 'Formato no soportado. Usa JPG, PNG o PDF.',
@@ -36,9 +37,7 @@ export function assertValidFloorPlanFile(
     });
   }
 
-  if (
-    !FLOOR_PLAN_ALLOWED_MIME_TYPES.includes(file.mimetype as FloorPlanMimeType)
-  ) {
+  if (!isAllowedFloorPlanMimeType(file.mimetype)) {
     throw new BadRequestException({
       code: 'INVALID_FILE_TYPE',
       message: 'Formato no soportado. Usa JPG, PNG o PDF.',

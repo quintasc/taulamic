@@ -12,3 +12,20 @@ export const FLOOR_PLAN_ALLOWED_EXTENSIONS = [
 ] as const;
 
 export type FloorPlanMimeType = (typeof FLOOR_PLAN_ALLOWED_MIME_TYPES)[number];
+export type FloorPlanExtension = (typeof FLOOR_PLAN_ALLOWED_EXTENSIONS)[number];
+
+export function isAllowedFloorPlanExtension(
+  extension: string,
+): extension is FloorPlanExtension {
+  return (FLOOR_PLAN_ALLOWED_EXTENSIONS as readonly string[]).includes(
+    extension,
+  );
+}
+
+export function isAllowedFloorPlanMimeType(
+  mimeType: string,
+): mimeType is FloorPlanMimeType {
+  return (FLOOR_PLAN_ALLOWED_MIME_TYPES as readonly string[]).includes(
+    mimeType,
+  );
+}

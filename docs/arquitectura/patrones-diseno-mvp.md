@@ -99,6 +99,8 @@ Roles:
 Aplicar patrones solo donde aporten claridad real.
 Si no reducen complejidad, no se aplican todavia.
 
+La organizacion por capas (dominio, aplicacion, infraestructura, presentacion) y por features/modulos verticales se define en `docs/adr/ADR-015-clean-architecture-pragmatica-y-features.md`.
+
 ## 5) Comentarios para principiantes
 
 - **Acoplamiento:** cuando una parte depende demasiado de otra.

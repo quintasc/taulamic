@@ -50,6 +50,7 @@ Este repositorio guarda decisiones de producto y tecnologia antes de programar e
 - `docs/adr/ADR-012-modo-control-preferencias-y-regla-acompanantes.md`: decision de gobernanza de preferencias por evento.
 - `docs/adr/ADR-013-ia-asistiva-en-producto.md`: decision de uso de IA como asistencia.
 - `docs/adr/ADR-014-evaluacion-ga-complementario.md`: decision de evaluar GA por benchmark.
+- `docs/adr/ADR-015-clean-architecture-pragmatica-y-features.md`: Clean Architecture pragmatica y modulos por feature.
 - `docs/arquitectura/patrones-diseno-mvp.md`: guia practica de patrones en este dominio.
 - `docs/arquitectura/estudio-estrategia-optimizacion-asientos.md`: disertacion comparativa IA vs optimizacion clasica.
 - `docs/arquitectura/comparativa-ga-sa-cpsat.md`: protocolo comparativo entre estrategias.
@@ -59,12 +60,14 @@ Este repositorio guarda decisiones de producto y tecnologia antes de programar e
 - `docs/agile/agile-para-principiantes.md`: guia basica de Agile para este proyecto.
 - `docs/agile/politica-validacion-tests-y-cobertura.md`: criterios profesionales para aceptar tests, cobertura y cierre de tareas.
 - `docs/agile/DECISION-001-sprint-01-pospuesto-opcion-b.md`: decision vigente de ejecucion (Sprint 01 pospuesto, Sprint 02 activo).
+- `docs/agile/CONTEXTO-EJECUCION.md`: punto de reanudacion rapido (estado, siguiente accion, frase para Cursor).
 - `docs/agile/sprint-01-plan.md`: plan de trabajo y cierre para Sprint 01.
 - `docs/agile/sprint-02-plan.md`: plan de trabajo para Sprint 02 (configuracion inteligente y captura asistida).
 
 ## Estructura de codigo
 
 - `apps/api/`: API NestJS (Sprint 02, HU-31 carga de plano).
+- Convencion arquitectonica: Clean Architecture pragmatica por modulo/feature (ADR-015).
 
 ### Arrancar API local
 

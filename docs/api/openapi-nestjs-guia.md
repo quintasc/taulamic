@@ -70,6 +70,7 @@ Checklist de PR:
 - OpenAPI define como se consume el endpoint.
 - Ambos deben mantenerse alineados.
 - Los tests de API deben derivarse del SDD (`docs/sdd/SDD-GOVERNANZA-PROTECCION-SDD.md`): si un test falla, se corrige la implementacion antes que el requisito.
+- Umbrales de cobertura y gates de CI: `docs/agile/politica-validacion-tests-y-cobertura.md`.
 
 ## 10) Comentarios para principiantes
 

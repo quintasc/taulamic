@@ -114,6 +114,9 @@ Este glosario explica terminos de forma sencilla, pensado para personas que esta
 - **Review:** revision del resultado al final del sprint.
 - **Retrospectiva:** reunion para mejorar como trabaja el equipo.
 - **Definition of Done (DoD):** lista de condiciones para considerar un trabajo terminado.
+- **Cobertura de codigo (*code coverage*):** porcentaje del codigo ejecutado al correr tests; complemento numerico, no sustituto del SDD. Ver `docs/agile/politica-validacion-tests-y-cobertura.md`.
+- **Quality gate (puerta de calidad):** regla automatica que bloquea avanzar si no se cumple (ejemplo: tests en rojo).
+- **CI (Integracion Continua):** ejecucion automatica de build y tests en cada cambio (GitHub Actions).
 
 ## Comentario para principiantes
 

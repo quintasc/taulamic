@@ -7,6 +7,8 @@ alwaysApply: true
 
 Documento canonico: `docs/sdd/SDD-GOVERNANZA-PROTECCION-SDD.md`
 
+Validacion tecnica (tests/cobertura): `docs/agile/politica-validacion-tests-y-cobertura.md`
+
 ## Obligaciones
 
 - El SDD manda sobre implementacion y tests (requisitos, objetivos, criterios de aceptacion, prioridades, ponderaciones).

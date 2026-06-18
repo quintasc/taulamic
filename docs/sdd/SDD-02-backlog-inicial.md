@@ -131,6 +131,7 @@ Una Issue se considera terminada cuando:
 
 - cumple criterios de aceptacion,
 - tiene pruebas minimas definidas,
+- cumple la politica de validacion en `docs/agile/politica-validacion-tests-y-cobertura.md`,
 - actualiza documentacion afectada,
 - y queda vinculada al commit/PR correspondiente.
 

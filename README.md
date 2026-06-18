@@ -57,6 +57,7 @@ Este repositorio guarda decisiones de producto y tecnologia antes de programar e
 - `docs/api/openapi-nestjs-guia.md`: guia de documentacion API para NestJS.
 - `docs/glosario/glosario-principiantes.md`: terminos explicados de forma simple.
 - `docs/agile/agile-para-principiantes.md`: guia basica de Agile para este proyecto.
+- `docs/agile/politica-validacion-tests-y-cobertura.md`: criterios profesionales para aceptar tests, cobertura y cierre de tareas.
 - `docs/agile/sprint-01-plan.md`: plan de trabajo y cierre para Sprint 01.
 - `docs/agile/sprint-02-plan.md`: plan de trabajo para Sprint 02 (configuracion inteligente y captura asistida).
 
@@ -78,21 +79,22 @@ npm run start:dev
 ## Como usar este repositorio
 
 1. Leer `SDD-GOVERNANZA-PROTECCION-SDD` antes de implementar o escribir tests.
-2. Leer `SDD-00` para entender problema, estrategia y objetivos.
-3. Leer `PRD-v1` para vista ejecutiva consolidada.
-4. Leer `SDD-01` para revisar funcionalidades y reglas de MVP.
-5. Revisar `SDD-01A` para preparar flujos/pantallas en Figma.
-6. Revisar `SDD-01B` para definir comparacion visual de candidatas.
-7. Revisar `SDD-01C` para estilo visual y baja friccion.
-8. Revisar `SDD-01D` para importacion de plano del salon.
-9. Revisar `SDD-01E` para precarga de invitados con plantilla Excel.
-10. Revisar `SDD-03` para estrategia de IA asistiva.
-11. Revisar `SDD-02` para pasar funcionalidades a Issues.
-12. Revisar ADRs para entender decisiones tecnicas ya tomadas.
-13. Revisar estudio de optimizacion y ADR-006 antes de implementar el motor.
-14. Revisar guia de arquitectura y API antes de implementar backend.
-15. Consultar glosario cuando aparezca un termino desconocido.
-16. Actualizar documentos con Pull Requests pequenos y claros.
+2. Leer `politica-validacion-tests-y-cobertura` para saber cuando un cambio se acepta tecnicamente.
+3. Leer `SDD-00` para entender problema, estrategia y objetivos.
+4. Leer `PRD-v1` para vista ejecutiva consolidada.
+5. Leer `SDD-01` para revisar funcionalidades y reglas de MVP.
+6. Revisar `SDD-01A` para preparar flujos/pantallas en Figma.
+7. Revisar `SDD-01B` para definir comparacion visual de candidatas.
+8. Revisar `SDD-01C` para estilo visual y baja friccion.
+9. Revisar `SDD-01D` para importacion de plano del salon.
+10. Revisar `SDD-01E` para precarga de invitados con plantilla Excel.
+11. Revisar `SDD-03` para estrategia de IA asistiva.
+12. Revisar `SDD-02` para pasar funcionalidades a Issues.
+13. Revisar ADRs para entender decisiones tecnicas ya tomadas.
+14. Revisar estudio de optimizacion y ADR-006 antes de implementar el motor.
+15. Revisar guia de arquitectura y API antes de implementar backend.
+16. Consultar glosario cuando aparezca un termino desconocido.
+17. Actualizar documentos con Pull Requests pequenos y claros.
 
 ## Nota para principiantes
 

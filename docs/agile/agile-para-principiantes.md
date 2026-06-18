@@ -27,6 +27,7 @@ Significa planificar en ciclos cortos, entregar valor pronto y mejorar con feedb
 - Evitar empezar muchas cosas a la vez.
 - Documentar decisiones justo cuando se toman.
 - Validar pronto con usuarios reales (novios, planners o salon).
+- Antes de cerrar una tarea de codigo, revisar `docs/agile/politica-validacion-tests-y-cobertura.md` (tests, cobertura y criterios SDD).
 
 ## 5) Comentarios para principiantes
 

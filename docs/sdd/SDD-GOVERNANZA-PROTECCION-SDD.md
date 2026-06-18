@@ -38,6 +38,8 @@ Si se detecta una contradiccion, ambiguedad, error de especificacion o conflicto
 
 Solo despues de una **aprobacion manual explicita** podra modificarse el SDD, los criterios de aceptacion, las prioridades, las ponderaciones o el comportamiento funcional esperado.
 
+La validacion tecnica (tests, cobertura y CI) se rige por `docs/agile/politica-validacion-tests-y-cobertura.md`.
+
 ## Documentos SDD de referencia
 
 - Vision y estrategia: `SDD-00-vision-y-estrategia.md`

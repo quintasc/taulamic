@@ -1,5 +1,7 @@
 # SDD-00 - Vision y Estrategia
 
+Producto: **Taulame** (`taulame.com` objetivo). Mercado inicial: Espana.
+
 ## 1) Problema a resolver
 
 Organizar a personas en mesas para eventos puede ser lento y estresante cuando hay:

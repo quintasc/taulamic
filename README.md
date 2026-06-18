@@ -1,6 +1,13 @@
-# App de Distribucion de Mesas (SDD)
+# Taulame
 
-Repositorio privado para definir, paso a paso, una aplicacion de distribucion de personas en eventos (bodas, cenas de empresa, clases y otros escenarios similares).
+**Distribucion inteligente de mesas para eventos.**
+
+Repositorio privado (SDD + Agile) para definir y construir Taulame: una aplicacion de distribucion de personas en eventos (bodas, cenas de empresa, clases y otros escenarios similares).
+
+- **Marca:** Taulame
+- **Dominio objetivo:** `taulame.com` (pendiente de registro)
+- **Mercado inicial:** Espana
+- **GitHub Project:** [Taulame](https://github.com/users/quintasc/projects/2)
 
 ## Objetivo del repositorio
 

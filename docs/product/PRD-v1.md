@@ -1,5 +1,6 @@
-# PRD v1 - Plataforma de distribucion de invitados
+# PRD v1 - Taulame
 
+- Producto: **Taulame** — distribucion inteligente de mesas para eventos
 - Estado: Borrador consolidado
 - Fecha: 2026-06-17
 - Fuente: Sintesis de `docs/sdd` + `docs/adr`

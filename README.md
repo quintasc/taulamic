@@ -55,6 +55,22 @@ Este repositorio guarda decisiones de producto y tecnologia antes de programar e
 - `docs/glosario/glosario-principiantes.md`: terminos explicados de forma simple.
 - `docs/agile/agile-para-principiantes.md`: guia basica de Agile para este proyecto.
 - `docs/agile/sprint-01-plan.md`: plan de trabajo y cierre para Sprint 01.
+- `docs/agile/sprint-02-plan.md`: plan de trabajo para Sprint 02 (configuracion inteligente y captura asistida).
+
+## Estructura de codigo
+
+- `apps/api/`: API NestJS (Sprint 02, HU-31 carga de plano).
+
+### Arrancar API local
+
+```bash
+cd apps/api
+npm install
+npm run start:dev
+```
+
+- API base: `http://localhost:3000/api/v1`
+- OpenAPI UI: `http://localhost:3000/api/docs`
 
 ## Como usar este repositorio
 

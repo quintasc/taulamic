@@ -8,3 +8,11 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Node / build
+node_modules/
+dist/
+coverage/
+
+# Runtime uploads (HU-31)
+uploads/

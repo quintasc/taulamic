@@ -106,9 +106,12 @@ Los tests deben **trazarse** al SDD o a la issue. Ejemplo:
 ```text
 Issue #22 / HU-31
   -> e2e: PDF valido => 201
+  -> e2e: JPG valido => 201
+  -> e2e: PNG valido => 201
   -> e2e: GIF invalido => INVALID_FILE_TYPE
   -> e2e: sin archivo => FILE_REQUIRED
-  -> pendiente: JPG, PNG, limite de tamano en e2e
+  -> e2e: tamano excedido => FILE_TOO_LARGE
+  -> unitario: validador de extension, mime y tamano
 ```
 
 Si los tests pasan pero queda un criterio sin cubrir, la issue **no esta cerrada**.

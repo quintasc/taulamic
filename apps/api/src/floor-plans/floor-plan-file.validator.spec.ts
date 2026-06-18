@@ -28,6 +28,15 @@ describe('assertValidFloorPlanFile', () => {
     ).toThrow(BadRequestException);
   });
 
+  it('rechaza mime type no soportado con extension valida', () => {
+    expect(() =>
+      assertValidFloorPlanFile(
+        { ...baseFile, originalname: 'plano.pdf', mimetype: 'text/plain' },
+        10_000,
+      ),
+    ).toThrow(BadRequestException);
+  });
+
   it('rechaza tamano excedido', () => {
     expect(() =>
       assertValidFloorPlanFile({ ...baseFile, size: 20_000 }, 10_000),

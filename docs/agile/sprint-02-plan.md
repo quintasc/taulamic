@@ -26,7 +26,8 @@ Epicas comprometidas:
 
 **Regla vigente (DECISION-001):** completar y validar **#22** antes de iniciar **#23**.
 
-1. **#22** Carga y validacion de plano (base tecnica de importacion). **En curso — cerrar antes de seguir.**2. **#23** Deteccion asistida de mesas con confianza.
+1. **#22** Carga y validacion de plano (base tecnica de importacion). **Validacion tecnica completada — pendiente cierre formal en GitHub (#22).**
+2. **#23** Deteccion asistida de mesas con confianza.
 3. **#24** Editor de correccion manual y confirmacion final.
 4. **#25** Persistencia y versionado de layout importado.
 5. **#26** Pruebas E2E y calidad de importacion de plano.

@@ -20,7 +20,7 @@ const XLSX_MIME_TYPE =
 export class ExcelJsGuestTemplateGenerator implements GuestTemplateGeneratorPort {
   async generate(): Promise<GeneratedGuestTemplate> {
     const workbook = new ExcelJS.Workbook();
-    workbook.creator = 'Taulame';
+    workbook.creator = 'Taulamic';
     workbook.created = new Date();
 
     const guestsSheet = workbook.addWorksheet(GUEST_TEMPLATE_SHEET_NAME);

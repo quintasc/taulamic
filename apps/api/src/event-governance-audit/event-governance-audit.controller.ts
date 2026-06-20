@@ -29,7 +29,7 @@ export class EventGovernanceAuditController {
       'Historico unificado de cambios de modo y excepciones de acompanantes (quien/cuando/antes/despues). Solo admin.',
   })
   @ApiHeader({
-    name: 'x-taulame-actor-role',
+    name: 'x-taulamic-actor-role',
     required: false,
     description: 'Rol del actor: admin o guest. Por defecto admin.',
   })

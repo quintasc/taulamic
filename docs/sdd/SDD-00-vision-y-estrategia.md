@@ -1,6 +1,6 @@
 # SDD-00 - Vision y Estrategia
 
-Producto: **Taulame** (`taulame.com` objetivo). Mercado inicial: Espana.
+Producto: **Taulamic** (`taulamic.com` objetivo). Mercado inicial: Espana.
 
 ## 0) Gobernanza del SDD
 

@@ -5,7 +5,7 @@
 
 ## Contexto
 
-Taulame ya decidio (ADR-002) un monolito modular con worker y (ADR-004) patrones de dominio como Repository, Strategy y Specification.
+Taulamic ya decidio (ADR-002) un monolito modular con worker y (ADR-004) patrones de dominio como Repository, Strategy y Specification.
 
 El codigo backend ha empezado con NestJS (`apps/api`) y el primer modulo `floor-plans` (#22 / HU-31).
 

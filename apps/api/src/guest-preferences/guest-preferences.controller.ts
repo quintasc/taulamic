@@ -65,7 +65,7 @@ export class GuestPreferencesController {
       'En modo anfitrion_exclusivo solo admins pueden editar. En colaborativo, invitados autorizados tambien.',
   })
   @ApiHeader({
-    name: 'x-taulame-actor-role',
+    name: 'x-taulamic-actor-role',
     required: false,
     description: 'Rol del actor: admin o guest. Por defecto admin.',
   })

@@ -24,7 +24,7 @@ export const GUEST_TEMPLATE_COLUMNS = [
 
 export type GuestTemplateColumn = (typeof GUEST_TEMPLATE_COLUMNS)[number];
 
-export const GUEST_TEMPLATE_FILENAME = 'taulame-invitados-v1.xlsx';
+export const GUEST_TEMPLATE_FILENAME = 'taulamic-invitados-v1.xlsx';
 
 export const GUEST_TEMPLATE_EXAMPLE_ROWS: ReadonlyArray<
   Record<GuestTemplateColumn, string>
@@ -56,7 +56,7 @@ export const GUEST_TEMPLATE_EXAMPLE_ROWS: ReadonlyArray<
 ];
 
 export const GUEST_TEMPLATE_INSTRUCTIONS = [
-  'Plantilla oficial Taulame v1 para precarga de invitados.',
+  'Plantilla oficial Taulamic v1 para precarga de invitados.',
   '1. Rellena la hoja "invitados" sin cambiar los nombres de columna de la fila 1.',
   '2. Campos obligatorios: nombre, correo, telefono.',
   '3. Elimina las filas de ejemplo antes de subir el archivo.',

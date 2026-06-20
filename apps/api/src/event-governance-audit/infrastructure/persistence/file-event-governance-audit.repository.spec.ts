@@ -9,7 +9,7 @@ describe('FileEventGovernanceAuditRepository', () => {
   let repository: FileEventGovernanceAuditRepository;
 
   beforeEach(async () => {
-    tempDir = await mkdtemp(join(tmpdir(), 'taulame-governance-audit-'));
+    tempDir = await mkdtemp(join(tmpdir(), 'taulamic-governance-audit-'));
     repository = new FileEventGovernanceAuditRepository({
       get: (_key: string, defaultValue: string) =>
         _key === 'events.dataDir' ? tempDir : defaultValue,

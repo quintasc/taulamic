@@ -48,7 +48,7 @@ describe('Event governance audit (e2e #35)', () => {
     await request(app.getHttpServer())
       .put('/api/v1/events/evt_audit_35/preference-control-mode')
       .set('Content-Type', 'application/json')
-      .set('x-taulame-actor-role', 'admin')
+      .set('x-taulamic-actor-role', 'admin')
       .send({ mode: 'anfitrion_exclusivo' })
       .expect(200);
 
@@ -62,13 +62,13 @@ describe('Event governance audit (e2e #35)', () => {
         '/api/v1/events/evt_audit_35/companion-groups/PAREJA_001/separate',
       )
       .set('Content-Type', 'application/json')
-      .set('x-taulame-actor-role', 'admin')
+      .set('x-taulamic-actor-role', 'admin')
       .send({ reason: 'Revision admin posterior' })
       .expect(200);
 
     const audit = await request(app.getHttpServer())
       .get('/api/v1/events/evt_audit_35/governance-audit')
-      .set('x-taulame-actor-role', 'admin')
+      .set('x-taulamic-actor-role', 'admin')
       .expect(200);
 
     expect(audit.body.entries.length).toBeGreaterThanOrEqual(3);
@@ -109,7 +109,7 @@ describe('Event governance audit (e2e #35)', () => {
   it('bloquea consulta de auditoria a invitados', async () => {
     const response = await request(app.getHttpServer())
       .get('/api/v1/events/evt_audit_35/governance-audit')
-      .set('x-taulame-actor-role', 'guest')
+      .set('x-taulamic-actor-role', 'guest')
       .expect(403);
 
     expect(response.body.code).toBe('ADMIN_REQUIRED');
@@ -119,7 +119,7 @@ describe('Event governance audit (e2e #35)', () => {
     await request(app.getHttpServer())
       .put('/api/v1/events/evt_audit_35/preference-control-mode')
       .set('Content-Type', 'application/json')
-      .set('x-taulame-actor-role', 'admin')
+      .set('x-taulamic-actor-role', 'admin')
       .send({ mode: 'anfitrion_exclusivo' })
       .expect(200);
 

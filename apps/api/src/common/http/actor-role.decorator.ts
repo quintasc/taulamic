@@ -8,7 +8,7 @@ import {
 export const ActorRoleHeader = createParamDecorator(
   (_data: unknown, context: ExecutionContext): ActorRole => {
     const request = context.switchToHttp().getRequest<{ headers: Record<string, unknown> }>();
-    const raw = request.headers['x-taulame-actor-role'];
+    const raw = request.headers['x-taulamic-actor-role'];
     if (raw === undefined || raw === null || raw === '') {
       return DEFAULT_ACTOR_ROLE;
     }

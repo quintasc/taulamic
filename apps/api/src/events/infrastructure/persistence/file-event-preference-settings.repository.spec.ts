@@ -9,7 +9,7 @@ describe('FileEventPreferenceSettingsRepository', () => {
   let repository: FileEventPreferenceSettingsRepository;
 
   beforeEach(async () => {
-    tempDir = await mkdtemp(join(tmpdir(), 'taulame-events-'));
+    tempDir = await mkdtemp(join(tmpdir(), 'taulamic-events-'));
     repository = new FileEventPreferenceSettingsRepository({
       get: (_key: string, defaultValue: string) =>
         _key === 'events.dataDir' ? tempDir : defaultValue,

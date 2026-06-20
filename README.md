@@ -1,13 +1,13 @@
-# Taulame
+# Taulamic
 
 **Distribucion inteligente de mesas para eventos.**
 
-Repositorio privado (SDD + Agile) para definir y construir Taulame: una aplicacion de distribucion de personas en eventos (bodas, cenas de empresa, clases y otros escenarios similares).
+Repositorio privado (SDD + Agile) para definir y construir Taulamic: una aplicacion de distribucion de personas en eventos (bodas, cenas de empresa, clases y otros escenarios similares).
 
-- **Marca:** Taulame
-- **Dominio objetivo:** `taulame.com` (pendiente de registro)
+- **Marca:** Taulamic
+- **Dominio objetivo:** `taulamic.com` (pendiente de registro)
 - **Mercado inicial:** Espana
-- **GitHub Project:** [Taulame](https://github.com/users/quintasc/projects/2)
+- **GitHub Project:** [Taulamic](https://github.com/users/quintasc/projects/2)
 
 ## Objetivo del repositorio
 

@@ -66,4 +66,4 @@ Replanificar Sprint 01 cuando ocurra al menos una de estas condiciones:
 
 - `docs/agile/sprint-01-plan.md`
 - `docs/agile/sprint-02-plan.md`
-- GitHub: [#8](https://github.com/quintasc/taulame/issues/8), [#21](https://github.com/quintasc/taulame/issues/21)
+- GitHub: [#8](https://github.com/quintasc/taulamic/issues/8), [#21](https://github.com/quintasc/taulamic/issues/21)

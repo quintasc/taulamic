@@ -7,7 +7,7 @@
 
 ## 1) Objetivo
 
-Definir **con que criterios se acepta o rechaza** el trabajo tecnico en Taulame, de forma profesional y comprensible para personas que estan empezando en metodologia y testing.
+Definir **con que criterios se acepta o rechaza** el trabajo tecnico en Taulamic, de forma profesional y comprensible para personas que estan empezando en metodologia y testing.
 
 Esta politica **no sustituye** al SDD. La complementa con reglas automaticas y de proceso.
 
@@ -32,7 +32,7 @@ En muchos equipos, cuando dicen *“no se acepta si no supera el 85%”*, se ref
 - un 85% de tests pasados (eso seria binario: todos o no todos),
 - ni un 85% de requisitos del SDD cumplidos (eso debe ser **100%** de los criterios de la issue, salvo decision explicita).
 
-**Cobertura alta sin tests alineados al SDD puede dar falsa seguridad.** Por eso en Taulame usamos un modelo en capas.
+**Cobertura alta sin tests alineados al SDD puede dar falsa seguridad.** Por eso en Taulamic usamos un modelo en capas.
 
 ## 3) Modelo de validacion en capas
 
@@ -124,7 +124,7 @@ Segun `docs/sdd/SDD-02-backlog-inicial.md`, una issue terminada tambien requiere
 - enlace a commit/PR,
 - revision cuando el flujo del equipo lo exija.
 
-## 4) Umbrales numericos acordados (Taulame)
+## 4) Umbrales numericos acordados (Taulamic)
 
 Valores objetivo para **modulos criticos** (no para todo el repositorio al inicio):
 
@@ -209,4 +209,4 @@ La salida de cobertura se genera en `apps/api/coverage/`.
 - **Profesional** no es solo perseguir un 85%.
 - **Profesional** es: tests que pasan, requisitos del SDD cumplidos, y cobertura alta en lo critico.
 - El **85%** del que hablan en la industria suele ser **cobertura de codigo en modulos importantes**, no una nota global del proyecto.
-- En Taulame, **cerrar una tarea** exige cumplir el SDD; la cobertura ayuda, pero no lo reemplaza.
+- En Taulamic, **cerrar una tarea** exige cumplir el SDD; la cobertura ayuda, pero no lo reemplaza.

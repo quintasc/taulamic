@@ -95,7 +95,7 @@ export class EventsController {
       'Persiste el modo con historial versionado. No elimina preferencias ya registradas.',
   })
   @ApiHeader({
-    name: 'x-taulame-actor-role',
+    name: 'x-taulamic-actor-role',
     required: false,
     description: 'Rol del actor: admin o guest. Por defecto admin.',
   })

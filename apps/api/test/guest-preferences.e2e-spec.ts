@@ -87,7 +87,7 @@ describe('Preference permissions enforcement (e2e #33)', () => {
     const blocked = await request(app.getHttpServer())
       .post(`/api/v1/events/evt_perm_33/guests/${guestId}/restrictions`)
       .set('Content-Type', 'application/json')
-      .set('x-taulame-actor-role', 'guest')
+      .set('x-taulamic-actor-role', 'guest')
       .send({
         kind: 'afinidad',
         targetHint: 'Maria Lopez',
@@ -106,7 +106,7 @@ describe('Preference permissions enforcement (e2e #33)', () => {
     const allowed = await request(app.getHttpServer())
       .post(`/api/v1/events/evt_perm_33/guests/${guestId}/restrictions`)
       .set('Content-Type', 'application/json')
-      .set('x-taulame-actor-role', 'guest')
+      .set('x-taulamic-actor-role', 'guest')
       .send({
         kind: 'afinidad',
         targetHint: 'Maria Lopez',
@@ -132,7 +132,7 @@ describe('Preference permissions enforcement (e2e #33)', () => {
     await request(app.getHttpServer())
       .post(`/api/v1/events/evt_perm_33_admin/guests/${guestId}/restrictions`)
       .set('Content-Type', 'application/json')
-      .set('x-taulame-actor-role', 'admin')
+      .set('x-taulamic-actor-role', 'admin')
       .send({
         kind: 'incompatibilidad',
         targetHint: 'Juan Perez',
@@ -155,7 +155,7 @@ describe('Preference permissions enforcement (e2e #33)', () => {
       .post(
         `/api/v1/events/evt_sugg_perm/guest-import/suggestions/${suggestionId}/accept`,
       )
-      .set('x-taulame-actor-role', 'guest')
+      .set('x-taulamic-actor-role', 'guest')
       .expect(403);
 
     expect(response.body.code).toBe('ADMIN_REQUIRED');

@@ -1,6 +1,6 @@
-# PRD v1 - Taulame
+# PRD v1 - Taulamic
 
-- Producto: **Taulame** — distribucion inteligente de mesas para eventos
+- Producto: **Taulamic** — distribucion inteligente de mesas para eventos
 - Estado: Borrador consolidado
 - Fecha: 2026-06-17
 - Fuente: Sintesis de `docs/sdd` + `docs/adr`

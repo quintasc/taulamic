@@ -84,7 +84,7 @@ describe('Companion groups rule (e2e #34)', () => {
     await request(app.getHttpServer())
       .post('/api/v1/events/evt_comp_34_admin/companion-groups/PAREJA_001/separate')
       .set('Content-Type', 'application/json')
-      .set('x-taulame-actor-role', 'admin')
+      .set('x-taulamic-actor-role', 'admin')
       .send({ reason: 'Conflicto familiar temporal' })
       .expect(200);
 
@@ -104,7 +104,7 @@ describe('Companion groups rule (e2e #34)', () => {
       .post(
         '/api/v1/events/evt_comp_34_admin/companion-groups/PAREJA_001/revert-separation',
       )
-      .set('x-taulame-actor-role', 'admin')
+      .set('x-taulamic-actor-role', 'admin')
       .expect(200);
 
     const reverted = await request(app.getHttpServer())
@@ -123,7 +123,7 @@ describe('Companion groups rule (e2e #34)', () => {
     const response = await request(app.getHttpServer())
       .post('/api/v1/events/evt_comp_34_guest/companion-groups/PAREJA_001/separate')
       .set('Content-Type', 'application/json')
-      .set('x-taulame-actor-role', 'guest')
+      .set('x-taulamic-actor-role', 'guest')
       .send({ reason: 'Intento invitado' })
       .expect(403);
 
@@ -138,7 +138,7 @@ describe('Companion groups rule (e2e #34)', () => {
         `/api/v1/events/evt_comp_34_eval/guests/${guestIds[0]}/restrictions`,
       )
       .set('Content-Type', 'application/json')
-      .set('x-taulame-actor-role', 'admin')
+      .set('x-taulamic-actor-role', 'admin')
       .send({
         kind: 'incompatibilidad',
         targetHint: 'Luis Martinez Ruiz',

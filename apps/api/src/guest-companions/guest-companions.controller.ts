@@ -87,7 +87,7 @@ export class GuestCompanionsController {
       'Solo administradores. Persiste motivo auditado con origen admin.',
   })
   @ApiHeader({
-    name: 'x-taulame-actor-role',
+    name: 'x-taulamic-actor-role',
     required: false,
     description: 'Rol del actor: admin o guest. Por defecto admin.',
   })
@@ -120,7 +120,7 @@ export class GuestCompanionsController {
     description: 'Solo administradores.',
   })
   @ApiHeader({
-    name: 'x-taulame-actor-role',
+    name: 'x-taulamic-actor-role',
     required: false,
     description: 'Rol del actor: admin o guest. Por defecto admin.',
   })

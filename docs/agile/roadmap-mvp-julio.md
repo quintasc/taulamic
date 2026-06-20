@@ -32,7 +32,7 @@ Copia o visualiza este bloque en GitHub, VS Code o [mermaid.live](https://mermai
 
 ```mermaid
 gantt
-    title Roadmap Taulame — MVP julio piloto (hasta 31 jul 2026)
+    title Roadmap Taulamic — MVP julio piloto (hasta 31 jul 2026)
     dateFormat YYYY-MM-DD
     axisFormat %d %b
 
@@ -76,7 +76,7 @@ gantt
 
 ```mermaid
 timeline
-    title Hitos Taulame 2026
+    title Hitos Taulamic 2026
     section Hecho
         Mar-Jun : SDD-00 SDD-01 backlog ADRs
         Jun : EP-11 upload detect draft confirm (#22-#25)

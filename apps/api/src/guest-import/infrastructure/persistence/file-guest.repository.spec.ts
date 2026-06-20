@@ -9,7 +9,7 @@ describe('FileGuestRepository', () => {
   let repository: FileGuestRepository;
 
   beforeEach(async () => {
-    tempDir = await mkdtemp(join(tmpdir(), 'taulame-guests-'));
+    tempDir = await mkdtemp(join(tmpdir(), 'taulamic-guests-'));
     repository = new FileGuestRepository({
       get: (_key: string, defaultValue: string) =>
         _key === 'guestImport.dataDir' ? tempDir : defaultValue,

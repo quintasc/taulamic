@@ -2,12 +2,12 @@
 
 - Ultima actualizacion: 2026-06-20
 - Hito activo: **MVP julio (piloto)** — ver `DECISION-002-mvp-julio-piloto-funcional.md`
-- Naming: **Taulame** en piloto; **Taulamic** candidato post-piloto — ver `DECISION-003-naming-taulame-taulamic.md`
+- Naming: producto **Taulamic**, dominio **taulamic.com**, repo `quintasc/taulamic` — ver `DECISION-003-naming-taulamic.md`
 
 ## Frase clave para Cursor
 
 ```text
-Retomo Taulame. MVP julio piloto (31 jul). Sprint 02 activo. EP-12 cerrado (#27-#31). EP-13 #32-#35 hechas. Siguiente: #36 E2E EP-13. Naming: Taulame piloto, Taulamic candidato (DECISION-003). SDD manda.
+Retomo Taulamic. MVP julio piloto (31 jul). Sprint 02 activo. EP-12 cerrado (#27-#31). EP-13 #32-#35 hechas. Siguiente: #36 E2E EP-13. Marca Taulamic (taulamic.com, DECISION-003). SDD manda.
 ```
 
 ## Dos niveles de MVP (no confundir)

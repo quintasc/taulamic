@@ -19,7 +19,7 @@ async function bootstrap() {
   );
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('Taulame API')
+    .setTitle('Taulamic API')
     .setDescription('API de distribucion inteligente de mesas para eventos')
     .setVersion('1.0')
     .addBearerAuth()

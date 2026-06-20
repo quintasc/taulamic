@@ -1,7 +1,8 @@
 # Sprint 02 - Plan de ejecucion
 
 > **Decision de ejecucion (Opcion B):** Sprint 01 pospuesto; este es el sprint activo.  
-> Ver `docs/agile/DECISION-001-sprint-01-pospuesto-opcion-b.md`. Seguimiento: #21.
+> Ver `docs/agile/DECISION-001-sprint-01-pospuesto-opcion-b.md`. Seguimiento: #21.  
+> **Hito piloto:** MVP julio (31 jul) — ver `DECISION-002-mvp-julio-piloto-funcional.md` y `mvp-julio-plan.md`.
 
 ## 1) Objetivo del sprint
 Entregar configuracion inteligente del salon y captura asistida de datos para reducir el esfuerzo inicial del admin.
@@ -28,8 +29,8 @@ Epicas comprometidas:
 
 1. ~~**#22**~~ Carga y validacion de plano — **cerrada en GitHub.**
 2. ~~**#23**~~ Deteccion asistida de mesas con confianza. **Cerrada.**
-3. ~~**#24**~~ Editor de correccion manual y confirmacion final. **Implementada — pendiente cierre formal.**
-4. ~~**#25**~~ Persistencia y versionado de layout importado. **Implementada — pendiente cierre formal.**
+3. ~~**#24**~~ Editor de correccion manual y confirmacion final. **Cerrada.**
+4. ~~**#25**~~ Persistencia y versionado de layout importado. **Cerrada.**
 5. **#26** Pruebas E2E y calidad de importacion de plano.
 6. **#27-#31** Flujo Excel en paralelo cuando #22-#24 esten estables.
 7. **#32-#36** Modos de preferencias y acompanantes.

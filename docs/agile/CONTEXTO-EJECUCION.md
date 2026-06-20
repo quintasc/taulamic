@@ -1,29 +1,35 @@
 # Contexto de ejecucion — punto de reanudacion
 
 - Ultima actualizacion: 2026-06-18
-- Uso: leer este documento al retomar el proyecto tras un corte.
+- Hito activo: **MVP julio (piloto)** — ver `DECISION-002-mvp-julio-piloto-funcional.md`
 
 ## Frase clave para Cursor
 
 ```text
-Retomo Taulame. Sprint 02 activo (Opcion B). #22-#25 cerradas (commit 568fb1d). Siguiente: #26 pruebas E2E calidad importacion plano. Arquitectura: Clean Architecture pragmatica (ADR-015). SDD manda.
+Retomo Taulame. MVP julio piloto (31 jul). Sprint 02 activo. #22-#25 cerradas. Siguiente: #26. Objetivo piloto: plano+Excel+evento+invitados+motor v0+UI admin minima. SDD completo post-piloto. DECISION-002. SDD manda.
 ```
 
-## Estado del proyecto
+## Dos niveles de MVP (no confundir)
+
+| Nivel | Que es | Cuando |
+|-------|--------|--------|
+| **MVP julio (piloto)** | Flujo admin demostrable en evento real | **2026-07-31** |
+| **MVP SDD completo** | Todo `SDD-01-borrador-mvp.md` | Post-piloto (ago 2026+) |
+
+## Estado actual
 
 | Aspecto | Estado |
 |---------|--------|
 | Sprint activo | Sprint 02 (#21) |
-| Issue actual | **#26** — E2E calidad importacion de plano |
-| Cerradas recientes | #22, #23, #24, #25 |
-| Ultimo commit | `568fb1d` |
+| Issue actual | **#26** |
+| EP-11 progreso | #22–#25 cerradas |
+| Plan detallado | `docs/agile/mvp-julio-plan.md` |
 
-## Secuencia Sprint 02
+## Proximas 2 semanas (W1–W2)
 
-1. ~~#22–#25~~ cerradas
-2. **#26** E2E calidad importacion — **siguiente**
-3. #27–#31 Excel
-4. #32–#36 Preferencias
+1. **#26** E2E calidad importacion plano
+2. **#27–#31** Excel invitados
+3. **#32–#36** Preferencias (si W1 va bien)
 
 ## Comandos utiles
 

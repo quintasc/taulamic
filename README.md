@@ -60,6 +60,8 @@ Este repositorio guarda decisiones de producto y tecnologia antes de programar e
 - `docs/agile/agile-para-principiantes.md`: guia basica de Agile para este proyecto.
 - `docs/agile/politica-validacion-tests-y-cobertura.md`: criterios profesionales para aceptar tests, cobertura y cierre de tareas.
 - `docs/agile/DECISION-001-sprint-01-pospuesto-opcion-b.md`: decision vigente de ejecucion (Sprint 01 pospuesto, Sprint 02 activo).
+- `docs/agile/DECISION-002-mvp-julio-piloto-funcional.md`: hito piloto 31 jul (alcance acotado; SDD completo post-piloto).
+- `docs/agile/mvp-julio-plan.md`: plan semanal hasta el piloto funcional.
 - `docs/agile/CONTEXTO-EJECUCION.md`: punto de reanudacion rapido (estado, siguiente accion, frase para Cursor).
 - `docs/agile/sprint-01-plan.md`: plan de trabajo y cierre para Sprint 01.
 - `docs/agile/sprint-02-plan.md`: plan de trabajo para Sprint 02 (configuracion inteligente y captura asistida).

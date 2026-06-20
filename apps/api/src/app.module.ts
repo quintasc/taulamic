@@ -4,6 +4,7 @@ import { appConfig } from './config/app.config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { FloorPlansModule } from './floor-plans/floor-plans.module';
+import { GuestImportModule } from './guest-import/guest-import.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { FloorPlansModule } from './floor-plans/floor-plans.module';
       load: [appConfig],
     }),
     FloorPlansModule,
+    GuestImportModule,
   ],
   controllers: [AppController],
   providers: [AppService],

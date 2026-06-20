@@ -2,11 +2,12 @@
 
 - Ultima actualizacion: 2026-06-20
 - Hito activo: **MVP julio (piloto)** — ver `DECISION-002-mvp-julio-piloto-funcional.md`
+- Naming: **Taulame** en piloto; **Taulamic** candidato post-piloto — ver `DECISION-003-naming-taulame-taulamic.md`
 
 ## Frase clave para Cursor
 
 ```text
-Retomo Taulame. MVP julio piloto (31 jul). Sprint 02 activo. EP-12 cerrado (#27-#31). EP-13 #32-#34 hechas. Siguiente: #35 preferencias. Objetivo piloto: plano+Excel+evento+invitados+motor v0+UI admin minima. SDD completo post-piloto. DECISION-002. SDD manda.
+Retomo Taulame. MVP julio piloto (31 jul). Sprint 02 activo. EP-12 cerrado (#27-#31). EP-13 #32-#35 hechas. Siguiente: #36 E2E EP-13. Naming: Taulame piloto, Taulamic candidato (DECISION-003). SDD manda.
 ```
 
 ## Dos niveles de MVP (no confundir)
@@ -21,16 +22,16 @@ Retomo Taulame. MVP julio piloto (31 jul). Sprint 02 activo. EP-12 cerrado (#27-
 | Aspecto | Estado |
 |---------|--------|
 | Sprint activo | Sprint 02 (#21) |
-| Issue actual | **#35** (preferencias) |
+| Issue actual | **#36** (E2E EP-13) |
 | EP-11 progreso | **#22–#26 cerradas** |
 | EP-12 progreso | **#27–#31 cerradas** |
-| EP-13 progreso | **#32–#34 cerradas** (modo + permisos + acompanantes) |
+| EP-13 progreso | **#32–#35 cerradas** (modo + permisos + acompanantes + auditoria) |
 | Plan detallado | `docs/agile/mvp-julio-plan.md` |
 | Roadmap grafico | `docs/agile/roadmap-mvp-julio.md` |
 
 ## Proximas 2 semanas (W1–W2)
 
-1. **#35–#36** Preferencias
+1. **#36** E2E consolidado EP-13
 2. **#15** Forma de mesa (si W1 va bien)
 
 ## Comandos utiles

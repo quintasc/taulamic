@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
+import { EventGovernanceAuditModule } from '../event-governance-audit/event-governance-audit.module';
 import {
   GetEventPreferenceModeUseCase,
   ListEventPreferenceModeRevisionsUseCase,
@@ -14,6 +15,7 @@ import { FileEventPreferenceSettingsRepository } from './infrastructure/persiste
 import { EVENT_PREFERENCE_SETTINGS_REPOSITORY } from './infrastructure/persistence/event-preference-settings.repository.port';
 
 @Module({
+  imports: [forwardRef(() => EventGovernanceAuditModule)],
   controllers: [EventsController],
   providers: [
     GetEventPreferenceModeUseCase,

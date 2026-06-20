@@ -1,3 +1,4 @@
+import type { ActorRole } from '../../../common/domain/actor-role';
 import type {
   EventPreferenceControlSettings,
   PreferenceControlMode,
@@ -9,6 +10,7 @@ export type EventPreferenceSettingsRepositoryPort = {
   updateMode(
     eventId: string,
     mode: PreferenceControlMode,
+    actorRole: ActorRole,
   ): Promise<EventPreferenceControlSettings>;
   listRevisions(eventId: string): Promise<PreferenceControlModeRevision[]>;
 };

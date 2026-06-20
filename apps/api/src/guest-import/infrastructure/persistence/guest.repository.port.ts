@@ -1,5 +1,6 @@
 import type { GuestUpsertInput } from '../../domain/guest-import.mapper';
 import type { Guest } from '../../domain/guest';
+import type { CompanionSeparationAuditSnapshot } from '../../../event-governance-audit/domain/governance-audit-entry';
 import type {
   GuestRestriction,
   RestrictionKind,
@@ -12,6 +13,12 @@ export type GuestBatchUpsertResult = {
   updated: number;
   categoriesEnsured: number;
   affectedGuestIds: string[];
+  companionSeparationChanges: CompanionSeparationAuditChange[];
+};
+
+export type CompanionSeparationAuditChange = {
+  before: CompanionSeparationAuditSnapshot | null;
+  after: CompanionSeparationAuditSnapshot;
 };
 
 export type UpdateSuggestionInput = {

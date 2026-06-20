@@ -9,7 +9,7 @@ import {
   normalizeCategoryName,
   type GuestUpsertInput,
 } from '../../domain/guest-import.mapper';
-import { companionSeparationFromImport } from '../../domain/companion-group.engine';
+import { companionSeparationFromImport, buildCompanionGroups } from '../../domain/companion-group.engine';
 import { detectSuggestionsFromObservation } from '../../domain/observation-suggestion.engine';
 import type {
   RestrictionSuggestion,
@@ -22,6 +22,7 @@ import type {
   UpdateSuggestionInput,
   AddManualRestrictionInput,
   CompanionGroupSeparationInput,
+  CompanionSeparationAuditChange,
 } from './guest.repository.port';
 
 type EventGuestStore = {
@@ -53,6 +54,7 @@ export class FileGuestRepository implements GuestRepositoryPort {
     rows: GuestUpsertInput[],
   ): Promise<GuestBatchUpsertResult> {
     const store = await this.loadStore(eventId);
+    const groupsBefore = buildCompanionGroups(store.guests);
     let created = 0;
     let updated = 0;
     let categoriesEnsured = 0;
@@ -120,7 +122,78 @@ export class FileGuestRepository implements GuestRepositoryPort {
     }
 
     await this.saveStore(store);
-    return { created, updated, categoriesEnsured, affectedGuestIds };
+
+    const companionSeparationChanges = this.collectCompanionSeparationChanges(
+      rows,
+      groupsBefore,
+      buildCompanionGroups(store.guests),
+    );
+
+    return {
+      created,
+      updated,
+      categoriesEnsured,
+      affectedGuestIds,
+      companionSeparationChanges,
+    };
+  }
+
+  private collectCompanionSeparationChanges(
+    rows: GuestUpsertInput[],
+    groupsBefore: ReturnType<typeof buildCompanionGroups>,
+    groupsAfter: ReturnType<typeof buildCompanionGroups>,
+  ): CompanionSeparationAuditChange[] {
+    const keysInBatch = new Set(
+      rows
+        .filter(
+          (row) =>
+            row.separarAcompanante === true && row.acompananteKey.trim(),
+        )
+        .map((row) => row.acompananteKey.trim()),
+    );
+
+    const changes: CompanionSeparationAuditChange[] = [];
+
+    for (const groupKey of keysInBatch) {
+      const beforeGroup = groupsBefore.find((group) => group.key === groupKey);
+      const afterGroup = groupsAfter.find((group) => group.key === groupKey);
+
+      if (!afterGroup || afterGroup.keepTogether) {
+        continue;
+      }
+
+      const beforeSnapshot = beforeGroup
+        ? this.toCompanionSeparationSnapshot(beforeGroup)
+        : null;
+      const afterSnapshot = this.toCompanionSeparationSnapshot(afterGroup);
+
+      if (
+        beforeSnapshot &&
+        beforeSnapshot.keepTogether === afterSnapshot.keepTogether &&
+        beforeSnapshot.reason === afterSnapshot.reason &&
+        beforeSnapshot.origin === afterSnapshot.origin
+      ) {
+        continue;
+      }
+
+      changes.push({
+        before: beforeSnapshot,
+        after: afterSnapshot,
+      });
+    }
+
+    return changes;
+  }
+
+  private toCompanionSeparationSnapshot(
+    group: ReturnType<typeof buildCompanionGroups>[number],
+  ): CompanionSeparationAuditChange['after'] {
+    return {
+      groupKey: group.key,
+      keepTogether: group.keepTogether,
+      reason: group.exception?.reason ?? null,
+      origin: group.exception?.origin ?? null,
+    };
   }
 
   async generateSuggestionsFromObservations(

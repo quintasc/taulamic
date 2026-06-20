@@ -35,8 +35,9 @@ describe('FileEventPreferenceSettingsRepository', () => {
     const first = await repository.updateMode(
       'evt_123',
       'anfitrion_exclusivo',
+      'admin',
     );
-    const second = await repository.updateMode('evt_123', 'colaborativo');
+    const second = await repository.updateMode('evt_123', 'colaborativo', 'admin');
 
     expect(first.latestVersion).toBe(1);
     expect(second.latestVersion).toBe(2);
@@ -45,6 +46,7 @@ describe('FileEventPreferenceSettingsRepository', () => {
       version: 2,
       mode: 'colaborativo',
       previousMode: 'anfitrion_exclusivo',
+      actorRole: 'admin',
     });
 
     const raw = await readFile(
@@ -56,10 +58,11 @@ describe('FileEventPreferenceSettingsRepository', () => {
   });
 
   it('no duplica revision si el modo no cambia', async () => {
-    await repository.updateMode('evt_123', 'anfitrion_exclusivo');
+    await repository.updateMode('evt_123', 'anfitrion_exclusivo', 'admin');
     const unchanged = await repository.updateMode(
       'evt_123',
       'anfitrion_exclusivo',
+      'admin',
     );
 
     expect(unchanged.latestVersion).toBe(1);

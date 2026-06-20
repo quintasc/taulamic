@@ -9,12 +9,14 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  ApiHeader,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
+import { ActorRoleHeader } from '../common/http/actor-role.decorator';
 import { parseActorRole, type ActorRole } from '../common/domain/actor-role';
 import {
   GetEventPreferenceModeUseCase,
@@ -92,13 +94,19 @@ export class EventsController {
     description:
       'Persiste el modo con historial versionado. No elimina preferencias ya registradas.',
   })
+  @ApiHeader({
+    name: 'x-taulame-actor-role',
+    required: false,
+    description: 'Rol del actor: admin o guest. Por defecto admin.',
+  })
   @ApiOkResponse({ type: EventPreferenceModeResponseDto })
   updateMode(
     @Param('eventId') eventId: string,
+    @ActorRoleHeader() actorRole: ActorRole,
     @Body() body: UpdateEventPreferenceModeDto,
   ): Promise<EventPreferenceModeResponseDto> {
     return this.updateEventPreferenceModeUseCase
-      .execute(eventId, body.mode)
+      .execute(eventId, body.mode, actorRole)
       .then(toResponse);
   }
 

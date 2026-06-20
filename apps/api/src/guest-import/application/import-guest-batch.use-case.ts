@@ -15,6 +15,7 @@ import {
   GUEST_REPOSITORY,
   type GuestRepositoryPort,
 } from '../infrastructure/persistence/guest.repository.port';
+import { RecordCompanionSeparationAuditUseCase } from '../../event-governance-audit/application/governance-audit.use-case';
 
 @Injectable()
 export class ImportGuestBatchUseCase {
@@ -23,6 +24,7 @@ export class ImportGuestBatchUseCase {
     private readonly parser: GuestImportParserPort,
     @Inject(GUEST_REPOSITORY)
     private readonly guestRepository: GuestRepositoryPort,
+    private readonly recordCompanionSeparationAuditUseCase: RecordCompanionSeparationAuditUseCase,
   ) {}
 
   async execute(
@@ -56,6 +58,15 @@ export class ImportGuestBatchUseCase {
       eventId,
       validRows.map((row) => mapImportRowToGuestInput(row)),
     );
+
+    for (const change of upsertResult.companionSeparationChanges) {
+      await this.recordCompanionSeparationAuditUseCase.execute({
+        eventId,
+        actorRole: 'admin',
+        before: change.before,
+        after: change.after,
+      });
+    }
 
     const suggestionsGenerated =
       await this.guestRepository.generateSuggestionsFromObservations(

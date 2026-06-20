@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { EventGovernanceAuditModule } from '../event-governance-audit/event-governance-audit.module';
 import { EventsModule } from '../events/events.module';
 import { GuestImportModule } from '../guest-import/guest-import.module';
 import {
@@ -10,7 +11,7 @@ import {
 import { GuestCompanionsController } from './guest-companions.controller';
 
 @Module({
-  imports: [GuestImportModule, EventsModule],
+  imports: [GuestImportModule, EventsModule, EventGovernanceAuditModule],
   controllers: [GuestCompanionsController],
   providers: [
     ListCompanionGroupsUseCase,

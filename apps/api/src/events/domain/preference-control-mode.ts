@@ -1,3 +1,5 @@
+import type { ActorRole } from '../../common/domain/actor-role';
+
 export const PREFERENCE_CONTROL_MODES = [
   'colaborativo',
   'anfitrion_exclusivo',
@@ -12,6 +14,7 @@ export type PreferenceControlModeRevision = {
   version: number;
   mode: PreferenceControlMode;
   previousMode: PreferenceControlMode | null;
+  actorRole: ActorRole;
   changedAt: string;
 };
 

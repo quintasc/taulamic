@@ -23,7 +23,9 @@ describe('ImportGuestBatchUseCase', () => {
       listGuests: jest.fn(),
       updateCompanionGroupSeparation: jest.fn(),
     };
-    useCase = new ImportGuestBatchUseCase(parser, repository);
+    useCase = new ImportGuestBatchUseCase(parser, repository, {
+      execute: jest.fn(),
+    } as never);
   });
 
   it('rechaza importacion con errores estructurales sin persistir', async () => {
@@ -93,6 +95,7 @@ describe('ImportGuestBatchUseCase', () => {
       updated: 0,
       categoriesEnsured: 1,
       affectedGuestIds: ['guest-1'],
+      companionSeparationChanges: [],
     });
     repository.generateSuggestionsFromObservations.mockResolvedValue(0);
 

@@ -36,6 +36,9 @@ export class PreferenceControlModeRevisionDto {
   @ApiProperty({ enum: PREFERENCE_CONTROL_MODES, nullable: true })
   previousMode!: PreferenceControlMode | null;
 
+  @ApiProperty({ enum: ACTOR_ROLES, example: 'admin' })
+  actorRole!: ActorRole;
+
   @ApiProperty()
   changedAt!: string;
 }

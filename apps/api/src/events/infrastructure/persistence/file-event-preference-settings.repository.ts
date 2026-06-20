@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, isAbsolute, join } from 'node:path';
+import type { ActorRole } from '../../../common/domain/actor-role';
 import {
   DEFAULT_PREFERENCE_CONTROL_MODE,
   type EventPreferenceControlSettings,
@@ -50,6 +51,7 @@ export class FileEventPreferenceSettingsRepository
   async updateMode(
     eventId: string,
     mode: PreferenceControlMode,
+    actorRole: ActorRole,
   ): Promise<EventPreferenceControlSettings> {
     const store = (await this.loadStore(eventId)) ?? {
       eventId,
@@ -69,6 +71,7 @@ export class FileEventPreferenceSettingsRepository
       version: nextVersion,
       mode,
       previousMode: store.latestVersion > 0 ? store.currentMode : null,
+      actorRole,
       changedAt: now,
     };
 
@@ -101,7 +104,10 @@ export class FileEventPreferenceSettingsRepository
       const parsed = JSON.parse(raw) as PreferenceControlModeStore;
       return {
         ...parsed,
-        revisions: parsed.revisions ?? [],
+        revisions: (parsed.revisions ?? []).map((revision) => ({
+          ...revision,
+          actorRole: revision.actorRole ?? 'admin',
+        })),
       };
     } catch {
       return null;

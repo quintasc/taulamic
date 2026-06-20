@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { EventGovernanceAuditModule } from '../event-governance-audit/event-governance-audit.module';
 import { EventsModule } from '../events/events.module';
 import { GenerateGuestTemplateUseCase } from './application/generate-guest-template.use-case';
 import { ImportGuestBatchUseCase } from './application/import-guest-batch.use-case';
@@ -18,7 +19,7 @@ import { FileGuestRepository } from './infrastructure/persistence/file-guest.rep
 import { GUEST_REPOSITORY } from './infrastructure/persistence/guest.repository.port';
 
 @Module({
-  imports: [EventsModule],
+  imports: [EventsModule, EventGovernanceAuditModule],
   controllers: [GuestImportController],
   providers: [
     GenerateGuestTemplateUseCase,

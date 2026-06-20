@@ -639,6 +639,200 @@ describe('GuestImport restriction suggestions (e2e #30)', () => {
   });
 });
 
+describe('GuestImport precarga E2E flujo completo (#31)', () => {
+  let app: INestApplication<App>;
+
+  beforeEach(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    app.setGlobalPrefix('api/v1');
+    app.useGlobalFilters(new ApiExceptionFilter());
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        transform: true,
+      }),
+    );
+    await app.init();
+  });
+
+  afterEach(async () => {
+    await app.close();
+    await rm(join(process.cwd(), 'uploads', 'guests'), {
+      recursive: true,
+      force: true,
+    });
+  });
+
+  it('descargar, completar, validar, corregir e importar con reporte accionable', async () => {
+    const templateResponse = await request(app.getHttpServer())
+      .get('/api/v1/events/evt_precarga_31/guest-import/template')
+      .buffer()
+      .parse((response, callback) => {
+        const chunks: Buffer[] = [];
+        response.on('data', (chunk: Buffer) => chunks.push(chunk));
+        response.on('end', () => callback(null, Buffer.concat(chunks)));
+      })
+      .expect(200);
+
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(templateResponse.body as never);
+    const sheet = workbook.getWorksheet(GUEST_TEMPLATE_SHEET_NAME)!;
+    const headers = (sheet.getRow(1).values as Array<string | undefined>).slice(
+      1,
+    );
+    expect(headers).toEqual([...GUEST_TEMPLATE_COLUMNS]);
+
+    const draftBuffer = await buildGuestWorkbook({
+      rows: [
+        [
+          'Ana Garcia',
+          'ana@ejemplo.com',
+          '+34600111222',
+          '',
+          'Familia novia',
+          '',
+          'Intolerancia lactosa',
+          '',
+          '',
+          '',
+        ],
+        [
+          'Luis Mal',
+          'correo-invalido',
+          '123',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+        ],
+      ],
+    });
+
+    const firstValidation = await request(app.getHttpServer())
+      .post('/api/v1/events/evt_precarga_31/guest-import/validate')
+      .attach('file', draftBuffer, {
+        filename: 'invitados.xlsx',
+        contentType:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      })
+      .expect(200);
+
+    expect(firstValidation.body).toMatchObject({
+      eventId: 'evt_precarga_31',
+      valid: false,
+      totalRows: 2,
+      validRows: 1,
+      invalidRows: 1,
+    });
+    expect(firstValidation.body.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ row: 3, field: 'correo', code: 'XLS-002' }),
+        expect.objectContaining({ row: 3, field: 'telefono', code: 'XLS-003' }),
+      ]),
+    );
+
+    const correctedWorkbook = new ExcelJS.Workbook();
+    await correctedWorkbook.xlsx.load(draftBuffer as never);
+    const correctedSheet = correctedWorkbook.getWorksheet(GUEST_TEMPLATE_SHEET_NAME)!;
+    correctedSheet.getCell('B3').value = 'luis@ejemplo.com';
+    correctedSheet.getCell('C3').value = '+34600333444';
+    const correctedBuffer = Buffer.from(await correctedWorkbook.xlsx.writeBuffer());
+
+    const secondValidation = await request(app.getHttpServer())
+      .post('/api/v1/events/evt_precarga_31/guest-import/validate')
+      .attach('file', correctedBuffer, {
+        filename: 'invitados.xlsx',
+        contentType:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      })
+      .expect(200);
+
+    expect(secondValidation.body).toMatchObject({
+      valid: true,
+      totalRows: 2,
+      validRows: 2,
+      invalidRows: 0,
+      errors: [],
+    });
+
+    const importResponse = await request(app.getHttpServer())
+      .post('/api/v1/events/evt_precarga_31/guest-import/import')
+      .attach('file', correctedBuffer, {
+        filename: 'invitados.xlsx',
+        contentType:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      })
+      .expect(200);
+
+    expect(importResponse.body).toMatchObject({
+      eventId: 'evt_precarga_31',
+      totalRows: 2,
+      created: 2,
+      updated: 0,
+      rejected: 0,
+      errors: [],
+    });
+    expect(importResponse.body.categoriesEnsured).toBeGreaterThanOrEqual(1);
+    expect(importResponse.body.suggestionsGenerated).toBeGreaterThanOrEqual(1);
+
+    const suggestions = await request(app.getHttpServer())
+      .get('/api/v1/events/evt_precarga_31/guest-import/suggestions')
+      .expect(200);
+
+    expect(suggestions.body.suggestions.length).toBeGreaterThan(0);
+
+    const suggestionId = suggestions.body.suggestions[0].id;
+    await request(app.getHttpServer())
+      .post(
+        `/api/v1/events/evt_precarga_31/guest-import/suggestions/${suggestionId}/accept`,
+      )
+      .expect(200);
+  });
+
+  it('reporta errores criticos estructurales sin importar filas invalidas', async () => {
+    const buffer = await buildGuestWorkbook({
+      headers: ['nombre', 'correo'],
+      rows: [['Ana', 'ana@ejemplo.com']],
+    });
+
+    const validation = await request(app.getHttpServer())
+      .post('/api/v1/events/evt_precarga_31/guest-import/validate')
+      .attach('file', buffer, {
+        filename: 'invitados.xlsx',
+        contentType:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      })
+      .expect(200);
+
+    expect(validation.body.valid).toBe(false);
+    expect(validation.body.errors[0]).toMatchObject({ code: 'XLS-001' });
+
+    const importResponse = await request(app.getHttpServer())
+      .post('/api/v1/events/evt_precarga_31/guest-import/import')
+      .attach('file', buffer, {
+        filename: 'invitados.xlsx',
+        contentType:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      })
+      .expect(200);
+
+    expect(importResponse.body).toMatchObject({
+      totalRows: 0,
+      created: 0,
+      updated: 0,
+      rejected: 0,
+    });
+    expect(importResponse.body.errors[0]).toMatchObject({ code: 'XLS-001' });
+  });
+});
+
 async function buildGuestWorkbook(options: {
   headers?: string[];
   rows?: string[][];

@@ -23,6 +23,20 @@ Esta decision **sustituye** la postura anterior de mantener **Taulame** hasta de
 - Trazabilidad de riesgos foneticos asumidos (Talismatic, Talmatic) en sector distinto.
 - Cualquier cambio futuro de marca requerira DECISION de seguimiento.
 
+## Cierre rebrand (100 %)
+
+Estado: **cerrado** (2026-06-20).
+
+| Elemento | Estado |
+|----------|--------|
+| Codigo y tests (`x-taulamic-*`, plantillas, Swagger) | Hecho (`c3183c1`) |
+| Docs, SDD, ADR, PRD | Hecho (`c3183c1`) |
+| GitHub `quintasc/taulamic` + remote local | Hecho |
+| README (dominio registrado + enlace repo) | Hecho (`fc790c0`) |
+| Referencias activas a Taulame fuera de esta decision | Ninguna |
+
+Pendiente opcional (no bloqueante): renombrar carpeta local del workspace de `taulame` a `taulamic`.
+
 ## Referencias
 
 - SDD-00 (vision y estrategia)

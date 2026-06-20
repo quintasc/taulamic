@@ -1,6 +1,6 @@
 # SDD-00 - Vision y Estrategia
 
-Producto: **Taulamic** (`taulamic.com` objetivo). Mercado inicial: Espana.
+Producto: **Taulamic** (`taulamic.com`, registrado). Mercado inicial: Espana.
 
 ## 0) Gobernanza del SDD
 

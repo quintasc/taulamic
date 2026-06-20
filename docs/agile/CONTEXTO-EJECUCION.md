@@ -2,12 +2,12 @@
 
 - Ultima actualizacion: 2026-06-20
 - Hito activo: **MVP julio (piloto)** — ver `DECISION-002-mvp-julio-piloto-funcional.md`
-- Naming: producto **Taulamic**, dominio **taulamic.com**, repo `quintasc/taulamic` — ver `DECISION-003-naming-taulamic.md`
+- Naming: producto **Taulamic**, dominio **taulamic.com**, repo `quintasc/taulamic` — rebrand **cerrado 100 %** (`DECISION-003`, commits `c3183c1` + `fc790c0`)
 
 ## Frase clave para Cursor
 
 ```text
-Retomo Taulamic. MVP julio piloto (31 jul). Sprint 02 activo. EP-12 cerrado (#27-#31). EP-13 #32-#35 hechas. Siguiente: #36 E2E EP-13. Marca Taulamic (taulamic.com, DECISION-003). SDD manda.
+Retomo Taulamic. MVP julio piloto (31 jul). Sprint 02 activo. Rebrand cerrado. EP-13 #32-#35 hechas. Siguiente: #36 E2E EP-13. SDD manda.
 ```
 
 ## Dos niveles de MVP (no confundir)

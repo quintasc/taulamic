@@ -7,4 +7,7 @@ export const appConfig = () => ({
     ),
     uploadDir: process.env.FLOOR_PLAN_UPLOAD_DIR ?? 'uploads/floor-plans',
   },
+  guestImport: {
+    dataDir: process.env.GUEST_IMPORT_DATA_DIR ?? 'uploads/guests',
+  },
 });

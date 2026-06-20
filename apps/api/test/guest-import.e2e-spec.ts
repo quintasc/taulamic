@@ -1,3 +1,5 @@
+import { rm } from 'node:fs/promises';
+import { join } from 'node:path';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import ExcelJS from 'exceljs';
@@ -251,6 +253,192 @@ describe('GuestImport validate (e2e #28)', () => {
   });
 });
 
+describe('GuestImport batch import (e2e #29)', () => {
+  let app: INestApplication<App>;
+
+  beforeEach(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    app.setGlobalPrefix('api/v1');
+    app.useGlobalFilters(new ApiExceptionFilter());
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        transform: true,
+      }),
+    );
+    await app.init();
+  });
+
+  afterEach(async () => {
+    await app.close();
+    await rm(join(process.cwd(), 'uploads', 'guests'), {
+      recursive: true,
+      force: true,
+    });
+  });
+
+  it('importa filas validas con conteos de creados y categorias', async () => {
+    const buffer = await buildGuestWorkbook({
+      rows: [
+        [
+          'Ana Garcia',
+          'ana@ejemplo.com',
+          '+34600111222',
+          '',
+          'Familia novia',
+          '',
+          '',
+          '',
+          '',
+          '',
+        ],
+        [
+          'Luis Martinez',
+          'luis@ejemplo.com',
+          '+34600333444',
+          '',
+          'Familia novia',
+          'Pareja',
+          '',
+          'PAREJA_001',
+          'false',
+          'colaborativo',
+        ],
+      ],
+    });
+
+    const response = await request(app.getHttpServer())
+      .post('/api/v1/events/evt_123/guest-import/import')
+      .attach('file', buffer, {
+        filename: 'invitados.xlsx',
+        contentType:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      })
+      .expect(200);
+
+    expect(response.body).toMatchObject({
+      eventId: 'evt_123',
+      totalRows: 2,
+      created: 2,
+      updated: 0,
+      rejected: 0,
+    });
+    expect(response.body.categoriesEnsured).toBeGreaterThanOrEqual(2);
+  });
+
+  it('actualiza invitados existentes por correo en reimportacion', async () => {
+    const buffer = await buildGuestWorkbook({
+      rows: [
+        [
+          'Ana Garcia',
+          'ana@ejemplo.com',
+          '+34600111222',
+          '',
+          'Familia novia',
+          '',
+          '',
+          '',
+          '',
+          '',
+        ],
+      ],
+    });
+
+    await request(app.getHttpServer())
+      .post('/api/v1/events/evt_123/guest-import/import')
+      .attach('file', buffer, {
+        filename: 'invitados.xlsx',
+        contentType:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      })
+      .expect(200);
+
+    const updatedBuffer = await buildGuestWorkbook({
+      rows: [
+        [
+          'Ana Garcia Lopez',
+          'ana@ejemplo.com',
+          '+34600999888',
+          'Madrid',
+          'Familia novia',
+          '',
+          'Nota',
+          '',
+          '',
+          '',
+        ],
+      ],
+    });
+
+    const response = await request(app.getHttpServer())
+      .post('/api/v1/events/evt_123/guest-import/import')
+      .attach('file', updatedBuffer, {
+        filename: 'invitados.xlsx',
+        contentType:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      })
+      .expect(200);
+
+    expect(response.body).toMatchObject({
+      created: 0,
+      updated: 1,
+      rejected: 0,
+    });
+  });
+
+  it('importa filas validas y rechaza invalidas sin perder consistencia', async () => {
+    const buffer = await buildGuestWorkbook({
+      rows: [
+        [
+          'Ana Garcia',
+          'ana@ejemplo.com',
+          '+34600111222',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+        ],
+        [
+          'Mal fila',
+          'correo-invalido',
+          '123',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+        ],
+      ],
+    });
+
+    const response = await request(app.getHttpServer())
+      .post('/api/v1/events/evt_123/guest-import/import')
+      .attach('file', buffer, {
+        filename: 'invitados.xlsx',
+        contentType:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      })
+      .expect(200);
+
+    expect(response.body).toMatchObject({
+      totalRows: 2,
+      created: 1,
+      updated: 0,
+      rejected: 1,
+    });
+    expect(response.body.errors.length).toBeGreaterThan(0);
+  });
+});
+
 async function buildGuestWorkbook(options: {
   headers?: string[];
   rows?: string[][];
@@ -265,3 +453,4 @@ async function buildGuestWorkbook(options: {
 
   return Buffer.from(await workbook.xlsx.writeBuffer());
 }
+

@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { validateGuestImportRows } from '../domain/guest-row.validator';
 import type { GuestImportValidationResult } from '../domain/guest-import-validation-result';
-import type { GuestImportRowError } from '../domain/guest-import-row-error';
+import { collectInvalidRowNumbers } from '../domain/guest-import-row-errors';
 import {
   assertValidGuestImportFile,
   type GuestImportUploadFile,
@@ -27,7 +27,7 @@ export class ValidateGuestImportUseCase {
     const parsed = await this.parser.parse(file!.buffer);
     const rowErrors = validateGuestImportRows(parsed.rows);
     const errors = [...parsed.structuralErrors, ...rowErrors];
-    const invalidRowNumbers = this.collectInvalidRowNumbers(errors);
+    const invalidRowNumbers = collectInvalidRowNumbers(errors);
     const validRows = parsed.rows.filter(
       (row) => !invalidRowNumbers.has(row.rowNumber),
     ).length;
@@ -41,13 +41,5 @@ export class ValidateGuestImportUseCase {
       errors,
       rows: parsed.rows,
     };
-  }
-
-  private collectInvalidRowNumbers(
-    errors: GuestImportRowError[],
-  ): Set<number> {
-    return new Set(
-      errors.map((error) => error.row).filter((row) => row > 0),
-    );
   }
 }

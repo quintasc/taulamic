@@ -23,7 +23,9 @@ import {
 import type { Response } from 'express';
 import { memoryStorage } from 'multer';
 import { GenerateGuestTemplateUseCase } from './application/generate-guest-template.use-case';
+import { ImportGuestBatchUseCase } from './application/import-guest-batch.use-case';
 import { ValidateGuestImportUseCase } from './application/validate-guest-import.use-case';
+import { GuestImportBatchResponseDto } from './dto/guest-import-batch-response.dto';
 import { GuestImportValidationResponseDto } from './dto/guest-import-validation-response.dto';
 
 @ApiTags('guest-import')
@@ -32,6 +34,7 @@ export class GuestImportController {
   constructor(
     private readonly generateGuestTemplateUseCase: GenerateGuestTemplateUseCase,
     private readonly validateGuestImportUseCase: ValidateGuestImportUseCase,
+    private readonly importGuestBatchUseCase: ImportGuestBatchUseCase,
   ) {}
 
   @Get('template')
@@ -103,5 +106,39 @@ export class GuestImportController {
         errors: result.errors,
       }),
     );
+  }
+
+  @Post('import')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Importar invitados desde Excel',
+    description:
+      'Valida filas validas, hace upsert por correo y normaliza categorias del evento. Las filas con error se rechazan sin bloquear las validas.',
+  })
+  @ApiParam({ name: 'eventId', example: 'evt_123' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['file'],
+      properties: {
+        file: { type: 'string', format: 'binary' },
+      },
+    },
+  })
+  @ApiOkResponse({ type: GuestImportBatchResponseDto })
+  @ApiBadRequestResponse({
+    description: 'Archivo ausente, formato invalido o tamano excedido.',
+  })
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+    }),
+  )
+  import(
+    @Param('eventId') eventId: string,
+    @UploadedFile() file: Express.Multer.File | undefined,
+  ): Promise<GuestImportBatchResponseDto> {
+    return this.importGuestBatchUseCase.execute(eventId, file);
   }
 }

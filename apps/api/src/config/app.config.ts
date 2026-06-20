@@ -10,4 +10,7 @@ export const appConfig = () => ({
   guestImport: {
     dataDir: process.env.GUEST_IMPORT_DATA_DIR ?? 'uploads/guests',
   },
+  events: {
+    dataDir: process.env.EVENTS_DATA_DIR ?? 'uploads/events',
+  },
 });

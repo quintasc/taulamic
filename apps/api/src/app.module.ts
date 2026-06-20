@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { FloorPlansModule } from './floor-plans/floor-plans.module';
 import { GuestImportModule } from './guest-import/guest-import.module';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { GuestImportModule } from './guest-import/guest-import.module';
     }),
     FloorPlansModule,
     GuestImportModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

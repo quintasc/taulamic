@@ -34,8 +34,7 @@ Estado: **cerrado** (2026-06-20).
 | GitHub `quintasc/taulamic` + remote local | Hecho |
 | README (dominio registrado + enlace repo) | Hecho (`fc790c0`) |
 | Referencias activas a Taulame fuera de esta decision | Ninguna |
-
-Pendiente opcional (no bloqueante): renombrar carpeta local del workspace de `taulame` a `taulamic`.
+| Carpeta local del workspace (`taulamic`) | Hecho |
 
 ## Referencias
 

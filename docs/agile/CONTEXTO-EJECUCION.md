@@ -3,20 +3,20 @@
 - Ultima actualizacion: 2026-06-20
 - Hito activo: **MVP julio (piloto)** — ver `DECISION-002-mvp-julio-piloto-funcional.md`
 - Naming: producto **Taulamic**, dominio **taulamic.com**, repo `quintasc/taulamic` — rebrand **cerrado 100 %** (`DECISION-003`; commits `c3183c1`, `fc790c0`, `d2749d0`)
-- Workspace local: carpeta **`taulamic`** (renombrar desde `taulame` si aun no lo hiciste; ver abajo)
+- Workspace local: carpeta **`taulamic`** ✓
 
 ## Al reabrir Cursor (leer primero)
 
-1. **Abrir carpeta:** `...\PROYECTO\taulamic` (no `taulame`).
+1. **Abrir carpeta:** `...\PROYECTO\taulamic`.
 2. **Comprobar git:** `git status -sb` → debe mostrar `## main...origin/main`.
 3. **Pegar en el chat** la frase clave de abajo.
-4. **Siguiente trabajo:** issue **#36** — suite E2E consolidada EP-13 (modo + permisos + acompanantes + auditoria).
+4. **Siguiente trabajo:** issue **#15** — forma de mesa y topologia de asientos (EP-01).
 5. **Patron de cierre:** implementar → `npm run build && npm test && npm run test:e2e` → commit + push → cerrar issue en GitHub → actualizar este archivo.
 
 ## Frase clave para Cursor
 
 ```text
-Retomo Taulamic. MVP julio piloto (31 jul). Sprint 02 activo. Rebrand cerrado 100%. Workspace taulamic. EP-13 #32-#35 hechas. Siguiente: #36 E2E consolidado EP-13. SDD manda.
+Retomo Taulamic. MVP julio piloto (31 jul). Sprint 02 activo. Rebrand cerrado. EP-13 cerrado (#36). Siguiente: #15 forma de mesa. SDD manda.
 ```
 
 ## Donde estamos ahora
@@ -24,32 +24,21 @@ Retomo Taulamic. MVP julio piloto (31 jul). Sprint 02 activo. Rebrand cerrado 10
 | Aspecto | Estado |
 |---------|--------|
 | Sprint activo | Sprint 02 (#21) |
-| Issue actual | **#36** (E2E EP-13) — **abierta** |
+| Issue actual | **#15** (forma de mesa) — **abierta** |
 | EP-11 | **#22–#26 cerradas** |
 | EP-12 | **#27–#31 cerradas** |
-| EP-13 implementacion | **#32–#35 cerradas** (modo, permisos, acompanantes, auditoria gobernanza) |
-| EP-13 pruebas E2E | **#36 pendiente** |
-| Rebrand Taulame → Taulamic | **Cerrado** (codigo, docs, GitHub, README) |
-| Carpeta local | Renombrar `taulame` → `taulamic` al reabrir (opcional cosmético; git no cambia) |
+| EP-13 | **#32–#36 cerradas** — gobernanza preferencias completa |
+| Rebrand Taulame → Taulamic | **Cerrado** (codigo, docs, GitHub, README, workspace local) |
 | Plan detallado | `docs/agile/mvp-julio-plan.md` |
 | Roadmap grafico | `docs/agile/roadmap-mvp-julio.md` |
 
-## Issue #36 — que hay que hacer
+## Issue #15 — que hay que hacer
 
-**Objetivo:** una suite E2E que valide EP-13 de punta a punta (SDD HU-38, HU-39, HU-40 + trazabilidad de auditoria).
+**Objetivo:** HU-29 — configurar forma de mesa y topologia de asientos (adyacencia/proximidad). EP-01.
 
-**Ya existen** suites separadas (no sustituyen #36):
+**Referencia SDD:** `SDD-02-backlog-inicial.md` (EP-01, HU-29).
 
-| Archivo | Issue |
-|---------|-------|
-| `apps/api/test/events.e2e-spec.ts` | #32 modo preferencias |
-| `apps/api/test/guest-preferences.e2e-spec.ts` | #33 permisos por modo |
-| `apps/api/test/guest-companions.e2e-spec.ts` | #34 acompanantes |
-| `apps/api/test/event-governance-audit.e2e-spec.ts` | #35 auditoria |
-
-**Entregable #36:** nuevo spec consolidado (p. ej. `ep-13-governance.e2e-spec.ts`) o ampliacion coordinada que recorra el flujo completo en un solo escenario: modo → restricciones segun rol → grupos acompañantes → `GET .../governance-audit`.
-
-**Tras #36:** cerrar EP-13; siguiente en roadmap W1–W2 → **#15** (forma de mesa).
+**Tras #15:** continuar EP-01 segun roadmap W1–W2.
 
 ## Dos niveles de MVP (no confundir)
 
@@ -69,7 +58,7 @@ npm run build && npm test && npm run test:e2e
 
 | Commit | Descripcion |
 |--------|-------------|
-| `c3183c1` | Rebrand producto y repo Taulame → Taulamic |
-| `fc790c0` | README: dominio registrado + enlace repo |
+| `#36` | E2E consolidado EP-13 (`ep-13-governance.e2e-spec.ts`) |
+| `69b9301` | Punto de reanudacion post-rebrand |
 | `d2749d0` | Documentacion: rebrand cerrado al 100 % |
 | `#35` | `7678825` — auditoria gobernanza modo y acompanantes |

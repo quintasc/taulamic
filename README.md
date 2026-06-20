@@ -5,7 +5,8 @@
 Repositorio privado (SDD + Agile) para definir y construir Taulamic: una aplicacion de distribucion de personas en eventos (bodas, cenas de empresa, clases y otros escenarios similares).
 
 - **Marca:** Taulamic
-- **Dominio objetivo:** `taulamic.com` (pendiente de registro)
+- **Dominio:** `taulamic.com` (registrado)
+- **Repositorio:** [quintasc/taulamic](https://github.com/quintasc/taulamic)
 - **Mercado inicial:** Espana
 - **GitHub Project:** [Taulamic](https://github.com/users/quintasc/projects/2)
 

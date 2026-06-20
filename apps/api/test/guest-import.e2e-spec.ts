@@ -439,6 +439,206 @@ describe('GuestImport batch import (e2e #29)', () => {
   });
 });
 
+describe('GuestImport restriction suggestions (e2e #30)', () => {
+  let app: INestApplication<App>;
+
+  beforeEach(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    app.setGlobalPrefix('api/v1');
+    app.useGlobalFilters(new ApiExceptionFilter());
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        transform: true,
+      }),
+    );
+    await app.init();
+  });
+
+  afterEach(async () => {
+    await app.close();
+    await rm(join(process.cwd(), 'uploads', 'guests'), {
+      recursive: true,
+      force: true,
+    });
+  });
+
+  it('genera sugerencias pendientes al importar observaciones', async () => {
+    const buffer = await buildGuestWorkbook({
+      rows: [
+        [
+          'Ana Garcia',
+          'ana@ejemplo.com',
+          '+34600111222',
+          '',
+          '',
+          '',
+          'No sentar con Juan Perez',
+          '',
+          '',
+          '',
+        ],
+      ],
+    });
+
+    const importResponse = await request(app.getHttpServer())
+      .post('/api/v1/events/evt_123/guest-import/import')
+      .attach('file', buffer, {
+        filename: 'invitados.xlsx',
+        contentType:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      })
+      .expect(200);
+
+    expect(importResponse.body.suggestionsGenerated).toBeGreaterThanOrEqual(1);
+
+    const listResponse = await request(app.getHttpServer())
+      .get('/api/v1/events/evt_123/guest-import/suggestions')
+      .expect(200);
+
+    expect(listResponse.body.suggestions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'incompatibilidad',
+          targetHint: 'Juan Perez',
+          status: 'pending',
+        }),
+      ]),
+    );
+  });
+
+  it('acepta sugerencia y rechaza otra sin auto-aplicar', async () => {
+    const buffer = await buildGuestWorkbook({
+      rows: [
+        [
+          'Ana Garcia',
+          'ana@ejemplo.com',
+          '+34600111222',
+          '',
+          '',
+          '',
+          'Prefiere sentar con Maria Lopez',
+          '',
+          '',
+          '',
+        ],
+        [
+          'Luis Martinez',
+          'luis@ejemplo.com',
+          '+34600333444',
+          '',
+          '',
+          '',
+          'Intolerancia lactosa',
+          '',
+          '',
+          '',
+        ],
+      ],
+    });
+
+    await request(app.getHttpServer())
+      .post('/api/v1/events/evt_123/guest-import/import')
+      .attach('file', buffer, {
+        filename: 'invitados.xlsx',
+        contentType:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      })
+      .expect(200);
+
+    const listResponse = await request(app.getHttpServer())
+      .get('/api/v1/events/evt_123/guest-import/suggestions')
+      .expect(200);
+
+    const affinity = listResponse.body.suggestions.find(
+      (item: { kind: string }) => item.kind === 'afinidad',
+    );
+    const intolerance = listResponse.body.suggestions.find(
+      (item: { kind: string }) => item.kind === 'intolerancia_alimentaria',
+    );
+
+    const accepted = await request(app.getHttpServer())
+      .post(
+        `/api/v1/events/evt_123/guest-import/suggestions/${affinity.id}/accept`,
+      )
+      .expect(200);
+
+    expect(accepted.body).toMatchObject({
+      id: affinity.id,
+      status: 'accepted',
+      kind: 'afinidad',
+    });
+
+    const rejected = await request(app.getHttpServer())
+      .post(
+        `/api/v1/events/evt_123/guest-import/suggestions/${intolerance.id}/reject`,
+      )
+      .expect(200);
+
+    expect(rejected.body).toMatchObject({
+      id: intolerance.id,
+      status: 'rejected',
+    });
+
+    const pending = await request(app.getHttpServer())
+      .get('/api/v1/events/evt_123/guest-import/suggestions')
+      .expect(200);
+
+    expect(pending.body.suggestions).toHaveLength(0);
+  });
+
+  it('permite editar sugerencia pendiente antes de confirmar', async () => {
+    const buffer = await buildGuestWorkbook({
+      rows: [
+        [
+          'Ana Garcia',
+          'ana@ejemplo.com',
+          '+34600111222',
+          '',
+          '',
+          '',
+          'No sentar con Juan Perez',
+          '',
+          '',
+          '',
+        ],
+      ],
+    });
+
+    await request(app.getHttpServer())
+      .post('/api/v1/events/evt_123/guest-import/import')
+      .attach('file', buffer, {
+        filename: 'invitados.xlsx',
+        contentType:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      })
+      .expect(200);
+
+    const listResponse = await request(app.getHttpServer())
+      .get('/api/v1/events/evt_123/guest-import/suggestions')
+      .expect(200);
+
+    expect(listResponse.body.suggestions.length).toBeGreaterThan(0);
+    const suggestionId = listResponse.body.suggestions[0].id;
+
+    const updated = await request(app.getHttpServer())
+      .put(`/api/v1/events/evt_123/guest-import/suggestions/${suggestionId}`)
+      .set('Content-Type', 'application/json')
+      .send({ targetHint: 'Juan Pérez García' })
+      .expect(200);
+
+    expect(updated.body).toMatchObject({
+      id: suggestionId,
+      targetHint: 'Juan Pérez García',
+      status: 'pending',
+    });
+  });
+});
+
 async function buildGuestWorkbook(options: {
   headers?: string[];
   rows?: string[][];

@@ -6,7 +6,7 @@
 ## Frase clave para Cursor
 
 ```text
-Retomo Taulame. MVP julio piloto (31 jul). Sprint 02 activo. EP-12 (#27-#29 hechas). Siguiente: #30 sugerencias y E2E precarga Excel. Objetivo piloto: plano+Excel+evento+invitados+motor v0+UI admin minima. SDD completo post-piloto. DECISION-002. SDD manda.
+Retomo Taulame. MVP julio piloto (31 jul). Sprint 02 activo. EP-12 (#27-#30 hechas). Siguiente: #31 E2E precarga Excel. Objetivo piloto: plano+Excel+evento+invitados+motor v0+UI admin minima. SDD completo post-piloto. DECISION-002. SDD manda.
 ```
 
 ## Dos niveles de MVP (no confundir)
@@ -21,15 +21,15 @@ Retomo Taulame. MVP julio piloto (31 jul). Sprint 02 activo. EP-12 (#27-#29 hech
 | Aspecto | Estado |
 |---------|--------|
 | Sprint activo | Sprint 02 (#21) |
-| Issue actual | **#30** (sugerencias y E2E precarga Excel) |
+| Issue actual | **#31** (E2E precarga Excel EP-12) |
 | EP-11 progreso | **#22–#26 cerradas** |
-| EP-12 progreso | **#27–#29 cerradas** (plantilla, parser, importador por lote) |
+| EP-12 progreso | **#27–#30 cerradas** (plantilla, parser, importador, sugerencias) |
 | Plan detallado | `docs/agile/mvp-julio-plan.md` |
 | Roadmap grafico | `docs/agile/roadmap-mvp-julio.md` (Gantt + fechas) |
 
 ## Proximas 2 semanas (W1–W2)
 
-1. **#30–#31** Sugerencias y E2E precarga Excel
+1. **#31** E2E precarga Excel
 2. **#32–#36** Preferencias (si W1 va bien)
 
 ## Comandos utiles

@@ -1,6 +1,12 @@
 import { Module } from '@nestjs/common';
 import { GenerateGuestTemplateUseCase } from './application/generate-guest-template.use-case';
 import { ImportGuestBatchUseCase } from './application/import-guest-batch.use-case';
+import { ListGuestSuggestionsUseCase } from './application/list-guest-suggestions.use-case';
+import {
+  AcceptGuestSuggestionUseCase,
+  RejectGuestSuggestionUseCase,
+  UpdateGuestSuggestionUseCase,
+} from './application/manage-guest-suggestion.use-case';
 import { ValidateGuestImportUseCase } from './application/validate-guest-import.use-case';
 import { GuestImportController } from './guest-import.controller';
 import { ExcelJsGuestImportParser } from './infrastructure/excel/exceljs-guest-import.parser';
@@ -16,6 +22,10 @@ import { GUEST_REPOSITORY } from './infrastructure/persistence/guest.repository.
     GenerateGuestTemplateUseCase,
     ValidateGuestImportUseCase,
     ImportGuestBatchUseCase,
+    ListGuestSuggestionsUseCase,
+    AcceptGuestSuggestionUseCase,
+    RejectGuestSuggestionUseCase,
+    UpdateGuestSuggestionUseCase,
     ExcelJsGuestTemplateGenerator,
     ExcelJsGuestImportParser,
     FileGuestRepository,

@@ -1,10 +1,12 @@
 import {
+  Body,
   Controller,
   Get,
   HttpCode,
   HttpStatus,
   Param,
   Post,
+  Put,
   Res,
   UploadedFile,
   UseInterceptors,
@@ -24,9 +26,20 @@ import type { Response } from 'express';
 import { memoryStorage } from 'multer';
 import { GenerateGuestTemplateUseCase } from './application/generate-guest-template.use-case';
 import { ImportGuestBatchUseCase } from './application/import-guest-batch.use-case';
+import {
+  AcceptGuestSuggestionUseCase,
+  RejectGuestSuggestionUseCase,
+  UpdateGuestSuggestionUseCase,
+} from './application/manage-guest-suggestion.use-case';
+import { ListGuestSuggestionsUseCase } from './application/list-guest-suggestions.use-case';
 import { ValidateGuestImportUseCase } from './application/validate-guest-import.use-case';
 import { GuestImportBatchResponseDto } from './dto/guest-import-batch-response.dto';
 import { GuestImportValidationResponseDto } from './dto/guest-import-validation-response.dto';
+import {
+  RestrictionSuggestionDto,
+  RestrictionSuggestionListResponseDto,
+  UpdateRestrictionSuggestionDto,
+} from './dto/restriction-suggestion.dto';
 
 @ApiTags('guest-import')
 @Controller('events/:eventId/guest-import')
@@ -35,6 +48,10 @@ export class GuestImportController {
     private readonly generateGuestTemplateUseCase: GenerateGuestTemplateUseCase,
     private readonly validateGuestImportUseCase: ValidateGuestImportUseCase,
     private readonly importGuestBatchUseCase: ImportGuestBatchUseCase,
+    private readonly listGuestSuggestionsUseCase: ListGuestSuggestionsUseCase,
+    private readonly acceptGuestSuggestionUseCase: AcceptGuestSuggestionUseCase,
+    private readonly rejectGuestSuggestionUseCase: RejectGuestSuggestionUseCase,
+    private readonly updateGuestSuggestionUseCase: UpdateGuestSuggestionUseCase,
   ) {}
 
   @Get('template')
@@ -140,5 +157,59 @@ export class GuestImportController {
     @UploadedFile() file: Express.Multer.File | undefined,
   ): Promise<GuestImportBatchResponseDto> {
     return this.importGuestBatchUseCase.execute(eventId, file);
+  }
+
+  @Get('suggestions')
+  @ApiOperation({
+    summary: 'Listar sugerencias de restricciones pendientes',
+    description:
+      'Devuelve sugerencias generadas desde observaciones del Excel sin aplicarlas automaticamente.',
+  })
+  @ApiOkResponse({ type: RestrictionSuggestionListResponseDto })
+  async listSuggestions(
+    @Param('eventId') eventId: string,
+  ): Promise<RestrictionSuggestionListResponseDto> {
+    const suggestions = await this.listGuestSuggestionsUseCase.execute(eventId);
+    return { eventId, suggestions };
+  }
+
+  @Post('suggestions/:suggestionId/accept')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Aceptar sugerencia y aplicar restriccion con origen trazado',
+  })
+  @ApiOkResponse({ type: RestrictionSuggestionDto })
+  acceptSuggestion(
+    @Param('eventId') eventId: string,
+    @Param('suggestionId') suggestionId: string,
+  ): Promise<RestrictionSuggestionDto> {
+    return this.acceptGuestSuggestionUseCase.execute(eventId, suggestionId);
+  }
+
+  @Post('suggestions/:suggestionId/reject')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Rechazar sugerencia pendiente' })
+  @ApiOkResponse({ type: RestrictionSuggestionDto })
+  rejectSuggestion(
+    @Param('eventId') eventId: string,
+    @Param('suggestionId') suggestionId: string,
+  ): Promise<RestrictionSuggestionDto> {
+    return this.rejectGuestSuggestionUseCase.execute(eventId, suggestionId);
+  }
+
+  @Put('suggestions/:suggestionId')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Editar sugerencia pendiente antes de confirmar' })
+  @ApiOkResponse({ type: RestrictionSuggestionDto })
+  updateSuggestion(
+    @Param('eventId') eventId: string,
+    @Param('suggestionId') suggestionId: string,
+    @Body() body: UpdateRestrictionSuggestionDto,
+  ): Promise<RestrictionSuggestionDto> {
+    return this.updateGuestSuggestionUseCase.execute(
+      eventId,
+      suggestionId,
+      body,
+    );
   }
 }

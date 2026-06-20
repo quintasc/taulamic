@@ -65,6 +65,139 @@ describe('FileGuestRepository', () => {
       nombre: 'Ana Garcia Lopez',
       telefono: '+34600999888',
       correo: 'ana@ejemplo.com',
+      restrictions: [],
     });
+  });
+
+  it('genera sugerencias desde observaciones sin aplicar restricciones', async () => {
+    await repository.upsertBatch('evt_123', [
+      {
+        nombre: 'Ana Garcia',
+        correo: 'ana@ejemplo.com',
+        telefono: '+34600111222',
+        direccion: '',
+        categoryNames: [],
+        observaciones: 'Intolerancia lactosa',
+        acompananteKey: '',
+        separarAcompanante: null,
+        preferenciaControl: null,
+      },
+    ]);
+
+    const upsert = await repository.upsertBatch('evt_123', [
+      {
+        nombre: 'Ana Garcia',
+        correo: 'ana@ejemplo.com',
+        telefono: '+34600111222',
+        direccion: '',
+        categoryNames: [],
+        observaciones: 'No sentar con Juan Perez',
+        acompananteKey: '',
+        separarAcompanante: null,
+        preferenciaControl: null,
+      },
+    ]);
+
+    const generated = await repository.generateSuggestionsFromObservations(
+      'evt_123',
+      upsert.affectedGuestIds,
+    );
+
+    expect(generated).toBe(1);
+
+    const pending = await repository.listSuggestions('evt_123');
+    expect(pending).toHaveLength(1);
+    expect(pending[0]).toMatchObject({
+      kind: 'incompatibilidad',
+      targetHint: 'Juan Perez',
+      status: 'pending',
+    });
+
+    const raw = await readFile(
+      join(tempDir, 'evt_123', 'event-guests.json'),
+      'utf8',
+    );
+    const store = JSON.parse(raw);
+    expect(store.guests[0].restrictions).toEqual([]);
+  });
+
+  it('acepta sugerencia y aplica restriccion con origen trazado', async () => {
+    const upsert = await repository.upsertBatch('evt_123', [
+      {
+        nombre: 'Ana Garcia',
+        correo: 'ana@ejemplo.com',
+        telefono: '+34600111222',
+        direccion: '',
+        categoryNames: [],
+        observaciones: 'Prefiere sentar con Maria Lopez',
+        acompananteKey: '',
+        separarAcompanante: null,
+        preferenciaControl: null,
+      },
+    ]);
+
+    await repository.generateSuggestionsFromObservations(
+      'evt_123',
+      upsert.affectedGuestIds,
+    );
+
+    const [suggestion] = await repository.listSuggestions('evt_123');
+    const accepted = await repository.acceptSuggestion(
+      'evt_123',
+      suggestion!.id,
+    );
+
+    expect(accepted.status).toBe('accepted');
+
+    const raw = await readFile(
+      join(tempDir, 'evt_123', 'event-guests.json'),
+      'utf8',
+    );
+    const store = JSON.parse(raw);
+
+    expect(store.guests[0].restrictions).toEqual([
+      expect.objectContaining({
+        kind: 'afinidad',
+        targetHint: 'Maria Lopez',
+        origin: 'suggested',
+        suggestionId: suggestion!.id,
+      }),
+    ]);
+  });
+
+  it('rechaza sugerencia sin aplicar restriccion', async () => {
+    const upsert = await repository.upsertBatch('evt_123', [
+      {
+        nombre: 'Ana Garcia',
+        correo: 'ana@ejemplo.com',
+        telefono: '+34600111222',
+        direccion: '',
+        categoryNames: [],
+        observaciones: 'Intolerancia lactosa',
+        acompananteKey: '',
+        separarAcompanante: null,
+        preferenciaControl: null,
+      },
+    ]);
+
+    await repository.generateSuggestionsFromObservations(
+      'evt_123',
+      upsert.affectedGuestIds,
+    );
+
+    const [suggestion] = await repository.listSuggestions('evt_123');
+    const rejected = await repository.rejectSuggestion(
+      'evt_123',
+      suggestion!.id,
+    );
+
+    expect(rejected.status).toBe('rejected');
+
+    const raw = await readFile(
+      join(tempDir, 'evt_123', 'event-guests.json'),
+      'utf8',
+    );
+    const store = JSON.parse(raw);
+    expect(store.guests[0].restrictions).toEqual([]);
   });
 });

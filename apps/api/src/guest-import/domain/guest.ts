@@ -1,3 +1,5 @@
+import type { GuestRestriction } from './restriction-suggestion';
+
 export type GuestPreferenceControl = 'colaborativo' | 'anfitrion_exclusivo';
 
 export type Guest = {
@@ -12,6 +14,7 @@ export type Guest = {
   acompananteKey: string;
   separarAcompanante: boolean | null;
   preferenciaControl: GuestPreferenceControl | null;
+  restrictions: GuestRestriction[];
   createdAt: string;
   updatedAt: string;
 };

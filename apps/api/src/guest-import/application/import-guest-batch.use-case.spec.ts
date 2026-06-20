@@ -13,6 +13,11 @@ describe('ImportGuestBatchUseCase', () => {
     };
     repository = {
       upsertBatch: jest.fn(),
+      generateSuggestionsFromObservations: jest.fn(),
+      listSuggestions: jest.fn(),
+      updatePendingSuggestion: jest.fn(),
+      acceptSuggestion: jest.fn(),
+      rejectSuggestion: jest.fn(),
     };
     useCase = new ImportGuestBatchUseCase(parser, repository);
   });
@@ -83,7 +88,9 @@ describe('ImportGuestBatchUseCase', () => {
       created: 1,
       updated: 0,
       categoriesEnsured: 1,
+      affectedGuestIds: ['guest-1'],
     });
+    repository.generateSuggestionsFromObservations.mockResolvedValue(0);
 
     const result = await useCase.execute('evt_123', {
       originalname: 'invitados.xlsx',

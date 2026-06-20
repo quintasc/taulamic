@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
@@ -9,15 +9,22 @@ import {
   normalizeCategoryName,
   type GuestUpsertInput,
 } from '../../domain/guest-import.mapper';
+import { detectSuggestionsFromObservation } from '../../domain/observation-suggestion.engine';
+import type {
+  RestrictionSuggestion,
+  SuggestionStatus,
+} from '../../domain/restriction-suggestion';
 import type {
   GuestBatchUpsertResult,
   GuestRepositoryPort,
+  UpdateSuggestionInput,
 } from './guest.repository.port';
 
 type EventGuestStore = {
   eventId: string;
   categories: GuestCategory[];
   guests: Guest[];
+  suggestions: RestrictionSuggestion[];
 };
 
 @Injectable()
@@ -45,6 +52,7 @@ export class FileGuestRepository implements GuestRepositoryPort {
     let created = 0;
     let updated = 0;
     let categoriesEnsured = 0;
+    const affectedGuestIds: string[] = [];
 
     for (const row of rows) {
       const categoryIds: string[] = [];
@@ -74,11 +82,12 @@ export class FileGuestRepository implements GuestRepositoryPort {
           preferenciaControl: row.preferenciaControl,
           updatedAt: now,
         });
+        affectedGuestIds.push(existing.id);
         updated += 1;
         continue;
       }
 
-      store.guests.push({
+      const guest: Guest = {
         id: randomUUID(),
         eventId,
         nombre: row.nombre,
@@ -90,14 +99,185 @@ export class FileGuestRepository implements GuestRepositoryPort {
         acompananteKey: row.acompananteKey,
         separarAcompanante: row.separarAcompanante,
         preferenciaControl: row.preferenciaControl,
+        restrictions: [],
         createdAt: now,
         updatedAt: now,
-      });
+      };
+      store.guests.push(guest);
+      affectedGuestIds.push(guest.id);
       created += 1;
     }
 
     await this.saveStore(store);
-    return { created, updated, categoriesEnsured };
+    return { created, updated, categoriesEnsured, affectedGuestIds };
+  }
+
+  async generateSuggestionsFromObservations(
+    eventId: string,
+    guestIds: string[],
+  ): Promise<number> {
+    const store = await this.loadStore(eventId);
+    let generated = 0;
+
+    for (const guestId of guestIds) {
+      const guest = store.guests.find((item) => item.id === guestId);
+      if (!guest || !guest.observaciones.trim()) {
+        continue;
+      }
+
+      const drafts = detectSuggestionsFromObservation(guest.observaciones);
+      for (const draft of drafts) {
+        if (this.hasDuplicatePendingSuggestion(store, guest.id, draft)) {
+          continue;
+        }
+
+        store.suggestions.push({
+          id: randomUUID(),
+          eventId,
+          guestId: guest.id,
+          guestName: guest.nombre,
+          kind: draft.kind,
+          targetHint: draft.targetHint,
+          sourceText: guest.observaciones,
+          status: 'pending',
+          createdAt: new Date().toISOString(),
+          reviewedAt: null,
+        });
+        generated += 1;
+      }
+    }
+
+    if (generated > 0) {
+      await this.saveStore(store);
+    }
+
+    return generated;
+  }
+
+  async listSuggestions(
+    eventId: string,
+    status: SuggestionStatus = 'pending',
+  ): Promise<RestrictionSuggestion[]> {
+    const store = await this.loadStore(eventId);
+    return store.suggestions.filter((suggestion) => suggestion.status === status);
+  }
+
+  async updatePendingSuggestion(
+    eventId: string,
+    suggestionId: string,
+    input: UpdateSuggestionInput,
+  ): Promise<RestrictionSuggestion> {
+    const store = await this.loadStore(eventId);
+    const suggestion = this.findSuggestion(store, eventId, suggestionId);
+
+    if (suggestion.status !== 'pending') {
+      throw new NotFoundException({
+        code: 'SUGGESTION_NOT_PENDING',
+        message: 'Solo se pueden editar sugerencias pendientes.',
+      });
+    }
+
+    if (input.kind !== undefined) {
+      suggestion.kind = input.kind;
+    }
+    if (input.targetHint !== undefined) {
+      suggestion.targetHint = input.targetHint;
+    }
+
+    await this.saveStore(store);
+    return suggestion;
+  }
+
+  async acceptSuggestion(
+    eventId: string,
+    suggestionId: string,
+  ): Promise<RestrictionSuggestion> {
+    const store = await this.loadStore(eventId);
+    const suggestion = this.findSuggestion(store, eventId, suggestionId);
+
+    if (suggestion.status !== 'pending') {
+      throw new NotFoundException({
+        code: 'SUGGESTION_NOT_PENDING',
+        message: 'La sugerencia ya fue revisada.',
+      });
+    }
+
+    const guest = store.guests.find((item) => item.id === suggestion.guestId);
+    if (!guest) {
+      throw new NotFoundException({
+        code: 'GUEST_NOT_FOUND',
+        message: 'No se encontro el invitado de la sugerencia.',
+      });
+    }
+
+    guest.restrictions.push({
+      id: randomUUID(),
+      kind: suggestion.kind,
+      targetHint: suggestion.targetHint,
+      description: suggestion.sourceText,
+      origin: 'suggested',
+      suggestionId: suggestion.id,
+      createdAt: new Date().toISOString(),
+    });
+
+    suggestion.status = 'accepted';
+    suggestion.reviewedAt = new Date().toISOString();
+    await this.saveStore(store);
+    return suggestion;
+  }
+
+  async rejectSuggestion(
+    eventId: string,
+    suggestionId: string,
+  ): Promise<RestrictionSuggestion> {
+    const store = await this.loadStore(eventId);
+    const suggestion = this.findSuggestion(store, eventId, suggestionId);
+
+    if (suggestion.status !== 'pending') {
+      throw new NotFoundException({
+        code: 'SUGGESTION_NOT_PENDING',
+        message: 'La sugerencia ya fue revisada.',
+      });
+    }
+
+    suggestion.status = 'rejected';
+    suggestion.reviewedAt = new Date().toISOString();
+    await this.saveStore(store);
+    return suggestion;
+  }
+
+  private hasDuplicatePendingSuggestion(
+    store: EventGuestStore,
+    guestId: string,
+    draft: { kind: string; targetHint: string | null },
+  ): boolean {
+    const targetKey = (draft.targetHint ?? '').trim().toLowerCase();
+    return store.suggestions.some(
+      (suggestion) =>
+        suggestion.guestId === guestId &&
+        suggestion.status === 'pending' &&
+        suggestion.kind === draft.kind &&
+        (suggestion.targetHint ?? '').trim().toLowerCase() === targetKey,
+    );
+  }
+
+  private findSuggestion(
+    store: EventGuestStore,
+    eventId: string,
+    suggestionId: string,
+  ): RestrictionSuggestion {
+    const suggestion = store.suggestions.find(
+      (item) => item.id === suggestionId && item.eventId === eventId,
+    );
+
+    if (!suggestion) {
+      throw new NotFoundException({
+        code: 'SUGGESTION_NOT_FOUND',
+        message: 'No se encontro la sugerencia indicada.',
+      });
+    }
+
+    return suggestion;
   }
 
   private ensureCategory(
@@ -125,17 +305,29 @@ export class FileGuestRepository implements GuestRepositoryPort {
     return { category, created: true };
   }
 
+  private normalizeStore(store: EventGuestStore): EventGuestStore {
+    return {
+      ...store,
+      suggestions: store.suggestions ?? [],
+      guests: store.guests.map((guest) => ({
+        ...guest,
+        restrictions: guest.restrictions ?? [],
+      })),
+    };
+  }
+
   private async loadStore(eventId: string): Promise<EventGuestStore> {
     const path = this.storePath(eventId);
 
     try {
       const raw = await readFile(path, 'utf8');
-      return JSON.parse(raw) as EventGuestStore;
+      return this.normalizeStore(JSON.parse(raw) as EventGuestStore);
     } catch {
       return {
         eventId,
         categories: [],
         guests: [],
+        suggestions: [],
       };
     }
   }

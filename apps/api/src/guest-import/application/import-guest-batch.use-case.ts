@@ -41,6 +41,7 @@ export class ImportGuestBatchUseCase {
         updated: 0,
         rejected: 0,
         categoriesEnsured: 0,
+        suggestionsGenerated: 0,
         errors: parsed.structuralErrors,
       };
     }
@@ -56,6 +57,12 @@ export class ImportGuestBatchUseCase {
       validRows.map((row) => mapImportRowToGuestInput(row)),
     );
 
+    const suggestionsGenerated =
+      await this.guestRepository.generateSuggestionsFromObservations(
+        eventId,
+        upsertResult.affectedGuestIds,
+      );
+
     return {
       eventId,
       totalRows: parsed.rows.length,
@@ -63,6 +70,7 @@ export class ImportGuestBatchUseCase {
       updated: upsertResult.updated,
       rejected: parsed.rows.length - validRows.length,
       categoriesEnsured: upsertResult.categoriesEnsured,
+      suggestionsGenerated,
       errors: rowErrors,
     };
   }

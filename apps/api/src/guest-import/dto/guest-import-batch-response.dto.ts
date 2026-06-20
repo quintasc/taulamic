@@ -20,6 +20,9 @@ export class GuestImportBatchResponseDto {
   @ApiProperty({ example: 1 })
   categoriesEnsured!: number;
 
+  @ApiProperty({ example: 2 })
+  suggestionsGenerated!: number;
+
   @ApiProperty({ type: [GuestImportRowErrorDto] })
   errors!: GuestImportRowErrorDto[];
 }

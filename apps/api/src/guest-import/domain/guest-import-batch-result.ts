@@ -7,5 +7,6 @@ export type GuestImportBatchResult = {
   updated: number;
   rejected: number;
   categoriesEnsured: number;
+  suggestionsGenerated: number;
   errors: GuestImportRowError[];
 };

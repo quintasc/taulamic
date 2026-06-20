@@ -3,6 +3,10 @@ import { DetectTablesUseCase } from './application/detect-tables.use-case';
 import { GetLayoutDraftUseCase } from './application/get-layout-draft.use-case';
 import { LayoutDraftGuard } from './application/layout-draft.guard';
 import {
+  GetLayoutVersionUseCase,
+  ListLayoutVersionsUseCase,
+} from './application/layout-version.use-case';
+import {
   AddDraftTableUseCase,
   ConfirmLayoutDraftUseCase,
   GetConfirmedLayoutUseCase,
@@ -12,6 +16,8 @@ import {
 import { HeuristicTableDetectionAdapter } from './infrastructure/detection/heuristic-table-detection.adapter';
 import { TABLE_DETECTION_PORT } from './infrastructure/detection/table-detection.port';
 import { FloorPlanStorageRepository } from './infrastructure/floor-plan-storage.repository';
+import { FileLayoutVersionRepository } from './infrastructure/persistence/file-layout-version.repository';
+import { LAYOUT_VERSION_REPOSITORY } from './infrastructure/persistence/layout-version.repository.port';
 import { FloorPlansController } from './floor-plans.controller';
 import { FloorPlansService } from './floor-plans.service';
 
@@ -28,10 +34,17 @@ import { FloorPlansService } from './floor-plans.service';
     RemoveDraftTableUseCase,
     ConfirmLayoutDraftUseCase,
     GetConfirmedLayoutUseCase,
+    ListLayoutVersionsUseCase,
+    GetLayoutVersionUseCase,
     HeuristicTableDetectionAdapter,
+    FileLayoutVersionRepository,
     {
       provide: TABLE_DETECTION_PORT,
       useExisting: HeuristicTableDetectionAdapter,
+    },
+    {
+      provide: LAYOUT_VERSION_REPOSITORY,
+      useExisting: FileLayoutVersionRepository,
     },
   ],
 })

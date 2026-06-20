@@ -29,7 +29,7 @@ Epicas comprometidas:
 1. ~~**#22**~~ Carga y validacion de plano — **cerrada en GitHub.**
 2. ~~**#23**~~ Deteccion asistida de mesas con confianza. **Cerrada.**
 3. ~~**#24**~~ Editor de correccion manual y confirmacion final. **Implementada — pendiente cierre formal.**
-4. **#25** Persistencia y versionado de layout importado.
+4. ~~**#25**~~ Persistencia y versionado de layout importado. **Implementada — pendiente cierre formal.**
 5. **#26** Pruebas E2E y calidad de importacion de plano.
 6. **#27-#31** Flujo Excel en paralelo cuando #22-#24 esten estables.
 7. **#32-#36** Modos de preferencias y acompanantes.

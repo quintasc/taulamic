@@ -26,6 +26,10 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { memoryStorage } from 'multer';
+import {
+  GetLayoutVersionUseCase,
+  ListLayoutVersionsUseCase,
+} from './application/layout-version.use-case';
 import { DetectTablesUseCase } from './application/detect-tables.use-case';
 import { GetLayoutDraftUseCase } from './application/get-layout-draft.use-case';
 import {
@@ -37,6 +41,7 @@ import {
 } from './application/manage-layout-draft.use-case';
 import { ConfirmLayoutDraftDto } from './dto/confirm-layout-draft.dto';
 import { ConfirmedLayoutResponseDto } from './dto/confirmed-layout-response.dto';
+import { LayoutVersionListResponseDto } from './dto/layout-version-summary.dto';
 import { DetectTablesResponseDto } from './dto/detect-tables-response.dto';
 import { LayoutDraftResponseDto } from './dto/layout-draft-response.dto';
 import { UpsertDraftTableDto } from './dto/upsert-draft-table.dto';
@@ -55,6 +60,8 @@ export class FloorPlansController {
     private readonly removeDraftTableUseCase: RemoveDraftTableUseCase,
     private readonly confirmLayoutDraftUseCase: ConfirmLayoutDraftUseCase,
     private readonly getConfirmedLayoutUseCase: GetConfirmedLayoutUseCase,
+    private readonly listLayoutVersionsUseCase: ListLayoutVersionsUseCase,
+    private readonly getLayoutVersionUseCase: GetLayoutVersionUseCase,
   ) {}
 
   @Post()
@@ -202,5 +209,41 @@ export class FloorPlansController {
     @Param('floorPlanId') floorPlanId: string,
   ): Promise<ConfirmedLayoutResponseDto> {
     return this.getConfirmedLayoutUseCase.execute(eventId, floorPlanId);
+  }
+
+  @Get(':floorPlanId/layout-versions')
+  @ApiOperation({ summary: 'Listar versiones persistidas del layout' })
+  @ApiOkResponse({ type: LayoutVersionListResponseDto })
+  async listLayoutVersions(
+    @Param('eventId') eventId: string,
+    @Param('floorPlanId') floorPlanId: string,
+  ): Promise<LayoutVersionListResponseDto> {
+    const versions = await this.listLayoutVersionsUseCase.execute(
+      eventId,
+      floorPlanId,
+    );
+
+    return {
+      floorPlanId,
+      eventId,
+      latestVersion: versions.at(-1)?.version ?? 0,
+      versions,
+    };
+  }
+
+  @Get(':floorPlanId/layout-versions/:version')
+  @ApiOperation({ summary: 'Consultar una version persistida del layout' })
+  @ApiOkResponse({ type: ConfirmedLayoutResponseDto })
+  @ApiNotFoundResponse({ description: 'Version no encontrada.' })
+  getLayoutVersion(
+    @Param('eventId') eventId: string,
+    @Param('floorPlanId') floorPlanId: string,
+    @Param('version') version: string,
+  ): Promise<ConfirmedLayoutResponseDto> {
+    return this.getLayoutVersionUseCase.execute(
+      eventId,
+      floorPlanId,
+      Number.parseInt(version, 10),
+    );
   }
 }

@@ -1,13 +1,18 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import {
   assertValidDraftTableInput,
   resolveConfigurationOrigin,
 } from '../domain/draft-table.validator';
 import { ConfirmedLayout } from '../domain/confirmed-layout';
+import { layoutVersionToConfirmedLayout } from '../domain/layout-version.mapper';
 import { EditableLayoutTable } from '../domain/editable-layout-table';
 import { LayoutDraft } from '../domain/layout-draft';
 import type { TableShape } from '../domain/table-shape';
 import { FloorPlanStorageRepository } from '../infrastructure/floor-plan-storage.repository';
+import {
+  LAYOUT_VERSION_REPOSITORY,
+} from '../infrastructure/persistence/layout-version.repository.port';
+import type { LayoutVersionRepositoryPort } from '../infrastructure/persistence/layout-version.repository.port';
 import { LayoutDraftGuard } from './layout-draft.guard';
 
 @Injectable()
@@ -115,6 +120,8 @@ export class ConfirmLayoutDraftUseCase {
   constructor(
     private readonly guard: LayoutDraftGuard,
     private readonly storage: FloorPlanStorageRepository,
+    @Inject(LAYOUT_VERSION_REPOSITORY)
+    private readonly layoutVersionRepository: LayoutVersionRepositoryPort,
   ) {}
 
   async execute(
@@ -142,18 +149,18 @@ export class ConfirmLayoutDraftUseCase {
 
     const detection = await this.storage.loadDetectionResult(eventId, floorPlanId);
     const detectionHadTables = (detection?.tables.length ?? 0) > 0;
+    const confirmedAt = new Date().toISOString();
+    const configurationOrigin = resolveConfigurationOrigin(detectionHadTables);
 
-    const confirmedLayout: ConfirmedLayout = {
-      floorPlanId,
+    const version = await this.layoutVersionRepository.saveVersion({
       eventId,
-      status: 'confirmed',
-      configurationOrigin: resolveConfigurationOrigin(detectionHadTables),
+      floorPlanId,
+      configurationOrigin,
+      confirmedAt,
       tables: draft.tables,
-      confirmedAt: new Date().toISOString(),
-    };
+    });
 
-    await this.storage.saveConfirmed(eventId, floorPlanId, confirmedLayout);
-    return confirmedLayout;
+    return layoutVersionToConfirmedLayout(version);
   }
 }
 
@@ -161,7 +168,8 @@ export class ConfirmLayoutDraftUseCase {
 export class GetConfirmedLayoutUseCase {
   constructor(
     private readonly guard: LayoutDraftGuard,
-    private readonly storage: FloorPlanStorageRepository,
+    @Inject(LAYOUT_VERSION_REPOSITORY)
+    private readonly layoutVersionRepository: LayoutVersionRepositoryPort,
   ) {}
 
   async execute(
@@ -169,9 +177,12 @@ export class GetConfirmedLayoutUseCase {
     floorPlanId: string,
   ): Promise<ConfirmedLayout> {
     await this.guard.ensureFloorPlanExists(eventId, floorPlanId);
-    const confirmed = await this.storage.loadConfirmed(eventId, floorPlanId);
+    const latest = await this.layoutVersionRepository.getLatestVersion(
+      eventId,
+      floorPlanId,
+    );
 
-    if (!confirmed) {
+    if (!latest) {
       throw new NotFoundException({
         code: 'LAYOUT_NOT_CONFIRMED',
         message: 'Aun no existe una configuracion confirmada para este plano.',
@@ -179,6 +190,6 @@ export class GetConfirmedLayoutUseCase {
       });
     }
 
-    return confirmed;
+    return layoutVersionToConfirmedLayout(latest);
   }
 }

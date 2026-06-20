@@ -1,17 +1,25 @@
 import {
   ConflictException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { ConfirmedLayout } from '../domain/confirmed-layout';
 import { EditableLayoutTable } from '../domain/editable-layout-table';
 import { LayoutDraft } from '../domain/layout-draft';
 import { FloorPlanStorageRepository } from '../infrastructure/floor-plan-storage.repository';
+import {
+  LAYOUT_VERSION_REPOSITORY,
+} from '../infrastructure/persistence/layout-version.repository.port';
+import type { LayoutVersionRepositoryPort } from '../infrastructure/persistence/layout-version.repository.port';
 
 @Injectable()
 export class LayoutDraftGuard {
-  constructor(private readonly storage: FloorPlanStorageRepository) {}
+  constructor(
+    private readonly storage: FloorPlanStorageRepository,
+    @Inject(LAYOUT_VERSION_REPOSITORY)
+    private readonly layoutVersionRepository: LayoutVersionRepositoryPort,
+  ) {}
 
   async ensureFloorPlanExists(
     eventId: string,
@@ -29,9 +37,12 @@ export class LayoutDraftGuard {
   }
 
   async ensureNotConfirmed(eventId: string, floorPlanId: string): Promise<void> {
-    const confirmed = await this.storage.loadConfirmed(eventId, floorPlanId);
+    const hasVersion = await this.layoutVersionRepository.hasAnyVersion(
+      eventId,
+      floorPlanId,
+    );
 
-    if (confirmed) {
+    if (hasVersion) {
       throw new ConflictException({
         code: 'LAYOUT_ALREADY_CONFIRMED',
         message:

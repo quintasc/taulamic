@@ -343,6 +343,7 @@ describe('FloorPlans editor y confirmacion (e2e)', () => {
       .expect(200);
 
     expect(confirmed.body).toMatchObject({
+      version: 1,
       status: 'confirmed',
       configurationOrigin: 'imported_edited',
     });
@@ -351,6 +352,10 @@ describe('FloorPlans editor y confirmacion (e2e)', () => {
       label: 'Mesa principal',
       estimatedCapacity: 12,
       origin: 'detected_edited',
+      audit: {
+        wasAutoDetected: true,
+        wasManuallyCorrected: true,
+      },
     });
 
     const stored = await request(app.getHttpServer())
@@ -429,5 +434,103 @@ describe('FloorPlans editor y confirmacion (e2e)', () => {
       .expect(200);
 
     expect(confirmed.body.configurationOrigin).toBe('manual');
+    expect(confirmed.body.version).toBe(1);
+  });
+});
+
+describe('FloorPlans persistencia y versionado (e2e)', () => {
+  let app: INestApplication<App>;
+
+  beforeEach(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    app.setGlobalPrefix('api/v1');
+    app.useGlobalFilters(new ApiExceptionFilter());
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        transform: true,
+      }),
+    );
+    await app.init();
+  });
+
+  afterEach(async () => {
+    await app.close();
+    await rm(join(process.cwd(), 'uploads'), { recursive: true, force: true });
+  });
+
+  it('persiste version con metadatos de auditoria y permite consultarla', async () => {
+    const upload = await request(app.getHttpServer())
+      .post('/api/v1/events/evt_123/floor-plans')
+      .attach(
+        'file',
+        Buffer.from('%PDF-1.4\nMesa 1 redonda 10 pax\n'),
+        {
+          filename: 'salon.pdf',
+          contentType: 'application/pdf',
+        },
+      )
+      .expect(201);
+
+    const floorPlanId = upload.body.id as string;
+
+    await request(app.getHttpServer())
+      .post(`/api/v1/events/evt_123/floor-plans/${floorPlanId}/detect`)
+      .expect(200);
+
+    const draft = await request(app.getHttpServer())
+      .get(`/api/v1/events/evt_123/floor-plans/${floorPlanId}/draft`)
+      .expect(200);
+
+    await request(app.getHttpServer())
+      .put(
+        `/api/v1/events/evt_123/floor-plans/${floorPlanId}/draft/tables/${draft.body.tables[0].id}`,
+      )
+      .send({
+        label: 'Mesa corregida',
+        shape: 'redonda',
+        estimatedCapacity: 12,
+      })
+      .expect(200);
+
+    await request(app.getHttpServer())
+      .post(`/api/v1/events/evt_123/floor-plans/${floorPlanId}/draft/confirm`)
+      .send({ confirmed: true })
+      .expect(200);
+
+    const versions = await request(app.getHttpServer())
+      .get(`/api/v1/events/evt_123/floor-plans/${floorPlanId}/layout-versions`)
+      .expect(200);
+
+    expect(versions.body).toMatchObject({
+      floorPlanId,
+      eventId: 'evt_123',
+      latestVersion: 1,
+    });
+    expect(versions.body.versions).toHaveLength(1);
+    expect(versions.body.versions[0]).toMatchObject({
+      version: 1,
+      configurationOrigin: 'imported_edited',
+      tableCount: 1,
+    });
+
+    const versionDetail = await request(app.getHttpServer())
+      .get(
+        `/api/v1/events/evt_123/floor-plans/${floorPlanId}/layout-versions/1`,
+      )
+      .expect(200);
+
+    expect(versionDetail.body.version).toBe(1);
+    expect(versionDetail.body.tables[0]).toMatchObject({
+      label: 'Mesa corregida',
+      audit: {
+        wasAutoDetected: true,
+        wasManuallyCorrected: true,
+      },
+    });
   });
 });

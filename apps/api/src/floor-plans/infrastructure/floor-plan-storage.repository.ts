@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { readdir, readFile, writeFile } from 'node:fs/promises';
+import { access, readdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { ConfirmedLayout } from '../domain/confirmed-layout';
 import { DetectionResult } from '../domain/detection-result';
+import { LayoutDraft } from '../domain/layout-draft';
 
 export type StoredFloorPlanFile = {
   id: string;
@@ -24,11 +26,15 @@ export class FloorPlanStorageRepository {
     );
   }
 
+  private eventDir(eventId: string): string {
+    return join(process.cwd(), this.uploadDir(), eventId);
+  }
+
   async findUploadedFile(
     eventId: string,
     floorPlanId: string,
   ): Promise<StoredFloorPlanFile | null> {
-    const eventDir = join(process.cwd(), this.uploadDir(), eventId);
+    const eventDir = this.eventDir(eventId);
     let entries: string[];
 
     try {
@@ -65,13 +71,83 @@ export class FloorPlanStorageRepository {
     floorPlanId: string,
     result: DetectionResult,
   ): Promise<void> {
-    const detectionPath = join(
-      process.cwd(),
-      this.uploadDir(),
-      eventId,
-      `${floorPlanId}.detection.json`,
+    await writeFile(
+      this.detectionPath(eventId, floorPlanId),
+      JSON.stringify(result, null, 2),
+      'utf8',
     );
-    await writeFile(detectionPath, JSON.stringify(result, null, 2), 'utf8');
+  }
+
+  async loadDetectionResult(
+    eventId: string,
+    floorPlanId: string,
+  ): Promise<DetectionResult | null> {
+    return this.readJson<DetectionResult>(
+      this.detectionPath(eventId, floorPlanId),
+    );
+  }
+
+  async loadDraft(
+    eventId: string,
+    floorPlanId: string,
+  ): Promise<LayoutDraft | null> {
+    return this.readJson<LayoutDraft>(this.draftPath(eventId, floorPlanId));
+  }
+
+  async saveDraft(
+    eventId: string,
+    floorPlanId: string,
+    draft: LayoutDraft,
+  ): Promise<void> {
+    await writeFile(
+      this.draftPath(eventId, floorPlanId),
+      JSON.stringify(draft, null, 2),
+      'utf8',
+    );
+  }
+
+  async loadConfirmed(
+    eventId: string,
+    floorPlanId: string,
+  ): Promise<ConfirmedLayout | null> {
+    return this.readJson<ConfirmedLayout>(
+      this.confirmedPath(eventId, floorPlanId),
+    );
+  }
+
+  async saveConfirmed(
+    eventId: string,
+    floorPlanId: string,
+    confirmed: ConfirmedLayout,
+  ): Promise<void> {
+    await writeFile(
+      this.confirmedPath(eventId, floorPlanId),
+      JSON.stringify(confirmed, null, 2),
+      'utf8',
+    );
+  }
+
+  private detectionPath(eventId: string, floorPlanId: string): string {
+    return join(this.eventDir(eventId), `${floorPlanId}.detection.json`);
+  }
+
+  private draftPath(eventId: string, floorPlanId: string): string {
+    return join(this.eventDir(eventId), `${floorPlanId}.draft.json`);
+  }
+
+  private confirmedPath(eventId: string, floorPlanId: string): string {
+    return join(this.eventDir(eventId), `${floorPlanId}.confirmed.json`);
+  }
+
+  private async readJson<T>(absolutePath: string): Promise<T | null> {
+    try {
+      await access(absolutePath);
+    } catch {
+      return null;
+    }
+
+    const raw = await readFile(absolutePath, 'utf8');
+    return JSON.parse(raw) as T;
   }
 
   private inferMimeType(originalName: string): string {

@@ -253,3 +253,181 @@ describe('FloorPlans deteccion (e2e)', () => {
     expect(response.body.code).toBe('FLOOR_PLAN_NOT_FOUND');
   });
 });
+
+describe('FloorPlans editor y confirmacion (e2e)', () => {
+  let app: INestApplication<App>;
+
+  beforeEach(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    app.setGlobalPrefix('api/v1');
+    app.useGlobalFilters(new ApiExceptionFilter());
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        transform: true,
+      }),
+    );
+    await app.init();
+  });
+
+  afterEach(async () => {
+    await app.close();
+    await rm(join(process.cwd(), 'uploads'), { recursive: true, force: true });
+  });
+
+  async function uploadAndDetect(server: App) {
+    const upload = await request(server)
+      .post('/api/v1/events/evt_123/floor-plans')
+      .attach(
+        'file',
+        Buffer.from(
+          '%PDF-1.4\nMesa 1 redonda 10 pax\nMesa 2 rectangular 8 personas\n',
+        ),
+        {
+          filename: 'salon-etiquetado.pdf',
+          contentType: 'application/pdf',
+        },
+      )
+      .expect(201);
+
+    await request(server)
+      .post(`/api/v1/events/evt_123/floor-plans/${upload.body.id}/detect`)
+      .expect(200);
+
+    return upload.body.id as string;
+  }
+
+  it('permite corregir detecciones y confirmar configuracion final', async () => {
+    const floorPlanId = await uploadAndDetect(app.getHttpServer());
+
+    const draft = await request(app.getHttpServer())
+      .get(`/api/v1/events/evt_123/floor-plans/${floorPlanId}/draft`)
+      .expect(200);
+
+    expect(draft.body.tables).toHaveLength(2);
+
+    const tableToEdit = draft.body.tables[0];
+    await request(app.getHttpServer())
+      .put(
+        `/api/v1/events/evt_123/floor-plans/${floorPlanId}/draft/tables/${tableToEdit.id}`,
+      )
+      .send({
+        label: 'Mesa principal',
+        shape: 'redonda',
+        estimatedCapacity: 12,
+      })
+      .expect(200);
+
+    await request(app.getHttpServer())
+      .delete(
+        `/api/v1/events/evt_123/floor-plans/${floorPlanId}/draft/tables/${draft.body.tables[1].id}`,
+      )
+      .expect(204);
+
+    await request(app.getHttpServer())
+      .post(`/api/v1/events/evt_123/floor-plans/${floorPlanId}/draft/tables`)
+      .send({
+        label: 'Mesa VIP',
+        shape: 'imperial',
+        estimatedCapacity: 14,
+      })
+      .expect(201);
+
+    const confirmed = await request(app.getHttpServer())
+      .post(`/api/v1/events/evt_123/floor-plans/${floorPlanId}/draft/confirm`)
+      .send({ confirmed: true })
+      .expect(200);
+
+    expect(confirmed.body).toMatchObject({
+      status: 'confirmed',
+      configurationOrigin: 'imported_edited',
+    });
+    expect(confirmed.body.tables).toHaveLength(2);
+    expect(confirmed.body.tables[0]).toMatchObject({
+      label: 'Mesa principal',
+      estimatedCapacity: 12,
+      origin: 'detected_edited',
+    });
+
+    const stored = await request(app.getHttpServer())
+      .get(`/api/v1/events/evt_123/floor-plans/${floorPlanId}/confirmed`)
+      .expect(200);
+
+    expect(stored.body.tables).toHaveLength(2);
+
+    await request(app.getHttpServer())
+      .put(
+        `/api/v1/events/evt_123/floor-plans/${floorPlanId}/draft/tables/${tableToEdit.id}`,
+      )
+      .send({
+        label: 'Mesa bloqueada',
+        shape: 'redonda',
+        estimatedCapacity: 6,
+      })
+      .expect(409);
+  });
+
+  it('requiere confirmacion explicita y al menos una mesa', async () => {
+    const upload = await request(app.getHttpServer())
+      .post('/api/v1/events/evt_123/floor-plans')
+      .attach('file', Buffer.from('%PDF-1.4\n'), {
+        filename: 'plano.pdf',
+        contentType: 'application/pdf',
+      })
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .post(
+        `/api/v1/events/evt_123/floor-plans/${upload.body.id}/draft/confirm`,
+      )
+      .send({ confirmed: false })
+      .expect(400);
+
+    await request(app.getHttpServer())
+      .post(
+        `/api/v1/events/evt_123/floor-plans/${upload.body.id}/draft/confirm`,
+      )
+      .send({ confirmed: true })
+      .expect(400);
+  });
+
+  it('permite configuracion manual sin deteccion previa', async () => {
+    const upload = await request(app.getHttpServer())
+      .post('/api/v1/events/evt_123/floor-plans')
+      .attach('file', Buffer.from('%PDF-1.4\n'), {
+        filename: 'plano.pdf',
+        contentType: 'application/pdf',
+      })
+      .expect(201);
+
+    const draft = await request(app.getHttpServer())
+      .get(`/api/v1/events/evt_123/floor-plans/${upload.body.id}/draft`)
+      .expect(200);
+
+    expect(draft.body.tables).toEqual([]);
+
+    await request(app.getHttpServer())
+      .post(
+        `/api/v1/events/evt_123/floor-plans/${upload.body.id}/draft/tables`,
+      )
+      .send({
+        label: 'Mesa manual',
+        shape: 'rectangular',
+        estimatedCapacity: 8,
+      })
+      .expect(201);
+
+    const confirmed = await request(app.getHttpServer())
+      .post(
+        `/api/v1/events/evt_123/floor-plans/${upload.body.id}/draft/confirm`,
+      )
+      .send({ confirmed: true })
+      .expect(200);
+
+    expect(confirmed.body.configurationOrigin).toBe('manual');
+  });
+});

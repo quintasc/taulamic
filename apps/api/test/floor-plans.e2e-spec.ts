@@ -153,3 +153,103 @@ describe('FloorPlans limite de tamano (e2e)', () => {
     expect(response.body.code).toBe('FILE_TOO_LARGE');
   });
 });
+
+describe('FloorPlans deteccion (e2e)', () => {
+  let app: INestApplication<App>;
+
+  beforeEach(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    app.setGlobalPrefix('api/v1');
+    app.useGlobalFilters(new ApiExceptionFilter());
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        transform: true,
+      }),
+    );
+    await app.init();
+  });
+
+  afterEach(async () => {
+    await app.close();
+    await rm(join(process.cwd(), 'uploads'), { recursive: true, force: true });
+  });
+
+  it('detecta mesas con forma, capacidad y confianza', async () => {
+    const upload = await request(app.getHttpServer())
+      .post('/api/v1/events/evt_123/floor-plans')
+      .attach(
+        'file',
+        Buffer.from(
+          '%PDF-1.4\nMesa 1 redonda 10 pax\nMesa 2 rectangular 8 personas\n',
+        ),
+        {
+          filename: 'salon-etiquetado.pdf',
+          contentType: 'application/pdf',
+        },
+      )
+      .expect(201);
+
+    const response = await request(app.getHttpServer())
+      .post(
+        `/api/v1/events/evt_123/floor-plans/${upload.body.id}/detect`,
+      )
+      .expect(200);
+
+    expect(response.body).toMatchObject({
+      floorPlanId: upload.body.id,
+      eventId: 'evt_123',
+      status: 'completed',
+      manualFallbackAvailable: true,
+    });
+    expect(response.body.tables).toHaveLength(2);
+    expect(response.body.tables[0]).toMatchObject({
+      label: 'Mesa 1',
+      shape: 'redonda',
+      estimatedCapacity: 10,
+    });
+    expect(response.body.tables[0].confidence).toBeGreaterThanOrEqual(0.65);
+    expect(response.body.tables[1]).toMatchObject({
+      label: 'Mesa 2',
+      shape: 'rectangular',
+      estimatedCapacity: 8,
+    });
+  });
+
+  it('falla de forma controlada sin bloquear flujo manual', async () => {
+    const upload = await request(app.getHttpServer())
+      .post('/api/v1/events/evt_123/floor-plans')
+      .attach('file', Buffer.from('%PDF-1.4\nplano sin mesas\n'), {
+        filename: 'plano-vacio.pdf',
+        contentType: 'application/pdf',
+      })
+      .expect(201);
+
+    const response = await request(app.getHttpServer())
+      .post(
+        `/api/v1/events/evt_123/floor-plans/${upload.body.id}/detect`,
+      )
+      .expect(200);
+
+    expect(response.body).toMatchObject({
+      status: 'failed',
+      tables: [],
+      manualFallbackAvailable: true,
+    });
+    expect(response.body.message).toContain('manual');
+  });
+
+  it('devuelve 404 si el plano no existe', async () => {
+    const response = await request(app.getHttpServer())
+      .post(
+        '/api/v1/events/evt_123/floor-plans/00000000-0000-0000-0000-000000000000/detect',
+      )
+      .expect(404);
+
+    expect(response.body.code).toBe('FLOOR_PLAN_NOT_FOUND');
+  });
+});

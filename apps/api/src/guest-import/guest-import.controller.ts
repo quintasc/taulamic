@@ -24,6 +24,9 @@ import {
 } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { memoryStorage } from 'multer';
+import { ActorRoleHeader } from '../common/http/actor-role.decorator';
+import type { ActorRole } from '../common/domain/actor-role';
+import { AssertAdminActorUseCase } from '../events/application/preference-permissions.use-case';
 import { GenerateGuestTemplateUseCase } from './application/generate-guest-template.use-case';
 import { ImportGuestBatchUseCase } from './application/import-guest-batch.use-case';
 import {
@@ -52,6 +55,7 @@ export class GuestImportController {
     private readonly acceptGuestSuggestionUseCase: AcceptGuestSuggestionUseCase,
     private readonly rejectGuestSuggestionUseCase: RejectGuestSuggestionUseCase,
     private readonly updateGuestSuggestionUseCase: UpdateGuestSuggestionUseCase,
+    private readonly assertAdminActorUseCase: AssertAdminActorUseCase,
   ) {}
 
   @Get('template')
@@ -182,7 +186,9 @@ export class GuestImportController {
   acceptSuggestion(
     @Param('eventId') eventId: string,
     @Param('suggestionId') suggestionId: string,
+    @ActorRoleHeader() actorRole: ActorRole,
   ): Promise<RestrictionSuggestionDto> {
+    this.assertAdminActorUseCase.execute(actorRole);
     return this.acceptGuestSuggestionUseCase.execute(eventId, suggestionId);
   }
 
@@ -193,7 +199,9 @@ export class GuestImportController {
   rejectSuggestion(
     @Param('eventId') eventId: string,
     @Param('suggestionId') suggestionId: string,
+    @ActorRoleHeader() actorRole: ActorRole,
   ): Promise<RestrictionSuggestionDto> {
+    this.assertAdminActorUseCase.execute(actorRole);
     return this.rejectGuestSuggestionUseCase.execute(eventId, suggestionId);
   }
 
@@ -204,8 +212,10 @@ export class GuestImportController {
   updateSuggestion(
     @Param('eventId') eventId: string,
     @Param('suggestionId') suggestionId: string,
+    @ActorRoleHeader() actorRole: ActorRole,
     @Body() body: UpdateRestrictionSuggestionDto,
   ): Promise<RestrictionSuggestionDto> {
+    this.assertAdminActorUseCase.execute(actorRole);
     return this.updateGuestSuggestionUseCase.execute(
       eventId,
       suggestionId,

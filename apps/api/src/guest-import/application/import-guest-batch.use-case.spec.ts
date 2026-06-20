@@ -18,6 +18,8 @@ describe('ImportGuestBatchUseCase', () => {
       updatePendingSuggestion: jest.fn(),
       acceptSuggestion: jest.fn(),
       rejectSuggestion: jest.fn(),
+      listGuestRestrictions: jest.fn(),
+      addManualRestriction: jest.fn(),
     };
     useCase = new ImportGuestBatchUseCase(parser, repository);
   });

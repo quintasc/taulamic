@@ -1,5 +1,6 @@
 import type { GuestUpsertInput } from '../../domain/guest-import.mapper';
 import type {
+  GuestRestriction,
   RestrictionKind,
   RestrictionSuggestion,
   SuggestionStatus,
@@ -16,6 +17,12 @@ export type UpdateSuggestionInput = {
   kind?: RestrictionKind;
   targetHint?: string | null;
   description?: string;
+};
+
+export type AddManualRestrictionInput = {
+  kind: RestrictionKind;
+  targetHint: string | null;
+  description: string;
 };
 
 export type GuestRepositoryPort = {
@@ -44,6 +51,15 @@ export type GuestRepositoryPort = {
     eventId: string,
     suggestionId: string,
   ): Promise<RestrictionSuggestion>;
+  listGuestRestrictions(
+    eventId: string,
+    guestId: string,
+  ): Promise<GuestRestriction[]>;
+  addManualRestriction(
+    eventId: string,
+    guestId: string,
+    input: AddManualRestrictionInput,
+  ): Promise<GuestRestriction>;
 };
 
 export const GUEST_REPOSITORY = Symbol('GUEST_REPOSITORY');

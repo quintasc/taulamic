@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { FloorPlansModule } from './floor-plans/floor-plans.module';
 import { GuestImportModule } from './guest-import/guest-import.module';
 import { EventsModule } from './events/events.module';
+import { GuestPreferencesModule } from './guest-preferences/guest-preferences.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { EventsModule } from './events/events.module';
     FloorPlansModule,
     GuestImportModule,
     EventsModule,
+    GuestPreferencesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

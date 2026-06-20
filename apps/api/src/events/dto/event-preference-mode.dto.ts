@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum } from 'class-validator';
+import { ACTOR_ROLES, type ActorRole } from '../../common/domain/actor-role';
 import {
   PREFERENCE_CONTROL_MODES,
   type PreferenceControlMode,
@@ -45,4 +46,25 @@ export class PreferenceControlModeRevisionListDto {
 
   @ApiProperty({ type: [PreferenceControlModeRevisionDto] })
   revisions!: PreferenceControlModeRevisionDto[];
+}
+
+export class PreferencePermissionsResponseDto {
+  @ApiProperty({ example: 'evt_123' })
+  eventId!: string;
+
+  @ApiProperty({ enum: PREFERENCE_CONTROL_MODES })
+  mode!: PreferenceControlMode;
+
+  @ApiProperty({ enum: ACTOR_ROLES })
+  actorRole!: ActorRole;
+
+  @ApiProperty({ example: true })
+  canEditGuestPreferences!: boolean;
+
+  @ApiProperty({
+    nullable: true,
+    example:
+      'Las preferencias de asiento solo las gestiona el anfitrion en este evento.',
+  })
+  feedbackMessage!: string | null;
 }

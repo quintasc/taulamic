@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { EventsModule } from '../events/events.module';
 import { GenerateGuestTemplateUseCase } from './application/generate-guest-template.use-case';
 import { ImportGuestBatchUseCase } from './application/import-guest-batch.use-case';
 import { ListGuestSuggestionsUseCase } from './application/list-guest-suggestions.use-case';
@@ -17,6 +18,7 @@ import { FileGuestRepository } from './infrastructure/persistence/file-guest.rep
 import { GUEST_REPOSITORY } from './infrastructure/persistence/guest.repository.port';
 
 @Module({
+  imports: [EventsModule],
   controllers: [GuestImportController],
   providers: [
     GenerateGuestTemplateUseCase,
@@ -42,5 +44,6 @@ import { GUEST_REPOSITORY } from './infrastructure/persistence/guest.repository.
       useExisting: FileGuestRepository,
     },
   ],
+  exports: [GUEST_REPOSITORY],
 })
 export class GuestImportModule {}

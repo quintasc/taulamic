@@ -13,11 +13,13 @@ import { detectSuggestionsFromObservation } from '../../domain/observation-sugge
 import type {
   RestrictionSuggestion,
   SuggestionStatus,
+  GuestRestriction,
 } from '../../domain/restriction-suggestion';
 import type {
   GuestBatchUpsertResult,
   GuestRepositoryPort,
   UpdateSuggestionInput,
+  AddManualRestrictionInput,
 } from './guest.repository.port';
 
 type EventGuestStore = {
@@ -244,6 +246,53 @@ export class FileGuestRepository implements GuestRepositoryPort {
     suggestion.reviewedAt = new Date().toISOString();
     await this.saveStore(store);
     return suggestion;
+  }
+
+  async listGuestRestrictions(
+    eventId: string,
+    guestId: string,
+  ): Promise<GuestRestriction[]> {
+    const store = await this.loadStore(eventId);
+    const guest = store.guests.find((item) => item.id === guestId);
+
+    if (!guest) {
+      throw new NotFoundException({
+        code: 'GUEST_NOT_FOUND',
+        message: 'No se encontro el invitado indicado.',
+      });
+    }
+
+    return guest.restrictions;
+  }
+
+  async addManualRestriction(
+    eventId: string,
+    guestId: string,
+    input: AddManualRestrictionInput,
+  ): Promise<GuestRestriction> {
+    const store = await this.loadStore(eventId);
+    const guest = store.guests.find((item) => item.id === guestId);
+
+    if (!guest) {
+      throw new NotFoundException({
+        code: 'GUEST_NOT_FOUND',
+        message: 'No se encontro el invitado indicado.',
+      });
+    }
+
+    const restriction: GuestRestriction = {
+      id: randomUUID(),
+      kind: input.kind,
+      targetHint: input.targetHint,
+      description: input.description,
+      origin: 'manual',
+      suggestionId: null,
+      createdAt: new Date().toISOString(),
+    };
+
+    guest.restrictions.push(restriction);
+    await this.saveStore(store);
+    return restriction;
   }
 
   private hasDuplicatePendingSuggestion(

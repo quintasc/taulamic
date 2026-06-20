@@ -6,22 +6,27 @@ import {
   HttpStatus,
   Param,
   Put,
+  Query,
 } from '@nestjs/common';
 import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
+import { parseActorRole, type ActorRole } from '../common/domain/actor-role';
 import {
   GetEventPreferenceModeUseCase,
   ListEventPreferenceModeRevisionsUseCase,
 } from './application/get-event-preference-mode.use-case';
+import { GetPreferencePermissionsUseCase } from './application/preference-permissions.use-case';
 import { UpdateEventPreferenceModeUseCase } from './application/update-event-preference-mode.use-case';
 import type { EventPreferenceControlSettings } from './domain/preference-control-mode';
 import {
   EventPreferenceModeResponseDto,
   PreferenceControlModeRevisionListDto,
+  PreferencePermissionsResponseDto,
   UpdateEventPreferenceModeDto,
 } from './dto/event-preference-mode.dto';
 
@@ -43,6 +48,7 @@ export class EventsController {
     private readonly getEventPreferenceModeUseCase: GetEventPreferenceModeUseCase,
     private readonly updateEventPreferenceModeUseCase: UpdateEventPreferenceModeUseCase,
     private readonly listEventPreferenceModeRevisionsUseCase: ListEventPreferenceModeRevisionsUseCase,
+    private readonly getPreferencePermissionsUseCase: GetPreferencePermissionsUseCase,
   ) {}
 
   @Get()
@@ -56,6 +62,27 @@ export class EventsController {
   ): Promise<EventPreferenceModeResponseDto> {
     const settings = await this.getEventPreferenceModeUseCase.execute(eventId);
     return toResponse(settings);
+  }
+
+  @Get('permissions')
+  @ApiOperation({
+    summary: 'Consultar permisos de edicion segun modo y rol',
+    description:
+      'Pensado para UI: indica si el actor puede editar preferencias y mensaje de feedback.',
+  })
+  @ApiQuery({
+    name: 'actorRole',
+    required: false,
+    enum: ['admin', 'guest'],
+    example: 'guest',
+  })
+  @ApiOkResponse({ type: PreferencePermissionsResponseDto })
+  getPermissions(
+    @Param('eventId') eventId: string,
+    @Query('actorRole') actorRoleRaw?: string,
+  ): Promise<PreferencePermissionsResponseDto> {
+    const actorRole: ActorRole = parseActorRole(actorRoleRaw);
+    return this.getPreferencePermissionsUseCase.execute(eventId, actorRole);
   }
 
   @Put()

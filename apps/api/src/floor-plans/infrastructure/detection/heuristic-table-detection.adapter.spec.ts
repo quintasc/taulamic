@@ -3,12 +3,12 @@ import { HeuristicTableDetectionAdapter } from './heuristic-table-detection.adap
 describe('HeuristicTableDetectionAdapter', () => {
   const adapter = new HeuristicTableDetectionAdapter();
 
-  it('detecta mesas con forma y capacidad en texto embebido', () => {
+  it('detecta mesas con forma y capacidad en texto embebido', async () => {
     const buffer = Buffer.from(
       '%PDF-1.4\nMesa 1 redonda 10 pax\nMesa 2 rectangular 8 personas\n',
     );
 
-    const result = adapter.detect({
+    const result = await adapter.detect({
       buffer,
       mimeType: 'application/pdf',
       originalName: 'salon.pdf',
@@ -29,8 +29,8 @@ describe('HeuristicTableDetectionAdapter', () => {
     });
   });
 
-  it('devuelve lista vacia si no hay patrones de mesa', () => {
-    const result = adapter.detect({
+  it('devuelve lista vacia si no hay patrones de mesa', async () => {
+    const result = await adapter.detect({
       buffer: Buffer.from('%PDF-1.4\nplano sin etiquetas\n'),
       mimeType: 'application/pdf',
       originalName: 'vacio.pdf',

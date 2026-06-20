@@ -13,7 +13,7 @@ export type RawDetectedTableCandidate = {
 };
 
 export type TableDetectionPort = {
-  detect(input: TableDetectionInput): RawDetectedTableCandidate[];
+  detect(input: TableDetectionInput): Promise<RawDetectedTableCandidate[]>;
 };
 
 export const TABLE_DETECTION_PORT = Symbol('TABLE_DETECTION_PORT');

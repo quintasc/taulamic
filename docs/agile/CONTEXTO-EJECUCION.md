@@ -6,7 +6,7 @@
 ## Frase clave para Cursor
 
 ```text
-Retomo Taulame. MVP julio piloto (31 jul). Sprint 02 activo. #22-#25 cerradas. Siguiente: #26. Objetivo piloto: plano+Excel+evento+invitados+motor v0+UI admin minima. SDD completo post-piloto. DECISION-002. SDD manda.
+Retomo Taulame. MVP julio piloto (31 jul). Sprint 02 activo. EP-11 cerrado (#22-#26). Siguiente: #27 Excel. Objetivo piloto: plano+Excel+evento+invitados+motor v0+UI admin minima. SDD completo post-piloto. DECISION-002. SDD manda.
 ```
 
 ## Dos niveles de MVP (no confundir)
@@ -21,16 +21,15 @@ Retomo Taulame. MVP julio piloto (31 jul). Sprint 02 activo. #22-#25 cerradas. S
 | Aspecto | Estado |
 |---------|--------|
 | Sprint activo | Sprint 02 (#21) |
-| Issue actual | **#26** |
-| EP-11 progreso | #22–#25 cerradas |
+| Issue actual | **#27** (Excel invitados) |
+| EP-11 progreso | **#22–#26 cerradas** (E2E calidad importacion) |
 | Plan detallado | `docs/agile/mvp-julio-plan.md` |
 | Roadmap grafico | `docs/agile/roadmap-mvp-julio.md` (Gantt + fechas) |
 
 ## Proximas 2 semanas (W1–W2)
 
-1. **#26** E2E calidad importacion plano
-2. **#27–#31** Excel invitados
-3. **#32–#36** Preferencias (si W1 va bien)
+1. **#27–#31** Excel invitados
+2. **#32–#36** Preferencias (si W1 va bien)
 
 ## Comandos utiles
 

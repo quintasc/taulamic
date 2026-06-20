@@ -4,6 +4,7 @@ import { DetectedTable } from '../domain/detected-table';
 import { DetectionResult } from '../domain/detection-result';
 import { DetectionStatus } from '../domain/detection-status';
 import { normalizeTableShape } from '../domain/table-shape.normalizer';
+import { getFloorPlanDetectionTimeoutMs } from '../floor-plan-upload.constants';
 import { FloorPlanStorageRepository } from '../infrastructure/floor-plan-storage.repository';
 import { TABLE_DETECTION_PORT } from '../infrastructure/detection/table-detection.port';
 import type {
@@ -34,16 +35,22 @@ export class DetectTablesUseCase {
       });
     }
 
-    const candidates = this.detectionPort.detect({
+    const detectionOutcome = await this.detectWithTimeout({
       buffer: uploaded.buffer,
       mimeType: uploaded.mimeType,
       originalName: uploaded.originalName,
     });
 
-    const tables = candidates.map((candidate) =>
-      this.toDetectedTable(candidate),
-    );
-    const status = this.resolveStatus(tables);
+    const tables =
+      detectionOutcome.kind === 'success'
+        ? detectionOutcome.candidates.map((candidate) =>
+            this.toDetectedTable(candidate),
+          )
+        : [];
+    const status =
+      detectionOutcome.kind === 'timeout'
+        ? 'failed'
+        : this.resolveStatus(tables);
 
     const result: DetectionResult = {
       floorPlanId,
@@ -52,7 +59,7 @@ export class DetectTablesUseCase {
       tables,
       manualFallbackAvailable: true,
       detectedAt: new Date().toISOString(),
-      message: this.buildMessage(status),
+      message: this.buildMessage(status, detectionOutcome.kind === 'timeout'),
     };
 
     await this.storage.saveDetectionResult(eventId, floorPlanId, result);
@@ -102,7 +109,41 @@ export class DetectTablesUseCase {
     return 'failed';
   }
 
-  private buildMessage(status: DetectionStatus): string | undefined {
+  private async detectWithTimeout(
+    input: Parameters<TableDetectionPort['detect']>[0],
+  ): Promise<
+    | { kind: 'success'; candidates: RawDetectedTableCandidate[] }
+    | { kind: 'timeout' }
+  > {
+    const timeoutMs = getFloorPlanDetectionTimeoutMs();
+    let settled = false;
+
+    return new Promise((resolve) => {
+      const timer = setTimeout(() => {
+        if (!settled) {
+          settled = true;
+          resolve({ kind: 'timeout' });
+        }
+      }, timeoutMs);
+
+      void this.detectionPort.detect(input).then((candidates) => {
+        if (!settled) {
+          settled = true;
+          clearTimeout(timer);
+          resolve({ kind: 'success', candidates });
+        }
+      });
+    });
+  }
+
+  private buildMessage(
+    status: DetectionStatus,
+    timedOut = false,
+  ): string | undefined {
+    if (timedOut) {
+      return 'La deteccion ha excedido el tiempo maximo. Puedes continuar con configuracion manual.';
+    }
+
     if (status === 'failed') {
       return 'No se detectaron mesas de forma fiable. Puedes continuar con configuracion manual.';
     }

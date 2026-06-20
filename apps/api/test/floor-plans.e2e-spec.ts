@@ -6,6 +6,29 @@ import { rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { AppModule } from '../src/app.module';
 import { ApiExceptionFilter } from '../src/common/filters/api-exception.filter';
+import { TABLE_DETECTION_PORT } from '../src/floor-plans/infrastructure/detection/table-detection.port';
+
+function createFloorPlanTestApp(moduleFixture: TestingModule): INestApplication<App> {
+  const app = moduleFixture.createNestApplication();
+  app.setGlobalPrefix('api/v1');
+  app.useGlobalFilters(new ApiExceptionFilter());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+    }),
+  );
+  return app;
+}
+
+async function initFloorPlanTestApp(app: INestApplication<App>): Promise<void> {
+  await app.init();
+}
+
+async function cleanupFloorPlanTestApp(app: INestApplication<App>): Promise<void> {
+  await app.close();
+  await rm(join(process.cwd(), 'uploads'), { recursive: true, force: true });
+}
 
 describe('FloorPlans (e2e)', () => {
   let app: INestApplication<App>;
@@ -532,5 +555,240 @@ describe('FloorPlans persistencia y versionado (e2e)', () => {
         wasManuallyCorrected: true,
       },
     });
+  });
+});
+
+describe('FloorPlans importacion — calidad E2E (#26 / SDD-01D / #16)', () => {
+  let app: INestApplication<App>;
+
+  beforeEach(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = createFloorPlanTestApp(moduleFixture);
+    await initFloorPlanTestApp(app);
+  });
+
+  afterEach(async () => {
+    await cleanupFloorPlanTestApp(app);
+  });
+
+  it('recorre el flujo principal de punta a punta', async () => {
+    const upload = await request(app.getHttpServer())
+      .post('/api/v1/events/evt_123/floor-plans')
+      .attach(
+        'file',
+        Buffer.from(
+          '%PDF-1.4\nMesa 1 redonda 10 pax\nMesa 2 rectangular 8 personas\n',
+        ),
+        {
+          filename: 'salon-etiquetado.pdf',
+          contentType: 'application/pdf',
+        },
+      )
+      .expect(201);
+
+    const floorPlanId = upload.body.id as string;
+
+    const detection = await request(app.getHttpServer())
+      .post(`/api/v1/events/evt_123/floor-plans/${floorPlanId}/detect`)
+      .expect(200);
+
+    expect(detection.body).toMatchObject({
+      status: 'completed',
+      manualFallbackAvailable: true,
+    });
+    expect(detection.body.tables[0].confidence).toBeGreaterThanOrEqual(0.65);
+
+    const draft = await request(app.getHttpServer())
+      .get(`/api/v1/events/evt_123/floor-plans/${floorPlanId}/draft`)
+      .expect(200);
+
+    await request(app.getHttpServer())
+      .put(
+        `/api/v1/events/evt_123/floor-plans/${floorPlanId}/draft/tables/${draft.body.tables[0].id}`,
+      )
+      .send({
+        label: 'Mesa principal',
+        shape: 'redonda',
+        estimatedCapacity: 12,
+      })
+      .expect(200);
+
+    const confirmed = await request(app.getHttpServer())
+      .post(`/api/v1/events/evt_123/floor-plans/${floorPlanId}/draft/confirm`)
+      .send({ confirmed: true })
+      .expect(200);
+
+    expect(confirmed.body).toMatchObject({
+      version: 1,
+      status: 'confirmed',
+      configurationOrigin: 'imported_edited',
+    });
+
+    await request(app.getHttpServer())
+      .get(`/api/v1/events/evt_123/floor-plans/${floorPlanId}/confirmed`)
+      .expect(200);
+
+    const versions = await request(app.getHttpServer())
+      .get(`/api/v1/events/evt_123/floor-plans/${floorPlanId}/layout-versions`)
+      .expect(200);
+
+    expect(versions.body.latestVersion).toBe(1);
+  });
+
+  it('marca deteccion parcial y permite confirmar tras correccion', async () => {
+    const upload = await request(app.getHttpServer())
+      .post('/api/v1/events/evt_123/floor-plans')
+      .attach('file', Buffer.from('%PDF-1.4\nMesa 1\n'), {
+        filename: 'plano-parcial.pdf',
+        contentType: 'application/pdf',
+      })
+      .expect(201);
+
+    const floorPlanId = upload.body.id as string;
+
+    const detection = await request(app.getHttpServer())
+      .post(`/api/v1/events/evt_123/floor-plans/${floorPlanId}/detect`)
+      .expect(200);
+
+    expect(detection.body).toMatchObject({
+      status: 'partial',
+      manualFallbackAvailable: true,
+    });
+    expect(detection.body.message).toContain('parcial');
+
+    const draft = await request(app.getHttpServer())
+      .get(`/api/v1/events/evt_123/floor-plans/${floorPlanId}/draft`)
+      .expect(200);
+
+    await request(app.getHttpServer())
+      .put(
+        `/api/v1/events/evt_123/floor-plans/${floorPlanId}/draft/tables/${draft.body.tables[0].id}`,
+      )
+      .send({
+        label: 'Mesa 1',
+        shape: 'rectangular',
+        estimatedCapacity: 8,
+      })
+      .expect(200);
+
+    const confirmed = await request(app.getHttpServer())
+      .post(`/api/v1/events/evt_123/floor-plans/${floorPlanId}/draft/confirm`)
+      .send({ confirmed: true })
+      .expect(200);
+
+    expect(confirmed.body.tables).toHaveLength(1);
+    expect(confirmed.body.configurationOrigin).toBe('imported_edited');
+  });
+
+  it('permite confirmar por via manual cuando la deteccion falla (#16)', async () => {
+    const upload = await request(app.getHttpServer())
+      .post('/api/v1/events/evt_123/floor-plans')
+      .attach('file', Buffer.from('%PDF-1.4\nplano sin mesas\n'), {
+        filename: 'plano-vacio.pdf',
+        contentType: 'application/pdf',
+      })
+      .expect(201);
+
+    const floorPlanId = upload.body.id as string;
+
+    const detection = await request(app.getHttpServer())
+      .post(`/api/v1/events/evt_123/floor-plans/${floorPlanId}/detect`)
+      .expect(200);
+
+    expect(detection.body).toMatchObject({
+      status: 'failed',
+      tables: [],
+      manualFallbackAvailable: true,
+    });
+
+    await request(app.getHttpServer())
+      .post(`/api/v1/events/evt_123/floor-plans/${floorPlanId}/draft/tables`)
+      .send({
+        label: 'Mesa manual',
+        shape: 'redonda',
+        estimatedCapacity: 10,
+      })
+      .expect(201);
+
+    const confirmed = await request(app.getHttpServer())
+      .post(`/api/v1/events/evt_123/floor-plans/${floorPlanId}/draft/confirm`)
+      .send({ confirmed: true })
+      .expect(200);
+
+    expect(confirmed.body.configurationOrigin).toBe('manual');
+  });
+});
+
+describe('FloorPlans timeout de deteccion (e2e #26)', () => {
+  let app: INestApplication<App>;
+  const originalTimeout = process.env.FLOOR_PLAN_DETECTION_TIMEOUT_MS;
+
+  beforeEach(async () => {
+    process.env.FLOOR_PLAN_DETECTION_TIMEOUT_MS = '50';
+
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    })
+      .overrideProvider(TABLE_DETECTION_PORT)
+      .useValue({
+        detect: () =>
+          new Promise((resolve) => {
+            setTimeout(() => resolve([]), 200);
+          }),
+      })
+      .compile();
+
+    app = createFloorPlanTestApp(moduleFixture);
+    await initFloorPlanTestApp(app);
+  });
+
+  afterEach(async () => {
+    await cleanupFloorPlanTestApp(app);
+
+    if (originalTimeout === undefined) {
+      delete process.env.FLOOR_PLAN_DETECTION_TIMEOUT_MS;
+    } else {
+      process.env.FLOOR_PLAN_DETECTION_TIMEOUT_MS = originalTimeout;
+    }
+  });
+
+  it('no bloquea el flujo manual cuando la deteccion excede el tiempo maximo', async () => {
+    const upload = await request(app.getHttpServer())
+      .post('/api/v1/events/evt_123/floor-plans')
+      .attach('file', Buffer.from('%PDF-1.4\n'), {
+        filename: 'plano.pdf',
+        contentType: 'application/pdf',
+      })
+      .expect(201);
+
+    const floorPlanId = upload.body.id as string;
+
+    const detection = await request(app.getHttpServer())
+      .post(`/api/v1/events/evt_123/floor-plans/${floorPlanId}/detect`)
+      .expect(200);
+
+    expect(detection.body).toMatchObject({
+      status: 'failed',
+      tables: [],
+      manualFallbackAvailable: true,
+    });
+    expect(detection.body.message).toContain('tiempo maximo');
+
+    await request(app.getHttpServer())
+      .post(`/api/v1/events/evt_123/floor-plans/${floorPlanId}/draft/tables`)
+      .send({
+        label: 'Mesa manual',
+        shape: 'redonda',
+        estimatedCapacity: 10,
+      })
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .post(`/api/v1/events/evt_123/floor-plans/${floorPlanId}/draft/confirm`)
+      .send({ confirmed: true })
+      .expect(200);
   });
 });

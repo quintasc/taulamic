@@ -29,3 +29,19 @@ export function isAllowedFloorPlanMimeType(
     mimeType,
   );
 }
+
+const DEFAULT_DETECTION_TIMEOUT_MS = 30_000;
+
+export function getFloorPlanDetectionTimeoutMs(): number {
+  const raw = process.env.FLOOR_PLAN_DETECTION_TIMEOUT_MS;
+  if (raw === undefined || raw.trim() === '') {
+    return DEFAULT_DETECTION_TIMEOUT_MS;
+  }
+
+  const parsed = Number.parseInt(raw, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return DEFAULT_DETECTION_TIMEOUT_MS;
+  }
+
+  return parsed;
+}

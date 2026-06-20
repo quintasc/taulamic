@@ -13,7 +13,7 @@ const CAPACITY_PATTERN =
 
 @Injectable()
 export class HeuristicTableDetectionAdapter implements TableDetectionPort {
-  detect(input: TableDetectionInput): RawDetectedTableCandidate[] {
+  async detect(input: TableDetectionInput): Promise<RawDetectedTableCandidate[]> {
     const text = input.buffer.toString('latin1');
     const matches = [...text.matchAll(MESA_LINE_PATTERN)];
 

@@ -24,6 +24,7 @@ Retomo Taulame. MVP julio piloto (31 jul). Sprint 02 activo. #22-#25 cerradas. S
 | Issue actual | **#26** |
 | EP-11 progreso | #22–#25 cerradas |
 | Plan detallado | `docs/agile/mvp-julio-plan.md` |
+| Roadmap grafico | `docs/agile/roadmap-mvp-julio.md` (Gantt + fechas) |
 
 ## Proximas 2 semanas (W1–W2)
 

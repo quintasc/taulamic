@@ -7,6 +7,7 @@ import { FloorPlansModule } from './floor-plans/floor-plans.module';
 import { GuestImportModule } from './guest-import/guest-import.module';
 import { EventsModule } from './events/events.module';
 import { GuestPreferencesModule } from './guest-preferences/guest-preferences.module';
+import { GuestCompanionsModule } from './guest-companions/guest-companions.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { GuestPreferencesModule } from './guest-preferences/guest-preferences.mo
     GuestImportModule,
     EventsModule,
     GuestPreferencesModule,
+    GuestCompanionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

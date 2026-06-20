@@ -9,6 +9,7 @@ import {
   normalizeCategoryName,
   type GuestUpsertInput,
 } from '../../domain/guest-import.mapper';
+import { companionSeparationFromImport } from '../../domain/companion-group.engine';
 import { detectSuggestionsFromObservation } from '../../domain/observation-suggestion.engine';
 import type {
   RestrictionSuggestion,
@@ -20,6 +21,7 @@ import type {
   GuestRepositoryPort,
   UpdateSuggestionInput,
   AddManualRestrictionInput,
+  CompanionGroupSeparationInput,
 } from './guest.repository.port';
 
 type EventGuestStore = {
@@ -72,6 +74,11 @@ export class FileGuestRepository implements GuestRepositoryPort {
       );
       const now = new Date().toISOString();
 
+      const separation = companionSeparationFromImport(
+        row.separarAcompanante,
+        row.observaciones,
+      );
+
       if (existing) {
         Object.assign(existing, {
           nombre: row.nombre,
@@ -81,6 +88,7 @@ export class FileGuestRepository implements GuestRepositoryPort {
           observaciones: row.observaciones,
           acompananteKey: row.acompananteKey,
           separarAcompanante: row.separarAcompanante,
+          ...separation,
           preferenciaControl: row.preferenciaControl,
           updatedAt: now,
         });
@@ -100,6 +108,7 @@ export class FileGuestRepository implements GuestRepositoryPort {
         observaciones: row.observaciones,
         acompananteKey: row.acompananteKey,
         separarAcompanante: row.separarAcompanante,
+        ...separation,
         preferenciaControl: row.preferenciaControl,
         restrictions: [],
         createdAt: now,
@@ -295,6 +304,52 @@ export class FileGuestRepository implements GuestRepositoryPort {
     return restriction;
   }
 
+  async listGuests(eventId: string): Promise<Guest[]> {
+    const store = await this.loadStore(eventId);
+    return store.guests;
+  }
+
+  async updateCompanionGroupSeparation(
+    eventId: string,
+    groupKey: string,
+    input: CompanionGroupSeparationInput,
+  ): Promise<Guest[]> {
+    const store = await this.loadStore(eventId);
+    const normalizedKey = groupKey.trim();
+    const members = store.guests.filter(
+      (guest) => guest.acompananteKey.trim() === normalizedKey,
+    );
+
+    if (members.length < 2) {
+      throw new NotFoundException({
+        code: 'COMPANION_GROUP_NOT_FOUND',
+        message: 'No se encontro un grupo de acompanantes con esa clave.',
+      });
+    }
+
+    const now = new Date().toISOString();
+
+    for (const guest of members) {
+      if (input.separate) {
+        guest.separarAcompanante = true;
+        guest.companionSeparationReason =
+          input.reason?.trim() ||
+          'Excepcion explicita registrada por administrador.';
+        guest.companionSeparationOrigin = input.origin;
+        guest.companionSeparationAt = now;
+      } else {
+        guest.separarAcompanante = false;
+        guest.companionSeparationReason = null;
+        guest.companionSeparationOrigin = null;
+        guest.companionSeparationAt = null;
+      }
+      guest.updatedAt = now;
+    }
+
+    await this.saveStore(store);
+    return members;
+  }
+
   private hasDuplicatePendingSuggestion(
     store: EventGuestStore,
     guestId: string,
@@ -361,6 +416,9 @@ export class FileGuestRepository implements GuestRepositoryPort {
       guests: store.guests.map((guest) => ({
         ...guest,
         restrictions: guest.restrictions ?? [],
+        companionSeparationReason: guest.companionSeparationReason ?? null,
+        companionSeparationOrigin: guest.companionSeparationOrigin ?? null,
+        companionSeparationAt: guest.companionSeparationAt ?? null,
       })),
     };
   }

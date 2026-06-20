@@ -2,6 +2,8 @@ import type { GuestRestriction } from './restriction-suggestion';
 
 export type GuestPreferenceControl = 'colaborativo' | 'anfitrion_exclusivo';
 
+export type CompanionSeparationOrigin = 'excel' | 'admin';
+
 export type Guest = {
   id: string;
   eventId: string;
@@ -13,6 +15,9 @@ export type Guest = {
   observaciones: string;
   acompananteKey: string;
   separarAcompanante: boolean | null;
+  companionSeparationReason: string | null;
+  companionSeparationOrigin: CompanionSeparationOrigin | null;
+  companionSeparationAt: string | null;
   preferenciaControl: GuestPreferenceControl | null;
   restrictions: GuestRestriction[];
   createdAt: string;

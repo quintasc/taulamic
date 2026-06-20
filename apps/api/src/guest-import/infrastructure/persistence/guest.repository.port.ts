@@ -1,4 +1,5 @@
 import type { GuestUpsertInput } from '../../domain/guest-import.mapper';
+import type { Guest } from '../../domain/guest';
 import type {
   GuestRestriction,
   RestrictionKind,
@@ -60,6 +61,18 @@ export type GuestRepositoryPort = {
     guestId: string,
     input: AddManualRestrictionInput,
   ): Promise<GuestRestriction>;
+  listGuests(eventId: string): Promise<Guest[]>;
+  updateCompanionGroupSeparation(
+    eventId: string,
+    groupKey: string,
+    input: CompanionGroupSeparationInput,
+  ): Promise<Guest[]>;
+};
+
+export type CompanionGroupSeparationInput = {
+  separate: boolean;
+  reason?: string;
+  origin: 'excel' | 'admin';
 };
 
 export const GUEST_REPOSITORY = Symbol('GUEST_REPOSITORY');

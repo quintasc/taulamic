@@ -24,9 +24,15 @@ Marcar con `[x]` cuando el flujo tenga wireframe low-fi en Figma.
 - [ ] Admin — tablero distribucion (borrador motor v0)
 - [ ] Componentes UI base
 
-## Notas de coordinacion con Ventana 1 (#15 — cerrado)
+## APIs disponibles en main (Ventana 2 / Figma)
 
-API disponible (commit `7dcb111` en `main`):
+### Evento y mesas (#1)
+
+- `POST /api/v1/events` — crear evento
+- `GET /api/v1/events/:eventId` — evento + mesas + `capacitySummary`
+- `POST/PUT/DELETE .../events/:eventId/tables` — CRUD mesas
+
+### Forma mesa (#15)
 
 - `GET /api/v1/events/:eventId/table-shapes` — catalogo de formas
 - `GET /api/v1/events/:eventId/table-shapes/:shape/seat-topology?capacity=N` — vista previa

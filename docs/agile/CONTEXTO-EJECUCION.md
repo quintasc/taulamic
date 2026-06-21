@@ -54,6 +54,8 @@ UI admin minima (Next.js) para el flujo piloto: evento → mesas → invitados �
 ### Referencias
 
 - `docs/agile/mvp-julio-plan.md` (W5 frontend admin)
+- **`docs/ux/handoff-figma-a-frontend.md`** (mapa pantallas Make → OpenAPI)
+- `docs/ux/design-tokens-mvp.md` · `docs/ux/figma-mvp.md` (enlace Make)
 - OpenAPI: `/api/docs` y `/api-json` (version `1.0-pilot`)
 - E2E backend: `apps/api/test/pilot-flow.e2e-spec.ts`
 

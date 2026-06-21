@@ -6,6 +6,7 @@
 - Design tokens: `docs/ux/design-tokens-mvp.md`
 - **Empezar de cero:** `docs/ux/figma-setup-desde-cero.md`
 - **Prompts Make (completar diseño):** `docs/ux/figma-make-prompts.md`
+- **Handoff → Frontend (Ventana 1):** `docs/ux/handoff-figma-a-frontend.md`
 - **Logos / iconos:** `docs/ux/assets/` (ver tabla abajo)
 
 ### Assets de marca

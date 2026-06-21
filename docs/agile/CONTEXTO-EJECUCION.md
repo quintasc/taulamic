@@ -1,6 +1,6 @@
 ﻿# Contexto de ejecucion — punto de reanudacion
 
-- Ultima actualizacion: 2026-06-21
+- Ultima actualizacion: **2026-06-21 (noche)**
 - Hito activo: **MVP julio (piloto)** — ver `DECISION-002-mvp-julio-piloto-funcional.md`
 - Naming: producto **Taulamic**, dominio **taulamic.com**, repo `quintasc/taulamic`
 - **Modo actual:** trabajo en **2 ventanas Cursor** en paralelo (sin solapamiento de codigo)
@@ -25,16 +25,17 @@
 | EP-03 piloto | **Motor v0 entregado** (#3 abierta: EP-03 completo post-piloto) |
 | Integracion E2E piloto | **Cerrada** (`pilot-flow.e2e-spec.ts`) |
 | OpenAPI piloto (#9) | **Cerrado** (`/api/docs`, `/api-json`, contrato validado) |
-| Frontend admin W5 | **Cerrado** (PR #38 — `apps/web`, rutas handoff UX) |
+| Frontend admin W5 | **Cerrado** (PR #38 — base `apps/web`) |
+| **Frontend piloto UI W6** | **En curso** — PR **#39** (`feat/web-piloto-ui-w6`) |
 | Rebrand Taulamic | **Cerrado** |
 | Plan piloto | `docs/agile/mvp-julio-plan.md` |
 
 | Ventana | Issue / foco | Rama | Estado |
 |---------|--------------|------|--------|
-| **1** | **Cerrar piloto UI** (W6 plan julio) | `main` o `feat/*` segun fix | **Siguiente** |
+| **1** | **Cerrar piloto UI** (W6 plan julio) | `feat/web-piloto-ui-w6` | **En curso** (PR #39) |
 | **2** | ~~#7~~ Figma MVP (UX) | ~~feat/7-figma-mvp~~ | **Cerrado** (PR #37) |
 
-**Ventana 2 libre.** Siguiente sugerido: apoyo UX a **Corregir plano** (handoff) o refinamiento visual post-piloto. Enlace Make: `docs/ux/figma-mvp.md`.
+**Ventana 2 libre.** Apoyo UX sugerido: **Corregir plano** (handoff) o refinamiento visual post-piloto.
 
 ---
 
@@ -45,41 +46,62 @@
 ### Frase clave (pegar en el chat)
 
 ```text
-Soy Ventana 1. Retomo Taulamic. Cierre piloto UI julio (W6). Frontend en main (apps/web). Validar flujo manual, Corregir plano y fixes. OpenAPI y E2E piloto cerrados. SDD manda.
+Soy Ventana 1. Retomo Taulamic W6 piloto UI. Rama feat/web-piloto-ui-w6, PR #39. Frontend modular en apps/web. Distribución calculada hecha; pendiente Corregir plano y validación manual E2E. API :3000, web :3001, npm run dev:clean en OneDrive. SDD manda.
 ```
 
 ### Objetivo
 
-Completar el piloto demostrable en UI: validar flujo punta a punta, pantalla **Corregir plano**, prueba con API local y fixes. Ver `mvp-julio-plan.md` W6 y checklist en `handoff-figma-a-frontend.md`.
+Completar el piloto demostrable en UI: validar flujo punta a punta, pantalla **Corregir plano**, merge PR #39, evidencia piloto. Ver `mvp-julio-plan.md` W6 y checklist en `handoff-figma-a-frontend.md`.
 
-### Entregado (W5 — PR #38)
+### Entregado (W5 — PR #38 + W6 — PR #39 en curso)
 
 - `apps/web` Next.js 15 en `:3001` (proxy `/api/v1`)
 - Rutas `/admin/events/[id]/…` alineadas al handoff
-- Landing, dashboard, config, plano (subir), invitados, preferencias, mesas, distribución
+- **Landing** en `app/(marketing)/` alineada Figma Make
+- **Estructura modular:** `components/ui|marketing|admin|brand|tables`, `hooks/`, `lib/`
+- Admin shell: logo, sidebar, «Evento en curso» (solo lectura), nav-map
+- Dashboard KPIs en 0 para proyecto vacío; sesión MVP (`sessionStorage`, evento nuevo en `/admin`)
+- Pantallas: config, plano (subir), invitados, preferencias, mesas, **distribución (empty + calculada Figma)**
+- Fixes: shim `components/ui.tsx`, hydration `HeroFloorplan`, `npm run dev:clean`
 - CORS API para `localhost:3001`
+- Decisión MVP documentada: no recuperar eventos guardados entre sesiones
 
-### Pendiente inmediato
+### Pendiente inmediato (retomar mañana)
 
-1. Validar flujo piloto manualmente vs `pilot-flow.e2e-spec.ts`
-2. Pantalla **Corregir plano** (draft + confirm — handoff sección Plano)
-3. Probar API + web en local; fixes de integración
+1. **Pantalla Corregir plano** (draft + confirm — handoff sección Plano)
+2. Validar flujo piloto **manualmente** vs `pilot-flow.e2e-spec.ts`
+3. Revisar / merge **PR #39** tras smoke test local
 4. Evidencia piloto + issues `post-piloto` si aplica
+
+### Dev local (Windows / OneDrive)
+
+```powershell
+# Terminal 1 — API
+cd apps\api; npm run start:dev
+
+# Terminal 2 — Web (usar ruta corta si falla el path con apóstrofo)
+cd apps\web; npm run dev:clean
+```
+
+- Web: http://localhost:3001
+- Si **Internal Server Error** o pantalla blanca: matar proceso en `:3001` (`netstat -ano | findstr :3001` → `taskkill /PID … /F`) y **`npm run dev:clean`** (sin argumentos extra).
+- PowerShell: usar `;` en lugar de `&&`.
 
 ### Referencias
 
 - `docs/agile/mvp-julio-plan.md` (W6 cierre piloto)
 - **`docs/ux/handoff-figma-a-frontend.md`** (mapa pantallas → API + checklist)
-- `docs/ux/design-tokens-mvp.md` · `docs/ux/figma-mvp.md`
+- `docs/ux/design-tokens-mvp.md` · `docs/ux/figma-mvp.md` · `docs/ux/figma-make-prompts.md`
 - OpenAPI: `/api/docs` y `/api-json` (version `1.0-pilot`)
 - E2E backend: `apps/api/test/pilot-flow.e2e-spec.ts`
 - Web: `apps/web/README.md`
+- PR abierta: https://github.com/quintasc/taulamic/pull/39
 
 ### Patron de cierre W6
 
 1. Flujo piloto usable en UI con evidencia manual
 2. Build/tests piloto en verde (`apps/api` + `apps/web`)
-3. Actualizar checklist handoff y este archivo
+3. Merge PR #39 → actualizar checklist handoff y este archivo
 
 ---
 
@@ -90,7 +112,7 @@ Completar el piloto demostrable en UI: validar flujo punta a punta, pantalla **C
 ### Frase clave (pegar en el chat)
 
 ```text
-Soy Ventana 2. Retomo Taulamic. Issue #7 Figma MVP alineado con SDD. Rama feat/7-figma-mvp. Trabajo UX en Figma y docs/ux/. No tocar apps/api/. SDD-01A manda.
+Soy Ventana 2. Retomo Taulamic. Issue #7 Figma MVP alineado con SDD. Trabajo UX en Figma y docs/ux/. No tocar apps/api/. SDD-01A manda.
 ```
 
 ### Objetivo
@@ -122,31 +144,27 @@ Merge rama UX → `main` → actualizar handoff si cambia contrato visual → av
 
 ## Comandos utiles (Ventana 1)
 
-```bash
+```powershell
 # API
-cd apps/api
-npm run build && npm test && npm run test:e2e
+cd apps\api
+npm run build; npm test; npm run test:e2e
 npm run start:dev
 
 # Web admin
-cd apps/web
+cd apps\web
 npm install
-npm run dev
+npm run dev:clean
 npm run build
 ```
 
-## Ultimos commits de referencia
+## Ultimos commits de referencia (rama feat/web-piloto-ui-w6)
 
 | Commit | Descripcion |
 |--------|-------------|
-| 1c16502 | Merge PR #38 — frontend admin piloto W5 |
-| d682187 | feat(web): admin Next.js rutas handoff UX |
-| 728bbfa | Handoff Figma Make → frontend (Ventana 1) |
-| a05d756 | Merge PR #37 — Figma MVP UX (#7) |
-| e89fcc7 | docs UX Figma Make MVP (#7) |
-| 975219e | OpenAPI piloto EP-07 (#9) |
-| 85edda2 | Integracion E2E piloto MVP julio |
-| 2d57530 | Motor v0 piloto EP-03 (#3) |
-| f4510c6 | Invitados API piloto EP-02 (#2) |
-| 8001f0d | Evento y mesas HU-01 (#1) |
-| 7dcb111 | Forma mesa y topologia HU-29 (#15) |
+| fa904ee | feat(web): vista distribución calculada alineada con Figma |
+| 581c0d4 | fix(web): evitar hydration mismatch en HeroFloorplan |
+| 66eb927 | fix(web): shim ui.tsx tras modularización |
+| e269022 | refactor(web): modularizar UI por dominios |
+| 8824d1a | refactor(web): landing en app/(marketing) |
+| c1ef80a | feat(web): piloto UI Figma + sesión MVP |
+| 1c16502 | Merge PR #38 — frontend admin piloto W5 (main) |

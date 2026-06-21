@@ -12,7 +12,7 @@ app/              Rutas Next.js (páginas finas)
 components/
   ui/             Piezas reutilizables (Alert, StatCard, PageHeader…)
   marketing/      Landing, header, tarjetas, hero
-  admin/          Shell, sidebar, dashboard, checklist
+  admin/          Shell, sidebar, dashboard, checklist, distribution
   brand/          Logo Taulamic
   icons/          Iconos SVG (nav, formas mesa…)
   tables/         Preview y utilidades de mesas
@@ -38,6 +38,8 @@ npm run dev:clean
 ```
 
 (`dev:clean` borra `.next` antes de arrancar; recomendado si el proyecto está en OneDrive.)
+
+Si el puerto 3001 está ocupado o ves **Internal Server Error**: `netstat -ano | findstr :3001` → `taskkill /PID <pid> /F` → `npm run dev:clean` (sin argumentos extra).
 
 - Web: http://localhost:3001
 - API: http://localhost:3000/api/v1 (proxy vía rewrite en Next)

@@ -236,7 +236,8 @@ Rutas alineadas con la tabla anterior. Estructura App Router: `(marketing)/` (gr
 - [x] Leer este doc + abrir Figma Make
 - [x] Configurar cliente API contra `/api/v1` (rewrite Next.js)
 - [x] Implementar layout admin (sidebar + header)
+- [x] Pantalla **Distribución calculada** (KPIs, acordeón mesas, confirmar)
 - [ ] Flujo piloto según `pilot-flow.e2e-spec.ts` (validar manualmente en UI)
 - [x] Aplicar tokens de `design-tokens-mvp.md`
 - [ ] Pantalla **Corregir plano** completa
-- [ ] Probar con API local: `cd apps/api && npm run start:dev`
+- [x] Probar con API local (`apps/api` + `apps/web` en :3000 / :3001)

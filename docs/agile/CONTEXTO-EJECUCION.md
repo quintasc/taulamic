@@ -100,7 +100,7 @@ npm run build && npm test && npm run test:e2e
 
 | Commit | Descripcion |
 |--------|-------------|
-| (pendiente) | Integracion E2E piloto MVP julio |
+| `85edda2` | Integracion E2E piloto MVP julio |
 | `2d57530` | Motor v0 piloto EP-03 (#3) |
 | `f4510c6` | Invitados API piloto EP-02 (#2) |
 | `8001f0d` | Evento y mesas HU-01 (#1) |

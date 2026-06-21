@@ -101,7 +101,7 @@ npm run build && npm test && npm run test:e2e
 
 | Commit | Descripcion |
 |--------|-------------|
-| (pendiente) | OpenAPI piloto EP-07 (#9) |
+| `975219e` | OpenAPI piloto EP-07 (#9) |
 | `85edda2` | Integracion E2E piloto MVP julio |
 | `2d57530` | Motor v0 piloto EP-03 (#3) |
 | `f4510c6` | Invitados API piloto EP-02 (#2) |

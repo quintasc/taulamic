@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
@@ -19,6 +19,7 @@ import type {
 import type {
   GuestBatchUpsertResult,
   GuestRepositoryPort,
+  GuestManualInput,
   UpdateSuggestionInput,
   AddManualRestrictionInput,
   CompanionGroupSeparationInput,
@@ -380,6 +381,168 @@ export class FileGuestRepository implements GuestRepositoryPort {
   async listGuests(eventId: string): Promise<Guest[]> {
     const store = await this.loadStore(eventId);
     return store.guests;
+  }
+
+  async getGuest(eventId: string, guestId: string): Promise<Guest> {
+    const store = await this.loadStore(eventId);
+    const guest = store.guests.find((item) => item.id === guestId);
+
+    if (!guest) {
+      throw new NotFoundException({
+        code: 'GUEST_NOT_FOUND',
+        message: 'No se encontro el invitado indicado.',
+        details: { guestId },
+      });
+    }
+
+    return guest;
+  }
+
+  async listCategories(eventId: string): Promise<GuestCategory[]> {
+    const store = await this.loadStore(eventId);
+    return store.categories;
+  }
+
+  async createGuest(eventId: string, input: GuestManualInput): Promise<Guest> {
+    const store = await this.loadStore(eventId);
+    const correo = input.correo.trim().toLowerCase();
+    const duplicate = store.guests.find((guest) => guest.correo === correo);
+
+    if (duplicate) {
+      throw new ConflictException({
+        code: 'GUEST_EMAIL_EXISTS',
+        message: 'Ya existe un invitado con ese correo en el evento.',
+        details: { correo },
+      });
+    }
+
+    const guest = await this.persistGuest(store, eventId, input, null);
+    await this.saveStore(store);
+
+    if (guest.observaciones.trim()) {
+      await this.generateSuggestionsFromObservations(eventId, [guest.id]);
+    }
+
+    return this.getGuest(eventId, guest.id);
+  }
+
+  async updateGuest(
+    eventId: string,
+    guestId: string,
+    input: GuestManualInput,
+  ): Promise<Guest> {
+    const store = await this.loadStore(eventId);
+    const existing = store.guests.find((item) => item.id === guestId);
+
+    if (!existing) {
+      throw new NotFoundException({
+        code: 'GUEST_NOT_FOUND',
+        message: 'No se encontro el invitado indicado.',
+        details: { guestId },
+      });
+    }
+
+    const correo = input.correo.trim().toLowerCase();
+    const duplicate = store.guests.find(
+      (guest) => guest.correo === correo && guest.id !== guestId,
+    );
+
+    if (duplicate) {
+      throw new ConflictException({
+        code: 'GUEST_EMAIL_EXISTS',
+        message: 'Ya existe un invitado con ese correo en el evento.',
+        details: { correo },
+      });
+    }
+
+    await this.persistGuest(store, eventId, input, existing);
+    await this.saveStore(store);
+
+    if (input.observaciones?.trim()) {
+      await this.generateSuggestionsFromObservations(eventId, [guestId]);
+    }
+
+    return this.getGuest(eventId, guestId);
+  }
+
+  async deleteGuest(eventId: string, guestId: string): Promise<void> {
+    const store = await this.loadStore(eventId);
+    const nextGuests = store.guests.filter((guest) => guest.id !== guestId);
+
+    if (nextGuests.length === store.guests.length) {
+      throw new NotFoundException({
+        code: 'GUEST_NOT_FOUND',
+        message: 'No se encontro el invitado indicado.',
+        details: { guestId },
+      });
+    }
+
+    store.guests = nextGuests;
+    store.suggestions = store.suggestions.filter(
+      (suggestion) => suggestion.guestId !== guestId,
+    );
+    await this.saveStore(store);
+  }
+
+  private async persistGuest(
+    store: EventGuestStore,
+    eventId: string,
+    input: GuestManualInput,
+    existing: Guest | null,
+  ): Promise<Guest> {
+    const categoryIds: string[] = [];
+
+    for (const categoryName of input.categoryNames ?? []) {
+      if (!categoryName.trim()) {
+        continue;
+      }
+
+      const ensured = this.ensureCategory(store, eventId, categoryName);
+      categoryIds.push(ensured.category.id);
+    }
+
+    const now = new Date().toISOString();
+    const separation = companionSeparationFromImport(
+      input.separarAcompanante ?? null,
+      input.observaciones ?? '',
+    );
+
+    if (existing) {
+      Object.assign(existing, {
+        nombre: input.nombre.trim(),
+        correo: input.correo.trim().toLowerCase(),
+        telefono: input.telefono.trim(),
+        direccion: input.direccion?.trim() ?? '',
+        categoriaIds: categoryIds,
+        observaciones: input.observaciones?.trim() ?? '',
+        acompananteKey: input.acompananteKey?.trim() ?? '',
+        separarAcompanante: input.separarAcompanante ?? null,
+        ...separation,
+        preferenciaControl: input.preferenciaControl ?? null,
+        updatedAt: now,
+      });
+      return existing;
+    }
+
+    const guest: Guest = {
+      id: randomUUID(),
+      eventId,
+      nombre: input.nombre.trim(),
+      correo: input.correo.trim().toLowerCase(),
+      telefono: input.telefono.trim(),
+      direccion: input.direccion?.trim() ?? '',
+      categoriaIds: categoryIds,
+      observaciones: input.observaciones?.trim() ?? '',
+      acompananteKey: input.acompananteKey?.trim() ?? '',
+      separarAcompanante: input.separarAcompanante ?? null,
+      ...separation,
+      preferenciaControl: input.preferenciaControl ?? null,
+      restrictions: [],
+      createdAt: now,
+      updatedAt: now,
+    };
+    store.guests.push(guest);
+    return guest;
   }
 
   async updateCompanionGroupSeparation(

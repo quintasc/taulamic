@@ -1,5 +1,5 @@
 import type { GuestUpsertInput } from '../../domain/guest-import.mapper';
-import type { Guest } from '../../domain/guest';
+import type { Guest, GuestCategory, GuestPreferenceControl } from '../../domain/guest';
 import type { CompanionSeparationAuditSnapshot } from '../../../event-governance-audit/domain/governance-audit-entry';
 import type {
   GuestRestriction,
@@ -31,6 +31,18 @@ export type AddManualRestrictionInput = {
   kind: RestrictionKind;
   targetHint: string | null;
   description: string;
+};
+
+export type GuestManualInput = {
+  nombre: string;
+  correo: string;
+  telefono: string;
+  direccion?: string;
+  categoryNames?: string[];
+  observaciones?: string;
+  acompananteKey?: string;
+  separarAcompanante?: boolean | null;
+  preferenciaControl?: GuestPreferenceControl | null;
 };
 
 export type GuestRepositoryPort = {
@@ -69,6 +81,15 @@ export type GuestRepositoryPort = {
     input: AddManualRestrictionInput,
   ): Promise<GuestRestriction>;
   listGuests(eventId: string): Promise<Guest[]>;
+  getGuest(eventId: string, guestId: string): Promise<Guest>;
+  listCategories(eventId: string): Promise<GuestCategory[]>;
+  createGuest(eventId: string, input: GuestManualInput): Promise<Guest>;
+  updateGuest(
+    eventId: string,
+    guestId: string,
+    input: GuestManualInput,
+  ): Promise<Guest>;
+  deleteGuest(eventId: string, guestId: string): Promise<void>;
   updateCompanionGroupSeparation(
     eventId: string,
     groupKey: string,

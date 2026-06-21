@@ -56,6 +56,7 @@ import { EVENT_PREFERENCE_SETTINGS_REPOSITORY } from './infrastructure/persisten
     AssertPreferenceEditPermissionUseCase,
     AssertAdminActorUseCase,
     GetPreferencePermissionsUseCase,
+    EVENT_CONFIG_REPOSITORY,
   ],
 })
 export class EventsModule {}

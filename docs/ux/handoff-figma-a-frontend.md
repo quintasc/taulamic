@@ -193,16 +193,22 @@ Componentes Figma → React (sugerencia): shadcn/ui o componentes propios siguie
 | Ruta | Pantalla Make |
 |------|---------------|
 | `/` | Marketing landing |
-| `/admin` | Dashboard (requiere `eventId` en query o contexto) |
+| `/admin` | Entrada admin: redirige al último evento (`/admin/events/[id]`) o a crear evento |
 | `/admin/events/new` | Crear evento → redirect dashboard |
+| `/admin/events/[id]` | Dashboard del evento |
 | `/admin/events/[id]/config` | Configuración |
 | `/admin/events/[id]/floor-plan` | Subir + corregir plano |
 | `/admin/events/[id]/guests` | Import Excel + errores |
+| `/admin/events/[id]/guests/errors` | Errores de importación Excel |
 | `/admin/events/[id]/preferences` | Modo preferencias |
 | `/admin/events/[id]/tables` | Configurar mesa |
 | `/admin/events/[id]/distribution` | Distribución |
 
-Sidebar común: enlaces según nav del Make.
+Sidebar común: enlaces según nav del Make (`adminRoutes` en `apps/web/src/lib/routes.ts`).
+
+### Implementación actual (`apps/web`)
+
+Rutas alineadas con la tabla anterior. El `eventId` va en la URL; `localStorage` (`taulamic:eventId`) guarda el último evento para la redirección desde `/admin`.
 
 ---
 
@@ -218,9 +224,10 @@ Sidebar común: enlaces según nav del Make.
 
 ## Checklist Ventana 1
 
-- [ ] Leer este doc + abrir Figma Make
-- [ ] Configurar cliente API contra `/api/v1` (OpenAPI codegen opcional)
-- [ ] Implementar layout admin (sidebar + header)
-- [ ] Flujo piloto según `pilot-flow.e2e-spec.ts`
-- [ ] Aplicar tokens de `design-tokens-mvp.md`
+- [x] Leer este doc + abrir Figma Make
+- [x] Configurar cliente API contra `/api/v1` (rewrite Next.js)
+- [x] Implementar layout admin (sidebar + header)
+- [ ] Flujo piloto según `pilot-flow.e2e-spec.ts` (validar manualmente en UI)
+- [x] Aplicar tokens de `design-tokens-mvp.md`
+- [ ] Pantalla **Corregir plano** completa
 - [ ] Probar con API local: `cd apps/api && npm run start:dev`

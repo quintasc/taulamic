@@ -24,6 +24,7 @@ export interface EventConfigRepositoryPort {
   create(input: CreateEventInput): Promise<EventConfig>;
   findById(eventId: string): Promise<EventConfig | null>;
   update(eventId: string, input: UpdateEventInput): Promise<EventConfig>;
+  approvePlan(eventId: string): Promise<EventConfig>;
   addTable(eventId: string, input: UpsertEventTableInput): Promise<EventConfig>;
   updateTable(
     eventId: string,

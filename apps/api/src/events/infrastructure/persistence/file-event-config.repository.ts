@@ -68,6 +68,18 @@ export class FileEventConfigRepository implements EventConfigRepositoryPort {
     return updated;
   }
 
+  async approvePlan(eventId: string): Promise<EventConfig> {
+    const event = await this.requireEvent(eventId);
+    const updated: EventConfig = {
+      ...event,
+      status: 'plan_approved',
+      updatedAt: new Date().toISOString(),
+    };
+
+    await this.save(updated);
+    return updated;
+  }
+
   async addTable(
     eventId: string,
     input: UpsertEventTableInput,

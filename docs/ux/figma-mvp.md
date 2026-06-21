@@ -1,6 +1,6 @@
 # Figma MVP — issue #7
 
-- Estado: **Pendiente verificacion** (prompts Make aplicados; Ventana 2)
+- Estado: **Cerrado** (PR #37 mergeado 2026-06-21)
 - Rama: `feat/7-figma-mvp`
 - Referencia SDD: `docs/sdd/SDD-01A-figma-ui-ux.md`
 - Design tokens: `docs/ux/design-tokens-mvp.md`
@@ -96,6 +96,6 @@ RSVP, Top-K comparador, invitado, documentos salon/cocina, **auth (registro/logi
 
 - [ ] Revisar visualmente en Make que prompts 1–7 se ven correctos
 - [ ] Exportar PDF capturas (opcional, evidencia en repo)
-- [ ] Commit en `feat/7-figma-mvp` + merge a `main`
-- [ ] Cerrar **#7** en GitHub con enlace Make
-- [ ] Actualizar tabla estado en `docs/agile/CONTEXTO-EJECUCION.md`
+- [x] Commit en `feat/7-figma-mvp` → push → merge a `main` (PR #37)
+- [x] Cerrar issue **#7** en GitHub con enlace Figma
+- [x] Actualizar tabla de estado en `CONTEXTO-EJECUCION.md`

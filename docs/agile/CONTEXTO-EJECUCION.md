@@ -18,7 +18,7 @@
 
 | Aspecto | Estado |
 |---------|--------|
-| Sprint activo | Sprint 02 (#21) + Sprint 01 UX (#7) en paralelo |
+| Sprint activo | Sprint 02 (#21) — UX #7 **cerrado** (PR #37) |
 | EP-11 / EP-12 / EP-13 | **Cerrados** (#22–#36) |
 | EP-01 | **Cerrado** (#1 + #15) |
 | EP-02 | **Cerrado** (#2) |
@@ -30,8 +30,10 @@
 
 | Ventana | Issue | Rama | Estado |
 |---------|-------|------|--------|
-| **1** | **Frontend admin minimo** (W5 plan julio) | `feat/admin-ui-piloto` (crear) | **Siguiente** |
-| **2** | **#7** Figma MVP (UX) | `feat/7-figma-mvp` | **En curso** |
+| **1** | **Frontend admin minimo** (W5 plan julio) | eat/admin-ui-piloto (crear) | **Siguiente** |
+| **2** | ~~#7~~ Figma MVP (UX) | eat/7-figma-mvp | **Cerrado** (PR #37) |
+
+**Ventana 2 libre** tras cierre #7. Siguiente sugerido: apoyo UX a **#1** / frontend admin (W5) o backlog post-piloto Figma. Enlace Make: docs/ux/figma-mvp.md.
 
 ---
 
@@ -101,10 +103,12 @@ npm run build && npm test && npm run test:e2e
 
 | Commit | Descripcion |
 |--------|-------------|
-| `975219e` | OpenAPI piloto EP-07 (#9) |
-| `85edda2` | Integracion E2E piloto MVP julio |
-| `2d57530` | Motor v0 piloto EP-03 (#3) |
-| `f4510c6` | Invitados API piloto EP-02 (#2) |
-| `8001f0d` | Evento y mesas HU-01 (#1) |
-| `7dcb111` | Forma mesa y topologia HU-29 (#15) |
-| `57834be` | Contexto dual ventana |
+| 05d756 | Merge PR #37 — Figma MVP UX (#7) |
+| e89fcc7 | docs UX Figma Make MVP (#7) |
+| 975219e | OpenAPI piloto EP-07 (#9) |
+| 85edda2 | Integracion E2E piloto MVP julio |
+| 2d57530 | Motor v0 piloto EP-03 (#3) |
+| 4510c6 | Invitados API piloto EP-02 (#2) |
+| 8001f0d | Evento y mesas HU-01 (#1) |
+| 7dcb111 | Forma mesa y topologia HU-29 (#15) |
+| 57834be | Contexto dual ventana |

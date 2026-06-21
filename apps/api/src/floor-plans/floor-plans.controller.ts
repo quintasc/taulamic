@@ -31,6 +31,7 @@ import {
   ListLayoutVersionsUseCase,
 } from './application/layout-version.use-case';
 import { DetectTablesUseCase } from './application/detect-tables.use-case';
+import { GetDraftTableSeatTopologyUseCase } from './application/get-seat-topology.use-case';
 import { GetLayoutDraftUseCase } from './application/get-layout-draft.use-case';
 import {
   AddDraftTableUseCase,
@@ -47,6 +48,7 @@ import { LayoutDraftResponseDto } from './dto/layout-draft-response.dto';
 import { UpsertDraftTableDto } from './dto/upsert-draft-table.dto';
 import { FloorPlansService } from './floor-plans.service';
 import { UploadFloorPlanResponseDto } from './dto/upload-floor-plan-response.dto';
+import { TableSeatTopologyDto } from './dto/table-seat-topology.dto';
 
 @ApiTags('floor-plans')
 @Controller('events/:eventId/floor-plans')
@@ -62,6 +64,7 @@ export class FloorPlansController {
     private readonly getConfirmedLayoutUseCase: GetConfirmedLayoutUseCase,
     private readonly listLayoutVersionsUseCase: ListLayoutVersionsUseCase,
     private readonly getLayoutVersionUseCase: GetLayoutVersionUseCase,
+    private readonly getDraftTableSeatTopologyUseCase: GetDraftTableSeatTopologyUseCase,
   ) {}
 
   @Post()
@@ -161,6 +164,24 @@ export class FloorPlansController {
       floorPlanId,
       tableId,
       body,
+    );
+  }
+
+  @Get(':floorPlanId/draft/tables/:tableId/seat-topology')
+  @ApiOperation({
+    summary: 'Topologia de asientos de una mesa del borrador (recalcula al cambiar forma/capacidad)',
+  })
+  @ApiOkResponse({ type: TableSeatTopologyDto })
+  @ApiNotFoundResponse({ description: 'Mesa o plano no encontrado.' })
+  getDraftTableSeatTopology(
+    @Param('eventId') eventId: string,
+    @Param('floorPlanId') floorPlanId: string,
+    @Param('tableId') tableId: string,
+  ): Promise<TableSeatTopologyDto> {
+    return this.getDraftTableSeatTopologyUseCase.execute(
+      eventId,
+      floorPlanId,
+      tableId,
     );
   }
 

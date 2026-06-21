@@ -2,14 +2,23 @@
 
 import { useEffect, useState } from 'react';
 import { Alert, EmptyState, PageHeader } from '@/components/ui';
+import {
+  IconShapeOval,
+  IconShapeRect,
+  IconShapeRound,
+} from '@/components/icons';
+import {
+  apiTableShape,
+  TableShapePreview,
+} from '@/components/table-shape-preview';
 import { eventsApi, tableShapesApi, type SeatTopology } from '@/lib/api';
 import { useEvent } from '@/lib/event-context';
 
 const shapeOptions = [
-  { id: 'redonda', label: 'Redonda' },
-  { id: 'rectangular', label: 'Rectangular' },
-  { id: 'oval', label: 'Óvalo' },
-];
+  { id: 'redonda', label: 'Redonda', Icon: IconShapeRound },
+  { id: 'rectangular', label: 'Rectangular', Icon: IconShapeRect },
+  { id: 'oval', label: 'Óvalo', Icon: IconShapeOval },
+] as const;
 
 export default function TablesPage() {
   const { event, eventId, refreshEvent } = useEvent();
@@ -25,7 +34,7 @@ export default function TablesPage() {
       return;
     }
     void tableShapesApi
-      .topology(eventId, shape, capacity)
+      .topology(eventId, apiTableShape(shape), capacity)
       .then(setTopology)
       .catch(() => setTopology(null));
   }, [eventId, shape, capacity]);
@@ -39,7 +48,7 @@ export default function TablesPage() {
     try {
       await eventsApi.addTable(eventId, {
         label,
-        shape,
+        shape: apiTableShape(shape),
         estimatedCapacity: capacity,
       });
       await refreshEvent();
@@ -77,20 +86,25 @@ export default function TablesPage() {
           <div>
             <p className="label-field">Forma</p>
             <div className="grid grid-cols-3 gap-3">
-              {shapeOptions.map((option) => (
+              {shapeOptions.map((option) => {
+                const ShapeIcon = option.Icon;
+                const selected = shape === option.id;
+                return (
                 <button
                   key={option.id}
                   type="button"
                   onClick={() => setShape(option.id)}
-                  className={`rounded-xl border px-3 py-4 text-sm font-medium transition ${
-                    shape === option.id
+                  className={`flex flex-col items-center gap-2 rounded-[9px] border-2 px-3.5 py-3 text-[11px] font-medium transition ${
+                    selected
                       ? 'border-primary-500 bg-primary-100 text-primary-600'
-                      : 'border-neutral-200 hover:bg-neutral-100'
+                      : 'border-wf-3 text-neutral-700 hover:border-wf-4'
                   }`}
                 >
+                  <ShapeIcon active={selected} />
                   {option.label}
                 </button>
-              ))}
+              );
+              })}
             </div>
           </div>
 
@@ -141,26 +155,16 @@ export default function TablesPage() {
         </div>
 
         <div className="card-admin">
-          <p className="label-field">Vista previa</p>
-          <div className="flex min-h-[280px] items-center justify-center rounded-xl bg-neutral-100">
+          <p className="mb-2 text-[9px] font-bold uppercase tracking-[0.08em] text-wf-5">
+            Vista previa
+          </p>
+          <div className="flex min-h-[280px] items-center justify-center px-3 pb-1 pt-3">
             {topology ? (
-              <div className="relative h-44 w-44 rounded-full border-2 border-neutral-300 bg-neutral-0">
-                {topology.seats.map((seat, index) => (
-                  <span
-                    key={seat.index}
-                    className="absolute flex h-7 w-7 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-neutral-200 text-[10px] font-semibold"
-                    style={{
-                      left: `${50 + 44 * Math.cos((index * 2 * Math.PI) / topology.seats.length - Math.PI / 2)}%`,
-                      top: `${50 + 44 * Math.sin((index * 2 * Math.PI) / topology.seats.length - Math.PI / 2)}%`,
-                    }}
-                  >
-                    {seat.label}
-                  </span>
-                ))}
-                <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xs text-neutral-500">
-                  {capacity} pax
-                </span>
-              </div>
+              <TableShapePreview
+                shape={shape}
+                capacity={capacity}
+                topology={topology}
+              />
             ) : (
               <p className="text-sm text-neutral-500">Cargando topología…</p>
             )}

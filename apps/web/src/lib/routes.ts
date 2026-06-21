@@ -13,6 +13,7 @@ export function adminRoutes(eventId: string) {
     preferences: `${base}/preferences`,
     tables: `${base}/tables`,
     distribution: `${base}/distribution`,
+    navMap: `${base}/nav-map`,
   } as const;
 }
 

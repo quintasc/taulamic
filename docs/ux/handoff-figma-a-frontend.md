@@ -12,7 +12,9 @@ Documento de traspaso UX → implementación UI. Issue #7 cerrada (PR #37).
 
 **Prefijo API:** `/api/v1`
 
-**Auth piloto:** no hay login. CTAs Marketing → dashboard directo. Header `x-taulamic-actor-role: admin` en endpoints que lo exigen.
+**Auth piloto:** no hay login. CTAs Marketing → `/admin` (crea evento nuevo). Header `x-taulamic-actor-role: admin` en endpoints que lo exigen.
+
+**Sesión de evento (UI):** el piloto **no** recupera proyectos guardados ni lista eventos del usuario. Cada entrada a `/admin` crea un evento nuevo. El `eventId` vive en la URL y en `sessionStorage` solo mientras la pestaña está abierta (recarga OK; enlace antiguo o nueva pestaña → crear evento nuevo). La API sigue persistiendo datos en disco para el flujo E2E; eso no implica UI de «mis eventos».
 
 ---
 
@@ -48,7 +50,11 @@ Referencia backend E2E (sin plano): crear evento → mesas → preferencias → 
 | «Calcular distribución» | `POST /events/{eventId}/distribution/run` | POST + header admin |
 | Acceso rápido invitados | `GET /events/{eventId}/guests` | GET |
 
-**Crear evento (primer acceso):** `POST /events` body `{ "name": "..." }` → guardar `eventId` en estado UI (localStorage piloto).
+**Crear evento (entrada admin):** `POST /events` body `{ "name": "..." }` → redirect a `/admin/events/[id]`. Guardar `eventId` en `sessionStorage` (sesión de pestaña), **no** en `localStorage`.
+
+**Sidebar admin:** logo + wordmark «taulamic» (clic → `/`); bloque **«Evento en curso»** (solo lectura, sin selector ni chevron); nav por secciones.
+
+**Dashboard vacío:** KPIs en **0** hasta importar/configurar (sin datos demo precargados).
 
 ---
 
@@ -193,7 +199,7 @@ Componentes Figma → React (sugerencia): shadcn/ui o componentes propios siguie
 | Ruta | Pantalla Make |
 |------|---------------|
 | `/` | Marketing landing |
-| `/admin` | Entrada admin: redirige al último evento (`/admin/events/[id]`) o a crear evento |
+| `/admin` | Entrada admin: **crea evento nuevo** → redirect `/admin/events/[id]` (fallback `/admin/events/new` si falla API) |
 | `/admin/events/new` | Crear evento → redirect dashboard |
 | `/admin/events/[id]` | Dashboard del evento |
 | `/admin/events/[id]/config` | Configuración |
@@ -208,13 +214,14 @@ Sidebar común: enlaces según nav del Make (`adminRoutes` en `apps/web/src/lib/
 
 ### Implementación actual (`apps/web`)
 
-Rutas alineadas con la tabla anterior. El `eventId` va en la URL; `localStorage` (`taulamic:eventId`) guarda el último evento para la redirección desde `/admin`.
+Rutas alineadas con la tabla anterior. El `eventId` va en la URL. **`sessionStorage`** (`taulamic:sessionEventId`) valida la sesión de pestaña; **no** hay restauración del último evento vía `localStorage`. Meta UI (fecha, lugar, nº mesas) en `localStorage` por `eventId` solo para campos no expuestos aún en API.
 
 ---
 
 ## Fuera de alcance piloto (no implementar aún)
 
 - Registro / login / JWT
+- **Lista de eventos / cargar proyecto guardado de un usuario** (post-piloto con auth)
 - RSVP invitado
 - Comparador Top-K
 - Documentos salón/cocina

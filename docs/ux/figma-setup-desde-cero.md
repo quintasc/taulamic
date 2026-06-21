@@ -221,7 +221,7 @@ Layout admin sugerido:
 └──────────┴─────────────────────────────┘
 ```
 
-Sidebar: logo compacto, evento activo, enlaces a secciones del mapa.
+Sidebar: logo compacto + wordmark, **evento en curso** (solo lectura, sin selector), enlaces a secciones del mapa.
 
 ---
 

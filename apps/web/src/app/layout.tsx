@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { EventProvider } from '@/lib/event-context';
+import { Providers } from '@/app/providers';
 import './globals.css';
 
 const inter = Inter({
@@ -21,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={`${inter.variable} font-sans`}>
-        <EventProvider>{children}</EventProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

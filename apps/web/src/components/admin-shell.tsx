@@ -1,8 +1,9 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { IconMap, navIcons } from '@/components/icons';
+import { TaulamicLogo } from '@/components/taulamic-logo';
 import { useEvent } from '@/lib/event-context';
 import { adminRoutes } from '@/lib/routes';
 
@@ -25,67 +26,85 @@ export function AdminShell({
   const routes = adminRoutes(eventId);
 
   const navItems = [
-    { href: routes.dashboard, label: 'Dashboard', exact: true },
-    { href: routes.config, label: 'Configuración' },
-    { href: routes.floorPlan, label: 'Plano' },
-    { href: routes.guests, label: 'Invitados' },
-    { href: routes.preferences, label: 'Preferencias' },
-    { href: routes.tables, label: 'Mesas' },
-    { href: routes.distribution, label: 'Distribución' },
-  ];
+    { href: routes.dashboard, label: 'Dashboard', icon: navIcons.dashboard, exact: true },
+    { href: routes.config, label: 'Configuración', icon: navIcons.config },
+    { href: routes.floorPlan, label: 'Plano', icon: navIcons.floorPlan },
+    { href: routes.guests, label: 'Invitados', icon: navIcons.guests },
+    { href: routes.preferences, label: 'Preferencias', icon: navIcons.preferences },
+    { href: routes.tables, label: 'Mesas', icon: navIcons.tables },
+    { href: routes.distribution, label: 'Distribución', icon: navIcons.distribution },
+  ] as const;
+
+  const navMapActive = pathname === routes.navMap;
 
   return (
-    <div className="flex min-h-screen bg-neutral-0">
-      <aside className="flex w-sidebar shrink-0 flex-col border-r border-neutral-200 bg-neutral-100/60">
-        <div className="flex items-center gap-2 border-b border-neutral-200 px-5 py-5">
-          <Image
-            src="/taulamic-logo.png"
-            alt="Taulamic"
-            width={28}
-            height={28}
-          />
-          <span className="text-sm font-semibold lowercase">taulamic</span>
+    <div className="flex h-screen overflow-hidden bg-wf-1">
+      <aside className="flex h-full w-sidebar shrink-0 flex-col border-r border-wf-3 bg-wf-1">
+        <div className="shrink-0 border-b border-wf-3 px-4 py-3.5">
+          <Link href="/" className="inline-flex rounded-[7px] outline-offset-2 hover:opacity-90">
+            <TaulamicLogo compact />
+          </Link>
         </div>
 
-        <div className="border-b border-neutral-200 px-4 py-4">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
-            Evento activo
+        <div className="shrink-0 border-b border-wf-3 px-3 py-2.5">
+          <p className="mb-1.5 text-[9px] font-bold uppercase tracking-[0.09em] text-wf-5">
+            Evento en curso
           </p>
-          <p className="mt-1 truncate text-sm font-medium text-neutral-900">
-            {event?.name ?? 'Sin evento'}
-          </p>
+          <div className="flex items-center gap-1.5 rounded-[7px] border border-wf-3 bg-neutral-0 px-2.5 py-1.5">
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-success-500" />
+            <p className="flex-1 truncate text-xs font-medium text-neutral-900">
+              {event?.name ?? 'Sin evento'}
+            </p>
+          </div>
         </div>
 
-        <nav className="flex-1 space-y-0.5 p-3">
+        <nav className="min-h-0 flex-1 space-y-0.5 overflow-y-auto p-1.5">
           {navItems.map((item) => {
-            const active = isActive(pathname, item.href, item.exact);
+            const active = isActive(
+              pathname,
+              item.href,
+              'exact' in item ? item.exact : false,
+            );
+            const Icon = item.icon;
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`relative block rounded-lg px-3 py-2.5 text-sm font-medium transition ${
+                className={`flex w-full items-center gap-2 rounded-[7px] px-2.5 py-2 text-[13px] transition ${
                   active
-                    ? 'bg-primary-100 text-primary-600'
-                    : 'text-neutral-700 hover:bg-neutral-100'
+                    ? 'nav-item-active'
+                    : 'font-normal text-neutral-700 hover:bg-wf-2'
                 }`}
               >
-                {active ? (
-                  <span className="absolute bottom-2 left-0 top-2 w-1 rounded-r bg-primary-500" />
-                ) : null}
-                <span className={active ? 'pl-2' : ''}>{item.label}</span>
+                <Icon
+                  className={`shrink-0 ${active ? 'text-primary-500' : 'text-wf-4'}`}
+                  width={14}
+                  height={14}
+                />
+                {item.label}
               </Link>
             );
           })}
         </nav>
 
-        <div className="border-t border-neutral-200 p-4">
-          <Link href="/" className="text-xs text-neutral-500 hover:text-primary-500">
-            ← Volver a marketing
+        <div className="shrink-0 border-t border-wf-3 p-1.5">
+          <Link
+            href={routes.navMap}
+            className={`flex w-full items-center gap-2 rounded-[7px] px-2.5 py-1.5 text-[11px] transition ${
+              navMapActive
+                ? 'nav-item-active font-semibold'
+                : 'text-wf-5 hover:bg-wf-2'
+            }`}
+          >
+            <IconMap width={12} height={12} />
+            Mapa navegación
           </Link>
         </div>
       </aside>
 
-      <main className="min-w-0 flex-1 bg-neutral-0 p-8">{children}</main>
+      <main className="min-h-0 min-w-0 flex-1 overflow-y-auto bg-wf-1 p-8">
+        {children}
+      </main>
     </div>
   );
 }
@@ -108,12 +127,13 @@ export function RequireEvent({
   if (!eventId || error) {
     return (
       <div className="card-admin max-w-lg">
-        <h2 className="text-lg font-semibold">Sin evento activo</h2>
+        <h2 className="text-lg font-semibold">Evento no disponible</h2>
         <p className="mt-2 text-sm text-neutral-500">
-          Crea un evento o selecciona uno válido en la URL.
+          En el piloto no se recuperan eventos guardados. Crea uno nuevo para
+          empezar a configurar el evento.
         </p>
-        <Link href="/admin/events/new" className="btn-primary mt-4 inline-flex">
-          Crear evento
+        <Link href="/admin" className="btn-primary mt-4 inline-flex">
+          Crear evento nuevo
         </Link>
       </div>
     );

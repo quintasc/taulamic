@@ -16,16 +16,19 @@ Terminal 2 — Web:
 ```bash
 cd apps/web
 npm install
-npm run dev
+npm run dev:clean
 ```
+
+(`dev:clean` borra `.next` antes de arrancar; recomendado si el proyecto está en OneDrive.)
 
 - Web: http://localhost:3001
 - API: http://localhost:3000/api/v1 (proxy vía rewrite en Next)
 
 ## Flujo piloto
 
-1. Landing `/` → «Crear evento» (`/admin/events/new`) o «Iniciar sesión» (`/admin` → último evento)
+1. Landing `/` → CTAs a `/admin` (crea **evento nuevo** cada vez)
 2. Dashboard y pantallas bajo `/admin/events/[id]/…` (config, floor-plan, guests, preferences, tables, distribution)
+3. Recarga en la misma pestaña: OK. Enlace guardado en otra sesión: «Evento no disponible» → crear nuevo.
 
 Header admin: `x-taulamic-actor-role: admin` (piloto sin JWT).
 

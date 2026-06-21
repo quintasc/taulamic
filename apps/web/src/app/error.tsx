@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect } from 'react';
 
 export default function AppError({
@@ -31,9 +32,9 @@ export default function AppError({
         <button type="button" className="btn-primary" onClick={() => reset()}>
           Reintentar
         </button>
-        <a href="/" className="btn-secondary">
+        <Link href="/" className="btn-secondary">
           Ir al inicio
-        </a>
+        </Link>
       </div>
     </div>
   );

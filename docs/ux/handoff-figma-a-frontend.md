@@ -214,7 +214,9 @@ Sidebar común: enlaces según nav del Make (`adminRoutes` en `apps/web/src/lib/
 
 ### Implementación actual (`apps/web`)
 
-Rutas alineadas con la tabla anterior. Estructura App Router: `(marketing)/` (grupo de ruta → `/`), `admin/`, `sistema/`. El `eventId` va en la URL. **`sessionStorage`** (`taulamic:sessionEventId`) valida la sesión de pestaña; **no** hay restauración del último evento vía `localStorage`. Meta UI (fecha, lugar, nº mesas) en `localStorage` por `eventId` solo para campos no expuestos aún en API.
+Rutas alineadas con la tabla anterior. Estructura App Router: `(marketing)/` (grupo de ruta → `/`), `admin/`, `sistema/`. El `eventId` va en la URL.
+
+**Componentes (`apps/web/src/components/`):** módulos por dominio — `ui/`, `marketing/`, `admin/`, `brand/`, `tables/`; páginas en `app/` son finas (solo routing). Lógica de dashboard en `hooks/use-event-dashboard.ts`; nav admin en `lib/admin-nav.ts`. **`sessionStorage`** (`taulamic:sessionEventId`) valida la sesión de pestaña; **no** hay restauración del último evento vía `localStorage`. Meta UI (fecha, lugar, nº mesas) en `localStorage` por `eventId` solo para campos no expuestos aún en API.
 
 ---
 

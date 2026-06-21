@@ -2,6 +2,24 @@
 
 Frontend Next.js del MVP julio (issue W5). Diseño según Figma Make y `docs/ux/handoff-figma-a-frontend.md`.
 
+## Estructura modular (`src/`)
+
+```
+app/              Rutas Next.js (páginas finas)
+  (marketing)/    Landing → /
+  admin/          Panel organizador
+  sistema/        Design system (placeholder)
+components/
+  ui/             Piezas reutilizables (Alert, StatCard, PageHeader…)
+  marketing/      Landing, header, tarjetas, hero
+  admin/          Shell, sidebar, dashboard, checklist
+  brand/          Logo Taulamic
+  icons/          Iconos SVG (nav, formas mesa…)
+  tables/         Preview y utilidades de mesas
+hooks/            Lógica de pantalla (p. ej. useEventDashboard)
+lib/              API, rutas, contexto evento, nav admin
+```
+
 ## Arranque local
 
 Terminal 1 — API:

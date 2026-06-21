@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { AdminShell, RequireEvent } from '@/components/admin-shell';
+import { AdminShell, RequireEvent } from '@/components/admin';
 import { useEvent } from '@/lib/event-context';
 
 export default function EventAdminLayout({

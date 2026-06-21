@@ -26,18 +26,18 @@ cd taulamic
 git pull origin main
 ```
 
-| Ventana | Rama a crear | Comando |
-|---------|--------------|---------|
-| **1** (#15 API) | `feat/15-forma-mesa` | `git checkout -b feat/15-forma-mesa` |
-| **2** (#7 Figma) | `feat/7-figma-mvp` | `git checkout -b feat/7-figma-mvp` |
+| Ventana | Rama | Comando |
+|---------|------|---------|
+| **1** (#1 evento/mesas API) | `feat/1-evento-mesas` | `git checkout -b feat/1-evento-mesas` |
+| **2** (#7 Figma) | `feat/7-figma-mvp` | `git checkout feat/7-figma-mvp` (ya existe en remoto) |
 
 **Reglas de coordinacion:**
 
 - Una ventana = una rama = una issue.
 - No commitear en `main` desde las ventanas de trabajo.
-- Integracion: merge a `main` cuando la issue este lista (tests en V1; evidencia Figma en V2).
+- Integracion: merge a `main` cuando la issue este lista.
 - Tras cada merge a `main`, la otra ventana hace `git pull origin main` y rebase/merge de su rama.
-- Actualizar este archivo al cerrar cada issue (normalmente desde la ventana que cierra la issue, en `main`).
+- Actualizar este archivo al cerrar cada issue.
 
 ---
 
@@ -47,54 +47,50 @@ git pull origin main
 |---------|--------|
 | Sprint activo | Sprint 02 (#21) + Sprint 01 UX (#7) en paralelo |
 | EP-11 / EP-12 / EP-13 | **Cerrados** (#22–#36) |
+| EP-01 #15 (forma mesa HU-29) | **Cerrado** (`7dcb111`) |
 | Rebrand Taulamic | **Cerrado** |
 | Plan piloto | `docs/agile/mvp-julio-plan.md` |
 
 | Ventana | Issue | Rama | Estado |
 |---------|-------|------|--------|
-| **1** | **#15** forma de mesa (HU-29) | `feat/15-forma-mesa` | **En curso** |
+| **1** | **#1** evento y mesas API | `feat/1-evento-mesas` (crear) | **Siguiente** |
 | **2** | **#7** Figma MVP (UX) | `feat/7-figma-mvp` | **En curso** |
 
 ---
 
-## Ventana 1 — API forma de mesa (#15)
+## Ventana 1 — API evento y mesas (#1)
 
 **Para:** esta ventana de Cursor (backend).
 
 ### Frase clave (pegar en el chat)
 
 ```text
-Soy Ventana 1. Retomo Taulamic. Issue #15 forma de mesa (HU-29). Rama feat/15-forma-mesa. Solo tocar apps/api/src/floor-plans/ y tests relacionados. SDD manda. No tocar Figma ni docs/ux salvo OpenAPI si aplica.
+Soy Ventana 1. Retomo Taulamic. Issue #1 evento y mesas API. Rama feat/1-evento-mesas. EP-01. Referencia SDD-01 HU-01. #15 cerrado (table-shapes + seat-topology). SDD manda.
 ```
 
 ### Objetivo
 
-Implementar **HU-29**: configurar forma de mesa y topologia de asientos (adyacencia/proximidad). EP-01.
+Implementar **HU-01**: configuracion operativa de evento y mesas (API minima piloto). EP-01.
 
 ### Referencias SDD
 
-- `docs/sdd/SDD-02-backlog-inicial.md` (EP-01, HU-29)
-- `docs/sdd/SDD-01-borrador-mvp.md` (forma de mesa, proximidades, motor)
-- Codigo existente: `apps/api/src/floor-plans/domain/table-shape.normalizer.ts`
+- `docs/sdd/SDD-02-backlog-inicial.md` (EP-01, HU-01)
+- `docs/sdd/SDD-01-borrador-mvp.md` (configurar mesas, capacidad)
+- API #15 ya disponible: `GET .../table-shapes`, `GET .../seat-topology`
 
 ### Alcance permitido
 
 | Si | No |
 |----|-----|
-| `apps/api/src/floor-plans/**` | `docs/ux/**` (Ventana 2) |
-| `apps/api/test/floor-plans*.ts` y E2E nuevos de #15 | `guest-import/`, `events/` salvo integracion estricta |
-| OpenAPI/DTOs de forma de mesa | Merge directo a `main` sin PR/revision |
+| Modulo evento/mesas (nuevo o ampliacion) | `docs/ux/**` (Ventana 2) |
+| Tests unit/e2e de #1 | Cambios funcionales SDD sin aprobacion |
 
 ### Patron de cierre
 
 1. `cd apps/api && npm run build && npm test && npm run test:e2e`
-2. Commit en `feat/15-forma-mesa` → push → merge/PR a `main`
-3. Cerrar issue **#15** en GitHub
-4. Actualizar tabla de estado en este archivo
-
-### Tras #15
-
-Siguiente en Ventana 1: **#1** (evento y mesas API) — cuando #7 aporte flujos minimos o usando `SDD-01A` como referencia.
+2. Commit en `feat/1-evento-mesas` → push → merge a `main`
+3. Cerrar issue **#1** en GitHub
+4. Actualizar este archivo
 
 ---
 
@@ -116,45 +112,25 @@ Entregar flujos y wireframes MVP en **Figma** alineados con el SDD. Sprint 01 po
 
 - `docs/sdd/SDD-01A-figma-ui-ux.md` — entregables minimos y flujos
 - `docs/sdd/SDD-01C-principios-estilo-y-baja-friccion.md` — tono visual
-- `docs/sdd/SDD-01D-importacion-plano-salon.md` — flujo plano (ya implementado en API)
-- `docs/sdd/SDD-01E-precarga-invitados-excel.md` — flujo Excel (ya implementado en API)
-- `docs/agile/sprint-01-plan.md` — alcance Sprint 01
+- `docs/sdd/SDD-01D-importacion-plano-salon.md` — flujo plano (API lista)
+- `docs/sdd/SDD-01E-precarga-invitados-excel.md` — flujo Excel (API lista)
+- `docs/ux/figma-mvp.md` — plantilla de seguimiento
+- API #15 (para pantalla forma mesa): `GET /api/v1/events/:id/table-shapes` y `.../seat-topology`
 
 ### Entregables minimos (#7)
 
-Prioridad **piloto julio** (lo que el admin usara antes del 31 jul):
+Prioridad **piloto julio**:
 
 1. Mapa de navegacion admin (MVP piloto).
-2. Flujos wireframe low-fi:
-   - importacion plano + correccion detecciones,
-   - descarga plantilla + import Excel + errores por fila,
-   - selector modo preferencias (colaborativo / anfitrion exclusivo),
-   - configuracion forma de mesa + vista previa asientos (coordinar con #15 sin bloquearla),
-   - tablero distribucion admin (borrador para motor v0).
-3. Componentes UI base (botones, inputs, tarjetas, tablas).
-4. Enlace al archivo Figma documentado en `docs/ux/figma-mvp.md` (crear al tener URL).
-
-Flujos **post-piloto** (wireframe ligero o backlog Figma): RSVP, Top-K, documentos, invitado.
-
-### Alcance en el repo (rama `feat/7-figma-mvp`)
-
-| Si | No |
-|----|-----|
-| `docs/ux/**` (nuevo: enlaces Figma, notas de flujo, capturas exportadas) | `apps/api/**` |
-| Actualizar `docs/product/` si hay decision UX que afecte SDD | Cambios funcionales en SDD sin aprobacion |
-| Commits de evidencia (PNG/PDF exportados de Figma, opcional) | Cerrar #7 sin enlace Figma o wireframes minimos |
+2. Flujos wireframe low-fi: plano, Excel, modo preferencias, **forma de mesa + vista asientos** (API #15 lista), tablero distribucion.
+3. Componentes UI base.
+4. Enlace Figma en `docs/ux/figma-mvp.md`.
 
 ### Patron de cierre
 
 1. Archivo Figma con entregables minimos piloto
-2. `docs/ux/figma-mvp.md` con URL, estructura de paginas y estado de flujos
-3. Commit en `feat/7-figma-mvp` → push → merge a `main`
-4. Cerrar issue **#7** en GitHub con enlace Figma
-5. Actualizar tabla de estado en este archivo
-
-### Tras #7
-
-Desbloquea priorizacion de **#1** y frontend admin (W5 en `mvp-julio-plan.md`).
+2. `docs/ux/figma-mvp.md` actualizado
+3. Merge `feat/7-figma-mvp` → `main` → cerrar **#7**
 
 ---
 
@@ -176,6 +152,6 @@ npm run build && npm test && npm run test:e2e
 
 | Commit | Descripcion |
 |--------|-------------|
+| `7dcb111` | Forma mesa y topologia asientos HU-29 (#15) |
 | `3af4a8a` | E2E consolidado EP-13 (#36) |
-| `d2749d0` | Rebrand cerrado al 100 % |
-| `69b9301` | Punto de reanudacion post-rebrand |
+| `c1bd375` | Contexto dual ventana |

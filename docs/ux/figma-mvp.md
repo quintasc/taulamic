@@ -24,9 +24,15 @@ Marcar con `[x]` cuando el flujo tenga wireframe low-fi en Figma.
 - [ ] Admin — tablero distribucion (borrador motor v0)
 - [ ] Componentes UI base
 
-## Notas de coordinacion con Ventana 1 (#15)
+## Notas de coordinacion con Ventana 1 (#15 — cerrado)
 
-La pantalla **forma de mesa + vista previa asientos** debe alinearse con HU-29 (API). No bloquea el desarrollo backend; iterar cuando #15 exponga contrato en OpenAPI.
+API disponible (commit `7dcb111` en `main`):
+
+- `GET /api/v1/events/:eventId/table-shapes` — catalogo de formas
+- `GET /api/v1/events/:eventId/table-shapes/:shape/seat-topology?capacity=N` — vista previa
+- `GET .../floor-plans/:id/draft/tables/:tableId/seat-topology` — topologia por mesa
+
+Usar estos contratos para la pantalla **forma de mesa + vista previa asientos**.
 
 ## Post-piloto (backlog Figma)
 

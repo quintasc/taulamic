@@ -24,40 +24,41 @@
 | EP-02 | **Cerrado** (#2) |
 | EP-03 piloto | **Motor v0 entregado** (#3 abierta: EP-03 completo post-piloto) |
 | Integracion E2E piloto | **Cerrada** (`pilot-flow.e2e-spec.ts`) |
+| OpenAPI piloto (#9) | **Cerrado** (`/api/docs`, `/api-json`, contrato validado) |
 | Rebrand Taulamic | **Cerrado** |
 | Plan piloto | `docs/agile/mvp-julio-plan.md` |
 
 | Ventana | Issue | Rama | Estado |
 |---------|-------|------|--------|
-| **1** | **#9** OpenAPI piloto (EP-07) | `feat/9-openapi-piloto` (crear) | **Siguiente** |
+| **1** | **Frontend admin minimo** (W5 plan julio) | `feat/admin-ui-piloto` (crear) | **Siguiente** |
 | **2** | **#7** Figma MVP (UX) | `feat/7-figma-mvp` | **En curso** |
 
 ---
 
-## Ventana 1 — OpenAPI piloto (#9)
+## Ventana 1 — Frontend admin minimo (W5)
 
-**Para:** esta ventana de Cursor (backend).
+**Para:** esta ventana de Cursor (backend + UI minima si existe `apps/web`).
 
 ### Frase clave (pegar en el chat)
 
 ```text
-Soy Ventana 1. Retomo Taulamic. Issue #9 OpenAPI piloto alineado con endpoints del MVP julio. Rama feat/9-openapi-piloto. E2E piloto cerrado. SDD manda.
+Soy Ventana 1. Retomo Taulamic. Frontend admin minimo piloto julio. Rama feat/admin-ui-piloto. OpenAPI y E2E piloto cerrados. SDD manda.
 ```
 
 ### Objetivo
 
-Actualizar documentacion OpenAPI en `/api/docs` para endpoints del piloto (evento, invitados, distribucion, Excel, plano, preferencias). Ver DoD en `DECISION-002`.
+UI admin minima (Next.js) para el flujo piloto: evento → mesas → invitados → motor → confirmacion. Ver `mvp-julio-plan.md` W5.
 
 ### Referencias
 
-- `docs/sdd/SDD-02-backlog-inicial.md` (EP-07 HU-14/15)
-- `docs/agile/DECISION-002-mvp-julio-piloto-funcional.md` (OpenAPI actualizado)
-- Evidencia E2E: `apps/api/test/pilot-flow.e2e-spec.ts`
+- `docs/agile/mvp-julio-plan.md` (W5 frontend admin)
+- OpenAPI: `/api/docs` y `/api-json` (version `1.0-pilot`)
+- E2E backend: `apps/api/test/pilot-flow.e2e-spec.ts`
 
 ### Patron de cierre
 
-1. `cd apps/api && npm run build && npm test && npm run test:e2e`
-2. Rama `feat/9-openapi-piloto` → merge `main` → actualizar este archivo
+1. Flujo piloto usable en UI + build/tests en verde
+2. Rama `feat/admin-ui-piloto` → merge `main` → actualizar este archivo
 
 ---
 
@@ -100,6 +101,7 @@ npm run build && npm test && npm run test:e2e
 
 | Commit | Descripcion |
 |--------|-------------|
+| (pendiente) | OpenAPI piloto EP-07 (#9) |
 | `85edda2` | Integracion E2E piloto MVP julio |
 | `2d57530` | Motor v0 piloto EP-03 (#3) |
 | `f4510c6` | Invitados API piloto EP-02 (#2) |

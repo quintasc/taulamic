@@ -161,7 +161,7 @@ npm run build
 
 | Commit | Descripcion |
 |--------|-------------|
-| fa904ee | feat(web): vista distribución calculada alineada con Figma |
+| 3b26191 | feat(web): vista distribución calculada alineada con Figma |
 | 581c0d4 | fix(web): evitar hydration mismatch en HeroFloorplan |
 | 66eb927 | fix(web): shim ui.tsx tras modularización |
 | e269022 | refactor(web): modularizar UI por dominios |

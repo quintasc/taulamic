@@ -70,6 +70,7 @@ Este repositorio guarda decisiones de producto y tecnologia antes de programar e
 ## Estructura de codigo
 
 - `apps/api/`: API NestJS (Sprint 02, HU-31 carga de plano).
+- `apps/web/`: Frontend Next.js admin piloto (W5, Figma Make).
 - Convencion arquitectonica: Clean Architecture pragmatica por modulo/feature (ADR-015).
 
 ### Arrancar API local
@@ -82,6 +83,17 @@ npm run start:dev
 
 - API base: `http://localhost:3000/api/v1`
 - OpenAPI UI: `http://localhost:3000/api/docs`
+
+### Arrancar Web admin piloto
+
+```bash
+cd apps/web
+npm install
+npm run dev
+```
+
+- Web: `http://localhost:3001` (proxy `/api/v1` → API)
+- Handoff UX: `docs/ux/handoff-figma-a-frontend.md`
 
 ## Como usar este repositorio
 

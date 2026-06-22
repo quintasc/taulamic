@@ -56,7 +56,7 @@ Ver `docs/ux/handoff-figma-a-frontend.md` § **Decisiones y backlog UX post-vali
 ### Frase clave (pegar en el chat)
 
 ```text
-Soy Ventana 1. Retomo Taulamic W6 piloto UI. Rama feat/web-piloto-ui-w6, PR #39. Frontend modular en apps/web. Distribución calculada hecha; pendiente Corregir plano y validación manual E2E. API :3000, web :3001, npm run dev:clean en OneDrive. SDD manda.
+Soy Ventana 1. Retomo Taulamic W6 piloto UI. Rama feat/web-piloto-ui-w6, PR #39. Distribución v2 + Dashboard v2 implementados (f0e0397). Pendiente: validación manual E2E y merge PR #39. API :3000, web :3001, npm run dev:clean en OneDrive. SDD manda.
 ```
 
 ### Objetivo
@@ -71,19 +71,32 @@ Completar el piloto demostrable en UI: **Distribución v2**, **Dashboard v2**, v
 - **Estructura modular:** `components/ui|marketing|admin|brand|tables`, `hooks/`, `lib/`
 - Admin shell: logo, sidebar, «Evento en curso» (solo lectura), nav-map
 - Dashboard KPIs en 0 para proyecto vacío; sesión MVP (`sessionStorage`, evento nuevo en `/admin`)
-- Pantallas: config, plano (subir), invitados, preferencias, mesas, **distribución (empty + calculada Figma)**
+- Pantallas: config, plano (subir), invitados, preferencias, mesas, **distribución v2** (tabla, filtros, todas las mesas, Ver en plano)
+- **Dashboard v2** — KPIs Invitados/Mesas/plazas; afinidad «No calculado en piloto»
 - Fixes: shim `components/ui.tsx`, hydration `HeroFloorplan`, `npm run dev:clean`
 - CORS API para `localhost:3001`
 - Decisión MVP documentada: no recuperar eventos guardados entre sesiones
 
 ### Pendiente inmediato (W6 piloto UI)
 
-1. **Distribución v2** — tabla, filtros, todas las mesas, detalle pills (handoff)
-2. **Dashboard v2** — KPIs Invitados y Mesas (handoff)
-3. Copy **afinidad no calculada en piloto** (dashboard + distribución)
-4. Validar flujo piloto **manualmente** vs `pilot-flow.e2e-spec.ts`
+1. ~~**Distribución v2**~~ — hecho (`f0e0397`)
+2. ~~**Dashboard v2**~~ — hecho (`f0e0397`)
+3. ~~Copy **afinidad no calculada en piloto**~~ — hecho
+4. **Validar flujo piloto manualmente** vs `pilot-flow.e2e-spec.ts` (checklist abajo)
 5. Revisar / merge **PR #39** tras smoke test local
-6. **Post-MVP / tras Figma:** plano espacial, lista sin asignar (clic KPI), edición ✕/+, bloqueo invitados, Excel sin `preferencia_control` (aprobar cambio spec)
+6. **Plano del salón v2** — post-MVP (Figma jun 2026; API nueva pendiente)
+7. **Post-MVP / tras Figma:** posicionar mesas en canvas, lista sin asignar (clic KPI), edición ✕/+, bloqueo invitados, Excel sin `preferencia_control` (aprobar cambio spec)
+
+#### Checklist validación manual UI (sin plano)
+
+1. `/admin` → crea evento → dashboard KPIs en 0
+2. **Mesas:** añadir 2 mesas (p. ej. 8 pax cada una)
+3. **Preferencias:** guardar modo colaborativo
+4. **Invitados:** importar Excel piloto (4+ invitados)
+5. **Dashboard:** Invitados con total; Mesas con plazas y sobran/faltan
+6. **Distribución:** Calcular → KPIs (plazas libres, afinidad —); **todas** las mesas visibles; filtros; expandir fila con pills
+7. **Confirmar distribución** → vuelve al dashboard; setup incluye distribución
+8. Recarga misma pestaña → datos persisten
 
 ### Dev local (Windows / OneDrive)
 

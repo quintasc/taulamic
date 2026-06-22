@@ -74,6 +74,7 @@ export function filterDistributionTableGroups(
   groups: DistributionTableGroup[],
   filter: DistributionTableFilter,
   search: string,
+  shapeLabel: string | 'all' = 'all',
 ): DistributionTableGroup[] {
   const query = search.trim().toLowerCase();
 
@@ -85,6 +86,9 @@ export function filterDistributionTableGroups(
       return false;
     }
     if (filter === 'empty' && group.status !== 'empty') {
+      return false;
+    }
+    if (shapeLabel !== 'all' && group.shapeLabel !== shapeLabel) {
       return false;
     }
     if (

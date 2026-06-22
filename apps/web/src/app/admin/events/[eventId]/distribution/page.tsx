@@ -142,7 +142,7 @@ export default function DistributionPage() {
           proposal={proposal}
           tableGroups={tableGroups}
           guestTotal={guestTotal}
-          floorPlanHref={routes.floorPlan}
+          floorPlanHref={routes.floorPlanLayout}
           confirming={confirming}
           onConfirm={() => void confirm()}
         />

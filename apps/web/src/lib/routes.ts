@@ -8,6 +8,7 @@ export function adminRoutes(eventId: string) {
     dashboard: base,
     config: `${base}/config`,
     floorPlan: `${base}/floor-plan`,
+    floorPlanLayout: `${base}/floor-plan/layout`,
     guests: `${base}/guests`,
     guestErrors: `${base}/guests/errors`,
     preferences: `${base}/preferences`,

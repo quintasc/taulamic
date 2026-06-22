@@ -50,16 +50,16 @@ export function DistributionCalculatedView({
 
       <DistributionTableList tableGroups={tableGroups} />
 
-      {proposal.status !== 'confirmed' ? (
-        <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-neutral-500">
-            Comparador Top-K — disponible post-piloto
-          </p>
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <Link href={floorPlanHref} className="btn-secondary gap-2">
-              <IconMap width={16} height={16} />
-              Ver en plano
-            </Link>
+      <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-xs text-neutral-500">
+          Comparador Top-K — disponible post-piloto
+        </p>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <Link href={floorPlanHref} className="btn-secondary gap-2">
+            <IconMap width={16} height={16} />
+            Ver en plano
+          </Link>
+          {proposal.status !== 'confirmed' ? (
             <button
               type="button"
               className="btn-primary shrink-0"
@@ -68,9 +68,13 @@ export function DistributionCalculatedView({
             >
               {confirming ? 'Confirmando…' : 'Confirmar distribución'}
             </button>
-          </div>
+          ) : (
+            <p className="text-sm font-medium text-success-500">
+              Distribución confirmada
+            </p>
+          )}
         </div>
-      ) : null}
+      </div>
     </>
   );
 }

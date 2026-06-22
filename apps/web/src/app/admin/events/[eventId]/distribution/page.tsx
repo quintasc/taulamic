@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { DistributionCalculatedView } from '@/components/admin/distribution';
 import { IconRefresh } from '@/components/icons';
@@ -16,7 +16,6 @@ import { useEvent } from '@/lib/event-context';
 import { adminRoutes } from '@/lib/routes';
 
 export default function DistributionPage() {
-  const router = useRouter();
   const params = useParams<{ eventId: string }>();
   const routes = adminRoutes(params.eventId);
   const { event, eventId, refreshEvent } = useEvent();
@@ -87,7 +86,6 @@ export default function DistributionPage() {
       const result = await distributionApi.confirm(eventId);
       setProposal(result);
       await refreshEvent();
-      router.push(routes.dashboard);
     } catch (err) {
       setError(
         err instanceof ApiError

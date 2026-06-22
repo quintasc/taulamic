@@ -49,10 +49,24 @@ function StatusChip({ group }: { group: DistributionTableGroup }) {
 
   return (
     <span
-      className={`inline-flex shrink-0 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${chipClass}`}
+      className={`inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${chipClass}`}
     >
       {getStatusChipLabel(group)}
     </span>
+  );
+}
+
+function TableMesaCell({ group }: { group: DistributionTableGroup }) {
+  return (
+    <div className="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1.5">
+      <span className="inline-flex items-center gap-2.5">
+        <StatusDot status={group.status} />
+        <span className="text-sm font-semibold text-neutral-900">
+          {group.tableLabel}
+        </span>
+      </span>
+      <StatusChip group={group} />
+    </div>
   );
 }
 
@@ -96,17 +110,11 @@ function DistributionTableRow({
     <div className="border-b border-neutral-200 last:border-b-0">
       <button
         type="button"
-        className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 py-4 text-left transition hover:bg-neutral-50 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)_minmax(0,1fr)_minmax(0,0.6fr)_auto]"
+        className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-start gap-3 px-5 py-4 text-left transition hover:bg-neutral-50 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)_minmax(0,1fr)_minmax(0,0.6fr)_auto] sm:items-center"
         aria-expanded={open}
         onClick={onToggle}
       >
-        <span className="flex min-w-0 items-center gap-2.5">
-          <StatusDot status={group.status} />
-          <span className="truncate text-sm font-semibold text-neutral-900">
-            {group.tableLabel}
-          </span>
-          <StatusChip group={group} />
-        </span>
+        <TableMesaCell group={group} />
 
         <span className="hidden text-sm text-neutral-600 sm:block">
           {group.shapeLabel}

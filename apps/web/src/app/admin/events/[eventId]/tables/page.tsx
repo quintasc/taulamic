@@ -11,7 +11,7 @@ import {
   apiTableShape,
   TableShapePreview,
 } from '@/components/table-shape-preview';
-import { eventsApi, tableShapesApi, type SeatTopology } from '@/lib/api';
+import { eventsApi, tableShapesApi, distributionApi, ApiError, type DistributionProposal, type SeatTopology } from '@/lib/api';
 import { useEvent } from '@/lib/event-context';
 
 const shapeOptions = [
@@ -26,8 +26,28 @@ export default function TablesPage() {
   const [shape, setShape] = useState('redonda');
   const [capacity, setCapacity] = useState(8);
   const [topology, setTopology] = useState<SeatTopology | null>(null);
+  const [distribution, setDistribution] = useState<DistributionProposal | null>(
+    null,
+  );
   const [saving, setSaving] = useState(false);
+  const [removingTableId, setRemovingTableId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!eventId) {
+      return;
+    }
+    void distributionApi
+      .get(eventId)
+      .then(setDistribution)
+      .catch((err: unknown) => {
+        if (err instanceof ApiError && err.status === 404) {
+          setDistribution(null);
+          return;
+        }
+        setDistribution(null);
+      });
+  }, [eventId]);
 
   useEffect(() => {
     if (!eventId) {
@@ -64,8 +84,43 @@ export default function TablesPage() {
     if (!eventId) {
       return;
     }
-    await eventsApi.removeTable(eventId, tableId);
-    await refreshEvent();
+
+    const table = event?.tables.find((item) => item.id === tableId);
+    const assignedCount =
+      distribution?.placements.filter((placement) => placement.tableId === tableId)
+        .length ?? 0;
+    const hasDraftDistribution =
+      distribution !== null && distribution.status === 'draft';
+
+    if (hasDraftDistribution && assignedCount > 0) {
+      const guestLabel =
+        assignedCount === 1 ? 'invitado asignado' : 'invitados asignados';
+      const accepted = window.confirm(
+        `${table?.label ?? 'Esta mesa'} tiene ${assignedCount} ${guestLabel} en la distribución en borrador. Al eliminarla pasarán a «sin asignar». ¿Continuar?`,
+      );
+      if (!accepted) {
+        return;
+      }
+    }
+
+    setRemovingTableId(tableId);
+    setError(null);
+    try {
+      await eventsApi.removeTable(eventId, tableId);
+      await refreshEvent();
+      try {
+        const updatedDistribution = await distributionApi.get(eventId);
+        setDistribution(updatedDistribution);
+      } catch (err: unknown) {
+        if (err instanceof ApiError && err.status === 404) {
+          setDistribution(null);
+        }
+      }
+    } catch {
+      setError('No se pudo eliminar la mesa.');
+    } finally {
+      setRemovingTableId(null);
+    }
   }
 
   return (
@@ -196,11 +251,14 @@ export default function TablesPage() {
                     <td className="py-3">
                       <button
                         type="button"
-                        className="text-sm font-medium text-primary-500 hover:text-primary-600"
-                        disabled={event.status === 'plan_approved'}
+                        className="text-sm font-medium text-primary-500 hover:text-primary-600 disabled:cursor-not-allowed disabled:opacity-50"
+                        disabled={
+                          event.status === 'plan_approved' ||
+                          removingTableId === table.id
+                        }
                         onClick={() => void removeTable(table.id)}
                       >
-                        Eliminar
+                        {removingTableId === table.id ? 'Eliminando…' : 'Eliminar'}
                       </button>
                     </td>
                   </tr>

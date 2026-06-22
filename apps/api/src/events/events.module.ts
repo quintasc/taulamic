@@ -1,6 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
-import { EventGovernanceAuditModule } from '../event-governance-audit/event-governance-audit.module';
-import {
+import { DistributionPersistenceModule } from '../distribution/distribution-persistence.module';
+import { EventGovernanceAuditModule } from '../event-governance-audit/event-governance-audit.module';import {
   AddEventTableUseCase,
   CreateEventUseCase,
   GetEventUseCase,
@@ -26,8 +26,10 @@ import { FileEventPreferenceSettingsRepository } from './infrastructure/persiste
 import { EVENT_PREFERENCE_SETTINGS_REPOSITORY } from './infrastructure/persistence/event-preference-settings.repository.port';
 
 @Module({
-  imports: [forwardRef(() => EventGovernanceAuditModule)],
-  controllers: [EventConfigController, EventsController],
+  imports: [
+    forwardRef(() => EventGovernanceAuditModule),
+    DistributionPersistenceModule,
+  ],  controllers: [EventConfigController, EventsController],
   providers: [
     CreateEventUseCase,
     GetEventUseCase,

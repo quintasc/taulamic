@@ -4,6 +4,10 @@
 > No sustituye el handoff a desarrollo (`handoff-figma-a-frontend.md`).
 >
 > **Última actualización:** 2026-06-22
+>
+> **Enlace público para Figma Make** (repo privado):  
+> https://gist.githubusercontent.com/quintasc/0fbaae476229a5c4f746e444ab734637/raw/figma-make-contexto-proyecto.md  
+> Repo: `docs/ux/figma-make-contexto-proyecto.md` en rama `feat/web-piloto-ui-w6`
 
 ---
 

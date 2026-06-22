@@ -127,28 +127,126 @@ Botón **Guardar** → `PUT /events/{eventId}`.
 
 ### Admin — Plano
 
-#### Subir plano
+> **Visión producto (jun 2026):** el plano **no** configura mesas por detección IA. Define el **espacio del salón** (forma, medidas, fondo opcional, accesorios). La colocación de **mesas calculadas** en el canvas es una **fase posterior** (tras Distribución). Ver § Plano del salón (Figma Make) y § decisiones §5.
+
+#### Plano del salón — diseño Figma Make (jun 2026)
+
+**Referencia:** captura Make «Plano del salón» + badge **PILOTO JUL**.
+
+**Layout (desktop ~1280px):**
+
+| Zona | Contenido |
+|------|-----------|
+| **Header** | Título «Plano del salón» + badge piloto · CTA primario **Guardar y continuar** (derecha) |
+| **Canvas central** | Área principal de trabajo; línea guía discontinua horizontal (grid/perímetro) |
+| **Sidebar derecha** | Paneles apilados; **sección «Configuración del salón» plegable** para maximizar vista del canvas |
+
+##### Canvas — estados
+
+**Vacío / inicial (captura):**
+
+- Icono upload + «Sube el plano o define la forma»
+- Hint: «PDF, PNG o JPG · Máx. 20 MB»
+- Botón **Seleccionar archivo** (coral)
+- Alternativa: definir forma solo con controles de la sidebar (sin archivo)
+
+**Con forma definida:**
+
+- **Preview de la forma del salón** (rectángulo, cuadrado, círculo, óvalo según selección)
+- **Tiradores en esquinas** (handles) para redimensionar la forma en el canvas
+- Escala coherente con **Ancho / Largo (m)** de la sidebar (sincronización bidireccional UI)
+- Si hay fondo subido: imagen/PDF como capa bajo la forma (ver Fondo inteligente)
+
+##### Sidebar derecha — bloques
+
+**1. Configuración del salón** *(plegable / desplegable)*
+
+| Control | Especificación |
+|---------|----------------|
+| Forma | Pills: **Rectangular** · Cuadrada · Redonda · Ovalada (una activa, borde coral) |
+| Medidas | Inputs numéricos **Ancho (m)** y **Largo (m)** (ej. 10 × 10) |
+| Plegado | Chevron o «Ocultar configuración» → colapsa bloque; canvas ocupa más ancho |
+
+**2. Fondo inteligente**
+
+- Botón secundario: **Subir plano o foto (IA)**
+- Copy: «Sube la foto del salón y la IA detectará el espacio automáticamente»
+- **Nota producto:** IA aquí detecta **contorno/espacio del salón** como fondo, **no** mesas individuales (alineado con cambio de visión §5)
+- Formatos: PDF, PNG, JPG (máx. 20 MB)
+
+**3. Accesorios** *(arrastrables al canvas)*
+
+- Tarjetas con icono + etiqueta; el usuario **arrastra** al canvas
+- Ejemplos en mockup: **Mesa novios**, **Pista baile**
+- **Iconografía:** los iconos del ejemplo Make **no** son definitivos — rediseñar en estilo wireframe admin (línea simple, coherente con nav icons; sin emoji/clipart)
+
+*Lista accesorios ampliable post-piloto: barra, escenario, entradas, etc.*
+
+##### Acciones
+
+| Acción | Comportamiento |
+|--------|----------------|
+| **Guardar y continuar** | Persiste layout del salón (forma, medidas, fondo, posiciones accesorios) y navega al siguiente paso del setup |
+| **Seleccionar archivo** (canvas) | Atajo al upload de fondo |
+
+##### Fase 2 — Posicionar mesas en plano (post-distribución)
+
+**Referencia:** captura Make «Plano del salón» jun 2026 (borrador — priorizar spec). Acceso desde **Ver en plano** en Distribución o nav Plano tras cálculo.
+
+| Zona | Contenido |
+|------|-----------|
+| **Header** | «Plano del salón» · subtítulo: *«Arrastra las mesas para posicionarlas. Las formas reflejan la distribución calculada.»* |
+| **Acciones header** | **Restablecer** (secundario) · **Guardar posiciones** (primario coral) |
+| **Canvas** | Perímetro salón (borde discontinuo); zonas fijas etiquetadas: **ESCENARIO**, **PISTA DE BAILE**, **ENTRADA**, **BAR** |
+| **Mesas en canvas** | Formas según tipo (círculo, rectángulo, óvalo); etiqueta **M1…** + ocupación **8/8**, **7/8**… |
+| **Color mesa** | Borde/texto **verde** = Llena · **ámbar** = En uso · **gris** = Vacía (coherente con lista Distribución) |
+| **Interacción** | Drag & drop libre de cada mesa sobre el canvas |
+| **Panel derecho** | Ver § abajo |
+
+**Panel derecho — RESUMEN + leyenda**
+
+| Bloque | Contenido |
+|--------|-----------|
+| **RESUMEN** | Contadores: Llenas `N` · En uso `N` · Vacías `N` (dots verde/ámbar/gris) |
+| Ayuda | «Haz clic en una mesa para ver sus detalles» (panel detalle mesa — Figma pendiente) |
+| **FORMAS** | Leyenda: Redonda · Rectangular · Ovalada (iconos línea simple) |
+
+**Relación con Fase A:** el canvas reutiliza el espacio definido en configuración inicial (forma, fondo, accesorios como PISTA DE BAILE). Las **mesas** vienen de la distribución calculada, no de detección IA.
+
+**API:** posiciones `(x, y, rotation)` por mesa — **sin endpoint** piloto; diseñar post-MVP.
+
+---
+
+| Capacidad diseño | API piloto existente |
+|------------------|----------------------|
+| Subir PDF/PNG/JPG | `POST .../floor-plans` + `detect` (orientado a mesas — **desalineado** con nueva visión) |
+| Forma salón + medidas + accesorios | **Sin API** — requiere modelo nuevo |
+| Guardar layout salón | **Sin endpoint** — diseñar en ADR/post-piloto |
+
+**Implementación código julio:** sustituir pantalla upload simple actual por avance hacia este diseño según priorización W6; «Corregir plano» (draft mesas) **suspendido**.
+
+---
+
+#### Plano — flujo legacy (suspendido)
+
+<details>
+<summary>Subir plano + Corregir mesas detectadas (SDD-01D original — no implementar en nueva visión)</summary>
+
+##### Subir plano
 
 | Acción | API |
 |--------|-----|
 | Subir PDF/PNG/JPG | `POST /events/{eventId}/floor-plans` (multipart `file`) |
 | Tras subida → detectar | `POST /events/{eventId}/floor-plans/{floorPlanId}/detect` |
 
-Respuesta upload incluye `floorPlanId` — guardarlo para siguientes pasos.
-
-#### Corregir plano
+##### Corregir plano
 
 | Elemento UI | API |
 |-------------|-----|
-| Lista mesas detectadas | `GET /events/{eventId}/floor-plans/{floorPlanId}/draft` |
-| Chip confianza alto/medio/bajo | Campo `tables[].confidence` (0–1): &gt;0.8 alto, 0.5–0.8 medio, &lt;0.5 bajo |
-| Editar mesa | `PUT .../draft/tables/{tableId}` body `UpsertDraftTableDto` |
-| Eliminar mesa | `DELETE .../draft/tables/{tableId}` |
-| Añadir mesa manual | `POST .../draft/tables` |
-| Vista previa asientos (mesa draft) | `GET .../draft/tables/{tableId}/seat-topology` |
-| **Confirmar plano** | `POST .../draft/confirm` body `{ "confirmed": true }` |
+| Lista mesas detectadas | `GET .../draft` |
+| Confirmar plano | `POST .../draft/confirm` |
 
-Layout confirmado: `GET .../floor-plans/{floorPlanId}/confirmed`.
+</details>
 
 ---
 
@@ -233,7 +331,12 @@ Tras confirmar: evento pasa a `status: plan_approved` (`GET /events/{eventId}`).
 
 #### Propuesta v2 — vista calculada (feedback validación manual, jun 2026)
 
-**Referencia visual:** captura Figma Make adjunta en sesión de pruebas (lista tabular + filtros; sustituye acordeón actual del piloto).
+**Referencias visuales:**
+
+| Fuente | Notas |
+|--------|-------|
+| Capturas validación manual + Make (jun 2026) | Lista tabular + filtros; sustituye acordeón actual |
+| **Make borrador distribución** (jun 2026) | **Referencia aproximada** — el usuario indica que *no ha quedado bien* en Make; priorizar esta spec escrita sobre píxeles del mockup |
 
 **Objetivo UX:** mostrar **todas las mesas del evento** (ocupadas y vacías), con estados claros y métricas que no confundan invitados / mesas / plazas.
 
@@ -290,8 +393,8 @@ Cada fila = una mesa de `GET /events/{eventId}` enriquecida con agrupación de `
 | Estado | Condición | Estilo mockup |
 |--------|-----------|---------------|
 | **Llena** | asignados = capacidad | Chip verde |
-| **En uso · X libre** | 0 < asignados < capacidad | Chip naranja; X = capacidad − asignados |
-| **Vacía** | asignados = 0 | Chip neutro (inferido; no en captura pero coherente con filtro «Vacías») |
+| **En uso · X libre(s)** | 0 < asignados < capacidad | Chip naranja/ámbar; X = capacidad − asignados (Make usa «2 libres») |
+| **Vacía** | asignados = 0 | Punto gris + chip «Vacía»; barra capacidad vacía; afinidad **—** (guión, no %) |
 
 **Regla clave:** mesas sin invitados **siguen visibles** en la lista (resuelve confusión de validación: «desapareció la segunda mesa»).
 
@@ -325,10 +428,17 @@ Al pulsar la fila (o el chevron), se despliega un **panel inline** bajo la cabec
 
 **Datos:** `placements[]` filtrados por `tableId`; `guestName` en cada pill.
 
-##### Pie de página (sin cambio respecto v1)
+##### Pie de página
 
-- Botón primario: **Confirmar distribución para el evento**
-- Nota: Comparador Top-K — disponible post-piloto
+| Elemento | Especificación |
+|----------|----------------|
+| Nota izquierda | «Comparador Top-K — disponible post-piloto» |
+| **Ver en plano** | Botón secundario con icono mapa — navega a **Fase B** (posicionar mesas en canvas) |
+| **Confirmar distribución** | Botón primario coral (texto corto en Make: «Confirmar distribución»; spec previa: «…para el evento» — unificar en implementación) |
+
+##### Referencia Make — lista inferior (borrador)
+
+Ejemplos de filas en mockup imperfecto: M9 En uso 8/10 71%, M10 Llena 8/8 93%, M11 En uso 5/6 80%, M12 Vacía 0/8 —. Confirma estados y mesas vacías visibles; **no** tomar % afinidad como definitivos (piloto).
 
 ##### Diferencias respecto implementación actual (`components/admin/distribution/`)
 
@@ -406,16 +516,20 @@ Registro de respuestas del producto y peticiones nuevas. **No implementado** sal
 
 **Antes (SDD / piloto actual):** subir plano → detectar mesas → corregir → confirmar configuración de mesas.
 
-**Nuevo (decisión producto jun 2026):**
+**Nuevo (decisión producto jun 2026) — dos fases:**
 
-- El plano **no** sirve para inferir tipo/número de mesas (poco realista en salones grandes).
-- El plano sirve como **visión del espacio** donde se ubicarán las mesas **después** de calcular la distribución.
-- Flujo objetivo: distribución calculada → colocar mesas en el espacio (posición inicial aleatoria) → **arrastrar** formas de mesa para recolocar.
-- **Figma pendiente** de entrega; **fuera del MVP julio piloto**.
+| Fase | Pantalla | Qué hace |
+|------|----------|----------|
+| **A — Plano del salón** | Figma Make entregado jun 2026 | Canvas con forma del salón (tiradores), medidas, fondo IA opcional, accesorios arrastrables; sidebar plegable |
+| **B — Posicionar mesas** | Figma pendiente | Tras distribución: mesas calculadas sobre el canvas, drag-drop |
 
-**Impacto W6:** la pantalla «Corregir plano» del handoff piloto **queda suspendida**; en MVP mantener solo subida mínima o placeholder hasta definir UX espacial.
+- El plano **no** sirve para inferir tipo/número de mesas en salones grandes.
+- **Fondo inteligente:** IA detecta **espacio/contorno** del salón, no lista de mesas.
+- **Accesorios:** iconos del ejemplo Make a **rediseñar** (wireframe, no clipart).
 
-**Gobernanza:** implica revisar `SDD-01D`, `ADR-010`, EP-11 y criterios HU-12 importación plano → requiere **ADR/decisión explícita** antes de reescribir SDD.
+**Gobernanza:** revisar `SDD-01D`, `ADR-010`, EP-11 → **ADR pendiente** antes de reescribir SDD.
+
+**Handoff detallado:** § Admin — Plano → «Plano del salón — diseño Figma Make».
 
 ### 4 — Plantilla Excel sin `preferencia_control`
 

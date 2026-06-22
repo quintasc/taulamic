@@ -75,17 +75,27 @@ Desktop 1280×800. Sidebar ~220px (logo, evento en curso solo lectura, nav) + á
 - **Preferencias:** radio Colaborativo vs Anfitrión exclusivo + Guardar.
 - **Mesas:** forma (Redonda, Rectangular, Ovalada), capacidad, preview asientos numerados, listado mesas creadas.
 
-### Plano (visión actualizada — post-MVP visual completo)
+### Plano del salón (Figma Make — jun 2026)
 
-**No** usar el plano para detectar mesas por IA en salones grandes.
+**Fase A — Configurar espacio** (diseño entregado):
 
-1. **Upload:** subir PDF/PNG/JPG como **fondo espacial** del salón.
-2. **Canvas (tras calcular distribución):** perímetro del salón, pista, escenario, entradas, bar (discontinuo).
-3. **Mesas** como formas geométricas **arrastrables** sobre el canvas.
-4. **Estados de mesa en canvas:** verde Llena, ámbar En uso, gris Vacía; etiqueta + ocupación (8/8).
-5. **Panel lateral:** resumen ocupación, mesa seleccionada (afinidad, invitados), Restablecer / Guardar posiciones.
+- **Header:** «Plano del salón» + PILOTO JUL + **Guardar y continuar**
+- **Canvas central:** preview forma del salón + **tiradores de esquina**; empty state upload
+- **Sidebar derecha** (plegable «Configuración del salón»):
+  - Forma: Rectangular · Cuadrada · Redonda · Ovalada + **Ancho/Largo (m)**
+  - **Fondo inteligente:** subir PDF/foto — IA detecta **espacio**, no mesas
+  - **Accesorios arrastrables** (Mesa novios, Pista baile…) — **rediseñar iconos** (no usar los del ejemplo)
 
-*Piloto código julio: solo upload mínimo; canvas drag-drop es diseño objetivo post-MVP.*
+**Fase B — Posicionar mesas** (referencia Make jun 2026, borrador):
+
+- Subtítulo: arrastra mesas; formas = distribución calculada
+- Canvas: ESCENARIO, PISTA DE BAILE, ENTRADA, BAR + mesas M1… drag-drop
+- Colores mesa: verde Llena / ámbar En uso / gris Vacía
+- Panel: RESUMEN (Llenas/En uso/Vacías) + leyenda FORMAS
+- Acciones: Restablecer · Guardar posiciones
+- Entrada desde Distribución: botón **Ver en plano**
+
+*Make no es definitivo; priorizar handoff. API posiciones: pendiente.*
 
 ### Distribución (v2 — diseño objetivo)
 
@@ -111,7 +121,9 @@ Estados: vacío · calculando · listo.
 
 **Clic en «Sin asignar»** (dashboard o distribución): panel/lista invitados no asignados (diseño pendiente).
 
-**Pie:** Confirmar distribución para el evento · nota Top-K post-piloto.
+**Pie:** Comparador Top-K · **Ver en plano** (→ Fase B) · **Confirmar distribución**
+
+*Referencia Make lista inferior: borrador imperfecto; mesa vacía M12 con afinidad «—».*
 
 **Motor v1:** priorizar ocupabilidad de mesas (no reparto equitativo obligatorio).
 
@@ -128,7 +140,7 @@ Resumen para no depender del chat:
 | Dashboard Mesas | Solo nº mesas API + plazas totales; subtexto sobran/faltan plazas vs invitados |
 | Afinidad % | «No calculado en piloto» |
 | Excel | Sin `preferencia_control` por fila |
-| Plano | Espacial post-distribución, drag-drop — **fuera MVP código** |
+| Plano | Fase A salón (Figma jun 2026) + Fase B mesas post-distribución; iconos accesorios a rediseñar |
 | Bloquear invitados | SDD prevé bloqueos admin; UI/API post-piloto |
 | Checklist setup | Conectar preferencias/plano a API (hoy parcial) |
 

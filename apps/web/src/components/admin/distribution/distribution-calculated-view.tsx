@@ -1,81 +1,74 @@
 'use client';
 
-import { useState } from 'react';
-import { DistributionTableAccordion } from '@/components/admin/distribution/distribution-table-accordion';
+import Link from 'next/link';
+import { DistributionTableList } from '@/components/admin/distribution/distribution-table-list';
+import { IconMap } from '@/components/icons';
 import { StatCard } from '@/components/ui';
 import type { DistributionProposal } from '@/lib/api';
 import {
-  PILOT_AVERAGE_AFFINITY_PERCENT,
+  PILOT_AFFINITY_LABEL,
   type DistributionTableGroup,
 } from '@/lib/distribution-view';
 
 export function DistributionCalculatedView({
   proposal,
   tableGroups,
+  guestTotal,
+  floorPlanHref,
   confirming,
   onConfirm,
 }: {
   proposal: DistributionProposal;
   tableGroups: DistributionTableGroup[];
+  guestTotal: number;
+  floorPlanHref: string;
   confirming: boolean;
   onConfirm: () => void;
 }) {
-  const [openTableId, setOpenTableId] = useState<string | null>(
-    tableGroups[0]?.tableId ?? null,
+  const freeSeats = Math.max(
+    0,
+    proposal.stats.totalCapacity - proposal.stats.assignedCount,
   );
-
-  const guestTotal =
-    proposal.stats.assignedCount + proposal.stats.unassignedCount;
-  const tableCount = tableGroups.length;
+  const unassigned = proposal.stats.unassignedCount;
 
   return (
     <>
       <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Afinidad media"
-          value={`${PILOT_AVERAGE_AFFINITY_PERCENT}%`}
-          progress={PILOT_AVERAGE_AFFINITY_PERCENT}
-          progressColor="success"
-          valueHighlight
+          value="—"
+          hint={PILOT_AFFINITY_LABEL}
         />
-        <StatCard label="Invitados" value={String(guestTotal)} />
-        <StatCard label="Mesas" value={String(tableCount)} />
+        <StatCard label="Total invitados" value={String(guestTotal)} />
         <StatCard
           label="Sin asignar"
-          value={String(proposal.stats.unassignedCount)}
+          value={String(unassigned)}
+          valueHighlight={unassigned === 0}
         />
+        <StatCard label="Plazas libres" value={String(freeSeats)} />
       </div>
 
-      <div className="space-y-3">
-        {tableGroups.map((group) => (
-          <DistributionTableAccordion
-            key={group.tableId}
-            group={group}
-            open={openTableId === group.tableId}
-            onToggle={() =>
-              setOpenTableId((current) =>
-                current === group.tableId ? null : group.tableId,
-              )
-            }
-          />
-        ))}
-      </div>
+      <DistributionTableList tableGroups={tableGroups} />
 
       {proposal.status !== 'confirmed' ? (
         <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-neutral-500">
             Comparador Top-K — disponible post-piloto
           </p>
-          <button
-            type="button"
-            className="btn-primary shrink-0"
-            disabled={confirming || proposal.unassignedGuestIds.length > 0}
-            onClick={onConfirm}
-          >
-            {confirming
-              ? 'Confirmando…'
-              : 'Confirmar distribución para el evento'}
-          </button>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <Link href={floorPlanHref} className="btn-secondary gap-2">
+              <IconMap width={16} height={16} />
+              Ver en plano
+            </Link>
+            <button
+              type="button"
+              className="btn-primary shrink-0"
+              disabled={confirming || proposal.unassignedGuestIds.length > 0}
+              onClick={onConfirm}
+            >
+              {confirming ? 'Confirmando…' : 'Confirmar distribución'}
+            </button>
+          </div>
         </div>
       ) : null}
     </>

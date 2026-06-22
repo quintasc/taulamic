@@ -24,11 +24,9 @@ export function EventDashboard() {
   const {
     subtitle,
     guestTotal,
-    unassigned,
     tablesConfigured,
-    tableTarget,
-    guestProgress,
-    hasAffinity,
+    guestMeta,
+    tablesMeta,
     affinityHint,
     setupPercent,
     setupDone,
@@ -43,34 +41,20 @@ export function EventDashboard() {
         <StatCard
           label="Invitados"
           value={String(guestTotal)}
-          hint={
-            unassigned !== null && unassigned > 0
-              ? `${unassigned} sin asignar`
-              : guestTotal > 0
-                ? 'Todos asignados'
-                : 'Importa desde Excel'
-          }
-          progress={guestTotal > 0 ? guestProgress : 0}
+          hint={guestMeta.hint}
+          progress={guestMeta.progress}
+          progressColor={guestMeta.progressColor}
+          valueHighlight={guestMeta.valueHighlight}
         />
         <StatCard
           label="Mesas"
-          value={
-            tableTarget > 0
-              ? `${tablesConfigured}/${tableTarget}`
-              : String(tablesConfigured)
-          }
-          hint={`${tablesConfigured} configuradas`}
-          progress={
-            tableTarget > 0 ? (tablesConfigured / tableTarget) * 100 : 0
-          }
+          value={String(tablesConfigured)}
+          hint={tablesMeta.hint}
         />
         <StatCard
           label="Afinidad media"
-          value={hasAffinity ? '82%' : '—'}
+          value="—"
           hint={affinityHint}
-          progress={hasAffinity ? 82 : undefined}
-          progressColor="success"
-          valueHighlight={hasAffinity}
         />
         <StatCard
           label="Setup"

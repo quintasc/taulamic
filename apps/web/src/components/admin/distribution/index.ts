@@ -1,3 +1,3 @@
 export { DistributionCalculatedView } from './distribution-calculated-view';
-export { DistributionTableAccordion } from './distribution-table-accordion';
+export { DistributionTableList } from './distribution-table-list';
 export { GuestPill } from './guest-pill';

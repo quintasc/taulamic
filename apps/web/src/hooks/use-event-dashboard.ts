@@ -1,34 +1,79 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ApiError, distributionApi, guestsApi } from '@/lib/api';
-import {
-  formatEventSubtitle,
-  loadEventUiMeta,
-  parseTableCountTarget,
-} from '@/lib/event-ui-meta';
+import { formatEventSubtitle, loadEventUiMeta } from '@/lib/event-ui-meta';
+import { PILOT_AFFINITY_LABEL } from '@/lib/distribution-view';
 import { setupSteps } from '@/lib/admin-nav';
 import type { EventDetail } from '@/lib/api';
+
+function getGuestDashboardMeta(
+  guestTotal: number,
+  unassigned: number | null,
+): {
+  hint: string;
+  progress?: number;
+  progressColor?: 'success' | 'warning';
+  valueHighlight?: boolean;
+} {
+  if (guestTotal === 0) {
+    return { hint: 'Importa desde Excel' };
+  }
+  if (unassigned === null) {
+    return { hint: 'Pendiente de calcular' };
+  }
+  if (unassigned === 0) {
+    return {
+      hint: 'Todos asignados',
+      progress: 100,
+      progressColor: 'success',
+      valueHighlight: true,
+    };
+  }
+
+  const assigned = guestTotal - unassigned;
+  const percent = Math.round((assigned / guestTotal) * 100);
+
+  return {
+    hint: `${assigned} de ${guestTotal} asignados · ${unassigned} sin asignar`,
+    progress: percent,
+    progressColor: 'warning',
+  };
+}
+
+function getTablesDashboardMeta(
+  tablesConfigured: number,
+  totalCapacity: number,
+  guestTotal: number,
+): { hint: string } {
+  if (tablesConfigured === 0) {
+    return { hint: 'Añade mesas en Mesas' };
+  }
+
+  const capacityLabel = `${totalCapacity} ${totalCapacity === 1 ? 'plaza' : 'plazas'}`;
+
+  if (guestTotal === 0) {
+    return { hint: capacityLabel };
+  }
+
+  const diff = totalCapacity - guestTotal;
+  if (diff > 0) {
+    return { hint: `${capacityLabel} · Sobran ${diff} plazas` };
+  }
+  if (diff < 0) {
+    return { hint: `${capacityLabel} · Faltan ${-diff} plazas` };
+  }
+  return { hint: `${capacityLabel} · Capacidad cubierta` };
+}
 
 export function useEventDashboard(event: EventDetail | null, eventId: string | null) {
   const [guestTotal, setGuestTotal] = useState(0);
   const [unassigned, setUnassigned] = useState<number | null>(null);
   const [distConfirmed, setDistConfirmed] = useState(false);
-  const [affinityHint, setAffinityHint] = useState('Tras calcular distribución');
   const [subtitle, setSubtitle] = useState('Resumen del evento');
-  const [tableTarget, setTableTarget] = useState(0);
 
   const tablesConfigured = event?.capacitySummary.tableCount ?? 0;
-
-  useEffect(() => {
-    if (!eventId) {
-      setTableTarget(tablesConfigured);
-      return;
-    }
-    setTableTarget(
-      parseTableCountTarget(loadEventUiMeta(eventId), tablesConfigured),
-    );
-  }, [eventId, tablesConfigured]);
+  const totalCapacity = event?.capacitySummary.totalCapacity ?? 0;
 
   useEffect(() => {
     if (!eventId) {
@@ -44,13 +89,6 @@ export function useEventDashboard(event: EventDetail | null, eventId: string | n
       .then((proposal) => {
         setUnassigned(proposal.stats.unassignedCount);
         setDistConfirmed(proposal.status === 'confirmed');
-        if (proposal.stats.assignedCount > 0) {
-          setAffinityHint(
-            proposal.status === 'confirmed'
-              ? 'Distribución confirmada'
-              : 'Última distribución',
-          );
-        }
       })
       .catch((err: unknown) => {
         if (err instanceof ApiError && err.status === 404) {
@@ -80,24 +118,25 @@ export function useEventDashboard(event: EventDetail | null, eventId: string | n
   const setupDone = setupStatus.filter(Boolean).length;
   const setupPercent = Math.round((setupDone / setupSteps.length) * 100);
 
-  const guestProgress =
-    guestTotal > 0 && unassigned !== null
-      ? Math.round(((guestTotal - unassigned) / guestTotal) * 100)
-      : guestTotal > 0
-        ? 100
-        : 0;
+  const guestMeta = useMemo(
+    () => getGuestDashboardMeta(guestTotal, unassigned),
+    [guestTotal, unassigned],
+  );
 
-  const hasAffinity = distConfirmed || affinityHint === 'Última distribución';
+  const tablesMeta = useMemo(
+    () => getTablesDashboardMeta(tablesConfigured, totalCapacity, guestTotal),
+    [tablesConfigured, totalCapacity, guestTotal],
+  );
 
   return {
     subtitle,
     guestTotal,
     unassigned,
     tablesConfigured,
-    tableTarget,
-    guestProgress,
-    hasAffinity,
-    affinityHint,
+    totalCapacity,
+    guestMeta,
+    tablesMeta,
+    affinityHint: PILOT_AFFINITY_LABEL,
     setupPercent,
     setupDone,
     setupStatus,

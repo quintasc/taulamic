@@ -8,6 +8,7 @@ import { Alert, EmptyState, PageHeader } from '@/components/ui';
 import {
   ApiError,
   distributionApi,
+  guestsApi,
   type DistributionProposal,
 } from '@/lib/api';
 import { buildDistributionTableGroups } from '@/lib/distribution-view';
@@ -20,6 +21,7 @@ export default function DistributionPage() {
   const routes = adminRoutes(params.eventId);
   const { event, eventId, refreshEvent } = useEvent();
   const [proposal, setProposal] = useState<DistributionProposal | null>(null);
+  const [guestTotal, setGuestTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
   const [confirming, setConfirming] = useState(false);
@@ -29,6 +31,12 @@ export default function DistributionPage() {
     if (!eventId) {
       return;
     }
+
+    void guestsApi
+      .list(eventId)
+      .then((response) => setGuestTotal(response.total))
+      .catch(() => setGuestTotal(0));
+
     void distributionApi
       .get(eventId)
       .then(setProposal)
@@ -56,6 +64,8 @@ export default function DistributionPage() {
     try {
       const result = await distributionApi.run(eventId);
       setProposal(result);
+      const guests = await guestsApi.list(eventId);
+      setGuestTotal(guests.total);
     } catch (err) {
       setError(
         err instanceof ApiError
@@ -89,8 +99,7 @@ export default function DistributionPage() {
     }
   }
 
-  const hasCalculatedView =
-    proposal !== null && proposal.placements.length > 0;
+  const hasCalculatedView = proposal !== null;
 
   return (
     <>
@@ -106,7 +115,7 @@ export default function DistributionPage() {
               onClick={() => void calculate()}
             >
               <IconRefresh width={16} height={16} />
-              {running ? 'Recalculando…' : 'Recalcular distribución'}
+              {running ? 'Recalculando…' : 'Recalcular'}
             </button>
           ) : (
             <button
@@ -134,6 +143,8 @@ export default function DistributionPage() {
           key={proposal.id}
           proposal={proposal}
           tableGroups={tableGroups}
+          guestTotal={guestTotal}
+          floorPlanHref={routes.floorPlan}
           confirming={confirming}
           onConfirm={() => void confirm()}
         />

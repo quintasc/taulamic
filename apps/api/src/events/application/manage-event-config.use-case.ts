@@ -4,6 +4,11 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { reconcileProposalAfterTableRemoved } from '../../distribution/domain/reconcile-proposal-after-table-removed';
+import {
+  DISTRIBUTION_REPOSITORY,
+  type DistributionRepositoryPort,
+} from '../../distribution/infrastructure/persistence/distribution.repository.port';
 import {
   EventConfig,
   summarizeEventCapacity,
@@ -179,11 +184,30 @@ export class RemoveEventTableUseCase {
   constructor(
     @Inject(EVENT_CONFIG_REPOSITORY)
     private readonly repository: EventConfigRepositoryPort,
+    @Inject(DISTRIBUTION_REPOSITORY)
+    private readonly distributionRepository: DistributionRepositoryPort,
   ) {}
 
   async execute(eventId: string, tableId: string): Promise<EventDetail> {
     await this.requireEditableEvent(eventId);
     const updated = await this.repository.removeTable(eventId, tableId);
+
+    const proposal =
+      await this.distributionRepository.findLatestByEventId(eventId);
+    if (proposal) {
+      const reconciled = reconcileProposalAfterTableRemoved(
+        proposal,
+        tableId,
+        updated.tables.map((table) => ({
+          id: table.id,
+          capacity: table.capacity,
+        })),
+      );
+      if (reconciled) {
+        await this.distributionRepository.save(reconciled);
+      }
+    }
+
     return toEventDetail(updated);
   }
 

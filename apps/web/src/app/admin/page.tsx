@@ -1,28 +1,35 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useEvent } from '@/lib/event-context';
 import { adminEntryPaths, eventBasePath } from '@/lib/routes';
 
 export default function AdminIndexPage() {
   const router = useRouter();
-  const { eventId, loading } = useEvent();
+  const { createEvent, clearEvent } = useEvent();
+  const [booting, setBooting] = useState(true);
 
   useEffect(() => {
-    if (loading) {
-      return;
+    clearEvent();
+
+    async function startNewEvent() {
+      try {
+        const created = await createEvent('Boda García-López');
+        router.replace(eventBasePath(created.id));
+      } catch {
+        router.replace(adminEntryPaths.newEvent);
+      } finally {
+        setBooting(false);
+      }
     }
-    if (eventId) {
-      router.replace(eventBasePath(eventId));
-      return;
-    }
-    router.replace(adminEntryPaths.newEvent);
-  }, [eventId, loading, router]);
+
+    void startNewEvent();
+  }, [clearEvent, createEvent, router]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center text-sm text-neutral-500">
-      Redirigiendo…
+    <div className="flex min-h-screen items-center justify-center bg-wf-1 text-sm text-neutral-500">
+      {booting ? 'Creando evento…' : 'Redirigiendo…'}
     </div>
   );
 }

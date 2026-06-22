@@ -8,6 +8,11 @@
   --color-border: #e8e8e8;
   --color-bg: #ffffff;
   --color-bg-muted: #f5f5f5;
+  --wf-1: #f9f9f9;
+  --wf-2: #f0f0f0;
+  --wf-3: #e0e0e0;
+  --wf-4: #c4c4c4;
+  --wf-5: #a0a0a0;
 }
 
 body {
@@ -24,14 +29,77 @@ body {
   }
 
   .card-admin {
-    @apply rounded-xl border border-neutral-200 bg-neutral-0 p-6;
+    @apply rounded-lg border bg-neutral-0 p-6;
+    border-color: var(--wf-3);
+  }
+
+  .card-marketing {
+    @apply rounded-2xl border border-neutral-200 bg-neutral-0 p-6;
+    box-shadow: 0 2px 8px rgba(26, 26, 26, 0.08);
   }
 
   .input-field {
-    @apply w-full rounded-lg border border-neutral-200 px-4 py-2.5 text-sm text-neutral-900 outline-none ring-primary-500 focus:ring-2;
+    @apply w-full rounded-xl border border-neutral-200 bg-neutral-0 px-4 py-2.5 text-sm text-neutral-900 outline-none transition placeholder:text-neutral-500 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20;
   }
 
   .label-field {
-    @apply mb-1.5 block text-xs font-medium uppercase tracking-wide text-neutral-500;
+    @apply mb-2 block text-xs font-semibold uppercase tracking-wide text-neutral-500;
+  }
+
+  .section-label {
+    @apply text-xs font-semibold uppercase tracking-widest text-neutral-500;
+  }
+
+  .upload-zone {
+    @apply flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-neutral-200 bg-neutral-100/80 px-8 py-14 text-center transition hover:border-primary-500/50 hover:bg-primary-100/20;
+  }
+
+  .nav-item-active {
+    @apply bg-primary-100 font-semibold text-primary-600;
+  }
+}
+
+@layer utilities {
+  .bg-wf-1 {
+    background-color: var(--wf-1);
+  }
+  .bg-wf-2 {
+    background-color: var(--wf-2);
+  }
+  .bg-wf-3 {
+    background-color: var(--wf-3);
+  }
+  .bg-wf-4 {
+    background-color: var(--wf-4);
+  }
+  .bg-wf-5 {
+    background-color: var(--wf-5);
+  }
+  .text-wf-4 {
+    color: var(--wf-4);
+  }
+  .text-wf-5 {
+    color: var(--wf-5);
+  }
+  .border-wf-2 {
+    border-color: var(--wf-2);
+  }
+  .border-wf-3 {
+    border-color: var(--wf-3);
+  }
+  .border-r-wf-3 {
+    border-right-color: var(--wf-3);
+  }
+  .border-b-wf-2 {
+    border-bottom-color: var(--wf-2);
+  }
+  .border-t-wf-3 {
+    border-top-color: var(--wf-3);
+  }
+  .hover\:bg-wf-2:hover {
+    background-color: var(--wf-2);
+  }
+  .hover\:border-wf-4:hover {
+    border-color: var(--wf-4);
   }
 }

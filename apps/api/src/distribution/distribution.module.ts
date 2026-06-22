@@ -6,22 +6,19 @@ import {
   GetDistributionUseCase,
   RunDistributionUseCase,
 } from './application/manage-distribution.use-case';
+import { ReconcileDistributionAfterTableRemovalUseCase } from './application/reconcile-distribution-after-table-removal.use-case';
 import { DistributionController } from './distribution.controller';
-import { DISTRIBUTION_REPOSITORY } from './infrastructure/persistence/distribution.repository.port';
-import { FileDistributionRepository } from './infrastructure/persistence/file-distribution.repository';
+import { DistributionPersistenceModule } from './distribution-persistence.module';
 
 @Module({
-  imports: [EventsModule, GuestImportModule],
+  imports: [EventsModule, GuestImportModule, DistributionPersistenceModule],
   controllers: [DistributionController],
   providers: [
     RunDistributionUseCase,
     GetDistributionUseCase,
     ConfirmDistributionUseCase,
-    FileDistributionRepository,
-    {
-      provide: DISTRIBUTION_REPOSITORY,
-      useExisting: FileDistributionRepository,
-    },
+    ReconcileDistributionAfterTableRemovalUseCase,
   ],
+  exports: [ReconcileDistributionAfterTableRemovalUseCase],
 })
 export class DistributionModule {}

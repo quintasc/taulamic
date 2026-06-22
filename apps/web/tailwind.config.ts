@@ -29,6 +29,9 @@ const config: Config = {
       width: {
         sidebar: '220px',
       },
+      boxShadow: {
+        card: '0 2px 8px rgba(26, 26, 26, 0.08)',
+      },
     },
   },
   plugins: [],

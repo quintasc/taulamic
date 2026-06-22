@@ -9,7 +9,7 @@ import { eventBasePath } from '@/lib/routes';
 export default function NewEventPage() {
   const router = useRouter();
   const { createEvent } = useEvent();
-  const [name, setName] = useState('Mi evento piloto');
+  const [name, setName] = useState('Boda García-López');
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,11 +31,11 @@ export default function NewEventPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-neutral-0 p-8">
+    <div className="flex min-h-screen items-center justify-center bg-wf-1 p-8">
       <div className="card-admin w-full max-w-lg">
         <PageHeader
           title="Crear evento"
-          subtitle="Introduce un nombre para empezar a configurar el evento."
+          subtitle="Cada acceso al panel crea un evento nuevo. En el piloto no se guardan proyectos entre sesiones."
         />
 
         {error ? (

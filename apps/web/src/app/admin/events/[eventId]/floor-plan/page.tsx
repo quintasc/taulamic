@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Alert, PageHeader } from '@/components/ui';
+import { Alert, PageHeader, UploadZone } from '@/components/ui';
 import { useEvent } from '@/lib/event-context';
 
 export default function FloorPlanPage() {
@@ -35,7 +35,7 @@ export default function FloorPlanPage() {
         },
       );
       setMessage(
-        'Plano subido y detección iniciada. Corrección detallada en iteración post-piloto.',
+        'Plano subido y detección iniciada. Revisa las mesas detectadas (Corregir plano — próxima iteración).',
       );
     } catch {
       setMessage('Error al subir el plano.');
@@ -48,7 +48,7 @@ export default function FloorPlanPage() {
     <>
       <PageHeader
         title="Subir plano"
-        subtitle="Importa imagen o PDF del salón para detectar mesas."
+        subtitle="Sube el plano en PDF o imagen para detectar las mesas automáticamente."
       />
 
       {message ? (
@@ -59,27 +59,15 @@ export default function FloorPlanPage() {
         </div>
       ) : null}
 
-      <div className="card-admin max-w-xl">
-        <Alert variant="info">
-          La detección es asistida. Tras subir, revisa y confirma cada mesa
-          (pantalla «Corregir plano» en Figma — UI completa post-piloto).
-        </Alert>
-
-        <label className="btn-primary mt-6 inline-flex cursor-pointer">
-          {uploading ? 'Subiendo…' : 'Subir plano'}
-          <input
-            type="file"
-            accept="image/*,application/pdf"
-            className="hidden"
-            disabled={uploading}
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              if (file) {
-                void upload(file);
-              }
-            }}
-          />
-        </label>
+      <div className="max-w-2xl">
+        <UploadZone
+          title="Arrastra o haz clic para subir"
+          hint="PDF, PNG o JPG · Máx. 20 MB"
+          accept="image/*,application/pdf"
+          disabled={uploading}
+          buttonLabel={uploading ? 'Subiendo…' : 'Subir plano'}
+          onFile={(file) => void upload(file)}
+        />
       </div>
     </>
   );

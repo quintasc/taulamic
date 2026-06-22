@@ -11,17 +11,34 @@ import {
 } from 'react';
 import { eventsApi, type EventDetail } from '@/lib/api';
 
-const STORAGE_KEY = 'taulamic:eventId';
+/** Clave legacy; el MVP no restaura eventos entre sesiones. */
+const LEGACY_STORAGE_KEY = 'taulamic:eventId';
+const SESSION_EVENT_KEY = 'taulamic:sessionEventId';
+
+function readSessionEventId(): string | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  return sessionStorage.getItem(SESSION_EVENT_KEY);
+}
+
+function writeSessionEventId(id: string) {
+  sessionStorage.setItem(SESSION_EVENT_KEY, id);
+}
+
+function clearSessionEventId() {
+  sessionStorage.removeItem(SESSION_EVENT_KEY);
+}
 
 type EventContextValue = {
   eventId: string | null;
   event: EventDetail | null;
   loading: boolean;
   error: string | null;
-  setEventId: (id: string) => void;
   syncEventIdFromUrl: (id: string) => void;
   refreshEvent: () => Promise<void>;
   createEvent: (name: string) => Promise<EventDetail>;
+  clearEvent: () => void;
 };
 
 const EventContext = createContext<EventContextValue | null>(null);
@@ -29,8 +46,12 @@ const EventContext = createContext<EventContextValue | null>(null);
 export function EventProvider({ children }: { children: ReactNode }) {
   const [eventId, setEventIdState] = useState<string | null>(null);
   const [event, setEvent] = useState<EventDetail | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    localStorage.removeItem(LEGACY_STORAGE_KEY);
+  }, []);
 
   const refreshEvent = useCallback(async () => {
     if (!eventId) {
@@ -53,42 +74,38 @@ export function EventProvider({ children }: { children: ReactNode }) {
   }, [eventId]);
 
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      setEventIdState(stored);
-    } else {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
     void refreshEvent();
   }, [refreshEvent]);
 
-  const setEventId = useCallback((id: string) => {
-    localStorage.setItem(STORAGE_KEY, id);
+  const syncEventIdFromUrl = useCallback((id: string) => {
+    const sessionId = readSessionEventId();
+    if (sessionId !== id) {
+      setEventIdState(null);
+      setEvent(null);
+      setError('No se pudo cargar el evento.');
+      setLoading(false);
+      return;
+    }
     setEventIdState(id);
   }, []);
 
-  const syncEventIdFromUrl = useCallback(
-    (id: string) => {
-      if (id !== eventId) {
-        localStorage.setItem(STORAGE_KEY, id);
-        setEventIdState(id);
-      }
-    },
-    [eventId],
-  );
+  const clearEvent = useCallback(() => {
+    clearSessionEventId();
+    setEventIdState(null);
+    setEvent(null);
+    setError(null);
+    setLoading(false);
+  }, []);
 
-  const createEvent = useCallback(
-    async (name: string) => {
-      const created = await eventsApi.create(name);
-      setEventId(created.id);
-      setEvent(created);
-      return created;
-    },
-    [setEventId],
-  );
+  const createEvent = useCallback(async (name: string) => {
+    const created = await eventsApi.create(name);
+    writeSessionEventId(created.id);
+    setEventIdState(created.id);
+    setEvent(created);
+    setError(null);
+    setLoading(false);
+    return created;
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -96,20 +113,20 @@ export function EventProvider({ children }: { children: ReactNode }) {
       event,
       loading,
       error,
-      setEventId,
       syncEventIdFromUrl,
       refreshEvent,
       createEvent,
+      clearEvent,
     }),
     [
       eventId,
       event,
       loading,
       error,
-      setEventId,
       syncEventIdFromUrl,
       refreshEvent,
       createEvent,
+      clearEvent,
     ],
   );
 

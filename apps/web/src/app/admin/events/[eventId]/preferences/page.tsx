@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Alert, PageHeader } from '@/components/ui';
+import { Alert, PageHeader, PreferenceOption } from '@/components/ui';
 import { preferencesApi } from '@/lib/api';
 import { useEvent } from '@/lib/event-context';
 
@@ -43,8 +43,8 @@ export default function PreferencesPage() {
   return (
     <>
       <PageHeader
-        title="Modo de preferencias"
-        subtitle="Control colaborativo o exclusivo del anfitrión."
+        title="Preferencias de distribución"
+        subtitle="Elige cómo se recopilarán las preferencias de afinidad."
       />
 
       {message ? (
@@ -55,49 +55,31 @@ export default function PreferencesPage() {
         </div>
       ) : null}
 
-      <div className="card-admin max-w-xl space-y-4">
+      <div className="max-w-2xl space-y-4">
         {loading ? (
           <p className="text-sm text-neutral-500">Cargando…</p>
         ) : (
           <>
-            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-neutral-200 p-4">
-              <input
-                type="radio"
-                name="mode"
-                checked={mode === 'colaborativo'}
-                onChange={() => setMode('colaborativo')}
-              />
-              <span>
-                <span className="block font-semibold">Colaborativo</span>
-                <span className="text-sm text-neutral-500">
-                  Los invitados pueden editar sus preferencias.
-                </span>
-              </span>
-            </label>
-            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-neutral-200 p-4">
-              <input
-                type="radio"
-                name="mode"
-                checked={mode === 'anfitrion_exclusivo'}
-                onChange={() => setMode('anfitrion_exclusivo')}
-              />
-              <span>
-                <span className="block font-semibold">Anfitrión exclusivo</span>
-                <span className="text-sm text-neutral-500">
-                  Solo el admin gestiona preferencias.
-                </span>
-              </span>
-            </label>
-            <div className="flex justify-end pt-2">
-              <button
-                type="button"
-                className="btn-primary"
-                disabled={saving}
-                onClick={() => void save()}
-              >
-                Guardar
-              </button>
-            </div>
+            <PreferenceOption
+              selected={mode === 'colaborativo'}
+              title="Colaborativo"
+              description="Los invitados reciben un enlace RSVP para indicar sus propias afinidades y preferencias de mesa."
+              onSelect={() => setMode('colaborativo')}
+            />
+            <PreferenceOption
+              selected={mode === 'anfitrion_exclusivo'}
+              title="Anfitrión exclusivo"
+              description="Solo el organizador define afinidades, restricciones y preferencias. Los invitados no editan sus datos."
+              onSelect={() => setMode('anfitrion_exclusivo')}
+            />
+            <button
+              type="button"
+              className="btn-primary mt-4"
+              disabled={saving}
+              onClick={() => void save()}
+            >
+              {saving ? 'Guardando…' : 'Guardar preferencias'}
+            </button>
           </>
         )}
       </div>

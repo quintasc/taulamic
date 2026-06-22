@@ -3,7 +3,14 @@
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Alert, EmptyState, PageHeader } from '@/components/ui';
+import { IconFile } from '@/components/icons';
+import {
+  Alert,
+  EmptyState,
+  PageHeader,
+  SectionLabel,
+  UploadZone,
+} from '@/components/ui';
 import {
   guestsApi,
   type GuestView,
@@ -20,6 +27,7 @@ export default function GuestsPage() {
   const [guests, setGuests] = useState<GuestView[]>([]);
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -41,31 +49,35 @@ export default function GuestsPage() {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = 'plantilla-invitados.xlsx';
+    anchor.download = 'plantilla_invitados_taulamic.xlsx';
     anchor.click();
     URL.revokeObjectURL(url);
   }
 
-  async function handleFile(file: File) {
-    if (!eventId) {
+  async function handleImport() {
+    if (!eventId || !selectedFile) {
       return;
     }
     setImporting(true);
     setMessage(null);
     try {
-      const validation: ImportValidation = await guestsApi.validate(eventId, file);
+      const validation: ImportValidation = await guestsApi.validate(
+        eventId,
+        selectedFile,
+      );
       if (!validation.valid) {
         sessionStorage.setItem(
           'taulamic:importErrors',
           JSON.stringify(validation),
         );
-        sessionStorage.setItem('taulamic:importFileName', file.name);
+        sessionStorage.setItem('taulamic:importFileName', selectedFile.name);
         router.push(routes.guestErrors);
         return;
       }
-      await guestsApi.import(eventId, file);
+      await guestsApi.import(eventId, selectedFile);
       const list = await guestsApi.list(eventId);
       setGuests(list.guests);
+      setSelectedFile(null);
       setMessage(`Importados ${list.total} invitados correctamente.`);
     } catch {
       setMessage('Error al importar el Excel.');
@@ -74,37 +86,13 @@ export default function GuestsPage() {
     }
   }
 
+  const showImportFlow = !loading && guests.length === 0;
+
   return (
     <>
       <PageHeader
         title="Importar invitados"
-        subtitle="Descarga la plantilla, complétala e impórtala al evento."
-        action={
-          <div className="flex gap-3">
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={() => void downloadTemplate()}
-            >
-              Descargar plantilla
-            </button>
-            <label className="btn-primary cursor-pointer">
-              {importing ? 'Importando…' : 'Importar Excel'}
-              <input
-                type="file"
-                accept=".xlsx"
-                className="hidden"
-                disabled={importing}
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  if (file) {
-                    void handleFile(file);
-                  }
-                }}
-              />
-            </label>
-          </div>
-        }
+        subtitle="Descarga la plantilla, rellénala y súbela."
       />
 
       {message ? (
@@ -115,7 +103,53 @@ export default function GuestsPage() {
         </div>
       ) : null}
 
-      {loading ? (
+      {showImportFlow ? (
+        <div className="max-w-2xl space-y-6">
+          <div className="card-admin">
+            <SectionLabel>Paso 1 — Descarga la plantilla</SectionLabel>
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-neutral-200 bg-neutral-100/50 p-4">
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-0 text-neutral-600">
+                  <IconFile width={20} height={20} />
+                </span>
+                <span className="text-sm font-medium text-neutral-900">
+                  plantilla_invitados_taulamic.xlsx
+                </span>
+              </div>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => void downloadTemplate()}
+              >
+                Descargar
+              </button>
+            </div>
+          </div>
+
+          <div className="card-admin">
+            <SectionLabel>Paso 2 — Sube tu Excel completado</SectionLabel>
+            <div className="mt-4">
+              <UploadZone
+                title="Haz clic o arrastra el archivo"
+                hint="Formato .xlsx"
+                accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                disabled={importing}
+                buttonLabel={selectedFile ? selectedFile.name : 'Seleccionar archivo'}
+                onFile={(file) => setSelectedFile(file)}
+              />
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className="btn-primary w-full max-w-2xl py-3 disabled:opacity-40"
+            disabled={!selectedFile || importing}
+            onClick={() => void handleImport()}
+          >
+            {importing ? 'Importando…' : 'Importar invitados'}
+          </button>
+        </div>
+      ) : loading ? (
         <p className="text-sm text-neutral-500">Cargando invitados…</p>
       ) : guests.length ? (
         <div className="card-admin overflow-x-auto">
@@ -144,28 +178,12 @@ export default function GuestsPage() {
         <EmptyState
           title="Sin invitados"
           description="Importa un Excel para añadir invitados al evento."
-          action={
-            <label className="btn-primary cursor-pointer">
-              Importar Excel
-              <input
-                type="file"
-                accept=".xlsx"
-                className="hidden"
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  if (file) {
-                    void handleFile(file);
-                  }
-                }}
-              />
-            </label>
-          }
         />
       )}
 
       <p className="mt-6 text-xs text-neutral-500">
         También puedes{' '}
-        <Link href={routes.guestErrors} className="text-primary-500">
+        <Link href={routes.guestErrors} className="font-medium text-primary-500">
           revisar errores de importación
         </Link>{' '}
         si el Excel tiene filas inválidas.

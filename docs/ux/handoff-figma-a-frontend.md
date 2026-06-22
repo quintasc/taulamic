@@ -56,6 +56,62 @@ Referencia backend E2E (sin plano): crear evento → mesas → preferencias → 
 
 **Dashboard vacío:** KPIs en **0** hasta importar/configurar (sin datos demo precargados).
 
+#### Propuesta v2 — KPIs dashboard (feedback validación manual, jun 2026)
+
+**Objetivo UX:** eliminar ambigüedad del `2/2` mesas (meta local vs API) y alinear invitados/mesas con datos reales de backend.
+
+##### Tarjeta **Invitados** (cambio)
+
+| Campo | Especificación |
+|-------|----------------|
+| **Valor principal** | Total invitados importados (`GET .../guests` → `total`) |
+| **Subtexto** | Según estado (ver tabla) |
+| **Barra de progreso** | % de invitados **asignados** tras calcular distribución; color según % |
+
+| Estado | Subtexto | Barra |
+|--------|----------|-------|
+| Sin invitados (`total = 0`) | «Importa desde Excel» | Sin barra o 0% |
+| Con invitados, **sin** distribución calculada | «Sin distribución» o «Pendiente de calcular» | 0% o oculta |
+| Distribución con **todos asignados** (`unassigned = 0`) | «Todos asignados» | 100%, color **success** (verde) |
+| Distribución **parcial** (`unassigned > 0`) | «X de Y asignados» o «Z% asignados · N sin asignar» | % asignados; color **warning** (naranja) si &lt; 100% |
+
+**Datos:** `assigned = total - unassigned` desde `GET .../distribution` → `stats` (si 404, tratar como sin distribución).
+
+##### Tarjeta **Mesas** (cambio)
+
+| Campo | Especificación |
+|-------|----------------|
+| **Valor principal** | Número de mesas **configuradas en API** (`capacitySummary.tableCount`) — sin fracción `2/2` ni meta de Configuración |
+| **Segunda línea o subtexto principal** | Capacidad total: «**N plazas**» (`capacitySummary.totalCapacity`) |
+| **Subtexto comparativo** | Balance plazas vs invitados totales |
+
+| Condición (plazas vs invitados) | Subtexto sugerido |
+|--------------------------------|-------------------|
+| Sin mesas | «Añade mesas en Mesas» |
+| Sin invitados | Solo «N plazas» (sin comparar) |
+| `plazas > invitados` | «Sobran X plazas» (X = plazas − invitados) |
+| `plazas < invitados` | «Faltan X plazas» |
+| `plazas = invitados` (y ambos &gt; 0) | «Capacidad cubierta» o «Plazas justas» |
+
+**Eliminar en UI:** denominador «objetivo» del campo «Nº de mesas» en Configuración (`localStorage` / `tableTarget`) en esta tarjeta. Ese dato puede seguir en Config como nota del organizador, pero **no** en el KPI Mesas.
+
+**Barra de progreso:** opcional en Mesas (usuario no la menciona); si se mantiene, podría ser % ocupación potencial (invitados/plazas) — **pendiente decidir**; por defecto propuesta: **sin barra** en Mesas, solo valor + plazas + subtexto sobran/faltan.
+
+##### Sin cambio (según feedback)
+
+- **Afinidad media** — estructura igual; valor piloto con copy **«No calculado en piloto»** (ver decisión §3 post-validación)
+- **Setup** — igual que hoy (% + pasos checklist)
+
+##### Diferencias respecto implementación actual
+
+| Actual | Propuesto v2 |
+|--------|--------------|
+| Mesas `2/2` + «2 configuradas» | `2` mesas + «12 plazas» + sobran/faltan |
+| Invitados hint binario | Subtextos por caso + barra coloreada por % asignación |
+| `tableTarget` desde Config en KPI Mesas | Solo datos API (`capacitySummary`) |
+
+**Estado:** pendiente de implementación (W6).
+
 ---
 
 ### Admin — Configuración del evento
@@ -175,6 +231,118 @@ Campos clave respuesta:
 
 Tras confirmar: evento pasa a `status: plan_approved` (`GET /events/{eventId}`).
 
+#### Propuesta v2 — vista calculada (feedback validación manual, jun 2026)
+
+**Referencia visual:** captura Figma Make adjunta en sesión de pruebas (lista tabular + filtros; sustituye acordeón actual del piloto).
+
+**Objetivo UX:** mostrar **todas las mesas del evento** (ocupadas y vacías), con estados claros y métricas que no confundan invitados / mesas / plazas.
+
+##### Cabecera
+
+| Elemento | Especificación |
+|----------|----------------|
+| Título | Distribución |
+| Subtítulo | Asigna invitados a las mesas por afinidad |
+| Acción | Botón secundario **Recalcular** (icono refresh) — texto corto, no «Recalcular distribución» |
+
+##### KPIs (4 tarjetas)
+
+| KPI | Ejemplo mockup | Origen datos (implementación) |
+|-----|----------------|------------------------------|
+| **Afinidad media** | 82% (verde) | API score cuando exista; piloto: **«No calculado en piloto»** o tooltip equivalente — no presentar como dato real |
+| **Total invitados** | 84 | Total importados del evento (`GET .../guests` → `total`) |
+| **Sin asignar** | 0 (verde si 0) | `stats.unassignedCount` |
+| **Plazas libres** | 14 | `stats.totalCapacity - stats.assignedCount` (o suma capacidades mesas − asignados) |
+
+> Nota: sustituye el KPI actual «Mesas» (que contaba solo mesas con invitados) por **Plazas libres**, más accionable tras calcular.
+
+##### Barra de filtros y búsqueda
+
+Fila bajo KPIs:
+
+| Control | Comportamiento |
+|---------|----------------|
+| **Todas** `N` | Filtro activo por defecto; muestra las N mesas del evento |
+| **Llenas** `N` | `asignados === capacidad` y capacidad > 0 |
+| **En uso** `N` | `0 < asignados < capacidad` |
+| **Vacías** `N` | `asignados === 0` |
+| **Buscar mesa…** | Filtra por `tableLabel` / id (texto) |
+| Contador derecha | «12 mesas» = total mesas configuradas (`event.tables.length`) |
+
+Chips con estado activo (fondo oscuro) y contador en cada chip.
+
+##### Lista tabular de mesas (sustituye acordeón)
+
+Cabeceras de columna: **MESA** · **FORMA** · **CAPACIDAD** · **AFINIDAD**
+
+Cada fila = una mesa de `GET /events/{eventId}` enriquecida con agrupación de `placements[]`:
+
+| Columna | Contenido |
+|---------|-----------|
+| **MESA** | Punto de estado (verde/naranja/gris) + código corto (M1, M2… o `tableLabel`) + chip de estado |
+| **FORMA** | Redonda / Rectangular / Ovalada (`event.tables[].shape`) |
+| **CAPACIDAD** | Barra de progreso + `asignados / capacidad` (ej. 8/8 verde, 7/8 naranja) |
+| **AFINIDAD** | % por mesa (verde); piloto: estimación hasta API |
+| Acción | Chevron abajo/arriba — expande **detalle inline** bajo la fila (ver abajo) |
+
+**Chips de estado por mesa:**
+
+| Estado | Condición | Estilo mockup |
+|--------|-----------|---------------|
+| **Llena** | asignados = capacidad | Chip verde |
+| **En uso · X libre** | 0 < asignados < capacidad | Chip naranja; X = capacidad − asignados |
+| **Vacía** | asignados = 0 | Chip neutro (inferido; no en captura pero coherente con filtro «Vacías») |
+
+**Regla clave:** mesas sin invitados **siguen visibles** en la lista (resuelve confusión de validación: «desapareció la segunda mesa»).
+
+##### Detalle expandible — invitados por mesa (captura jun 2026)
+
+Al pulsar la fila (o el chevron), se despliega un **panel inline** bajo la cabecera de la mesa, sin cambiar de pantalla.
+
+**Fila colapsada**
+
+- Chevron apuntando a la **derecha** (▸).
+- Misma fila resumen: MESA · FORMA · CAPACIDAD · AFINIDAD.
+
+**Fila expandida** (ej. M1)
+
+- Chevron apuntando **abajo** (▾).
+- Se mantiene visible la fila resumen completa (M1, chip «Llena», Redonda, barra 8/8, 91%).
+- Debajo, bloque con fondo/blanco separado por borde superior sutil.
+- **Pills de invitados** en `flex-wrap` (varias filas si hace falta): nombres completos en cápsulas redondeadas (estilo `GuestPill` actual).
+- Orden: el de `placements[]` agrupados por `tableId` (orden alfabético o orden de asignación; definir en implementación).
+- Cantidad de pills = asignados en esa mesa (ej. 8 pills para 8/8).
+
+**Mesa vacía expandida**
+
+- Sin pills; texto secundario: «Sin invitados asignados» (o no expandible si vacía — preferir expandible con mensaje para coherencia).
+
+**Comportamiento**
+
+- Un solo acordeón abierto a la vez (opcional: permitir varios; mockup muestra uno — **recomendado: uno**).
+- Clic en otra fila cierra la anterior y abre la nueva.
+- Filtros/búsqueda siguen aplicando; filas ocultas no expanden.
+
+**Datos:** `placements[]` filtrados por `tableId`; `guestName` en cada pill.
+
+##### Pie de página (sin cambio respecto v1)
+
+- Botón primario: **Confirmar distribución para el evento**
+- Nota: Comparador Top-K — disponible post-piloto
+
+##### Diferencias respecto implementación actual (`components/admin/distribution/`)
+
+| Actual (piloto) | Propuesto v2 |
+|-----------------|--------------|
+| Acordeón solo mesas con `placements` | Tabla con **todas** las mesas del evento |
+| KPI «Mesas» = mesas usadas | KPI **Plazas libres** |
+| KPI «Invitados» sin calificador | **Total invitados** |
+| Sin filtros ni búsqueda | Chips Todas / Llenas / En uso / Vacías + buscar |
+| Capacidad en texto en header acordeón | Barra de progreso en columna CAPACIDAD |
+| Acordeón independiente por mesa | **Fila tabla + panel inline** expandible (pills invitados) |
+
+**Estado:** pendiente de implementación (anotado tras validación manual W6).
+
 ---
 
 ## Sistema de diseño (implementación)
@@ -220,6 +388,93 @@ Rutas alineadas con la tabla anterior. Estructura App Router: `(marketing)/` (gr
 
 ---
 
+## Decisiones y backlog UX — post-validación manual (jun 2026)
+
+Registro de respuestas del producto y peticiones nuevas. **No implementado** salvo indicación; algunos puntos requieren **aprobación SDD/ADR** antes de cambiar alcance funcional.
+
+### Respuestas a preguntas abiertas (validación manual)
+
+| # | Tema | Decisión producto |
+|---|------|-------------------|
+| 1 | **Distribución — listado mesas** | ✅ Cubierto en **Propuesta v2 Distribución** (tabla + filtros + todas las mesas) |
+| 2 | **Motor v0 — reparto entre mesas** | ✅ Aceptado: en v1 priorizar **ocupabilidad** (rellenar mesas); no exigir reparto equitativo entre mesas vacías |
+| 3 | **Afinidad % en UI** | Mostrar etiqueta honesta: **«No calculado en piloto»** / «Estimación visual» en dashboard y distribución hasta que la API exponga score real. No presentar 82% como dato real. |
+| 4 | **Excel `preferencia_control`** | **No debe ir en plantilla** para el organizador: es dato de **evento** (pantalla Preferencias), no por invitado. Ver § conflicto SDD abajo. |
+| 5 | **Propósito del plano** | **Cambio de visión importante** — ver § Plano espacial (post-MVP). |
+
+### 5 — Plano: nuevo propósito (cambio respecto SDD-01D / EP-11)
+
+**Antes (SDD / piloto actual):** subir plano → detectar mesas → corregir → confirmar configuración de mesas.
+
+**Nuevo (decisión producto jun 2026):**
+
+- El plano **no** sirve para inferir tipo/número de mesas (poco realista en salones grandes).
+- El plano sirve como **visión del espacio** donde se ubicarán las mesas **después** de calcular la distribución.
+- Flujo objetivo: distribución calculada → colocar mesas en el espacio (posición inicial aleatoria) → **arrastrar** formas de mesa para recolocar.
+- **Figma pendiente** de entrega; **fuera del MVP julio piloto**.
+
+**Impacto W6:** la pantalla «Corregir plano» del handoff piloto **queda suspendida**; en MVP mantener solo subida mínima o placeholder hasta definir UX espacial.
+
+**Gobernanza:** implica revisar `SDD-01D`, `ADR-010`, EP-11 y criterios HU-12 importación plano → requiere **ADR/decisión explícita** antes de reescribir SDD.
+
+### 4 — Plantilla Excel sin `preferencia_control`
+
+**Argumento producto:** el modo colaborativo / anfitrión exclusivo es único por evento (`PUT .../preference-control-mode`); no puede variar por fila de invitado en uso normal.
+
+**Conflicto documental:** `docs/product/especificacion-plantilla-excel-v1.md` incluye la columna como override opcional.
+
+**Acción propuesta (pendiente aprobación):**
+
+- Plantilla piloto **simplificada** sin `preferencia_control`.
+- Modo solo en pantalla **Preferencias**.
+- Actualizar especificación Excel v1 y generador de plantilla API cuando se apruebe.
+
+### 6 — Bloquear invitados (excluir del cálculo óptimo)
+
+**¿Está en especificaciones iniciales?**
+
+- **Sí, a nivel de regla dura:** `SDD-01` §7.1 — *«Respetar bloqueos manuales definidos por admin.»*
+- **HU-05** cubre ajuste manual (mover invitados); **no hay HU dedicada** con UI de «bloquear / no asignar» ni API piloto implementada.
+
+**Petición producto:** el organizador puede **bloquear** invitados para que el motor no los asigne; desbloquear o colocar **manualmente** cuando quiera.
+
+**Estado:** alineado con SDD en espíritu; **falta** especificar HU, API, persistencia (`guest.blockedFromAssignment` o similar) y UI. **Post-piloto** salvo priorización explícita.
+
+### 7 — Edición manual en detalle de mesa (distribución)
+
+**Petición (nueva explícita en sesión):**
+
+- En pills de invitados expandidos: icono **✕** para **quitar** de esa mesa (pasa a sin asignar o lista pendiente).
+- En cada fila de mesa: control **+** / «Añadir invitado» para asignar alguien de la bolsa sin asignar.
+
+**Relación SDD:** extensión natural de **HU-05** (ajuste manual). No implementado en piloto UI/API.
+
+**Dependencias:** estado de asignación editable antes de confirmar; validar reglas duras al mover; auditoría (SDD HU-05).
+
+### 8 — Lista de invitados sin asignar (clic en KPI)
+
+**Petición (nueva):**
+
+- En **Dashboard** o **Distribución**, al pulsar KPI / enlace **«Sin asignar»** (o N &gt; 0) → mostrar lista de invitados no asignados (diseño Figma pendiente).
+
+**Datos:** `unassignedGuestIds` + nombres desde `GET .../guests` o `placements` inverso.
+
+**Estado:** anotado; Figma por entregar; encaja con distribución v2.
+
+### Resumen priorización sugerida
+
+| Prioridad | Item | MVP julio piloto |
+|-----------|------|------------------|
+| Alta | Distribución v2 + detalle pills | Sí (PR #39 o iteración inmediata) |
+| Alta | Dashboard KPIs v2 | Sí |
+| Alta | Afinidad «no calculado en piloto» | Sí (copy UI) |
+| Media | Excel sin `preferencia_control` | Sí si se aprueba cambio doc |
+| Media | Lista sin asignar (clic KPI) | Tras Figma |
+| Baja / post-MVP | Plano espacial drag-drop | No |
+| Baja / post-MVP | Bloqueo invitados + ✕/+ manual | No (API + SDD detail) |
+
+---
+
 ## Fuera de alcance piloto (no implementar aún)
 
 - Registro / login / JWT
@@ -228,6 +483,9 @@ Rutas alineadas con la tabla anterior. Estructura App Router: `(marketing)/` (gr
 - Comparador Top-K
 - Documentos salón/cocina
 - Campos extra config evento (fecha, lugar) hasta ampliar API
+- **Plano espacial** (colocar mesas en imagen, drag-drop) — post-MVP; Figma pendiente
+- **Corregir plano / autodetección mesas** como camino principal — sustituido por nueva visión §5 (requiere ADR)
+- **Bloqueo de invitados** y **edición manual ✕/+** en distribución — post-piloto (SDD 7.1 / HU-05)
 
 ---
 
@@ -239,5 +497,5 @@ Rutas alineadas con la tabla anterior. Estructura App Router: `(marketing)/` (gr
 - [x] Pantalla **Distribución calculada** (KPIs, acordeón mesas, confirmar)
 - [ ] Flujo piloto según `pilot-flow.e2e-spec.ts` (validar manualmente en UI)
 - [x] Aplicar tokens de `design-tokens-mvp.md`
-- [ ] Pantalla **Corregir plano** completa
+- [ ] Pantalla **Corregir plano** completa — **suspendida** (nueva visión plano espacial post-MVP; ver handoff §5)
 - [x] Probar con API local (`apps/api` + `apps/web` en :3000 / :3001)

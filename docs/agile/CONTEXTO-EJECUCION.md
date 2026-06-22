@@ -1,6 +1,6 @@
 ﻿# Contexto de ejecucion — punto de reanudacion
 
-- Ultima actualizacion: **2026-06-21 (noche)**
+- Ultima actualizacion: **2026-06-22**
 - Hito activo: **MVP julio (piloto)** — ver `DECISION-002-mvp-julio-piloto-funcional.md`
 - Naming: producto **Taulamic**, dominio **taulamic.com**, repo `quintasc/taulamic`
 - **Modo actual:** trabajo en **2 ventanas Cursor** en paralelo (sin solapamiento de codigo)
@@ -35,7 +35,17 @@
 | **1** | **Cerrar piloto UI** (W6 plan julio) | `feat/web-piloto-ui-w6` | **En curso** (PR #39) |
 | **2** | ~~#7~~ Figma MVP (UX) | ~~feat/7-figma-mvp~~ | **Cerrado** (PR #37) |
 
-**Ventana 2 libre.** Apoyo UX sugerido: **Corregir plano** (handoff) o refinamiento visual post-piloto.
+**Ventana 2 libre.** Apoyo UX: Figma **plano espacial** (post-MVP), lista sin asignar, edición manual distribución.
+
+### Decisiones producto recientes (jun 2026)
+
+Ver `docs/ux/handoff-figma-a-frontend.md` § **Decisiones y backlog UX post-validación manual**:
+
+- Distribución v2 + Dashboard v2 + afinidad «no calculado en piloto»
+- Excel **sin** `preferencia_control` (pendiente aprobación cambio spec)
+- **Plano:** nuevo propósito espacial post-distribución — **post-MVP** (ADR pendiente); suspendido «Corregir plano» piloto
+- Bloqueo invitados: en SDD §7.1; sin API/UI piloto
+- Manual ✕/+ en mesas y lista sin asignar clic KPI: post-piloto / tras Figma
 
 ---
 
@@ -51,7 +61,7 @@ Soy Ventana 1. Retomo Taulamic W6 piloto UI. Rama feat/web-piloto-ui-w6, PR #39.
 
 ### Objetivo
 
-Completar el piloto demostrable en UI: validar flujo punta a punta, pantalla **Corregir plano**, merge PR #39, evidencia piloto. Ver `mvp-julio-plan.md` W6 y checklist en `handoff-figma-a-frontend.md`.
+Completar el piloto demostrable en UI: **Distribución v2**, **Dashboard v2**, validación E2E manual, merge PR #39. **Corregir plano** suspendido (nueva visión plano espacial post-MVP). Ver handoff y `mvp-julio-plan.md` W6.
 
 ### Entregado (W5 — PR #38 + W6 — PR #39 en curso)
 
@@ -66,12 +76,14 @@ Completar el piloto demostrable en UI: validar flujo punta a punta, pantalla **C
 - CORS API para `localhost:3001`
 - Decisión MVP documentada: no recuperar eventos guardados entre sesiones
 
-### Pendiente inmediato (retomar mañana)
+### Pendiente inmediato (W6 piloto UI)
 
-1. **Pantalla Corregir plano** (draft + confirm — handoff sección Plano)
-2. Validar flujo piloto **manualmente** vs `pilot-flow.e2e-spec.ts`
-3. Revisar / merge **PR #39** tras smoke test local
-4. Evidencia piloto + issues `post-piloto` si aplica
+1. **Distribución v2** — tabla, filtros, todas las mesas, detalle pills (handoff)
+2. **Dashboard v2** — KPIs Invitados y Mesas (handoff)
+3. Copy **afinidad no calculada en piloto** (dashboard + distribución)
+4. Validar flujo piloto **manualmente** vs `pilot-flow.e2e-spec.ts`
+5. Revisar / merge **PR #39** tras smoke test local
+6. **Post-MVP / tras Figma:** plano espacial, lista sin asignar (clic KPI), edición ✕/+, bloqueo invitados, Excel sin `preferencia_control` (aprobar cambio spec)
 
 ### Dev local (Windows / OneDrive)
 

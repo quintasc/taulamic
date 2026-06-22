@@ -26,13 +26,13 @@
 | Integracion E2E piloto | **Cerrada** (`pilot-flow.e2e-spec.ts`) |
 | OpenAPI piloto (#9) | **Cerrado** (`/api/docs`, `/api-json`, contrato validado) |
 | Frontend admin W5 | **Cerrado** (PR #38 — base `apps/web`) |
-| **Frontend piloto UI W6** | **En curso** — PR **#39** (`feat/web-piloto-ui-w6`) |
+| **Frontend piloto UI W6** | **Cerrado** — PR **#39** mergeado en `main` (`b03a7f0`, validación manual OK jun 2026) |
 | Rebrand Taulamic | **Cerrado** |
 | Plan piloto | `docs/agile/mvp-julio-plan.md` |
 
 | Ventana | Issue / foco | Rama | Estado |
 |---------|--------------|------|--------|
-| **1** | **Cerrar piloto UI** (W6 plan julio) | `feat/web-piloto-ui-w6` | **En curso** (PR #39) |
+| **1** | ~~Cerrar piloto UI~~ (W6) | ~~feat/web-piloto-ui-w6~~ | **Cerrado** (PR #39 → `main`) |
 | **2** | ~~#7~~ Figma MVP (UX) | ~~feat/7-figma-mvp~~ | **Cerrado** (PR #37) |
 
 **Ventana 2 libre.** Apoyo UX: Figma **plano espacial** (post-MVP), lista sin asignar, edición manual distribución.
@@ -56,14 +56,14 @@ Ver `docs/ux/handoff-figma-a-frontend.md` § **Decisiones y backlog UX post-vali
 ### Frase clave (pegar en el chat)
 
 ```text
-Soy Ventana 1. Retomo Taulamic W6 piloto UI. Rama feat/web-piloto-ui-w6, PR #39. Distribución v2 + Dashboard v2 implementados (f0e0397). Pendiente: validación manual E2E y merge PR #39. API :3000, web :3001, npm run dev:clean en OneDrive. SDD manda.
+Soy Ventana 1. Taulamic W6 cerrado (PR #39 en main). Piloto UI: Distribución v2, Dashboard v2, eliminar mesa con aviso. Siguiente: post-MVP plano Fase A/B, checklist setup prefs/plano. API :3000, web :3001. SDD manda.
 ```
 
 ### Objetivo
 
 Completar el piloto demostrable en UI: **Distribución v2**, **Dashboard v2**, validación E2E manual, merge PR #39. **Corregir plano** suspendido (nueva visión plano espacial post-MVP). Ver handoff y `mvp-julio-plan.md` W6.
 
-### Entregado (W5 — PR #38 + W6 — PR #39 en curso)
+### Entregado (W5 PR #38 + W6 PR #39 — en `main`)
 
 - `apps/web` Next.js 15 en `:3001` (proxy `/api/v1`)
 - Rutas `/admin/events/[id]/…` alineadas al handoff
@@ -75,28 +75,17 @@ Completar el piloto demostrable en UI: **Distribución v2**, **Dashboard v2**, v
 - **Dashboard v2** — KPIs Invitados/Mesas/plazas; afinidad «No calculado en piloto»
 - Fixes: shim `components/ui.tsx`, hydration `HeroFloorplan`, `npm run dev:clean`
 - CORS API para `localhost:3001`
+- **Eliminar mesa** con aviso si hay invitados en borrador + reconciliación API (`88e0d33`)
+
 - Decisión MVP documentada: no recuperar eventos guardados entre sesiones
 
-### Pendiente inmediato (W6 piloto UI)
+### Pendiente post-W6 (piloto / post-MVP)
 
-1. ~~**Distribución v2**~~ — hecho (`f0e0397`)
-2. ~~**Dashboard v2**~~ — hecho (`f0e0397`)
-3. ~~Copy **afinidad no calculada en piloto**~~ — hecho
-4. **Validar flujo piloto manualmente** vs `pilot-flow.e2e-spec.ts` (checklist abajo)
-5. Revisar / merge **PR #39** tras smoke test local
-6. **Plano del salón v2** — post-MVP (Figma jun 2026; API nueva pendiente)
-7. **Post-MVP / tras Figma:** posicionar mesas en canvas, lista sin asignar (clic KPI), edición ✕/+, bloqueo invitados, Excel sin `preferencia_control` (aprobar cambio spec)
-
-#### Checklist validación manual UI (sin plano)
-
-1. `/admin` → crea evento → dashboard KPIs en 0
-2. **Mesas:** añadir 2 mesas (p. ej. 8 pax cada una)
-3. **Preferencias:** guardar modo colaborativo
-4. **Invitados:** importar Excel piloto (4+ invitados)
-5. **Dashboard:** Invitados con total; Mesas con plazas y sobran/faltan
-6. **Distribución:** Calcular → KPIs (plazas libres, afinidad —); **todas** las mesas visibles; filtros; expandir fila con pills
-7. **Confirmar distribución** → vuelve al dashboard; setup incluye distribución
-8. Recarga misma pestaña → datos persisten
+1. ~~Validación manual UI~~ — OK jun 2026
+2. ~~Merge PR #39~~ — hecho (`b03a7f0`)
+3. **Plano del salón v2** — post-MVP (Figma jun 2026; API pendiente)
+4. Checklist setup: prefs y plano (hardcoded `false` en dashboard)
+5. **Post-MVP:** posicionar mesas en canvas, lista sin asignar, edición ✕/+, bloqueo invitados, Excel sin `preferencia_control`
 
 ### Dev local (Windows / OneDrive)
 

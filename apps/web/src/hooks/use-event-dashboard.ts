@@ -72,7 +72,6 @@ function getTablesDashboardMeta(
 export function useEventDashboard(event: EventDetail | null, eventId: string | null) {
   const [guestTotal, setGuestTotal] = useState(0);
   const [unassigned, setUnassigned] = useState<number | null>(null);
-  const [distConfirmed, setDistConfirmed] = useState(false);
   const [hasDistribution, setHasDistribution] = useState(false);
   const [preferencesConfigured, setPreferencesConfigured] = useState(false);
   const [floorPlanUploaded, setFloorPlanUploaded] = useState(false);
@@ -103,13 +102,11 @@ export function useEventDashboard(event: EventDetail | null, eventId: string | n
       .then((proposal) => {
         setHasDistribution(true);
         setUnassigned(proposal.stats.unassignedCount);
-        setDistConfirmed(proposal.status === 'confirmed');
       })
       .catch((err: unknown) => {
         if (err instanceof ApiError && err.status === 404) {
           setHasDistribution(false);
           setUnassigned(null);
-          setDistConfirmed(false);
         }
       });
   }, [eventId]);

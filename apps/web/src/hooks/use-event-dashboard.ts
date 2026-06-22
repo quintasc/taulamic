@@ -1,8 +1,11 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { ApiError, distributionApi, guestsApi } from '@/lib/api';
-import { formatEventSubtitle, loadEventUiMeta } from '@/lib/event-ui-meta';
+import { ApiError, distributionApi, guestsApi, preferencesApi } from '@/lib/api';
+import {
+  formatEventSubtitle,
+  loadEventUiMeta,
+} from '@/lib/event-ui-meta';
 import { PILOT_AFFINITY_LABEL } from '@/lib/distribution-view';
 import { setupSteps } from '@/lib/admin-nav';
 import type { EventDetail } from '@/lib/api';
@@ -70,6 +73,9 @@ export function useEventDashboard(event: EventDetail | null, eventId: string | n
   const [guestTotal, setGuestTotal] = useState(0);
   const [unassigned, setUnassigned] = useState<number | null>(null);
   const [distConfirmed, setDistConfirmed] = useState(false);
+  const [hasDistribution, setHasDistribution] = useState(false);
+  const [preferencesConfigured, setPreferencesConfigured] = useState(false);
+  const [floorPlanUploaded, setFloorPlanUploaded] = useState(false);
   const [subtitle, setSubtitle] = useState('Resumen del evento');
 
   const tablesConfigured = event?.capacitySummary.tableCount ?? 0;
@@ -79,19 +85,29 @@ export function useEventDashboard(event: EventDetail | null, eventId: string | n
     if (!eventId) {
       return;
     }
+
+    setFloorPlanUploaded(Boolean(loadEventUiMeta(eventId).floorPlanUploaded));
+
     void guestsApi
       .list(eventId)
       .then((response) => setGuestTotal(response.total))
       .catch(() => setGuestTotal(0));
 
+    void preferencesApi
+      .get(eventId)
+      .then((settings) => setPreferencesConfigured(settings.version > 0))
+      .catch(() => setPreferencesConfigured(false));
+
     void distributionApi
       .get(eventId)
       .then((proposal) => {
+        setHasDistribution(true);
         setUnassigned(proposal.stats.unassignedCount);
         setDistConfirmed(proposal.status === 'confirmed');
       })
       .catch((err: unknown) => {
         if (err instanceof ApiError && err.status === 404) {
+          setHasDistribution(false);
           setUnassigned(null);
           setDistConfirmed(false);
         }
@@ -107,14 +123,24 @@ export function useEventDashboard(event: EventDetail | null, eventId: string | n
     setSubtitle(formatEventSubtitle(event.name, meta));
   }, [event?.name, eventId]);
 
-  const setupStatus = [
-    Boolean(event?.name),
-    false,
-    guestTotal > 0,
-    false,
-    tablesConfigured > 0,
-    distConfirmed,
-  ];
+  const setupStatus = useMemo(
+    () => [
+      Boolean(event?.name),
+      floorPlanUploaded,
+      guestTotal > 0,
+      preferencesConfigured,
+      tablesConfigured > 0,
+      hasDistribution,
+    ],
+    [
+      event?.name,
+      floorPlanUploaded,
+      guestTotal,
+      preferencesConfigured,
+      tablesConfigured,
+      hasDistribution,
+    ],
+  );
   const setupDone = setupStatus.filter(Boolean).length;
   const setupPercent = Math.round((setupDone / setupSteps.length) * 100);
 

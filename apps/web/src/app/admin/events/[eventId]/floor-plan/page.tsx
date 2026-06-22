@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Alert, PageHeader, UploadZone } from '@/components/ui';
+import { markFloorPlanUploaded } from '@/lib/event-ui-meta';
 import { useEvent } from '@/lib/event-context';
 
 export default function FloorPlanPage() {
@@ -34,6 +35,7 @@ export default function FloorPlanPage() {
           headers: { 'x-taulamic-actor-role': 'admin' },
         },
       );
+      markFloorPlanUploaded(eventId);
       setMessage(
         'Plano subido y detección iniciada. Revisa las mesas detectadas (Corregir plano — próxima iteración).',
       );

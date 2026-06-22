@@ -11,11 +11,11 @@ export type AdminNavItem = {
 
 export const setupSteps = [
   { key: 'config', label: 'Configuración del evento' },
-  { key: 'plano', label: 'Plano subido y confirmado' },
+  { key: 'plano', label: 'Plano subido' },
   { key: 'guests', label: 'Invitados importados' },
   { key: 'prefs', label: 'Preferencias configuradas' },
   { key: 'tables', label: 'Mesas configuradas' },
-  { key: 'dist', label: 'Distribución calculada' },
+  { key: 'dist', label: 'Distribución calculada o confirmada' },
 ] as const;
 
 export function getAdminNavItems(eventId: string): AdminNavItem[] {

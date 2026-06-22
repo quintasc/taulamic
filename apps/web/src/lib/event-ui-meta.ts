@@ -5,6 +5,8 @@ export type EventUiMeta = {
   location?: string;
   tableCount?: string;
   notes?: string;
+  /** Piloto: plano subido en esta sesión/dispositivo (sin API list). */
+  floorPlanUploaded?: boolean;
 };
 
 export function loadEventUiMeta(eventId: string): EventUiMeta {
@@ -30,6 +32,11 @@ export function saveEventUiMeta(eventId: string, meta: EventUiMeta) {
     return;
   }
   localStorage.setItem(`${UI_META_KEY}:${eventId}`, JSON.stringify(meta));
+}
+
+export function markFloorPlanUploaded(eventId: string) {
+  const meta = loadEventUiMeta(eventId);
+  saveEventUiMeta(eventId, { ...meta, floorPlanUploaded: true });
 }
 
 function formatEventDate(iso: string): string {

@@ -226,7 +226,7 @@ export function FloorPlanLayoutView({
                 id="floor-plan-table-search"
                 type="search"
                 className="input-field mt-2 w-full py-2 text-sm"
-                placeholder="Ej. M1, M12…"
+                placeholder="Ej. M1, Ana García…"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
               />

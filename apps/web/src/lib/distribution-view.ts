@@ -91,12 +91,16 @@ export function filterDistributionTableGroups(
     if (shapeLabel !== 'all' && group.shapeLabel !== shapeLabel) {
       return false;
     }
-    if (
-      query &&
-      !group.tableLabel.toLowerCase().includes(query) &&
-      !group.tableId.toLowerCase().includes(query)
-    ) {
-      return false;
+    if (query) {
+      const matchesTable =
+        group.tableLabel.toLowerCase().includes(query) ||
+        group.tableId.toLowerCase().includes(query);
+      const matchesGuest = group.guestNames.some((name) =>
+        name.toLowerCase().includes(query),
+      );
+      if (!matchesTable && !matchesGuest) {
+        return false;
+      }
     }
     return true;
   });

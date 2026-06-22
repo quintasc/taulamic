@@ -227,7 +227,7 @@ export function DistributionTableList({
           <input
             type="search"
             className="input-field max-w-xs py-2 text-sm"
-            placeholder="Buscar mesa…"
+            placeholder="Buscar mesa o invitado…"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />

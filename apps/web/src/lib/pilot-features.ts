@@ -13,3 +13,9 @@ export function resolvePreferenceModeForPilot(
   }
   return PILOT_PREFERENCE_MODE;
 }
+
+/**
+ * Vista previa panel Invitados v2 (tabla + drawer + bulk bar).
+ * Ruta: `/admin/events/[id]/guests-v2` — no sustituye `/guests` hasta activar flag.
+ */
+export const PILOT_GUESTS_PANEL_V2_PREVIEW_ENABLED = true;

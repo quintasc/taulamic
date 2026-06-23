@@ -10,6 +10,7 @@ export function adminRoutes(eventId: string) {
     floorPlan: `${base}/floor-plan`,
     floorPlanLayout: `${base}/floor-plan/layout`,
     guests: `${base}/guests`,
+    guestsV2Preview: `${base}/guests-v2`,
     guestErrors: `${base}/guests/errors`,
     preferences: `${base}/preferences`,
     tables: `${base}/tables`,

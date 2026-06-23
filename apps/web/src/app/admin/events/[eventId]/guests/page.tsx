@@ -23,6 +23,7 @@ import {
 } from '@/lib/api';
 import { useEvent } from '@/lib/event-context';
 import { adminRoutes } from '@/lib/routes';
+import { PILOT_GUESTS_PANEL_V2_PREVIEW_ENABLED } from '@/lib/pilot-features';
 
 export default function GuestsPage() {
   const router = useRouter();
@@ -181,6 +182,21 @@ export default function GuestsPage() {
         <div className="mb-6">
           <Alert variant={message.includes('Error') ? 'error' : 'success'}>
             {message}
+          </Alert>
+        </div>
+      ) : null}
+
+      {PILOT_GUESTS_PANEL_V2_PREVIEW_ENABLED && !loading && guests.length > 0 ? (
+        <div className="mb-6">
+          <Alert variant="info">
+            Hay una{' '}
+            <Link
+              href={routes.guestsV2Preview}
+              className="font-medium text-primary-600 underline"
+            >
+              vista previa del panel Invitados v2
+            </Link>{' '}
+            (tabla, drawer y acciones masivas). El flujo piloto actual no cambia.
           </Alert>
         </div>
       ) : null}

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import ExcelJS from 'exceljs';
 import {
-  GUEST_TEMPLATE_COLUMNS,
+  GUEST_TEMPLATE_DOWNLOAD_COLUMNS,
   GUEST_TEMPLATE_EXAMPLE_ROWS,
   GUEST_TEMPLATE_FILENAME,
   GUEST_TEMPLATE_INSTRUCTIONS,
@@ -24,11 +24,11 @@ export class ExcelJsGuestTemplateGenerator implements GuestTemplateGeneratorPort
     workbook.created = new Date();
 
     const guestsSheet = workbook.addWorksheet(GUEST_TEMPLATE_SHEET_NAME);
-    guestsSheet.addRow([...GUEST_TEMPLATE_COLUMNS]);
+    guestsSheet.addRow([...GUEST_TEMPLATE_DOWNLOAD_COLUMNS]);
 
     for (const exampleRow of GUEST_TEMPLATE_EXAMPLE_ROWS) {
       guestsSheet.addRow(
-        GUEST_TEMPLATE_COLUMNS.map((column) => exampleRow[column]),
+        GUEST_TEMPLATE_DOWNLOAD_COLUMNS.map((column) => exampleRow[column]),
       );
     }
 

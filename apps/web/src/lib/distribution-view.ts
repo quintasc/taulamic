@@ -1,9 +1,9 @@
 import type { DistributionProposal, EventDetail } from '@/lib/api';
 
-/** Valor piloto alineado con dashboard hasta que la API exponga afinidad real. */
-export const PILOT_AVERAGE_AFFINITY_PERCENT = 82;
-
 export const PILOT_AFFINITY_LABEL = 'No calculado en piloto';
+
+/** Texto corto en tablas (tooltip con `PILOT_AFFINITY_LABEL`). */
+export const PILOT_AFFINITY_SHORT = 'N/D piloto';
 
 const SHAPE_LABELS: Record<string, string> = {
   redonda: 'Redonda',
@@ -25,8 +25,6 @@ export type DistributionTableGroup = {
   freeSeats: number;
   status: TableOccupancyStatus;
   guestNames: string[];
-  /** `null` = mostrar guión (mesa vacía o sin score real). */
-  affinityPercent: number | null;
 };
 
 export function formatTableShapeLabel(shape: string): string {
@@ -110,19 +108,12 @@ function compareTableLabels(a: string, b: string): number {
   return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
 }
 
-/** Estimación visual piloto por mesa (ocupación + variación) hasta score real en API. */
-export function pilotTableAffinityPercent(
-  assignedCount: number,
-  capacity: number,
-  index: number,
-): number {
-  if (capacity <= 0) {
-    return PILOT_AVERAGE_AFFINITY_PERCENT;
+
+export function formatPilotTableAffinity(group: DistributionTableGroup): string {
+  if (group.assignedCount <= 0) {
+    return '—';
   }
-  const fill = assignedCount / capacity;
-  const base = 68 + fill * 25;
-  const variation = (index % 4) * 3;
-  return Math.min(99, Math.max(60, Math.round(base + variation)));
+  return PILOT_AFFINITY_SHORT;
 }
 
 export function buildDistributionTableGroups(
@@ -186,10 +177,6 @@ export function buildDistributionTableGroups(
         freeSeats: Math.max(0, capacity - assignedCount),
         status,
         guestNames,
-        affinityPercent:
-          status === 'empty'
-            ? null
-            : pilotTableAffinityPercent(assignedCount, capacity, index),
       };
     })
     .sort((a, b) => compareTableLabels(a.tableLabel, b.tableLabel));

@@ -92,7 +92,7 @@ export default function GuestsPage() {
     <>
       <PageHeader
         title="Importar invitados"
-        subtitle="Descarga la plantilla, rellénala y súbela."
+        subtitle="Descarga la plantilla, rellénala y súbela. El modo colaborativo o anfitrión exclusivo se configura en Preferencias, no en el Excel."
       />
 
       {message ? (

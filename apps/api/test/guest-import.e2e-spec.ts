@@ -9,6 +9,7 @@ import { AppModule } from '../src/app.module';
 import { ApiExceptionFilter } from '../src/common/filters/api-exception.filter';
 import {
   GUEST_TEMPLATE_COLUMNS,
+  GUEST_TEMPLATE_DOWNLOAD_COLUMNS,
   GUEST_TEMPLATE_FILENAME,
   GUEST_TEMPLATE_INSTRUCTIONS_SHEET_NAME,
   GUEST_TEMPLATE_SHEET_NAME,
@@ -65,7 +66,7 @@ describe('GuestImport template (e2e)', () => {
     const headers = (guestsSheet!.getRow(1).values as Array<string | undefined>).slice(
       1,
     );
-    expect(headers).toEqual([...GUEST_TEMPLATE_COLUMNS]);
+    expect(headers).toEqual([...GUEST_TEMPLATE_DOWNLOAD_COLUMNS]);
 
     const instructionsSheet = workbook.getWorksheet(
       GUEST_TEMPLATE_INSTRUCTIONS_SHEET_NAME,
@@ -684,7 +685,7 @@ describe('GuestImport precarga E2E flujo completo (#31)', () => {
     const headers = (sheet.getRow(1).values as Array<string | undefined>).slice(
       1,
     );
-    expect(headers).toEqual([...GUEST_TEMPLATE_COLUMNS]);
+    expect(headers).toEqual([...GUEST_TEMPLATE_DOWNLOAD_COLUMNS]);
 
     const draftBuffer = await buildGuestWorkbook({
       rows: [

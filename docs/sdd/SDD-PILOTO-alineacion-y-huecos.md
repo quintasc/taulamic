@@ -93,9 +93,9 @@ Este documento **no sustituye** el SDD-01; resume cumplimiento del **piloto juli
 
 | Elemento | Estado |
 |----------|--------|
-| Afinidad % como dato real | ⚠️ Debe mostrarse «No calculado en piloto» / estimacion visual |
-| KPI Dashboard v2 | 🟡 Verificar Invitados/Mesas/plazas vs handoff |
-| Excel sin `preferencia_control` | ⚠️ Pendiente aprobacion cambio spec plantilla |
+| Afinidad % como dato real | ✅ «No calculado en piloto» / «N/D piloto» en dashboard y distribución |
+| KPI Dashboard v2 | ✅ Invitados, Mesas/plazas, checklist setup (jun 2026) |
+| Excel sin `preferencia_control` | ✅ Plantilla descargable sin columna; import legacy aceptado |
 | Theming / white-label runtime | ⬜ Post-MVP — `ADR-017`; piloto usa `brand.config.ts` fijo |
 
 ---

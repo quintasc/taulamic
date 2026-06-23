@@ -1,6 +1,6 @@
 import ExcelJS from 'exceljs';
 import {
-  GUEST_TEMPLATE_COLUMNS,
+  GUEST_TEMPLATE_DOWNLOAD_COLUMNS,
   GUEST_TEMPLATE_FILENAME,
   GUEST_TEMPLATE_INSTRUCTIONS_SHEET_NAME,
   GUEST_TEMPLATE_SHEET_NAME,
@@ -24,7 +24,7 @@ describe('ExcelJsGuestTemplateGenerator', () => {
 
     const headerRow = guestsSheet!.getRow(1).values as Array<string | undefined>;
     const headers = headerRow.slice(1);
-    expect(headers).toEqual([...GUEST_TEMPLATE_COLUMNS]);
+    expect(headers).toEqual([...GUEST_TEMPLATE_DOWNLOAD_COLUMNS]);
 
     expect(guestsSheet!.rowCount).toBeGreaterThanOrEqual(3);
 

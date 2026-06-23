@@ -43,7 +43,7 @@
 Ver `docs/ux/handoff-figma-a-frontend.md` § **Decisiones y backlog UX post-validación manual**:
 
 - Distribución v2 + Dashboard v2 + afinidad «no calculado en piloto»
-- Excel **sin** `preferencia_control` (pendiente aprobación cambio spec)
+- Excel **sin** `preferencia_control` en plantilla descargable (import legacy OK)
 - **Plano:** vision espacial dos fases — **`ADR-016`** + `SDD-01D` actualizado; Fase A/B en web (`0f15b37`); drag-drop y API layout post-MVP
 - Bloqueo invitados: en SDD §7.1; sin API/UI piloto
 - Manual ✕/+ en mesas y lista sin asignar clic KPI: post-piloto / tras Figma
@@ -110,7 +110,8 @@ cd apps\web; npm run dev:clean
 
 ### Referencias
 
-- `docs/agile/mvp-julio-plan.md` (W6 cierre piloto)
+- `docs/agile/guion-validacion-piloto-ui.md` (validación manual UI)
+- `docs/agile/mvp-julio-plan.md` (cierre piloto)
 - `docs/sdd/SDD-PILOTO-alineacion-y-huecos.md` (cumplimiento piloto vs SDD-01)
 - `docs/adr/ADR-016-plano-espacial-salon-dos-fases.md`
 - **`docs/ux/handoff-figma-a-frontend.md`** (mapa pantallas → API + checklist)

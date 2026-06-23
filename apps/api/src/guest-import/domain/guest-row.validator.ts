@@ -1,5 +1,5 @@
 import {
-  GUEST_TEMPLATE_COLUMNS,
+  GUEST_TEMPLATE_DOWNLOAD_COLUMNS,
   GUEST_TEMPLATE_REQUIRED_COLUMNS,
   GUEST_TEMPLATE_SHEET_NAME,
   type GuestTemplateColumn,
@@ -16,7 +16,7 @@ export function validateGuestImportHeaders(
   headers: string[],
 ): GuestImportRowError[] {
   const normalized = headers.map((header) => header.trim().toLowerCase());
-  const missing = GUEST_TEMPLATE_COLUMNS.filter(
+  const missing = GUEST_TEMPLATE_DOWNLOAD_COLUMNS.filter(
     (column) => !normalized.includes(column),
   );
 
@@ -228,7 +228,7 @@ function normalizePhone(value: string): string {
 }
 
 export function isGuestImportRowEmpty(values: Record<GuestTemplateColumn, string>): boolean {
-  return GUEST_TEMPLATE_COLUMNS.every((column) => !values[column]?.trim());
+  return GUEST_TEMPLATE_DOWNLOAD_COLUMNS.every((column) => !values[column]?.trim());
 }
 
 export function cellToString(value: unknown): string {

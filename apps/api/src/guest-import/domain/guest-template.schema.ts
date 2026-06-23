@@ -7,6 +7,7 @@ export const GUEST_TEMPLATE_REQUIRED_COLUMNS = [
   'telefono',
 ] as const;
 
+/** Columnas de la plantilla descargable (piloto julio). */
 export const GUEST_TEMPLATE_OPTIONAL_COLUMNS = [
   'direccion',
   'categoria_1',
@@ -14,20 +15,32 @@ export const GUEST_TEMPLATE_OPTIONAL_COLUMNS = [
   'observaciones',
   'acompanante_key',
   'separar_acompanante',
+] as const;
+
+/** Solo importacion legacy; no se exporta en plantilla nueva (modo = pantalla Preferencias). */
+export const GUEST_TEMPLATE_LEGACY_OPTIONAL_COLUMNS = [
   'preferencia_control',
 ] as const;
 
-export const GUEST_TEMPLATE_COLUMNS = [
+export const GUEST_TEMPLATE_DOWNLOAD_COLUMNS = [
   ...GUEST_TEMPLATE_REQUIRED_COLUMNS,
   ...GUEST_TEMPLATE_OPTIONAL_COLUMNS,
 ] as const;
+
+export const GUEST_TEMPLATE_COLUMNS = [
+  ...GUEST_TEMPLATE_DOWNLOAD_COLUMNS,
+  ...GUEST_TEMPLATE_LEGACY_OPTIONAL_COLUMNS,
+] as const;
+
+export type GuestTemplateDownloadColumn =
+  (typeof GUEST_TEMPLATE_DOWNLOAD_COLUMNS)[number];
 
 export type GuestTemplateColumn = (typeof GUEST_TEMPLATE_COLUMNS)[number];
 
 export const GUEST_TEMPLATE_FILENAME = 'taulamic-invitados-v1.xlsx';
 
 export const GUEST_TEMPLATE_EXAMPLE_ROWS: ReadonlyArray<
-  Record<GuestTemplateColumn, string>
+  Record<GuestTemplateDownloadColumn, string>
 > = [
   {
     nombre: 'Ana Garcia Lopez',
@@ -39,7 +52,6 @@ export const GUEST_TEMPLATE_EXAMPLE_ROWS: ReadonlyArray<
     observaciones: 'Intolerancia lactosa',
     acompanante_key: 'PAREJA_001',
     separar_acompanante: 'false',
-    preferencia_control: '',
   },
   {
     nombre: 'Luis Martinez Ruiz',
@@ -51,7 +63,6 @@ export const GUEST_TEMPLATE_EXAMPLE_ROWS: ReadonlyArray<
     observaciones: '',
     acompanante_key: 'PAREJA_001',
     separar_acompanante: 'false',
-    preferencia_control: 'colaborativo',
   },
 ];
 
@@ -62,6 +73,6 @@ export const GUEST_TEMPLATE_INSTRUCTIONS = [
   '3. Elimina las filas de ejemplo antes de subir el archivo.',
   '4. acompanante_key: mismo valor para personas que vienen juntas.',
   '5. separar_acompanante: true o false.',
-  '6. preferencia_control: colaborativo o anfitrion_exclusivo (opcional).',
+  '6. El modo colaborativo / anfitrion exclusivo se configura en la pantalla Preferencias del evento (no en Excel).',
   '7. Guarda el archivo en formato .xlsx y subelo desde la pantalla de importacion.',
 ] as const;

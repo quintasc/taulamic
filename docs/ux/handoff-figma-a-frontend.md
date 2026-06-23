@@ -594,7 +594,7 @@ Registro de respuestas del producto y peticiones nuevas. **No implementado** sal
 | Alta | Distribución v2 + detalle pills | Sí — en `main` (PR #39 + iteraciones) |
 | Alta | Dashboard KPIs v2 | Sí |
 | Alta | Afinidad «no calculado en piloto» | Sí (copy UI) |
-| Media | Excel sin `preferencia_control` | Sí si se aprueba cambio doc |
+| Media | Excel sin `preferencia_control` | Sí — plantilla piloto sin columna (jun 2026) |
 | Media | Lista sin asignar (clic KPI) | Tras Figma |
 | Baja / post-MVP | Plano Fase B drag-drop + fondo IA | No (básico Fase A/B en `0f15b37`) |
 | Baja / post-MVP | Bloqueo invitados + ✕/+ manual | No (API + SDD detail) |
@@ -622,7 +622,7 @@ Registro de respuestas del producto y peticiones nuevas. **No implementado** sal
 - [x] Configurar cliente API contra `/api/v1` (rewrite Next.js)
 - [x] Implementar layout admin (sidebar + header)
 - [x] Pantalla **Distribución calculada** (KPIs, acordeón mesas, confirmar)
-- [ ] Flujo piloto según `pilot-flow.e2e-spec.ts` (validar manualmente en UI)
+- [ ] Flujo piloto según `docs/agile/guion-validacion-piloto-ui.md` (validar manualmente en UI)
 - [x] Aplicar tokens de `design-tokens-mvp.md`
 - [x] Pantalla **Plano Fase A/B** — Fase A forma/medidas; Fase B ver mesas + invitados al clic (`0f15b37`, `ADR-016`)
 - [x] ~~Pantalla **Corregir plano**~~ — **suspendida** (legacy EP-11; no implementar — `ADR-016`)

@@ -13,7 +13,7 @@ export type AdminNavItem = {
 
 export const setupSteps = [
   { key: 'config', label: 'Configuración del evento' },
-  { key: 'plano', label: 'Plano subido' },
+  { key: 'plano', label: 'Plano del salón configurado' },
   { key: 'guests', label: 'Invitados importados' },
   { key: 'prefs', label: 'Preferencias configuradas' },
   { key: 'tables', label: 'Mesas configuradas' },

@@ -26,13 +26,21 @@ Opcionales:
 7. `observaciones`
 8. `acompanante_key`
 9. `separar_acompanante`
-10. `preferencia_control` (opcional por fila, si aplica override permitido)
+
+### Piloto julio (2026-06-24)
+
+- La **plantilla descargable** ya **no incluye** `preferencia_control` (modo en pantalla Preferencias).
+- La **importacion** sigue aceptando archivos legacy con esa columna opcional.
+
+Legacy (solo importacion, no en plantilla nueva):
+
+10. `preferencia_control` — override por fila si el archivo lo trae; por defecto usa modo del evento.
 
 ## 4) Semantica de campos clave
 
 - `acompanante_key`: identificador comun para personas que vienen juntas (ejemplo: `PAREJA_001`).
 - `separar_acompanante`: `true/false` para excepcion explicita a regla de acompanantes juntos.
-- `preferencia_control`: `colaborativo` o `anfitrion_exclusivo` (si el sistema permite override por invitado/grupo; por defecto se usa modo del evento).
+- `preferencia_control`: `colaborativo` o `anfitrion_exclusivo` — **solo import legacy**; en piloto el modo se configura en Preferencias del evento.
 
 ## 5) Reglas de validacion
 

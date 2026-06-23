@@ -95,6 +95,14 @@ export function loadFloorPlanSetup(eventId: string): FloorPlanSetup {
   }
 }
 
+/** `true` si el organizador guardó forma/medidas en este dispositivo (Fase A). */
+export function hasFloorPlanSetupSaved(eventId: string): boolean {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+  return localStorage.getItem(`${SETUP_KEY}:${eventId}`) !== null;
+}
+
 export function saveFloorPlanSetup(eventId: string, setup: FloorPlanSetup) {
   if (typeof window === 'undefined') {
     return;

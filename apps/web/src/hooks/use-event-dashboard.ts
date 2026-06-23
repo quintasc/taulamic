@@ -7,6 +7,7 @@ import {
   loadEventUiMeta,
 } from '@/lib/event-ui-meta';
 import { PILOT_AFFINITY_LABEL } from '@/lib/distribution-view';
+import { hasFloorPlanSetupSaved } from '@/lib/floor-plan-setup';
 import { setupSteps } from '@/lib/admin-nav';
 import type { EventDetail } from '@/lib/api';
 
@@ -85,7 +86,10 @@ export function useEventDashboard(event: EventDetail | null, eventId: string | n
       return;
     }
 
-    setFloorPlanUploaded(Boolean(loadEventUiMeta(eventId).floorPlanUploaded));
+    setFloorPlanUploaded(
+      Boolean(loadEventUiMeta(eventId).floorPlanUploaded) ||
+        hasFloorPlanSetupSaved(eventId),
+    );
 
     void guestsApi
       .list(eventId)

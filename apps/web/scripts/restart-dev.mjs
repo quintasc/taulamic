@@ -12,7 +12,7 @@ function killPortWindows(port) {
     const output = execSync(`netstat -ano | findstr :${port}`, {
       encoding: 'utf8',
     });
-    const pids = new Set<string>();
+    const pids = new Set();
 
     for (const line of output.split('\n')) {
       if (!line.includes('LISTENING')) {

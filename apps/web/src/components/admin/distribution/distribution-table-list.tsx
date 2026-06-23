@@ -6,7 +6,9 @@ import { GuestPill } from '@/components/admin/distribution/guest-pill';
 import {
   countTablesByStatus,
   filterDistributionTableGroups,
+  formatPilotTableAffinity,
   getStatusChipLabel,
+  PILOT_AFFINITY_LABEL,
   type DistributionTableFilter,
   type DistributionTableGroup,
   type TableOccupancyStatus,
@@ -97,6 +99,21 @@ function CapacityBar({ group }: { group: DistributionTableGroup }) {
   );
 }
 
+function AffinityCell({ group }: { group: DistributionTableGroup }) {
+  const label = formatPilotTableAffinity(group);
+  if (label === '—') {
+    return <span className="text-neutral-400">—</span>;
+  }
+  return (
+    <span
+      className="text-xs font-medium text-neutral-500"
+      title={PILOT_AFFINITY_LABEL}
+    >
+      {label}
+    </span>
+  );
+}
+
 function DistributionTableRow({
   group,
   open,
@@ -124,12 +141,8 @@ function DistributionTableRow({
           <CapacityBar group={group} />
         </span>
 
-        <span className="hidden text-right text-sm font-semibold sm:block">
-          {group.affinityPercent !== null ? (
-            <span className="text-success-500">{group.affinityPercent}%</span>
-          ) : (
-            <span className="text-neutral-400">—</span>
-          )}
+        <span className="hidden text-right text-sm sm:block">
+          <AffinityCell group={group} />
         </span>
 
         <IconChevronDown
@@ -145,13 +158,7 @@ function DistributionTableRow({
         <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-500">
           <span>{group.shapeLabel}</span>
           <CapacityBar group={group} />
-          {group.affinityPercent !== null ? (
-            <span className="font-semibold text-success-500">
-              {group.affinityPercent}%
-            </span>
-          ) : (
-            <span className="text-neutral-400">—</span>
-          )}
+          <AffinityCell group={group} />
         </div>
       </div>
 

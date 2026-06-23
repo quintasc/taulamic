@@ -154,8 +154,12 @@ export function FloorPlanSetupView({
         markFloorPlanUploaded(eventId);
         router.push(routes.guests);
       })
-      .catch(() => {
-        setSaveError('No se pudo guardar el plano en el servidor.');
+      .catch((err: unknown) => {
+        const message =
+          err instanceof ApiError
+            ? err.body.message ?? `Error API ${err.status}`
+            : 'No se pudo guardar el plano en el servidor.';
+        setSaveError(message);
       })
       .finally(() => {
         setSaving(false);

@@ -21,10 +21,28 @@ Documento de traspaso UX → implementación UI. Issue #7 cerrada (PR #37).
 ## Flujo piloto (orden de pantallas)
 
 ```
-Marketing → Dashboard → (Config | Plano | Invitados | Preferencias | Mesas | Distribución)
+Marketing → Dashboard → (Config → Plano → Invitados → Mesas → Afinidades → Distribución)
 ```
 
 Referencia backend E2E (sin plano): crear evento → mesas → preferencias → Excel → motor → confirmar.
+
+---
+
+## Responsive y móvil invitado (`ADR-019`)
+
+| Superficie | Viewport prioritario | Piloto |
+|------------|---------------------|--------|
+| Marketing | Desktop + móvil | Implementado |
+| Admin organizador | Desktop-first (≥ 1024 px); degradar en tablet | Grids/listas `sm:`/`lg:`; sidebar fija |
+| Portal invitado / RSVP | **Mobile-first (390 px)** | No operativo; mock RSVP en lista invitados |
+
+**Modo colaborativo:** los invitados interactuarán desde **móvil** (enlace en correo). Al diseñar en Figma o implementar:
+
+- Frames **390 × 844** para RSVP, afinidades invitado y «mi mesa».
+- Controles táctiles ≥ **44 px**; formularios una columna; sin acciones solo-hover.
+- Reutilizar primitivos (`ui/`) entre admin mock y portal futuro.
+
+Detalle: `docs/adr/ADR-019-responsive-y-mobile-invitado.md` · `frontend-component-system.md` §5.
 
 ---
 
@@ -119,9 +137,10 @@ Referencia backend E2E (sin plano): crear evento → mesas → preferencias → 
 | Campo Figma | Campo API | Estado |
 |-------------|-----------|--------|
 | Nombre del evento | `PUT /events/{eventId}` → `{ "name" }` | ✅ Implementado |
-| Fecha, lugar, nº mesas, notas | — | ⚠️ Solo UI por ahora; no persisten en API piloto |
+| Fecha, lugar, invitados aprox., notas | — | ⚠️ Solo UI (`localStorage`); no persisten en API piloto |
+| Modo preferencias | `PUT .../preference-control-mode` | 🟡 Piloto: solo **anfitrión exclusivo** (colaborativo deshabilitado UI) |
 
-Botón **Guardar** → `PUT /events/{eventId}`.
+Botón **Guardar** → `PUT /events/{eventId}` + `PUT .../preference-control-mode` con `anfitrion_exclusivo`.
 
 ---
 
@@ -278,15 +297,15 @@ Lista invitados: `GET /events/{eventId}/guests?actorRole=admin`.
 
 ---
 
-### Admin — Preferencias (modo evento)
+### Admin — Configuración (modo preferencias)
 
 | Elemento UI | API |
 |-------------|-----|
 | Cargar modo actual | `GET /events/{eventId}/preference-control-mode` → `mode`: `colaborativo` \| `anfitrion_exclusivo` |
-| Guardar preferencias | `PUT /events/{eventId}/preference-control-mode` body `{ "mode": "..." }` + header admin |
+| Guardar al guardar config | `PUT /events/{eventId}/preference-control-mode` body `{ "mode": "anfitrion_exclusivo" }` + header admin |
 | Texto permisos (opcional UI) | `GET .../preference-control-mode/permissions?actorRole=admin` |
 
-Valores deben coincidir con radios del Figma (colaborativo / anfitrión exclusivo).
+**Piloto julio:** solo **anfitrión exclusivo** seleccionable. Opción colaborativo visible deshabilitada (`PILOT_COLLABORATIVE_MODE_ENABLED = false` en `pilot-features.ts`). La API sigue aceptando ambos modos para E2E.
 
 ---
 
@@ -568,14 +587,16 @@ Registro de respuestas del producto y peticiones nuevas. **No implementado** sal
 
 ### 7 — Edición manual en detalle de mesa (distribución)
 
+**Documento canónico post-piloto:** `docs/sdd/SDD-PILOTO-enmienda-HU05-ajuste-manual-postpiloto.md`
+
 **Petición (nueva explícita en sesión):**
 
 - En pills de invitados expandidos: icono **✕** para **quitar** de esa mesa (pasa a sin asignar o lista pendiente).
 - En cada fila de mesa: control **+** / «Añadir invitado» para asignar alguien de la bolsa sin asignar.
 
-**Relación SDD:** extensión natural de **HU-05** (ajuste manual). No implementado en piloto UI/API.
+**Relación SDD:** extensión natural de **HU-05** (ajuste manual). No implementado en piloto UI/API. Especificación: enmienda HU-05 (RF-HU05-01…06, criterios aceptación, API borrador).
 
-**Dependencias:** estado de asignación editable antes de confirmar; validar reglas duras al mover; auditoría (SDD HU-05).
+**Dependencias:** estado de asignación editable antes de confirmar; validar reglas duras al mover; auditoría (SDD HU-05); sincronización KPIs (RF-HU05-04).
 
 ### 8 — Lista de invitados sin asignar (clic en KPI)
 
@@ -596,8 +617,10 @@ Registro de respuestas del producto y peticiones nuevas. **No implementado** sal
 | Alta | Afinidad «no calculado en piloto» | Sí (copy UI) |
 | Media | Excel sin `preferencia_control` | Sí — plantilla piloto sin columna (jun 2026) |
 | Media | Lista sin asignar (clic KPI) | Tras Figma |
-| Baja / post-MVP | Plano Fase B drag-drop + fondo IA | No (básico Fase A/B en `0f15b37`) |
-| Baja / post-MVP | Bloqueo invitados + ✕/+ manual | No (API + SDD detail) |
+| Baja / post-MVP | Plano Fase B drag-drop **mesas** + fondo IA | No (ADR-016) |
+| Baja / post-piloto | HU-05: ✕/+ desasignar/asignar + KPIs | No — ver enmienda HU-05 Fase 1 |
+| Baja / post-piloto | HU-05: drag invitado entre mesas | No — enmienda HU-05 Fase 2 |
+| Baja / post-MVP | Bloqueo invitados (handoff §6) | No |
 
 ---
 
@@ -612,7 +635,8 @@ Registro de respuestas del producto y peticiones nuevas. **No implementado** sal
 - **Plano espacial Fase A/B básico** — en piloto (`0f15b37`): forma/medidas + ver mesas e invitados al clic
 - **Plano espacial avanzado** (fondo IA, accesorios drag, drag-drop posiciones) — post-MVP; Figma pendiente
 - **Corregir plano / autodetección mesas** como camino principal — sustituido por `ADR-016` (2026-06-23)
-- **Bloqueo de invitados** y **edición manual ✕/+** en distribución — post-piloto (SDD 7.1 / HU-05)
+- **Bloqueo de invitados** — post-piloto (handoff §6; SDD §7.1)
+- **Edición manual HU-05** (✕/+, drag invitado, KPIs) — post-piloto; **`SDD-PILOTO-enmienda-HU05-ajuste-manual-postpiloto.md`**
 
 ---
 

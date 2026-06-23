@@ -1,6 +1,8 @@
 # SDD piloto — Alineacion y huecos (jun 2026)
 
-- Ultima actualizacion: **2026-06-23**
+- Ultima actualizacion: **2026-06-21**
+- Enmienda flujo setup: **`SDD-PILOTO-enmienda-flujo-setup-jun2026.md`** · **ADR-018** · **ADR-019** (responsive / móvil invitado)
+- Enmienda HU-05 ajuste manual: **`SDD-PILOTO-enmienda-HU05-ajuste-manual-postpiloto.md`**
 - Commits referencia: **`f873ffb`** (docs SDD/ADR) · **`0f15b37`** (web plano/mesas) — `main`
 - Fuentes: `SDD-01-borrador-mvp.md`, `handoff-figma-a-frontend.md`, `ADR-016`, `DECISION-002`, `PRD-v1.md`
 
@@ -27,7 +29,7 @@ Este documento **no sustituye** el SDD-01; resume cumplimiento del **piloto juli
 | HU-02 | Perfil social invitado | ⬜ | Sin portal invitado |
 | HU-03 | Necesidades especiales | 🟡 | API restricciones; UI admin limitada |
 | HU-04 | Calcular distribucion | 🟡 | Motor v0 + confirmar; sin estado async elaborado ni Top-K |
-| HU-05 | Ajuste manual | ⬜ | Sin mover invitados ni ✕/+ en UI (handoff §7) |
+| HU-05 | Ajuste manual | ⬜ | Piloto: solo lectura (pills/plano). ✕/+/drag: **`SDD-PILOTO-enmienda-HU05-ajuste-manual-postpiloto.md`** |
 | HU-06 | Aprobar y versionar | 🟡 | Confirmar distribucion; sin versionado rico |
 | HU-07 | Visibilidad invitados | ⬜ | Sin publicacion programada |
 | HU-08 | Documentos salon/cocina | ⬜ | Post-MVP |
@@ -36,7 +38,7 @@ Este documento **no sustituye** el SDD-01; resume cumplimiento del **piloto juli
 | HU-12 | Plano salon | 🟡 | **Redefinida ADR-016:** Fase A/B OK en piloto; sin fondo IA ni drag-drop |
 | HU-13–14 | Excel plantilla / import | ✅ | API + UI piloto |
 | HU-15 | Mapeo observaciones | 🟡 | API sugerencias; UI parcial |
-| HU-16 | Modo preferencias | ✅ | Colaborativo / anfitrion exclusivo |
+| HU-16 | Modo preferencias | 🟡 | Solo **anfitrión exclusivo** en piloto UI; API soporta ambos; colaborativo post-piloto |
 | HU-17 | Acompanantes juntos | 🟡 | Motor v0; regla en API |
 
 ---
@@ -45,15 +47,15 @@ Este documento **no sustituye** el SDD-01; resume cumplimiento del **piloto juli
 
 | Flujo | Estado | Comentario |
 |-------|--------|------------|
-| A — Configuracion inicial | 🟡 | Evento + mesas + prefs; plano Fase A |
-| B — Captura invitados | 🟡 | Excel; sin invitado self-service |
+| A — Configuracion inicial | 🟡 | Config → Plano → Invitados → Mesas → Afinidades (enmienda jun 2026) |
+| B — Captura invitados | 🟡 | Excel + alta manual; RSVP UI mock |
 | C — Calculo y revision | 🟡 | Run + lista; sin Top-K ni ajuste manual visual |
 | D — Aprobacion y publicacion | 🟡 | Confirmar distribucion; sin publicar a invitados |
 | E — Documentacion | ⬜ | |
-| F — RSVP | ⬜ | |
+| F — RSVP | 🟡 | Iconos y estados mock en lista invitados |
 | G — Plano salon | 🟡 | **ADR-016:** espacio + layout mesas; no detectar mesas en UI |
 | H — Excel invitados | ✅ | |
-| I — Modo preferencias | ✅ | |
+| I — Modo preferencias | 🟡 | Solo anfitrión exclusivo en piloto; colaborativo deshabilitado UI |
 
 ---
 
@@ -105,8 +107,8 @@ Este documento **no sustituye** el SDD-01; resume cumplimiento del **piloto juli
 1. API persistencia layout salon (Fase A).
 2. Fondo opcional + accesorios en canvas.
 3. Dashboard KPIs v2 si aun incompletos.
-4. Fase B: drag-drop + guardar posiciones.
-5. HU-05: edicion manual invitados en distribucion.
+4. Fase B: drag-drop **posiciones de mesas** en canvas — post-MVP (ADR-016).
+5. HU-05: edición manual **invitados** (✕/+/drag) — post-piloto; ver enmienda HU-05.
 
 ---
 

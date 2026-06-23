@@ -40,7 +40,7 @@ Legacy (solo importacion, no en plantilla nueva):
 
 - `acompanante_key`: identificador comun para personas que vienen juntas (ejemplo: `PAREJA_001`).
 - `separar_acompanante`: `true/false` para excepcion explicita a regla de acompanantes juntos.
-- `preferencia_control`: `colaborativo` o `anfitrion_exclusivo` — **solo import legacy**; en piloto el modo se configura en Preferencias del evento.
+- `preferencia_control`: `colaborativo` o `anfitrion_exclusivo` — **solo import legacy**; en piloto el modo es **anfitrión exclusivo** (configuración del evento).
 
 ## 5) Reglas de validacion
 

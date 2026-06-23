@@ -94,7 +94,50 @@ Nuevos imports deben usar la ruta canonica (`@/components/ui`, `@/components/bra
 
 ---
 
-## 4) Pagina `/sistema` (roadmap)
+## 5) Responsive — admin, marketing e invitado
+
+**ADR:** `docs/adr/ADR-019-responsive-y-mobile-invitado.md`
+
+### Estrategia por superficie
+
+| Superficie | Enfoque | Notas implementación |
+|------------|---------|----------------------|
+| `marketing/` | Dual | Grids `md:grid-cols-*`; nav oculta en móvil hasta hamburger (post-piloto) |
+| `admin/` | Desktop-first | Sidebar fija `w-sidebar`; contenido con `p-8` y grids `sm:`/`lg:` |
+| Portal invitado (futuro) | **Mobile-first** | Nuevos componentes en `components/guest/` reutilizando `ui/` |
+
+### Breakpoints (Tailwind)
+
+Usar utilidades estándar del proyecto: `sm` 640, `md` 768, `lg` 1024, `xl` 1280. Frame Figma invitado: **390 × 844**.
+
+### Patrones obligatorios
+
+1. **Tablas:** cabecera `hidden sm:grid`; fila apilada `sm:hidden` (ver `distribution-table-list.tsx`).
+2. **Botones e iconos accionables en móvil:** `min-h-11 min-w-11` (44 px) o `p-3` equivalente.
+3. **Formularios:** `grid-cols-1` por defecto; `sm:grid-cols-2` solo admin en pantallas amplias.
+4. **Plano / canvas:** puede requerir scroll horizontal en móvil; no bloquear el resto del flujo.
+5. **Componentes invitado (RSVP, afinidad):** implementar en `ui/` o exportables desde admin mock → guest portal.
+6. **Colores semánticos:** usar helpers de `lib/semantic-ui.ts` (mesas, RSVP, filtros) — no duplicar clases Tailwind sueltas.
+
+| Significado | Color token | Uso |
+|-------------|-------------|-----|
+| Éxito / llena / confirmado | `success-500` | Mesas llenas, RSVP ✓ |
+| Atención / en uso / pendiente | `warning-500` | Mesas parciales |
+| Error / rechazado | `error-500` | RSVP ✗, eliminar |
+| Marca / activo / enviado | `primary-500` | CTAs, filtros activos, accesorios plano |
+| Neutro / vacío | `neutral-*` | Mesas vacías, texto secundario |
+
+### Modo colaborativo
+
+Los invitados usarán **móvil** para RSVP y afinidades. Al añadir UI que un invitado tocará:
+
+- Diseñar primero en 390 px.
+- Probar en DevTools móvil antes de merge.
+- No depender de `:hover` ni de menús solo con clic derecho.
+
+---
+
+## 6) Página `/sistema` (roadmap)
 
 Placeholder en piloto. Objetivo post-MVP:
 
@@ -104,19 +147,22 @@ Placeholder en piloto. Objetivo post-MVP:
 
 ---
 
-## 5) Checklist al anadir componente
+## 7) Checklist al anadir componente
 
 - [ ] ¿Es reutilizable? → `ui/` o modulo de dominio correcto
 - [ ] ¿Exportado en `index.ts`?
 - [ ] ¿Sin hex sueltos (salvo ilustracion)?
 - [ ] ¿Assets via `brandConfig`?
 - [ ] ¿Pagina en `app/` solo compone?
+- [ ] ¿Usable en 390 px si lo tocara un invitado? (`ADR-019`)
+- [ ] ¿Touch target ≥ 44 px en acciones primarias móvil?
 
 ---
 
-## 6) Referencias
+## 8) Referencias
 
 - `apps/web/README.md`
 - `docs/adr/ADR-017-frontend-design-system-modular.md`
+- `docs/adr/ADR-019-responsive-y-mobile-invitado.md`
 - `docs/ux/design-tokens-mvp.md`
 - `docs/ux/handoff-figma-a-frontend.md`

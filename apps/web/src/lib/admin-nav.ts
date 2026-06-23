@@ -14,9 +14,9 @@ export type AdminNavItem = {
 export const setupSteps = [
   { key: 'config', label: 'Configuración del evento' },
   { key: 'plano', label: 'Plano del salón configurado' },
-  { key: 'guests', label: 'Invitados importados' },
-  { key: 'prefs', label: 'Preferencias configuradas' },
+  { key: 'guests', label: 'Invitados cargados' },
   { key: 'tables', label: 'Mesas configuradas' },
+  { key: 'prefs', label: 'Afinidades y reglas definidas' },
   { key: 'dist', label: 'Distribución calculada o confirmada' },
 ] as const;
 
@@ -38,12 +38,12 @@ export function getAdminNavItems(eventId: string): AdminNavItem[] {
       activeBasePath: routes.floorPlan,
     },
     { href: routes.guests, label: 'Invitados', icon: navIcons.guests },
+    { href: routes.tables, label: 'Mesas', icon: navIcons.tables },
     {
       href: routes.preferences,
-      label: 'Preferencias',
+      label: 'Afinidades',
       icon: navIcons.preferences,
     },
-    { href: routes.tables, label: 'Mesas', icon: navIcons.tables },
     {
       href: routes.distribution,
       label: 'Distribución',

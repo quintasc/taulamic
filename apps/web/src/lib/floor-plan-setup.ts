@@ -28,6 +28,19 @@ export const FLOOR_PLAN_ACCESSORIES = [
   { id: 'entrada', label: 'Entrada' },
 ] as const;
 
+/** Posición por defecto dentro del perímetro del salón (%). */
+export const ACCESSORY_LAYOUT: Record<
+  string,
+  { top: string; left: string }
+> = {
+  'mesa-novios': { top: '14%', left: '50%' },
+  escenario: { top: '10%', left: '50%' },
+  'pista-baile': { top: '52%', left: '50%' },
+  'barra-bar': { top: '28%', left: '18%' },
+  puerta: { top: '82%', left: '22%' },
+  entrada: { top: '86%', left: '50%' },
+};
+
 export const DEFAULT_FLOOR_PLAN_SETUP: FloorPlanSetup = {
   shape: 'rectangular',
   widthM: 25,

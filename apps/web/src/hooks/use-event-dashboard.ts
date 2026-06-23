@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { ApiError, distributionApi, guestsApi, preferencesApi } from '@/lib/api';
+import { ApiError, distributionApi, guestsApi } from '@/lib/api';
 import {
   formatEventSubtitle,
+  isEventConfigComplete,
   loadEventUiMeta,
 } from '@/lib/event-ui-meta';
 import { PILOT_AFFINITY_LABEL } from '@/lib/distribution-view';
@@ -21,7 +22,7 @@ function getGuestDashboardMeta(
   valueHighlight?: boolean;
 } {
   if (guestTotal === 0) {
-    return { hint: 'Importa desde Excel' };
+    return { hint: 'Importa o añade invitados' };
   }
   if (unassigned === null) {
     return { hint: 'Pendiente de calcular' };
@@ -74,7 +75,8 @@ export function useEventDashboard(event: EventDetail | null, eventId: string | n
   const [guestTotal, setGuestTotal] = useState(0);
   const [unassigned, setUnassigned] = useState<number | null>(null);
   const [hasDistribution, setHasDistribution] = useState(false);
-  const [preferencesConfigured, setPreferencesConfigured] = useState(false);
+  const [affinitiesConfigured, setAffinitiesConfigured] = useState(false);
+  const [configComplete, setConfigComplete] = useState(false);
   const [floorPlanUploaded, setFloorPlanUploaded] = useState(false);
   const [subtitle, setSubtitle] = useState('Resumen del evento');
 
@@ -86,20 +88,17 @@ export function useEventDashboard(event: EventDetail | null, eventId: string | n
       return;
     }
 
+    const meta = loadEventUiMeta(eventId);
+    setConfigComplete(isEventConfigComplete(eventId, event?.name));
+    setAffinitiesConfigured(Boolean(meta.affinitiesDraftSaved));
     setFloorPlanUploaded(
-      Boolean(loadEventUiMeta(eventId).floorPlanUploaded) ||
-        hasFloorPlanSetupSaved(eventId),
+      Boolean(meta.floorPlanUploaded) || hasFloorPlanSetupSaved(eventId),
     );
 
     void guestsApi
       .list(eventId)
       .then((response) => setGuestTotal(response.total))
       .catch(() => setGuestTotal(0));
-
-    void preferencesApi
-      .get(eventId)
-      .then((settings) => setPreferencesConfigured(settings.version > 0))
-      .catch(() => setPreferencesConfigured(false));
 
     void distributionApi
       .get(eventId)
@@ -113,32 +112,34 @@ export function useEventDashboard(event: EventDetail | null, eventId: string | n
           setUnassigned(null);
         }
       });
-  }, [eventId]);
+  }, [event?.name, eventId]);
 
   useEffect(() => {
-    if (!event?.name || !eventId) {
-      setSubtitle(event?.name ?? 'Resumen del evento');
+    if (!eventId) {
+      setSubtitle('Resumen del evento');
       return;
     }
     const meta = loadEventUiMeta(eventId);
-    setSubtitle(formatEventSubtitle(event.name, meta));
+    setSubtitle(
+      formatEventSubtitle(event?.name ?? '', meta, eventId),
+    );
   }, [event?.name, eventId]);
 
   const setupStatus = useMemo(
     () => [
-      Boolean(event?.name),
+      configComplete,
       floorPlanUploaded,
       guestTotal > 0,
-      preferencesConfigured,
       tablesConfigured > 0,
+      affinitiesConfigured,
       hasDistribution,
     ],
     [
-      event?.name,
+      configComplete,
       floorPlanUploaded,
       guestTotal,
-      preferencesConfigured,
       tablesConfigured,
+      affinitiesConfigured,
       hasDistribution,
     ],
   );

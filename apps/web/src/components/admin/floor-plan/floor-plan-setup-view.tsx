@@ -5,8 +5,12 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { IconChevronDown } from '@/components/icons';
 import { ResizableRoomCanvas } from '@/components/admin/floor-plan/resizable-room-canvas';
-import { PageHeader } from '@/components/ui';
-import { markFloorPlanUploaded } from '@/lib/event-ui-meta';
+import { Alert, PageHeader } from '@/components/ui';
+import {
+  loadEventUiMeta,
+  markFloorPlanUploaded,
+  parseApproximateGuestCount,
+} from '@/lib/event-ui-meta';
 import {
   DEFAULT_FLOOR_PLAN_SETUP,
   FLOOR_PLAN_ACCESSORIES,
@@ -20,6 +24,10 @@ import {
   type RoomShape,
 } from '@/lib/floor-plan-setup';
 import { adminRoutes } from '@/lib/routes';
+import {
+  compareRoomToRecommendation,
+  recommendRoomSize,
+} from '@/lib/room-size-recommendation';
 
 function AccessoryCard({
   label,
@@ -61,9 +69,12 @@ export function FloorPlanSetupView({
   const [setup, setSetup] = useState<FloorPlanSetup>(DEFAULT_FLOOR_PLAN_SETUP);
   const [configOpen, setConfigOpen] = useState(true);
   const [hydrated, setHydrated] = useState(false);
+  const [guestCountHint, setGuestCountHint] = useState(0);
 
   useEffect(() => {
     setSetup(loadFloorPlanSetup(eventId));
+    const meta = loadEventUiMeta(eventId);
+    setGuestCountHint(parseApproximateGuestCount(meta));
     setHydrated(true);
   }, [eventId]);
 
@@ -104,11 +115,14 @@ export function FloorPlanSetupView({
     return <p className="text-sm text-neutral-500">Cargando plano…</p>;
   }
 
+  const roomRecommendation = recommendRoomSize(guestCountHint);
+  const roomComparison = compareRoomToRecommendation(setup, guestCountHint);
+
   return (
     <>
       <PageHeader
         title="Plano del salón"
-        subtitle="Define la forma y el tamaño del espacio. Las medidas se actualizan al redimensionar el lienzo."
+        subtitle="Paso 2 del setup: define la forma y el tamaño del espacio según el volumen de invitados."
         action={
           <div className="flex flex-wrap items-center gap-2">
             {hasDistribution ? (
@@ -123,33 +137,36 @@ export function FloorPlanSetupView({
         }
       />
 
+      {roomRecommendation ? (
+        <div className="mb-6">
+          <Alert variant={roomComparison?.adequate ? 'success' : 'warning'}>
+            <p className="font-medium">{roomRecommendation.summary}</p>
+            <p className="mt-1 text-sm opacity-90">{roomRecommendation.detail}</p>
+            {roomComparison ? (
+              <p className="mt-1 text-sm opacity-90">
+                Superficie actual del plano: ~{roomComparison.currentAreaM2} m²
+                {roomComparison.adequate
+                  ? ' · Cumple la recomendación orientativa'
+                  : ' · Por debajo de la recomendación; amplía el salón si es posible'}
+              </p>
+            ) : null}
+          </Alert>
+        </div>
+      ) : (
+        <div className="mb-6">
+          <Alert variant="warning">
+            Indica los invitados aproximados en Configuración para ver el tamaño
+            mínimo recomendado del salón.
+          </Alert>
+        </div>
+      )}
+
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
         <div className="flex min-h-[520px] flex-col">
           <div className="card-admin flex min-h-[460px] flex-1 flex-col overflow-visible border-2 border-dashed border-neutral-200 bg-neutral-50/40 p-6">
             <div className="flex flex-1 items-center justify-center">
               <ResizableRoomCanvas setup={setup} onChange={updateSetup} />
             </div>
-
-            {setup.placedAccessories.length > 0 ? (
-              <div className="mt-6 flex flex-wrap justify-center gap-2">
-                {setup.placedAccessories.map((id) => {
-                  const accessory = FLOOR_PLAN_ACCESSORIES.find(
-                    (item) => item.id === id,
-                  );
-                  if (!accessory) {
-                    return null;
-                  }
-                  return (
-                    <span
-                      key={id}
-                      className="rounded-full border border-neutral-200 bg-neutral-0 px-3 py-1 text-xs font-medium text-neutral-700"
-                    >
-                      {accessory.label}
-                    </span>
-                  );
-                })}
-              </div>
-            ) : null}
           </div>
 
           <p className="mt-3 text-center text-sm font-medium text-neutral-600">
@@ -281,7 +298,7 @@ export function FloorPlanSetupView({
               Accesorios
             </h2>
             <p className="mt-2 text-xs text-neutral-500">
-              Pulsa para marcar en el plano. Posicionar en canvas — post-MVP.
+              Pulsa para marcar en el plano. Posicionar con drag — post-MVP.
             </p>
             <div className="mt-4 grid max-h-64 grid-cols-2 gap-2 overflow-y-auto">
               {FLOOR_PLAN_ACCESSORIES.map((accessory) => (

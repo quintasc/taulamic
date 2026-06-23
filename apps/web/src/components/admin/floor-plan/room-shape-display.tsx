@@ -33,7 +33,7 @@ export function RoomShapeDisplay({
       style={{ width: widthPx, height: heightPx }}
     >
       <div
-        className={`relative h-full w-full border-2 border-neutral-400 bg-neutral-50/90 shadow-sm ${roomShapeClassName(setup.shape)}`}
+        className={`relative h-full w-full overflow-hidden border-2 border-neutral-400 bg-neutral-50/90 shadow-sm ${roomShapeClassName(setup.shape)}`}
       >
         {children}
       </div>

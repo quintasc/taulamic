@@ -63,6 +63,7 @@ export type GuestView = {
   id: string;
   nombre: string;
   correo: string | null;
+  telefono?: string | null;
   categories: Array<{ name: string }>;
 };
 
@@ -204,6 +205,39 @@ export const guestsApi = {
     }
     return response.json();
   },
+  create: (
+    eventId: string,
+    input: {
+      nombre: string;
+      correo: string;
+      telefono: string;
+      categoryNames?: string[];
+      observaciones?: string;
+    },
+  ) =>
+    apiFetch<GuestView>(`/events/${eventId}/guests`, {
+      method: 'POST',
+      body: JSON.stringify(input),
+    }),
+  update: (
+    eventId: string,
+    guestId: string,
+    input: {
+      nombre: string;
+      correo: string;
+      telefono: string;
+      categoryNames?: string[];
+      observaciones?: string;
+    },
+  ) =>
+    apiFetch<GuestView>(`/events/${eventId}/guests/${guestId}`, {
+      method: 'PUT',
+      body: JSON.stringify(input),
+    }),
+  remove: (eventId: string, guestId: string) =>
+    apiFetch<void>(`/events/${eventId}/guests/${guestId}`, {
+      method: 'DELETE',
+    }),
 };
 
 export const preferencesApi = {

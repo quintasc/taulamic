@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useRef, type CSSProperties } from 'react';
+import { FloorPlanAccessoriesOverlay } from '@/components/admin/floor-plan/floor-plan-accessories-overlay';
 import {
   patchFromPixelResize,
   roomPixelSize,
@@ -103,7 +104,7 @@ export function ResizableRoomCanvas({
     <div className="overflow-visible p-3">
       <div className="relative" style={{ width: widthPx, height: heightPx }}>
         <div
-          className={`relative h-full w-full border-2 border-neutral-400 bg-neutral-50/90 shadow-sm ${
+          className={`relative h-full w-full overflow-hidden border-2 border-neutral-400 bg-neutral-50/90 shadow-sm ${
             setup.shape === 'round'
               ? 'rounded-full'
               : setup.shape === 'oval'
@@ -116,6 +117,7 @@ export function ResizableRoomCanvas({
               Arrastra el marcador para ajustar
             </p>
           </div>
+          <FloorPlanAccessoriesOverlay accessoryIds={setup.placedAccessories} />
         </div>
         <ResizeHandle onPointerDown={handlePointerDown} style={handleStyle} />
       </div>

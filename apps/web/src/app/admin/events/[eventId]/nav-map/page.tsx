@@ -4,11 +4,11 @@ import { PageHeader } from '@/components/ui';
 import { IconCheck } from '@/components/icons';
 
 const branches: Array<{ nodes: string[]; optional?: string }> = [
-  { nodes: ['Configuración evento'] },
-  { nodes: ['Subir plano', 'Corregir plano'] },
-  { nodes: ['Importar Excel', 'Errores fila'], optional: 'si aplica' },
-  { nodes: ['Preferencias modo'] },
+  { nodes: ['Configuración evento', 'Modo afinidades'] },
+  { nodes: ['Plano salón', 'Tamaño recomendado'] },
+  { nodes: ['Importar Excel', 'Añadir manual', 'RSVP mock'], optional: 'errores fila si aplica' },
   { nodes: ['Configurar mesas'] },
+  { nodes: ['Afinidades y reglas', 'Borrador piloto'] },
   { nodes: ['Calcular distribución', 'Confirmar'] },
 ];
 

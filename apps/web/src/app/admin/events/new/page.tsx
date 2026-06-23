@@ -4,25 +4,28 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Alert, PageHeader } from '@/components/ui';
 import { useEvent } from '@/lib/event-context';
-import { eventBasePath } from '@/lib/routes';
+import {
+  EVENT_API_PLACEHOLDER_NAME,
+  EVENT_NAME_INPUT_PLACEHOLDER,
+} from '@/lib/event-ui-meta';
+import { adminRoutes } from '@/lib/routes';
 
 export default function NewEventPage() {
   const router = useRouter();
   const { createEvent } = useEvent();
-  const [name, setName] = useState('Boda García-López');
+  const [name, setName] = useState('');
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
-    if (!name.trim()) {
-      return;
-    }
     setCreating(true);
     setError(null);
     try {
-      const created = await createEvent(name.trim());
-      router.push(eventBasePath(created.id));
+      const created = await createEvent(
+        name.trim() || EVENT_API_PLACEHOLDER_NAME,
+      );
+      router.push(adminRoutes(created.id).config);
     } catch {
       setError('No se pudo crear el evento. ¿Está la API en el puerto 3000?');
     } finally {
@@ -53,16 +56,20 @@ export default function NewEventPage() {
               id="new-event-name"
               className="input-field"
               value={name}
+              placeholder={EVENT_NAME_INPUT_PLACEHOLDER}
               onChange={(event) => setName(event.target.value)}
               disabled={creating}
             />
+            <p className="mt-1.5 text-xs text-neutral-500">
+              Puedes dejarlo vacío y definirlo en Configuración.
+            </p>
           </div>
           <button
             type="submit"
             className="btn-primary w-full"
-            disabled={creating || !name.trim()}
+            disabled={creating}
           >
-            {creating ? 'Creando…' : 'Crear y continuar'}
+            {creating ? 'Creando…' : 'Crear y configurar'}
           </button>
         </form>
       </div>

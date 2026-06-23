@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useEvent } from '@/lib/event-context';
-import { adminEntryPaths, eventBasePath } from '@/lib/routes';
+import { EVENT_API_PLACEHOLDER_NAME } from '@/lib/event-ui-meta';
+import { adminEntryPaths, adminRoutes } from '@/lib/routes';
 
 export default function AdminIndexPage() {
   const router = useRouter();
@@ -15,8 +16,8 @@ export default function AdminIndexPage() {
 
     async function startNewEvent() {
       try {
-        const created = await createEvent('Boda García-López');
-        router.replace(eventBasePath(created.id));
+        const created = await createEvent(EVENT_API_PLACEHOLDER_NAME);
+        router.replace(adminRoutes(created.id).config);
       } catch {
         router.replace(adminEntryPaths.newEvent);
       } finally {

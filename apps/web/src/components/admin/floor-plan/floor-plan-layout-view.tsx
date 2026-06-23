@@ -3,8 +3,14 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { GuestPill } from '@/components/admin/distribution/guest-pill';
+import { FloorPlanAccessoriesOverlay } from '@/components/admin/floor-plan/floor-plan-accessories-overlay';
 import { RoomShapeDisplay } from '@/components/admin/floor-plan/room-shape-display';
 import { Alert, EmptyState, PageHeader } from '@/components/ui';
+import {
+  filterChipClass,
+  filterChipCountClass,
+  tableStatusCardClass,
+} from '@/lib/semantic-ui';
 import {
   formatRoomDimensions,
   type FloorPlanSetup,
@@ -15,7 +21,6 @@ import {
   getStatusChipLabel,
   type DistributionTableFilter,
   type DistributionTableGroup,
-  type TableOccupancyStatus,
 } from '@/lib/distribution-view';
 
 const STATUS_FILTER_OPTIONS: Array<{
@@ -28,17 +33,6 @@ const STATUS_FILTER_OPTIONS: Array<{
   { id: 'in-use', label: 'En uso', countKey: 'inUse' },
   { id: 'empty', label: 'Vacías', countKey: 'empty' },
 ];
-
-function tableCardClass(status: TableOccupancyStatus): string {
-  switch (status) {
-    case 'full':
-      return 'border-success-500/40 bg-success-500/5 text-success-500';
-    case 'in-use':
-      return 'border-warning-500/40 bg-warning-500/5 text-warning-500';
-    case 'empty':
-      return 'border-neutral-200 bg-neutral-50 text-neutral-500';
-  }
-}
 
 function TablePreviewCard({
   group,
@@ -58,7 +52,7 @@ function TablePreviewCard({
       aria-pressed={selected}
       aria-label={`Mesa ${group.tableLabel}, ${group.assignedCount} de ${group.capacity} asientos`}
       onClick={onSelect}
-      className={`flex flex-col items-center justify-center border-2 px-3 py-4 transition hover:brightness-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500 ${tableCardClass(group.status)} ${
+      className={`flex flex-col items-center justify-center border-2 px-3 py-4 transition hover:brightness-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500 ${tableStatusCardClass(group.status)} ${
         isRound ? 'aspect-square min-w-[88px] rounded-full' : 'min-w-[100px] rounded-xl'
       } ${selected ? 'ring-2 ring-primary-500 ring-offset-2' : ''}`}
     >
@@ -136,15 +130,11 @@ function FilterChip({
   return (
     <button
       type="button"
-      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition ${
-        active
-          ? 'bg-neutral-900 text-white'
-          : 'border border-neutral-200 bg-neutral-0 text-neutral-700 hover:bg-neutral-50'
-      }`}
+      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition ${filterChipClass(active)}`}
       onClick={onClick}
     >
       {label}
-      <span className={active ? 'text-neutral-300' : 'text-neutral-500'}>
+      <span className={filterChipCountClass(active)}>
         {count}
       </span>
     </button>
@@ -301,7 +291,10 @@ export function FloorPlanLayoutView({
         <div className="card-admin relative flex min-h-[480px] flex-1 flex-col overflow-visible border-2 border-dashed border-neutral-200 bg-neutral-50/50 p-6">
           <div className="flex flex-1 flex-col items-center justify-center gap-4">
             <RoomShapeDisplay setup={roomSetup} maxPx={400}>
-              <div className="absolute inset-3 flex flex-wrap content-center justify-center gap-2">
+              <FloorPlanAccessoriesOverlay
+                accessoryIds={roomSetup.placedAccessories}
+              />
+              <div className="absolute inset-[10%] z-[2] flex flex-wrap content-center justify-center gap-2">
                 {filteredGroups.map((group) => (
                   <TablePreviewCard
                     key={group.tableId}

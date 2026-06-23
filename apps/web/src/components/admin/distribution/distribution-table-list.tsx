@@ -13,6 +13,13 @@ import {
   type DistributionTableGroup,
   type TableOccupancyStatus,
 } from '@/lib/distribution-view';
+import {
+  filterChipClass,
+  filterChipCountClass,
+  tableStatusBadgeClass,
+  tableStatusBarClass,
+  tableStatusDotClass,
+} from '@/lib/semantic-ui';
 
 const FILTER_OPTIONS: Array<{
   id: DistributionTableFilter;
@@ -26,32 +33,18 @@ const FILTER_OPTIONS: Array<{
 ];
 
 function StatusDot({ status }: { status: TableOccupancyStatus }) {
-  const colorClass =
-    status === 'full'
-      ? 'bg-success-500'
-      : status === 'in-use'
-        ? 'bg-warning-500'
-        : 'bg-neutral-500';
-
   return (
     <span
-      className={`inline-block h-2 w-2 shrink-0 rounded-full ${colorClass}`}
+      className={`inline-block h-2 w-2 shrink-0 rounded-full ${tableStatusDotClass(status)}`}
       aria-hidden
     />
   );
 }
 
 function StatusChip({ group }: { group: DistributionTableGroup }) {
-  const chipClass =
-    group.status === 'full'
-      ? 'border-success-500/30 bg-success-500/10 text-success-500'
-      : group.status === 'in-use'
-        ? 'border-warning-500/30 bg-warning-500/10 text-warning-500'
-        : 'border-neutral-200 bg-neutral-100 text-neutral-500';
-
   return (
     <span
-      className={`inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${chipClass}`}
+      className={`inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${tableStatusBadgeClass(group.status)}`}
     >
       {getStatusChipLabel(group)}
     </span>
@@ -77,12 +70,7 @@ function CapacityBar({ group }: { group: DistributionTableGroup }) {
     group.capacity > 0
       ? Math.min(100, (group.assignedCount / group.capacity) * 100)
       : 0;
-  const barClass =
-    group.status === 'full'
-      ? 'bg-success-500'
-      : group.status === 'in-use'
-        ? 'bg-warning-500'
-        : 'bg-wf-3';
+  const barClass = tableStatusBarClass(group.status);
 
   return (
     <div className="flex min-w-[7.5rem] items-center gap-2">
@@ -210,19 +198,11 @@ export function DistributionTableList({
               <button
                 key={option.id}
                 type="button"
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition ${
-                  active
-                    ? 'bg-neutral-900 text-white'
-                    : 'border border-neutral-200 bg-neutral-0 text-neutral-700 hover:bg-neutral-50'
-                }`}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition ${filterChipClass(active)}`}
                 onClick={() => setFilter(option.id)}
               >
                 {option.label}
-                <span
-                  className={
-                    active ? 'text-neutral-300' : 'text-neutral-500'
-                  }
-                >
+                <span className={filterChipCountClass(active)}>
                   {count}
                 </span>
               </button>

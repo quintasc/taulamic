@@ -1,26 +1,28 @@
 # Roadmap MVP julio — Vista grafica
 
-> **Hoy:** 18 jun 2026 · **Hito piloto:** 31 jul 2026 · **Decision:** [DECISION-002](DECISION-002-mvp-julio-piloto-funcional.md)  
-> Plan detallado: [mvp-julio-plan.md](mvp-julio-plan.md)
+> **Hoy:** 21 jun 2026 · **Hito piloto:** 31 jul 2026 · **Decision:** [DECISION-002](DECISION-002-mvp-julio-piloto-funcional.md)  
+> Plan detallado: [mvp-julio-plan.md](mvp-julio-plan.md) · Estado operativo: [CONTEXTO-EJECUCION.md](CONTEXTO-EJECUCION.md)  
+> Commits referencia: `010cbae` (refinamiento UI piloto) · `10da7d5` (docs HU-05)
 
 ## Donde estamos ahora
 
 ```
 Mar 2026          Jun 2026                              Jul 2026              Ago+
-|---- SDD/backlog ----|-- Sprint 02 EP-11 --|-- W1..W6 piloto --|-- SDD completo --|
-                       ^^^^^^^^^^^^^^^^^^^^^
-                       #22-25 HECHO  #26 AHORA
-                                              ^
-                                         MVP piloto 31 jul
+|---- SDD/backlog ----|-- entrega nucleo piloto --|-- cierre y prueba --|-- SDD completo --|
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                       EP-11..13 API UI motor E2E HECHO
+                                              ^^^^^^^^^
+                                         refinamiento + hito 31 jul
 ```
 
 | Indicador | Valor |
 |-----------|-------|
-| **Posicion temporal** | Semana 1 de 6 (18–22 jun) |
-| **Issue activa** | **#26** — E2E calidad importacion plano |
-| **EP-11 (plano)** | 4/5 issues cerradas (#22–#25) |
-| **Progreso piloto (issues)** | ~20 % (4 de ~20 entregables) |
-| **Dias hasta piloto** | 43 dias |
+| **Posicion temporal** | Semana 1 de 6 (18–22 jun) — **nucleo piloto adelantado** |
+| **Foco actual** | Refinamiento UX setup/plano/invitados; validacion manual; huecos documentados |
+| **EP-11 / EP-12 / EP-13** | **Cerrados** (#22–#36) |
+| **EP-01 / EP-02 / motor v0 / E2E / UI W5–W6** | **Cerrados** (PR #37–#39 + commits jun 2026) |
+| **Progreso piloto (nucleo funcional)** | **~85 %** — flujo demostrable en `main` |
+| **Dias hasta piloto** | 40 dias |
 
 **Estado por color:** `HECHO` · `EN CURSO` · `PLANIFICADO` · `POSPILOTO`
 
@@ -32,42 +34,48 @@ Copia o visualiza este bloque en GitHub, VS Code o [mermaid.live](https://mermai
 
 ```mermaid
 gantt
-    title Roadmap Taulamic — MVP julio piloto (hasta 31 jul 2026)
+    title Roadmap Taulamic — MVP julio piloto (actualizado 21 jun 2026)
     dateFormat YYYY-MM-DD
     axisFormat %d %b
 
     section Preparacion
     SDD backlog ADRs sprints     :done, prep, 2026-03-01, 2026-06-17
 
-    section W1 18-22 jun
-    EP-11 plano #22-25           :done, w1a, 2026-06-01, 2026-06-17
-    EP-11 E2E #26                :active, w1b, 2026-06-18, 2026-06-22
-    Excel inicio #27-29          :w1c, 2026-06-18, 2026-06-22
+    section Backend y API (adelantado)
+    EP-11 plano API #22-26       :done, ep11, 2026-06-01, 2026-06-20
+    Excel EP-12 #27-31           :done, ep12, 2026-06-10, 2026-06-18
+    Preferencias EP-13 #32-36    :done, ep13, 2026-06-10, 2026-06-18
+    Evento mesas EP-01 #1 #15    :done, ep01, 2026-06-08, 2026-06-16
+    Invitados API EP-02 #2       :done, ep02, 2026-06-08, 2026-06-16
+    Motor v0 distribucion        :done, motor, 2026-06-12, 2026-06-20
+    E2E piloto-flow              :done, e2e, 2026-06-15, 2026-06-20
+    OpenAPI piloto #9            :done, oapi, 2026-06-12, 2026-06-18
 
-    section W2 23-29 jun
-    Excel cierre #30-31          :w2a, 2026-06-23, 2026-06-29
-    Preferencias #32-36          :w2b, 2026-06-23, 2026-06-29
+    section Frontend admin (adelantado)
+    UI admin base W5 PR38        :done, w5, 2026-06-10, 2026-06-18
+    UI piloto W6 PR39            :done, w6, 2026-06-15, 2026-06-20
+    Plano Fase A/B ADR-016       :done, plano, 2026-06-18, 2026-06-22
+    Distribucion v2 Dashboard v2 :done, dist, 2026-06-15, 2026-06-20
 
-    section W3 30 jun-6 jul
-    Preferencias cierre          :w3a, 2026-06-30, 2026-07-06
-    Forma mesa #15               :w3b, 2026-06-30, 2026-07-06
-    Evento mesas API EP-01       :w3c, 2026-06-30, 2026-07-06
+    section Refinamiento jun 2026
+    Flujo setup enmienda jun     :done, setup, 2026-06-19, 2026-06-21
+    Invitados alta manual RSVP   :done, guests, 2026-06-19, 2026-06-21
+    Colores semanticos piloto    :done, sem, 2026-06-20, 2026-06-21
+    Docs ADR-018 019 HU-05       :done, docs, 2026-06-20, 2026-06-21
 
-    section W4 7-13 jul
-    Invitados API EP-02          :w4a, 2026-07-07, 2026-07-13
-    Integracion plano Excel      :w4b, 2026-07-07, 2026-07-13
-
-    section W5 14-20 jul
-    Frontend admin minimo        :w5a, 2026-07-14, 2026-07-20
-
-    section W6 21-31 jul
-    Motor v0 distribucion        :crit, w6a, 2026-07-21, 2026-07-28
-    Prueba piloto y fixes        :crit, w6b, 2026-07-25, 2026-07-31
+    section Cierre piloto (W1-W6 restante)
+    Validacion manual guion UI   :active, val, 2026-06-18, 2026-06-28
+    API persistencia layout      :crit, layout, 2026-06-23, 2026-07-10
+    Fondo accesorios canvas      :layout2, 2026-06-25, 2026-07-15
+    Estabilizacion y fixes       :crit, fix, 2026-07-14, 2026-07-30
+    Prueba piloto usuario real   :crit, test, 2026-07-20, 2026-07-31
     Hito MVP piloto              :milestone, mvp, 2026-07-31, 0d
 
     section Post-piloto ago+
-    PostgreSQL auth motor EP-08  :post, 2026-08-01, 2026-12-31
-    Top-K RSVP documentos UI     :post2, 2026-08-01, 2026-12-31
+    HU-05 ajuste manual invitados:post, 2026-08-01, 2026-10-31
+    Drag posiciones mesas ADR-016:post2, 2026-08-01, 2026-10-31
+    PostgreSQL auth motor EP-08  :post3, 2026-08-01, 2026-12-31
+    Top-K RSVP documentos UI     :post4, 2026-08-01, 2026-12-31
 ```
 
 ---
@@ -79,18 +87,17 @@ timeline
     title Hitos Taulamic 2026
     section Hecho
         Mar-Jun : SDD-00 SDD-01 backlog ADRs
-        Jun : EP-11 upload detect draft confirm (#22-#25)
-    section En curso (W1)
-        18-22 jun : #26 E2E importacion plano
-    section Proximo (W2-W3)
-        23 jun-6 jul : Excel #27-31 Preferencias #32-36 #15 forma mesa
-        30 jun-6 jul : API evento y mesas EP-01
-    section Piloto (W4-W6)
-        7-13 jul : API invitados integracion
-        14-20 jul : UI admin Next.js
-        21-31 jul : Motor v0 prueba piloto
+        Jun : EP-11..13 Excel preferencias plano API
+        Jun : EP-01 EP-02 motor v0 E2E OpenAPI
+        Jun : UI admin W5 W6 Distribucion v2 plano Fase A/B
+    section En curso (jun)
+        18-28 jun : Validacion manual refinamiento setup invitados
+        23 jun+ : API layout salon fondo accesorios
+    section Cierre (jul)
+        14-31 jul : Estabilizacion prueba piloto real
+        31 jul : Hito MVP piloto
     section Post-piloto
-        Ago+ : MVP SDD completo PostgreSQL auth Top-K RSVP
+        Ago+ : HU-05 drag mesas PostgreSQL auth Top-K RSVP
 ```
 
 ---
@@ -99,12 +106,12 @@ timeline
 
 | Semana | Fechas | Entregable clave | Estado |
 |--------|--------|------------------|--------|
-| **W1** | 18–22 jun | #26 E2E; inicio Excel | **EN CURSO** — estamos aqui |
-| W2 | 23–29 jun | Excel #30–31; preferencias | Planificado |
-| W3 | 30 jun – 6 jul | Preferencias; #15; evento API | Planificado |
-| W4 | 7–13 jul | Invitados API; integracion | Planificado |
-| W5 | 14–20 jul | Frontend admin minimo | Planificado |
-| W6 | 21–31 jul | Motor v0; piloto real | Planificado |
+| **W1** | 18–22 jun | Nucleo piloto + refinamiento UX | **EN CURSO** — nucleo **HECHO**; pulido activo |
+| W2 | 23–29 jun | API layout salon; fondo/accesorios | Planificado |
+| W3 | 30 jun – 6 jul | Cierre huecos plano; checklist setup | Planificado |
+| W4 | 7–13 jul | Estabilizacion integracion | Planificado |
+| W5 | 14–20 jul | Prueba piloto interna | Planificado |
+| W6 | 21–31 jul | Fixes finales; demo usuario real | Planificado |
 | Post | ago 2026+ | MVP SDD completo | Pospuesto (SDD intacto) |
 
 ---
@@ -113,21 +120,22 @@ timeline
 
 ```mermaid
 pie showData
-    title Entregables MVP julio por estado (18 jun)
-    "Hecho (#22-#25)" : 4
-    "En curso (#26)" : 1
-    "Pendiente piloto" : 15
+    title Entregables MVP julio por estado (21 jun)
+    "Hecho (API UI motor E2E)" : 16
+    "En curso (refinamiento)" : 2
+    "Pendiente cierre piloto" : 3
 ```
 
-| Bloque | Issues | Hecho | En curso | Pendiente |
-|--------|--------|-------|----------|-----------|
-| Plano EP-11 | #22–#26 | 4 | 1 (#26) | 0 |
-| Excel EP-12 | #27–#31 | 0 | 0 | 5 |
-| Preferencias EP-13 | #32–#36 | 0 | 0 | 5 |
-| Evento EP-01 | #1, #15 | 0 | 0 | 2 |
-| Invitados EP-02 | #2 | 0 | 0 | 1 |
-| Distribucion piloto | motor v0, E2E | 0 | 0 | 2 |
-| UI admin | W5 | 0 | 0 | 1 |
+| Bloque | Issues / ambito | Hecho | En curso | Pendiente |
+|--------|-----------------|-------|----------|-----------|
+| Plano EP-11 | #22–#26 + ADR-016 UI | 5 + Fase A/B | — | API layout, fondo, drag accesorios |
+| Excel EP-12 | #27–#31 | 5 | — | — |
+| Preferencias EP-13 | #32–#36 | 5 | — | Motor afinidad real (post-piloto) |
+| Evento EP-01 | #1, #15 | 2 | — | — |
+| Invitados EP-02 | #2 + UI manual | 1 + UI | refinamiento UX | — |
+| Distribucion piloto | motor v0, E2E | 2 | — | HU-05 manual (post-piloto) |
+| UI admin | W5 + W6 + jun 2026 | 1 + refinamiento | validacion manual | — |
+| Docs gobernanza | ADR-016 018 019 HU-05 | 4 | — | — |
 
 ---
 
@@ -135,14 +143,14 @@ pie showData
 
 | Nivel | Fecha objetivo | Que incluye |
 |-------|----------------|-------------|
-| **MVP julio (piloto)** | **31 jul 2026** | Admin: plano + Excel + evento + invitados + motor v0 + UI minima |
+| **MVP julio (piloto)** | **31 jul 2026** | Admin: plano + Excel + evento + invitados + motor v0 + UI minima — **nucleo en `main`** |
 | **MVP SDD completo** | Post-piloto | Todo `SDD-01-borrador-mvp.md` — sin rebaja de requisitos |
 
 ---
 
 ## Como mantener el roadmap al dia
 
-1. Al cerrar una issue GitHub, actualizar la fila correspondiente en la matriz semanal.
-2. Cambiar `#26` por la siguiente issue en la fila **Issue activa** de [CONTEXTO-EJECUCION.md](CONTEXTO-EJECUCION.md).
+1. Al cerrar una issue GitHub o merge relevante, actualizar la matriz semanal y barras `done` del Gantt.
+2. Sincronizar foco activo con [CONTEXTO-EJECUCION.md](CONTEXTO-EJECUCION.md).
 3. Si cambia el calendario, editar primero `mvp-julio-plan.md` y luego este archivo (fechas Gantt).
-4. Para vista interactiva en Cursor, abrir el canvas: `canvases/roadmap-mvp-julio.canvas.tsx` (panel lateral).
+4. Cumplimiento piloto vs SDD-01: `docs/sdd/SDD-PILOTO-alineacion-y-huecos.md`.

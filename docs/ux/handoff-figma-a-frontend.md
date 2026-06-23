@@ -271,6 +271,8 @@ Botón **Guardar** → `PUT /events/{eventId}` + `PUT .../preference-control-mod
 
 ### Admin — Invitados (Excel)
 
+> **Evolución post-piloto (jun 2026):** rediseño panel logístico v2 — drawer lateral, tabla completa, bulk action bar. Ver **`docs/ux/spec-invitados-panel-v2-post-piloto.md`**. Separación estricta: **Invitados** = datos de contacto/logística; **Afinidades** = motor de reglas (ADR-018).
+
 #### Plantilla + import
 
 | Acción | API |
@@ -618,6 +620,7 @@ Registro de respuestas del producto y peticiones nuevas. **No implementado** sal
 | Media | Excel sin `preferencia_control` | Sí — plantilla piloto sin columna (jun 2026) |
 | Media | Lista sin asignar (clic KPI) | Tras Figma |
 | Baja / post-MVP | Plano Fase B drag-drop **mesas** + fondo IA | No (ADR-016) |
+| Baja / post-piloto | Panel Invitados v2 (drawer, bulk bar, Maps) | No — ver spec-invitados-panel-v2 |
 | Baja / post-piloto | HU-05: ✕/+ desasignar/asignar + KPIs | No — ver enmienda HU-05 Fase 1 |
 | Baja / post-piloto | HU-05: drag invitado entre mesas | No — enmienda HU-05 Fase 2 |
 | Baja / post-MVP | Bloqueo invitados (handoff §6) | No |

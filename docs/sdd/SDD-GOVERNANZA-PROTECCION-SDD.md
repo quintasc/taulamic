@@ -44,6 +44,7 @@ La validacion tecnica (tests, cobertura y CI) se rige por `docs/agile/politica-v
 
 - Vision y estrategia: `SDD-00-vision-y-estrategia.md`
 - Alcance MVP y requisitos: `SDD-01-borrador-mvp.md` y anexos `SDD-01A` a `SDD-01E`
+- Alineacion piloto (jun 2026): `SDD-PILOTO-alineacion-y-huecos.md`
 - Backlog ejecutable: `SDD-02-backlog-inicial.md`
 - IA asistiva: `SDD-03-ia-asistiva-priorizada.md`
 

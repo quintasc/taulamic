@@ -1,7 +1,9 @@
 # ADR-010 - Importacion de plano desde imagen/PDF
 
-- Estado: Aceptado
+- Estado: Aceptado (**superseded parcialmente** por `ADR-016-plano-espacial-salon-dos-fases.md`, 2026-06-23)
 - Fecha: 2026-06-17
+
+> **Nota 2026-06-23:** El flujo principal de producto ya no usa la deteccion de mesas como onboarding obligatorio. Ver `ADR-016` y `SDD-01D` actualizado. La API EP-11 (`floor-plans` + `detect`) permanece como capacidad tecnica; la UI piloto implementa plano espacial en dos fases.
 
 ## Contexto
 

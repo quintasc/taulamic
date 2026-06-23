@@ -527,7 +527,7 @@ Registro de respuestas del producto y peticiones nuevas. **No implementado** sal
 - **Fondo inteligente:** IA detecta **espacio/contorno** del salón, no lista de mesas.
 - **Accesorios:** iconos del ejemplo Make a **rediseñar** (wireframe, no clipart).
 
-**Gobernanza:** revisar `SDD-01D`, `ADR-010`, EP-11 → **ADR pendiente** antes de reescribir SDD.
+**Gobernanza:** `ADR-016` (2026-06-23) formaliza este cambio; `SDD-01D` y `SDD-01` (Flujo G, HU-12) actualizados. EP-11 API legacy sin UI principal.
 
 **Handoff detallado:** § Admin — Plano → «Plano del salón — diseño Figma Make».
 

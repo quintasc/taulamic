@@ -25,7 +25,7 @@ Definir con claridad que entra en el MVP, como debe comportarse el sistema y com
 12. Conservar ranking Top-K de mejores distribuciones validas antes de aprobar.
 13. Crear y enviar invitaciones digitales a invitados (individual o masivo).
 14. Registrar y gestionar confirmacion de asistencia (RSVP).
-15. Importar plano del salon desde imagen o PDF para autoconfigurar mesas (con validacion manual).
+15. Configurar el **espacio del salon** (forma, medidas, fondo opcional) y visualizar mesas calculadas sobre el plano; la autodeteccion de mesas desde imagen queda como capacidad secundaria (`ADR-016`, no camino principal UI).
 16. Precargar invitados desde Excel estandar descargable con validacion de datos.
 17. Permitir modo de control de preferencias: colaborativo (invitados) o exclusivo de anfitriones.
 18. Aplicar regla de acompanantes juntos por defecto, con excepcion explicita.
@@ -106,13 +106,22 @@ Definir con claridad que entra en el MVP, como debe comportarse el sistema y com
 4. Sistema actualiza estado de asistencia en tiempo real para el evento.
 5. Admin puede reenviar o recordar invitacion a pendientes.
 
-### Flujo G - Importacion de plano del salon (imagen/PDF)
+### Flujo G - Plano espacial del salon (dos fases)
 
-1. Admin sube imagen o PDF del plano del salon.
-2. Sistema detecta mesas candidatas, forma y capacidad estimada.
-3. Sistema muestra propuesta con nivel de confianza por mesa.
-4. Admin corrige manualmente y confirma la configuracion final.
-5. Evento queda configurado para continuar con invitados y asignacion.
+> Redefinido en `ADR-016` y `SDD-01D` (2026-06-23). Sustituye el flujo «solo importar para autoconfigurar mesas».
+
+**Fase A — Configuracion del espacio**
+
+1. Admin define forma del salon (rectangular, redonda, ovalada) y medidas en metros.
+2. Opcional: sube fondo (imagen/PDF) como referencia visual del espacio (IA de contorno, no lista de mesas).
+3. Opcional: coloca accesorios (pista, escenario, etc.).
+4. Admin guarda el layout del salon y continua el setup (mesas en pantalla dedicada).
+
+**Fase B — Layout tras distribucion**
+
+1. Tras calcular distribucion, admin abre «Ver en plano».
+2. Sistema muestra perimetro del salon y mesas con ocupacion.
+3. Admin consulta invitados por mesa; post-MVP: arrastra y guarda posiciones.
 
 ### Flujo H - Precarga de invitados por Excel
 
@@ -251,7 +260,23 @@ Criterios de aceptacion:
 - El estado se guarda como `si`, `no` o `pendiente`.
 - El admin ve el cambio actualizado sin recargar todo el evento.
 
-### HU-12 (Admin): importar plano y autoconfigurar mesas
+### HU-12 (Admin): configurar plano espacial del salon
+
+Como admin, quiero definir el espacio del salon y ver las mesas calculadas sobre el plano para orientarme en el evento.
+
+Criterios de aceptacion:
+
+- El admin puede elegir forma del salon (rectangular, redonda, ovalada) y medidas en metros.
+- El canvas permite redimensionar el perimetro y sincronizar medidas.
+- Las mesas del evento se configuran en pantalla Mesas (HU-01), no como unico resultado de importar imagen.
+- Tras calcular distribucion, el admin ve mesas sobre el plano con estado de ocupacion.
+- El admin puede consultar invitados asignados al seleccionar una mesa.
+- Opcional (post-piloto): fondo desde imagen/PDF; opcional (post-MVP): arrastrar mesas y guardar posiciones.
+- Referencia: `ADR-016`, `SDD-01D`.
+
+### HU-12-LEGACY (Admin): importar plano y autoconfigurar mesas
+
+> Flujo secundario / API EP-11. No es el camino principal de producto tras `ADR-016`.
 
 Como admin, quiero subir un plano del salon para reducir el trabajo manual de configuracion.
 
@@ -516,7 +541,7 @@ Principios de baja friccion:
 Referencia:
 
 - `docs/sdd/SDD-01C-principios-estilo-y-baja-friccion.md`
-- `docs/sdd/SDD-01D-importacion-plano-salon.md`
+- `docs/sdd/SDD-01D-importacion-plano-salon.md` (plano espacial; ver `ADR-016`)
 - `docs/sdd/SDD-01E-precarga-invitados-excel.md`
 
 ## 18) IA asistiva en el producto

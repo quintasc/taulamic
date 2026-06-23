@@ -1,6 +1,7 @@
 ﻿# Contexto de ejecucion — punto de reanudacion
 
-- Ultima actualizacion: **2026-06-22**
+- Ultima actualizacion: **2026-06-23**
+- Commit web referencia: **`0f15b37`** (`main`) — plano Fase A/B, mesas cantidad/etiquetas, invitados al clic
 - Hito activo: **MVP julio (piloto)** — ver `DECISION-002-mvp-julio-piloto-funcional.md`
 - Naming: producto **Taulamic**, dominio **taulamic.com**, repo `quintasc/taulamic`
 - **Modo actual:** trabajo en **2 ventanas Cursor** en paralelo (sin solapamiento de codigo)
@@ -43,7 +44,7 @@ Ver `docs/ux/handoff-figma-a-frontend.md` § **Decisiones y backlog UX post-vali
 
 - Distribución v2 + Dashboard v2 + afinidad «no calculado en piloto»
 - Excel **sin** `preferencia_control` (pendiente aprobación cambio spec)
-- **Plano:** nuevo propósito espacial post-distribución — **post-MVP** (ADR pendiente); suspendido «Corregir plano» piloto
+- **Plano:** vision espacial dos fases — **`ADR-016`** + `SDD-01D` actualizado; Fase A/B en web (`0f15b37`); drag-drop y API layout post-MVP
 - Bloqueo invitados: en SDD §7.1; sin API/UI piloto
 - Manual ✕/+ en mesas y lista sin asignar clic KPI: post-piloto / tras Figma
 
@@ -56,7 +57,7 @@ Ver `docs/ux/handoff-figma-a-frontend.md` § **Decisiones y backlog UX post-vali
 ### Frase clave (pegar en el chat)
 
 ```text
-Soy Ventana 1. Taulamic W6 cerrado (PR #39 en main). Piloto UI: Distribución v2, Dashboard v2, eliminar mesa con aviso. Siguiente: post-MVP plano Fase A/B, checklist setup prefs/plano. API :3000, web :3001. SDD manda.
+Soy Ventana 1. Taulamic main @ 0f15b37. Piloto: Distribución v2, plano Fase A/B (ADR-016), mesas M1…n, invitados al clic en plano. Lee docs/sdd/SDD-PILOTO-alineacion-y-huecos.md. API :3000, web :3001. SDD manda.
 ```
 
 ### Objetivo
@@ -71,7 +72,7 @@ Completar el piloto demostrable en UI: **Distribución v2**, **Dashboard v2**, v
 - **Estructura modular:** `components/ui|marketing|admin|brand|tables`, `hooks/`, `lib/`
 - Admin shell: logo, sidebar, «Evento en curso» (solo lectura), nav-map
 - Dashboard KPIs en 0 para proyecto vacío; sesión MVP (`sessionStorage`, evento nuevo en `/admin`)
-- Pantallas: config, plano (subir), invitados, preferencias, mesas, **distribución v2** (tabla, filtros, todas las mesas, Ver en plano)
+- Pantallas: config, **plano Fase A** (forma/medidas), invitados, preferencias, mesas (cantidad + etiquetas), **distribución v2**, **ver en plano Fase B** (invitados al clic)
 - **Dashboard v2** — KPIs Invitados/Mesas/plazas; afinidad «No calculado en piloto»
 - Fixes: shim `components/ui.tsx`, hydration `HeroFloorplan`, `npm run dev:clean`
 - CORS API para `localhost:3001`
@@ -82,10 +83,16 @@ Completar el piloto demostrable en UI: **Distribución v2**, **Dashboard v2**, v
 ### Pendiente post-W6 (piloto / post-MVP)
 
 1. ~~Validación manual UI~~ — OK jun 2026
-2. ~~Merge PR #39~~ — hecho (`b03a7f0`)
-3. **Plano del salón v2** — post-MVP (Figma jun 2026; API pendiente)
+2. ~~Merge PR #39~~ — hecho; plano adicional en `0f15b37`
+3. **Plano:** fondo opcional, accesorios drag, API persistencia layout (`ADR-016`)
 4. Checklist setup: prefs y plano (hardcoded `false` en dashboard)
-5. **Post-MVP:** posicionar mesas en canvas, lista sin asignar, edición ✕/+, bloqueo invitados, Excel sin `preferencia_control`
+5. **Post-MVP:** drag-drop posiciones mesas, lista sin asignar, edición ✕/+, bloqueo invitados, Excel sin `preferencia_control`
+
+### Documentacion gobernanza plano (2026-06-23)
+
+- `docs/adr/ADR-016-plano-espacial-salon-dos-fases.md`
+- `docs/sdd/SDD-01D-importacion-plano-salon.md` (reescrito)
+- `docs/sdd/SDD-PILOTO-alineacion-y-huecos.md` (tabla HU / huecos)
 
 ### Dev local (Windows / OneDrive)
 
@@ -104,6 +111,8 @@ cd apps\web; npm run dev:clean
 ### Referencias
 
 - `docs/agile/mvp-julio-plan.md` (W6 cierre piloto)
+- `docs/sdd/SDD-PILOTO-alineacion-y-huecos.md` (cumplimiento piloto vs SDD-01)
+- `docs/adr/ADR-016-plano-espacial-salon-dos-fases.md`
 - **`docs/ux/handoff-figma-a-frontend.md`** (mapa pantallas → API + checklist)
 - `docs/ux/design-tokens-mvp.md` · `docs/ux/figma-mvp.md` · `docs/ux/figma-make-prompts.md`
 - OpenAPI: `/api/docs` y `/api-json` (version `1.0-pilot`)

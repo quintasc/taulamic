@@ -4,7 +4,7 @@ Archivo: [MVP Taulamic App Design](https://www.figma.com/make/SanoIvjqWYghT7bXfN
 
 **Cómo usar:** pega **un prompt por mensaje** en Figma Make. Espera el resultado, revisa, ajusta. Repite en el orden indicado.
 
-**Contexto visual existente (no cambiar):** 3 pestañas Marketing · Admin · Sistema. Coral `#EB6B4A`, fuente Inter, sidebar admin con evento «Boda García-López», nav Dashboard / Configuración / Plano / Invitados / Preferencias / Mesas / Distribución.
+**Contexto visual existente (no cambiar):** 3 pestañas Marketing · Admin · Sistema. Coral `#EB6B4A`, fuente Inter, sidebar admin con evento «Boda García-López», nav Dashboard / Configuración / Plano / Invitados / Mesas / Afinidades / Distribución.
 
 ---
 
@@ -19,6 +19,7 @@ Archivo: [MVP Taulamic App Design](https://www.figma.com/make/SanoIvjqWYghT7bXfN
 | 5 | Mapa navegación | Media | Admin |
 | 6 | Enlaces prototipo | Media | Admin |
 | 7 | Unificar color token | Baja | Sistema |
+| 8 | Panel Invitados v2 | Alta | Admin |
 
 ---
 
@@ -174,6 +175,43 @@ En página Sistema, unifica el color primario de marca a #E86B4A en toda la docu
 
 ---
 
+## Prompt 8 — Admin: Panel Invitados v2 (post-piloto, jun 2026)
+
+**Spec:** `docs/ux/spec-invitados-panel-v2-post-piloto.md` · Separación: **Invitados** = datos logísticos; **Afinidades** = reglas motor.
+
+```text
+Rediseña pantalla Admin "Invitados", sidebar Invitados activo. Estilo Strict Low-Fi admin Taulamic: Inter, coral #EB6B4A, bordes #E8E8E8.
+
+Cabecera:
+- Título "Invitados"
+- Subtítulo "Lista logística y contacto del evento."
+- Derecha: botón primario coral "+ Añadir invitado"
+- Secundarios: "Descargar plantilla", "Importar Excel"
+
+Filtros (sobre tabla):
+- Buscador texto ancho completo
+- Chips filtro: "Pendientes de confirmar", "Solo menú especial", "Sin categoría"
+
+Tabla columnas (orden fijo):
+[ ] checkbox | RSVP icono | Nombre | Correo | Teléfono | Categoría | Alertas (iconos 🌾 ♿) | Invitación (chip) | ⋮ acciones
+
+Estado vacío: mensaje + CTA importar o añadir.
+
+Frame 2 — Drawer lateral derecho (40% ancho) al pulsar "+ Añadir" o Editar:
+- Campos: Nombre, Correo, Teléfono, Categoría, RSVP, Acompañante/pareja, Intolerancias, Movilidad, Notas internas
+- Botones pie: Cancelar | Guardar
+- Tabla visible difuminada detrás
+
+Frame 3 — Bulk Action Bar (aparece con ≥1 checkbox):
+- Barra flotante inferior gris oscuro: "15 invitados seleccionados"
+- Botones: Asignar categoría | Cambiar estado | Enviar invitaciones | Exportar | Eliminar
+
+NO incluir afinidades ± ni reglas de motor en esta pantalla (van en "Afinidades").
+Anotación amarilla: "Post-piloto jul 2026 — referencia implementación."
+```
+
+---
+
 ## Checklist al terminar
 
 - [x] Prompt 1 — Nota auth en Marketing
@@ -183,6 +221,7 @@ En página Sistema, unifica el color primario de marca a #E86B4A en toda la docu
 - [x] Prompt 5 — Mapa navegación
 - [x] Prompt 6 — Enlaces prototipo
 - [x] Prompt 7 — Color unificado (opcional)
+- [ ] Prompt 8 — Panel Invitados v2 (jun 2026)
 - [ ] Exportar PDF capturas → evidencia en repo (opcional)
 - [ ] Cerrar issue #7 cuando verificado + merge
 

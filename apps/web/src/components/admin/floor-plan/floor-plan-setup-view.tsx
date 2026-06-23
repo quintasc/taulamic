@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { IconChevronDown } from '@/components/icons';
 import { ResizableRoomCanvas } from '@/components/admin/floor-plan/resizable-room-canvas';
 import { Alert, PageHeader } from '@/components/ui';
+import { ApiError, eventsApi } from '@/lib/api';
 import {
   loadEventUiMeta,
   markFloorPlanUploaded,
@@ -70,12 +71,50 @@ export function FloorPlanSetupView({
   const [configOpen, setConfigOpen] = useState(true);
   const [hydrated, setHydrated] = useState(false);
   const [guestCountHint, setGuestCountHint] = useState(0);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    setSetup(loadFloorPlanSetup(eventId));
-    const meta = loadEventUiMeta(eventId);
-    setGuestCountHint(parseApproximateGuestCount(meta));
-    setHydrated(true);
+    let cancelled = false;
+
+    async function hydrate() {
+      const local = loadFloorPlanSetup(eventId);
+      if (!cancelled) {
+        setSetup(local);
+      }
+
+      try {
+        const remote = await eventsApi.getRoomSetup(eventId);
+        if (cancelled) {
+          return;
+        }
+        const fromApi = normalizeSetupForShape({
+          shape: remote.shape,
+          widthM: remote.widthM,
+          lengthM: remote.lengthM,
+          radiusM: remote.radiusM,
+          placedAccessories: remote.placedAccessories,
+        });
+        setSetup(fromApi);
+        saveFloorPlanSetup(eventId, fromApi);
+      } catch (err) {
+        if (!(err instanceof ApiError && err.status === 404)) {
+          // Mantener copia local si la API falla.
+        }
+      }
+
+      const meta = loadEventUiMeta(eventId);
+      if (!cancelled) {
+        setGuestCountHint(parseApproximateGuestCount(meta));
+        setHydrated(true);
+      }
+    }
+
+    void hydrate();
+
+    return () => {
+      cancelled = true;
+    };
   }, [eventId]);
 
   useEffect(() => {
@@ -106,9 +145,21 @@ export function FloorPlanSetupView({
 
   function handleSave() {
     const normalized = normalizeSetupForShape(setup);
-    saveFloorPlanSetup(eventId, normalized);
-    markFloorPlanUploaded(eventId);
-    router.push(routes.guests);
+    setSaving(true);
+    setSaveError(null);
+    void eventsApi
+      .saveRoomSetup(eventId, normalized)
+      .then(() => {
+        saveFloorPlanSetup(eventId, normalized);
+        markFloorPlanUploaded(eventId);
+        router.push(routes.guests);
+      })
+      .catch(() => {
+        setSaveError('No se pudo guardar el plano en el servidor.');
+      })
+      .finally(() => {
+        setSaving(false);
+      });
   }
 
   if (!hydrated) {
@@ -130,12 +181,23 @@ export function FloorPlanSetupView({
                 Ver mesas en plano
               </Link>
             ) : null}
-            <button type="button" className="btn-primary" onClick={handleSave}>
-              Guardar y continuar
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={handleSave}
+              disabled={saving}
+            >
+              {saving ? 'Guardando…' : 'Guardar y continuar'}
             </button>
           </div>
         }
       />
+
+      {saveError ? (
+        <div className="mb-4">
+          <Alert variant="error">{saveError}</Alert>
+        </div>
+      ) : null}
 
       {roomRecommendation ? (
         <div className="mb-6">

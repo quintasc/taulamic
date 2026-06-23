@@ -29,11 +29,19 @@ import {
   type EventDetail,
 } from './application/manage-event-config.use-case';
 import {
+  GetRoomSetupUseCase,
+  UpsertRoomSetupUseCase,
+} from './application/room-setup.use-case';
+import {
   CreateEventDto,
   EventDetailResponseDto,
   UpdateEventDto,
   UpsertEventTableDto,
 } from './dto/event-config.dto';
+import {
+  RoomSetupResponseDto,
+  UpsertRoomSetupDto,
+} from './dto/room-setup.dto';
 
 function toResponse(event: EventDetail): EventDetailResponseDto {
   return {
@@ -64,6 +72,8 @@ export class EventConfigController {
     private readonly addEventTableUseCase: AddEventTableUseCase,
     private readonly updateEventTableUseCase: UpdateEventTableUseCase,
     private readonly removeEventTableUseCase: RemoveEventTableUseCase,
+    private readonly getRoomSetupUseCase: GetRoomSetupUseCase,
+    private readonly upsertRoomSetupUseCase: UpsertRoomSetupUseCase,
   ) {}
 
   @Post()
@@ -146,5 +156,34 @@ export class EventConfigController {
     @Param('tableId') tableId: string,
   ): Promise<void> {
     await this.removeEventTableUseCase.execute(eventId, tableId);
+  }
+
+  @Get(':eventId/room-setup')
+  @ApiOperation({ summary: 'Consultar configuracion del salon (plano Fase A)' })
+  @ApiParam({ name: 'eventId', example: 'evt_123' })
+  @ApiOkResponse({ type: RoomSetupResponseDto })
+  @ApiNotFoundResponse({
+    description: 'Evento no encontrado o sin room-setup guardado.',
+  })
+  async getRoomSetup(
+    @Param('eventId') eventId: string,
+  ): Promise<RoomSetupResponseDto> {
+    return this.getRoomSetupUseCase.execute(eventId);
+  }
+
+  @Put(':eventId/room-setup')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Guardar configuracion del salon (plano Fase A)' })
+  @ApiParam({ name: 'eventId', example: 'evt_123' })
+  @ApiOkResponse({ type: RoomSetupResponseDto })
+  @ApiNotFoundResponse({ description: 'Evento no encontrado.' })
+  @ApiConflictResponse({
+    description: 'Plan aprobado; room-setup bloqueado.',
+  })
+  async upsertRoomSetup(
+    @Param('eventId') eventId: string,
+    @Body() body: UpsertRoomSetupDto,
+  ): Promise<RoomSetupResponseDto> {
+    return this.upsertRoomSetupUseCase.execute(eventId, body);
   }
 }

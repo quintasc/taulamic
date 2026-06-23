@@ -1,8 +1,8 @@
 ﻿# Contexto de ejecucion — punto de reanudacion
 
-- Ultima actualizacion: **2026-06-23**
-- Commit web referencia: **`0f15b37`** · docs: **`f873ffb`** (`main`) — plano Fase A/B, mesas cantidad/etiquetas, invitados al clic
-- Hito activo: **MVP julio (piloto)** — ver `DECISION-002-mvp-julio-piloto-funcional.md`
+- Ultima actualizacion: **2026-06-21**
+- Commit referencia: **`7e33e21`** (`main`) — spec Invitados v2, validacion piloto, Gantt actualizado
+- Hito activo: **MVP julio (piloto)** — cierre W2: API room-setup + estabilizacion
 - Naming: producto **Taulamic**, dominio **taulamic.com**, repo `quintasc/taulamic`
 - **Modo actual:** trabajo en **2 ventanas Cursor** en paralelo (sin solapamiento de codigo)
 
@@ -27,66 +27,57 @@
 | Integracion E2E piloto | **Cerrada** (`pilot-flow.e2e-spec.ts`) |
 | OpenAPI piloto (#9) | **Cerrado** (`/api/docs`, `/api-json`, contrato validado) |
 | Frontend admin W5 | **Cerrado** (PR #38 — base `apps/web`) |
-| **Frontend piloto UI W6** | **Cerrado** — PR **#39** mergeado en `main` (`b03a7f0`, validación manual OK jun 2026) |
+| **Frontend piloto UI W6** | **Cerrado** — refinamiento jun 2026 (`010cbae`) |
+| **Validacion manual piloto** | **Cerrada** — `evidencias-piloto/sesion-2026-06-21.md` |
 | Rebrand Taulamic | **Cerrado** |
-| Plan piloto | `docs/agile/mvp-julio-plan.md` |
+| Plan piloto | `docs/agile/mvp-julio-plan.md` · Gantt `roadmap-mvp-julio.md` |
 
 | Ventana | Issue / foco | Rama | Estado |
 |---------|--------------|------|--------|
-| **1** | ~~Cerrar piloto UI~~ (W6) | ~~feat/web-piloto-ui-w6~~ | **Cerrado** (PR #39 → `main`) |
-| **2** | ~~#7~~ Figma MVP (UX) | ~~feat/7-figma-mvp~~ | **Cerrado** (PR #37) |
+| **1** | API room-setup Fase A (`ADR-020`) | `feat/api-room-setup` | **Siguiente** |
+| **2** | Figma panel Invitados v2 | — | **Siguiente** — `spec-invitados-panel-v2-post-piloto.md` |
 
-**Ventana 2 libre.** Apoyo UX: Figma **plano espacial** (post-MVP), lista sin asignar, edición manual distribución.
+**Ventana 1:** implementar `GET/PUT .../room-setup` y conectar web. **Ventana 2:** prompts Figma §8 en `figma-make-prompts.md`.
 
 ### Decisiones producto recientes (jun 2026)
 
-Ver `docs/ux/handoff-figma-a-frontend.md` § **Decisiones y backlog UX post-validación manual**:
-
-- Distribución v2 + Dashboard v2 + afinidad «no calculado en piloto»
-- Excel **sin** `preferencia_control` en plantilla descargable (import legacy OK)
-- **Plano:** vision espacial dos fases — **`ADR-016`** + `SDD-01D` actualizado; Fase A/B en web (`0f15b37`); drag-drop y API layout post-MVP
-- Bloqueo invitados: en SDD §7.1; sin API/UI piloto
-- Manual ✕/+ en mesas y lista sin asignar clic KPI: post-piloto / tras Figma
+- Validación piloto completada; feedback PO → **`docs/ux/spec-invitados-panel-v2-post-piloto.md`**
+- Separación estricta **Invitados** (datos) vs **Afinidades** (reglas); drawer + bulk bar post-piloto
+- Google Maps en config — post-piloto (invitaciones HU-10)
+- Flujo setup: **ADR-018** — Config → Plano → Invitados → Mesas → Afinidades → Distribución
+- Plano Fase A: persistencia API — **`ADR-020`** (hoy `localStorage`)
+- HU-05 manual (✕/+/drag): **`SDD-PILOTO-enmienda-HU05-ajuste-manual-postpiloto.md`**
 
 ---
 
-## Ventana 1 — Cerrar piloto UI (W6)
+## Ventana 1 — API room-setup + estabilizacion piloto
 
 **Para:** esta ventana de Cursor (API + `apps/web`).
 
 ### Frase clave (pegar en el chat)
 
 ```text
-Soy Ventana 1. Taulamic main @ f873ffb (código 0f15b37). Piloto: Distribución v2, plano Fase A/B (ADR-016), mesas M1…n, invitados al clic. Lee docs/sdd/SDD-PILOTO-alineacion-y-huecos.md. API :3000, web :3001. SDD manda.
+Soy Ventana 1. Taulamic main @ 7e33e21. Siguiente: API room-setup Fase A (ADR-020) + conectar web. Lee docs/agile/CONTEXTO-EJECUCION.md. API :3000, web :3001. SDD manda.
 ```
 
 ### Objetivo
 
-Completar y mantener el piloto demostrable: **Distribución v2**, **Dashboard v2**, **plano Fase A/B** (`ADR-016`). «Corregir plano» (detección mesas) **suspendido**. Ver handoff y `mvp-julio-plan.md`.
+1. **Implementar** `GET/PUT /events/{id}/room-setup` (`ADR-020`).
+2. Conectar `floor-plan-setup.ts` / Fase A y layout a la API (localStorage como fallback opcional).
+3. Estabilizar incidencias que surjan del guion de validación.
 
-### Entregado (W5 PR #38 + W6 PR #39 — en `main`)
+### Entregado (en `main` hasta `7e33e21`)
 
-- `apps/web` Next.js 15 en `:3001` (proxy `/api/v1`)
-- Rutas `/admin/events/[id]/…` alineadas al handoff
-- **Landing** en `app/(marketing)/` alineada Figma Make
-- **Estructura modular:** `components/ui|marketing|admin|brand|tables`, `hooks/`, `lib/`
-- Admin shell: logo, sidebar, «Evento en curso» (solo lectura), nav-map
-- Dashboard KPIs en 0 para proyecto vacío; sesión MVP (`sessionStorage`, evento nuevo en `/admin`)
-- Pantallas: config, **plano Fase A** (forma/medidas), invitados, preferencias, mesas (cantidad + etiquetas), **distribución v2**, **ver en plano Fase B** (invitados al clic)
-- **Dashboard v2** — KPIs Invitados/Mesas/plazas; afinidad «No calculado en piloto»
-- Fixes: shim `components/ui.tsx`, hydration `HeroFloorplan`, `npm run dev:clean`
-- CORS API para `localhost:3001`
-- **Eliminar mesa** con aviso si hay invitados en borrador + reconciliación API (`88e0d33`)
+- Nucleo piloto UI + refinamiento setup (`010cbae`, `10da7d5`)
+- Plano Fase A/B, distribucion v2, dashboard v2, invitados manual, afinidades mock
+- Docs: ADR-018/019, enmienda HU-05, guion validacion, spec Invitados v2
 
-- Decisión MVP documentada: no recuperar eventos guardados entre sesiones
+### Pendiente inmediato
 
-### Pendiente post-W6 (piloto / post-MVP)
-
-1. ~~Validación manual UI~~ — OK jun 2026
-2. ~~Merge PR #39~~ — hecho; plano adicional en `0f15b37`
-3. **Plano:** fondo opcional, accesorios drag, API persistencia layout (`ADR-016`)
-4. Checklist setup: prefs y plano (hardcoded `false` en dashboard)
-5. **Post-MVP:** drag-drop posiciones mesas, lista sin asignar, edición ✕/+, bloqueo invitados, Excel sin `preferencia_control`
+1. **API room-setup** — `ADR-020` (critico W2)
+2. Fondo opcional plano + accesorios drag canvas (post-piloto parcial)
+3. Panel Invitados v2 — **tras Figma** (`spec-invitados-panel-v2`)
+4. Post-piloto: HU-05, Maps config, bulk bar, lista sin asignar
 
 ### Documentacion gobernanza plano (2026-06-23)
 
@@ -110,7 +101,10 @@ cd apps\web; npm run dev:clean
 
 ### Referencias
 
-- `docs/agile/guion-validacion-piloto-ui.md` (validación manual UI)
+- `docs/agile/guion-validacion-piloto-ui.md`
+- `docs/agile/evidencias-piloto/sesion-2026-06-21.md`
+- `docs/adr/ADR-020-api-persistencia-room-setup-fase-a.md`
+- `docs/ux/spec-invitados-panel-v2-post-piloto.md`
 - `docs/agile/mvp-julio-plan.md` (cierre piloto)
 - `docs/sdd/SDD-PILOTO-alineacion-y-huecos.md` (cumplimiento piloto vs SDD-01)
 - `docs/adr/ADR-016-plano-espacial-salon-dos-fases.md`
@@ -128,29 +122,30 @@ cd apps\web; npm run dev:clean
 
 ---
 
-## Ventana 2 — Figma MVP (#7)
+## Ventana 2 — Figma Invitados v2 + apoyo UX
 
 **Para:** segunda ventana de Cursor (UX; sin codigo API).
 
 ### Frase clave (pegar en el chat)
 
 ```text
-Soy Ventana 2. Retomo Taulamic (ADR-016 plano espacial). Trabajo UX en Figma y docs/ux/. No tocar apps/api/. Handoff § Plano + SDD-01D.
+Soy Ventana 2. Taulamic spec Invitados v2 post-piloto. Figma Make prompt 8 en figma-make-prompts.md. No tocar apps/api/. spec-invitados-panel-v2-post-piloto.md
 ```
 
 ### Objetivo
 
-Flujos y wireframes MVP en Figma. Ver `docs/ux/figma-mvp.md`.
+Wireframes **panel Invitados v2**: tabla, drawer lateral, bulk action bar, filtros. Ver `docs/ux/spec-invitados-panel-v2-post-piloto.md` §8.
 
 ### Estado
 
-**#7 cerrado** (PR #37). Handoff a frontend: `docs/ux/handoff-figma-a-frontend.md`.
+**#7 cerrado.** Validacion PO jun 2026 alimenta spec v2.
 
-### Apoyo sugerido (post-W6)
+### Apoyo sugerido (orden)
 
-- Refinar Figma **Plano Fase B** (drag-drop mesas — post-MVP)
-- Lista sin asignar (clic KPI) y edición manual distribución (tras Figma)
-- ~~Especificar «Corregir plano»~~ — suspendido (`ADR-016`)
+1. **Prompt 8** — Invitados v2 (tabla + drawer + bulk bar)
+2. Lista sin asignar (clic KPI) — post-piloto
+3. Plano Fase B drag mesas — post-MVP
+4. Edicion manual distribucion (HU-05) — tras Figma
 
 ### APIs disponibles en main (para wireframes)
 
@@ -181,14 +176,12 @@ npm run dev:clean
 npm run build
 ```
 
-## Ultimos commits de referencia (rama feat/web-piloto-ui-w6)
+## Ultimos commits de referencia (`main`)
 
 | Commit | Descripcion |
 |--------|-------------|
-| 3b26191 | feat(web): vista distribución calculada alineada con Figma |
-| 581c0d4 | fix(web): evitar hydration mismatch en HeroFloorplan |
-| 66eb927 | fix(web): shim ui.tsx tras modularización |
-| e269022 | refactor(web): modularizar UI por dominios |
-| 8824d1a | refactor(web): landing en app/(marketing) |
-| c1ef80a | feat(web): piloto UI Figma + sesión MVP |
-| 1c16502 | Merge PR #38 — frontend admin piloto W5 (main) |
+| 7e33e21 | docs(ux): spec Invitados v2 + evidencias validacion |
+| 7cc6e11 | docs(agile): Gantt MVP julio actualizado |
+| b4cd158 | docs(agile): guion validacion ADR-018 |
+| 010cbae | feat(piloto): refinamiento UI setup invitados plano |
+| 10da7d5 | docs(sdd): HU-05 post-piloto |

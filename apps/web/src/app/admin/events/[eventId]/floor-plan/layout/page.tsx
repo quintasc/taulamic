@@ -7,11 +7,13 @@ import {
   FloorPlanLayoutView,
 } from '@/components/admin/floor-plan/floor-plan-layout-view';
 import { Alert } from '@/components/ui';
-import { ApiError, distributionApi, type DistributionProposal } from '@/lib/api';
+import { ApiError, distributionApi, eventsApi, type DistributionProposal } from '@/lib/api';
 import { buildDistributionTableGroups } from '@/lib/distribution-view';
 import {
   DEFAULT_FLOOR_PLAN_SETUP,
   loadFloorPlanSetup,
+  normalizeSetupForShape,
+  saveFloorPlanSetup,
   type FloorPlanSetup,
 } from '@/lib/floor-plan-setup';
 import { useEvent } from '@/lib/event-context';
@@ -35,7 +37,34 @@ export default function FloorPlanLayoutPage() {
   );
 
   useEffect(() => {
+    let cancelled = false;
     setRoomSetup(loadFloorPlanSetup(params.eventId));
+
+    void eventsApi
+      .getRoomSetup(params.eventId)
+      .then((remote) => {
+        if (cancelled) {
+          return;
+        }
+        const fromApi = normalizeSetupForShape({
+          shape: remote.shape,
+          widthM: remote.widthM,
+          lengthM: remote.lengthM,
+          radiusM: remote.radiusM,
+          placedAccessories: remote.placedAccessories,
+        });
+        setRoomSetup(fromApi);
+        saveFloorPlanSetup(params.eventId, fromApi);
+      })
+      .catch((err: unknown) => {
+        if (err instanceof ApiError && err.status === 404) {
+          return;
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [params.eventId]);
 
   useEffect(() => {

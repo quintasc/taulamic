@@ -155,6 +155,25 @@ export const eventsApi = {
     apiFetch<EventDetail>(`/events/${eventId}/tables/${tableId}`, {
       method: 'DELETE',
     }),
+  getRoomSetup: (eventId: string) =>
+    apiFetch<RoomSetupResponse>(`/events/${eventId}/room-setup`),
+  saveRoomSetup: (eventId: string, setup: RoomSetupPayload) =>
+    apiFetch<RoomSetupResponse>(`/events/${eventId}/room-setup`, {
+      method: 'PUT',
+      body: JSON.stringify(setup),
+    }),
+};
+
+export type RoomSetupPayload = {
+  shape: 'rectangular' | 'round' | 'oval';
+  widthM: number;
+  lengthM: number;
+  radiusM: number;
+  placedAccessories: string[];
+};
+
+export type RoomSetupResponse = RoomSetupPayload & {
+  updatedAt: string;
 };
 
 export const guestsApi = {

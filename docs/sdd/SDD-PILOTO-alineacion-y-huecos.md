@@ -65,7 +65,7 @@ Este documento **no sustituye** el SDD-01; resume cumplimiento del **piloto juli
 |-----------|--------|----------------|
 | Forma rectangular / redonda / ovalada | ✅ | `floor-plan-setup.ts` |
 | Medidas en m + tirador | ✅ | `resizable-room-canvas.tsx` |
-| Persistencia layout salon | 🟡 | `localStorage`; API pendiente |
+| Persistencia layout salon | 🟡 | API `GET/PUT room-setup` (`ADR-020`); cache localStorage |
 | Accesorios catalogo | 🟡 | Toggle lista; sin drag en canvas |
 | Fondo JPG/PNG/PDF | ⬜ | Post-piloto |
 | Ver mesas post-distribucion | ✅ | `/floor-plan/layout` |

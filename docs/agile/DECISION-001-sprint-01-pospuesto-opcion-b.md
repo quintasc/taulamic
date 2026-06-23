@@ -67,3 +67,5 @@ Replanificar Sprint 01 cuando ocurra al menos una de estas condiciones:
 - `docs/agile/sprint-01-plan.md`
 - `docs/agile/sprint-02-plan.md`
 - GitHub: [#8](https://github.com/quintasc/taulamic/issues/8), [#21](https://github.com/quintasc/taulamic/issues/21)
+
+> **Nota (jun 2026):** la UI de producto para plano sigue `ADR-016` (plano espacial); el vertical slice API EP-11 (#22–#26) permanece como legacy tecnico sin pantalla «Corregir plano» principal.

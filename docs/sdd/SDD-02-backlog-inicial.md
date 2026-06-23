@@ -66,11 +66,15 @@ Traducir SDD-01 en trabajo ejecutable en GitHub Issues, priorizado por valor y r
 - HU-27 Validar flujo de invitado con respuesta en <= 45 segundos.
 - HU-28 Validar flujo admin de parametrizacion y envio rapido.
 
-### EP-11 - Importacion de plano y autoconfiguracion de mesas
+### EP-11 - Plano del salon (espacial + API legacy deteccion mesas)
 
-- HU-31 Subir imagen/PDF del plano del salon.
-- HU-32 Detectar mesas, forma y capacidad estimada con nivel de confianza.
-- HU-33 Corregir manualmente detecciones y confirmar configuracion final.
+> **Actualizado 2026-06-23 (`ADR-016`):** producto prioriza **Fase A** (espacio: forma, medidas) y **Fase B** (mesas post-distribucion). Las HU siguientes describen la API legacy de deteccion de mesas (backend EP-11); **no** son el camino UI principal del piloto.
+
+- HU-31 Subir imagen/PDF del plano del salon *(legacy / fondo opcional futuro)*.
+- HU-32 Detectar mesas, forma y capacidad estimada con nivel de confianza *(API legacy)*.
+- HU-33 Corregir manualmente detecciones y confirmar configuracion final *(UI «Corregir plano» suspendida)*.
+
+**Epica UI vigente (piloto):** HU-12 plano espacial — ver `SDD-01D`, `ADR-016`.
 
 ### EP-12 - Precarga de invitados por Excel estandar
 
@@ -87,7 +91,7 @@ Traducir SDD-01 en trabajo ejecutable en GitHub Issues, priorizado por valor y r
 
 ### EP-14 - IA asistiva para operaciones de evento
 
-- HU-41 Detectar mesas/forma/capacidad con ayuda de IA en importacion de plano.
+- HU-41 Detectar **contorno del salon** o mesas con ayuda de IA *(mesas: legacy; ver `ADR-016`)* en importacion de plano.
 - HU-42 Sugerir restricciones estructuradas desde observaciones de Excel.
 - HU-43 Generar explicaciones legibles de diferencias entre candidatas.
 - HU-44 Asistir redaccion de invitaciones y recordatorios.

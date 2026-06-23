@@ -223,7 +223,7 @@ Botón **Guardar** → `PUT /events/{eventId}`.
 | Forma salón + medidas + accesorios | **Sin API** — requiere modelo nuevo |
 | Guardar layout salón | **Sin endpoint** — diseñar en ADR/post-piloto |
 
-**Implementación código julio:** sustituir pantalla upload simple actual por avance hacia este diseño según priorización W6; «Corregir plano» (draft mesas) **suspendido**.
+**Implementación código julio:** pantalla **Plano Fase A** (`floor-plan-setup`) y **Fase B** (`floor-plan/layout`) en `main` (`0f15b37`). «Corregir plano» (draft mesas) **suspendido** — `ADR-016`.
 
 ---
 
@@ -481,7 +481,8 @@ Componentes Figma → React (sugerencia): shadcn/ui o componentes propios siguie
 | `/admin/events/new` | Crear evento → redirect dashboard |
 | `/admin/events/[id]` | Dashboard del evento |
 | `/admin/events/[id]/config` | Configuración |
-| `/admin/events/[id]/floor-plan` | Subir + corregir plano |
+| `/admin/events/[id]/floor-plan` | Plano del salón — Fase A (forma + medidas) |
+| `/admin/events/[id]/floor-plan/layout` | Ver en plano — Fase B (mesas + invitados al clic) |
 | `/admin/events/[id]/guests` | Import Excel + errores |
 | `/admin/events/[id]/guests/errors` | Errores de importación Excel |
 | `/admin/events/[id]/preferences` | Modo preferencias |
@@ -579,12 +580,12 @@ Registro de respuestas del producto y peticiones nuevas. **No implementado** sal
 
 | Prioridad | Item | MVP julio piloto |
 |-----------|------|------------------|
-| Alta | Distribución v2 + detalle pills | Sí (PR #39 o iteración inmediata) |
+| Alta | Distribución v2 + detalle pills | Sí — en `main` (PR #39 + iteraciones) |
 | Alta | Dashboard KPIs v2 | Sí |
 | Alta | Afinidad «no calculado en piloto» | Sí (copy UI) |
 | Media | Excel sin `preferencia_control` | Sí si se aprueba cambio doc |
 | Media | Lista sin asignar (clic KPI) | Tras Figma |
-| Baja / post-MVP | Plano espacial drag-drop | No |
+| Baja / post-MVP | Plano Fase B drag-drop + fondo IA | No (básico Fase A/B en `0f15b37`) |
 | Baja / post-MVP | Bloqueo invitados + ✕/+ manual | No (API + SDD detail) |
 
 ---
@@ -597,8 +598,9 @@ Registro de respuestas del producto y peticiones nuevas. **No implementado** sal
 - Comparador Top-K
 - Documentos salón/cocina
 - Campos extra config evento (fecha, lugar) hasta ampliar API
-- **Plano espacial** (colocar mesas en imagen, drag-drop) — post-MVP; Figma pendiente
-- **Corregir plano / autodetección mesas** como camino principal — sustituido por nueva visión §5 (requiere ADR)
+- **Plano espacial Fase A/B básico** — en piloto (`0f15b37`): forma/medidas + ver mesas e invitados al clic
+- **Plano espacial avanzado** (fondo IA, accesorios drag, drag-drop posiciones) — post-MVP; Figma pendiente
+- **Corregir plano / autodetección mesas** como camino principal — sustituido por `ADR-016` (2026-06-23)
 - **Bloqueo de invitados** y **edición manual ✕/+** en distribución — post-piloto (SDD 7.1 / HU-05)
 
 ---
@@ -611,5 +613,6 @@ Registro de respuestas del producto y peticiones nuevas. **No implementado** sal
 - [x] Pantalla **Distribución calculada** (KPIs, acordeón mesas, confirmar)
 - [ ] Flujo piloto según `pilot-flow.e2e-spec.ts` (validar manualmente en UI)
 - [x] Aplicar tokens de `design-tokens-mvp.md`
-- [ ] Pantalla **Corregir plano** completa — **suspendida** (nueva visión plano espacial post-MVP; ver handoff §5)
+- [x] Pantalla **Plano Fase A/B** — Fase A forma/medidas; Fase B ver mesas + invitados al clic (`0f15b37`, `ADR-016`)
+- [x] ~~Pantalla **Corregir plano**~~ — **suspendida** (legacy EP-11; no implementar — `ADR-016`)
 - [x] Probar con API local (`apps/api` + `apps/web` en :3000 / :3001)

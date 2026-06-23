@@ -1,8 +1,8 @@
 # SDD piloto — Alineacion y huecos (jun 2026)
 
 - Ultima actualizacion: **2026-06-23**
-- Commit de referencia web: `0f15b37` (`main`)
-- Fuentes: `SDD-01-borrador-mvp.md`, `handoff-figma-a-frontend.md`, `ADR-016`, `DECISION-002`
+- Commits referencia: **`f873ffb`** (docs SDD/ADR) · **`0f15b37`** (web plano/mesas) — `main`
+- Fuentes: `SDD-01-borrador-mvp.md`, `handoff-figma-a-frontend.md`, `ADR-016`, `DECISION-002`, `PRD-v1.md`
 
 Este documento **no sustituye** el SDD-01; resume cumplimiento del **piloto julio** frente al MVP completo.
 
@@ -114,5 +114,4 @@ Este documento **no sustituye** el SDD-01; resume cumplimiento del **piloto juli
 Pegar en el chat:
 
 ```text
-Continuamos Taulamic desde main (0f15b37). Lee docs/sdd/SDD-PILOTO-alineacion-y-huecos.md y ADR-016. SDD manda.
-```
+Continuamos Taulamic desde main (f873ffb). Docs alineados con ADR-016. Lee docs/sdd/SDD-PILOTO-alineacion-y-huecos.md.

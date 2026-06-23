@@ -1,14 +1,15 @@
 # Plan MVP julio — Piloto funcional (hasta 2026-07-31)
 
 > **Decision:** `DECISION-002-mvp-julio-piloto-funcional.md`  
-> **Objetivo:** piloto demostrable con organizador real. **No** sustituye el MVP SDD completo.
+> **Objetivo:** piloto demostrable con organizador real. **No** sustituye el MVP SDD completo.  
+> **EP-11 (jun 2026):** API legacy deteccion mesas (#22–#25 cerradas). UI producto: plano espacial `ADR-016` (commits `0f15b37`, docs `f873ffb`).
 
 ## 1) Resultado esperado el 31 de julio
 
 Un admin puede:
 
 1. Crear un evento.
-2. Configurar mesas (importando plano o manualmente).
+2. Configurar **espacio del salon** (forma, medidas) y **mesas** en pantalla Mesas (`ADR-016`).
 3. Importar invitados por Excel.
 4. Elegir modo de preferencias basico.
 5. Calcular una distribucion (motor v0).
@@ -18,10 +19,10 @@ Un admin puede:
 
 | Semana | Fechas | Entregables |
 |--------|--------|-------------|
-| W1 | 18–22 jun | #26 E2E importacion plano; inicio #27–#29 Excel |
+| W1 | 18–22 jun | #26 E2E API plano (legacy); inicio #27–#29 Excel |
 | W2 | 23–29 jun | Cerrar #30–#31 Excel; inicio #32–#36 preferencias |
 | W3 | 30 jun – 6 jul | Cerrar preferencias; #15 forma mesa; EP-01 evento/mesas API |
-| W4 | 7–13 jul | EP-02 invitados API; integracion plano + Excel + evento |
+| W4 | 7–13 jul | EP-02 invitados API; integracion Excel + evento + plano espacial UI |
 | W5 | 14–20 jul | Frontend admin minimo (Next.js): flujo piloto |
 | W6 | 21–31 jul | Motor v0; prueba piloto; fixes; documentacion |
 
@@ -29,7 +30,7 @@ Un admin puede:
 
 ### Fase A — Captura inteligente (Sprint 02, casi hecho)
 
-1. ~~#22–#25~~ EP-11 base
+1. ~~#22–#25~~ EP-11 API legacy (deteccion mesas — backend)
 2. **#26** E2E calidad importacion
 3. **#27–#31** Excel
 4. **#32–#36** Preferencias

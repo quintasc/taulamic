@@ -1,7 +1,7 @@
 # DECISION-002 - MVP julio: piloto funcional (alcance acotado)
 
 - Estado: **Aceptada**
-- Fecha: 2026-06-18
+- Fecha: 2026-06-18 · **Enmienda plano 2026-06-23:** `ADR-016`
 - Decisor: Carmen Quintas Ramirez (product owner)
 - Fecha objetivo piloto: **2026-07-31**
 - Plan de ejecucion: `docs/agile/mvp-julio-plan.md`
@@ -33,7 +33,7 @@ Un admin debe poder completar este flujo de punta a punta:
 
 | Paso | Capacidad | Referencia SDD / issues |
 |------|-----------|-------------------------|
-| 1 | Subir plano, detectar mesas, corregir y confirmar layout | EP-11 (#22–#26) — **#22–#25 hecho** |
+| 1 | **Plano Fase A:** forma y medidas del salon + mesas en pantalla Mesas (manual/API) | `ADR-016`, `SDD-01D`, HU-01, HU-12 — UI `0f15b37`. API EP-11 detect mesas: **legacy**, no UI principal |
 | 2 | Importar invitados desde Excel con validacion por fila | EP-12 (#27–#31) |
 | 3 | Configurar modo preferencias (colaborativo/exclusivo) basico | EP-13 (#32–#36) |
 | 4 | Crear evento y mesas (API minima; UI admin minima) | EP-01 (#1, #15) |
@@ -58,7 +58,7 @@ Queda **fuera del piloto** pero **dentro del MVP SDD completo**:
 | Worker asincrono + cola BullMQ | Motor v0 sincrono aceptable en piloto pequeno |
 | RSVP e invitaciones digitales | EP-09; no bloquea validar distribucion |
 | Documentos cocina/salon PDF | EP-05 |
-| IA real en deteccion de planos | Heuristica actual suficiente (ADR-010 asistido) |
+| IA real en deteccion de mesas desde plano | Sustituido por plano espacial (`ADR-016`); API EP-11 legacy en backend |
 | Figma completo / Sprint 01 (#7) | SDD-01A como referencia UX hasta despues |
 | Roles invitado y salon en UI | Solo admin en piloto |
 | Benchmark GA / EP-15 | Post-MVP |
@@ -127,6 +127,7 @@ El hito se considera logrado cuando:
 
 ## Referencias
 
+- `docs/adr/ADR-016-plano-espacial-salon-dos-fases.md`
 - `docs/sdd/SDD-01-borrador-mvp.md` (MVP completo — objetivo final)
 - `docs/agile/DECISION-001-sprint-01-pospuesto-opcion-b.md`
 - `docs/agile/mvp-julio-plan.md`

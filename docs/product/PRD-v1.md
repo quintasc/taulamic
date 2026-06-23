@@ -2,7 +2,7 @@
 
 - Producto: **Taulamic** — distribucion inteligente de mesas para eventos
 - Estado: Borrador consolidado
-- Fecha: 2026-06-17
+- Fecha: 2026-06-17 · **Actualizado 2026-06-23** (`ADR-016` plano espacial)
 - Fuente: Sintesis de `docs/sdd` + `docs/adr`
 
 ## 1) Resumen ejecutivo
@@ -54,7 +54,8 @@ Regla base:
 ## 6) Alcance MVP (in)
 
 - Configuracion manual de evento, mesas y formas de mesa.
-- Importacion asistida de plano (JPG/PNG/PDF) con confirmacion manual.
+- **Plano espacial del salon** (forma, medidas, layout de mesas post-distribucion); ver `ADR-016`. Importacion asistida para **autodetectar mesas** queda como capacidad secundaria/legacy (`HU-12-LEGACY`).
+- Fondo opcional desde imagen/PDF (IA de contorno del espacio, post-piloto inmediato).
 - Precarga de invitados desde plantilla Excel estandar.
 - Envio de invitaciones y gestion RSVP.
 - Captura de restricciones (afinidades, incompatibilidades, necesidades especiales).
@@ -71,7 +72,7 @@ Regla base:
 ## 8) Requisitos funcionales clave
 
 - RF-01: gestionar mesas con forma/capacidad y topologia de asientos.
-- RF-02: importar plano y proponer configuracion de mesas con confianza.
+- RF-02: configurar **espacio del salon** (forma, medidas) y visualizar mesas calculadas en plano; opcionalmente subir fondo (JPG/PNG/PDF). Deteccion automatica de mesas: legacy/API, no camino UI principal (`ADR-016`).
 - RF-03: descargar plantilla Excel y subir precarga masiva de invitados.
 - RF-04: mapear observaciones a restricciones sugeridas con aprobacion manual.
 - RF-05: enviar invitaciones y registrar RSVP en tiempo real.
@@ -123,7 +124,8 @@ Reglas:
 
 IA como asistente, no como arbitro final de asignacion:
 
-- deteccion en importacion de plano,
+- deteccion de **contorno del salon** en fondo opcional (no lista de mesas como onboarding principal),
+- deteccion legacy de mesas en importacion (API EP-11, `HU-12-LEGACY`),
 - sugerencias desde observaciones Excel,
 - explicabilidad de propuestas,
 - ayudas de redaccion de comunicaciones.
@@ -149,6 +151,8 @@ IA como asistente, no como arbitro final de asignacion:
 - Gobernanza obligatoria: `docs/sdd/SDD-GOVERNANZA-PROTECCION-SDD.md`
 - Vision/estrategia: `docs/sdd/SDD-00-vision-y-estrategia.md`
 - Alcance y requisitos: `docs/sdd/SDD-01-borrador-mvp.md`
+- Plano espacial: `docs/adr/ADR-016-plano-espacial-salon-dos-fases.md`, `SDD-01D`
+- Alineacion piloto: `docs/sdd/SDD-PILOTO-alineacion-y-huecos.md`
 - UX y flujos: `docs/sdd/SDD-01A-figma-ui-ux.md`
 - Backlog: `docs/sdd/SDD-02-backlog-inicial.md`
 - Decisiones tecnicas: `docs/adr/ADR-*.md`

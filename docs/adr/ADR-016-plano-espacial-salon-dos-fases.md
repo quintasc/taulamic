@@ -63,7 +63,7 @@ El **plano del salon** pasa a tener **dos fases** funcionales:
 
 ## Consecuencias negativas
 
-- Desalineacion temporal con textos antiguos (Figma prompts «Corregir plano», `DECISION-002` fila 1).
+- ~~Desalineacion temporal con textos antiguos~~ — mitigado (jun 2026): PRD, agile, UX y SDD secundarios alineados con `ADR-016`.
 - Requiere endpoint y modelo de persistencia del layout de salon (Fase A) y posiciones de mesas (Fase B) en fase posterior.
 - EP-11 en backlog queda **parcialmente obsoleto** como prioridad de producto (la API puede seguir para tests).
 

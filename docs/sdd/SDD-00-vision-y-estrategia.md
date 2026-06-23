@@ -14,7 +14,7 @@ Organizar a personas en mesas para eventos puede ser lento y estresante cuando h
 - incompatibilidades personales,
 - acompanantes,
 - mesas con formas distintas que cambian proximidades reales,
-- configuracion manual lenta cuando el salon solo aporta plano/imagen,
+- configuracion manual lenta cuando el salon solo aporta plano/imagen *(mitigado con plano espacial Fase A + mesas en pantalla Mesas; ver `ADR-016`)*,
 - listado inicial de invitados en hojas de calculo sin formato unificado,
 - necesidad de alternar entre control colaborativo o control exclusivo de anfitriones,
 - necesidades especiales (alergias, movilidad, tipo de comida),
@@ -29,8 +29,8 @@ Crear una app que ayude a construir una distribucion de mesas que:
 - respete restricciones importantes,
 - permita ajustes manuales,
 - simplifique envio de invitaciones y RSVP,
-- acelere la carga inicial desde imagen/PDF del plano del salon,
-- permita precarga masiva de invitados desde plantilla Excel estandar,
+- acelere la definicion del espacio del salon y la carga inicial de invitados desde plantilla Excel estandar,
+- ~~acelere la carga inicial desde imagen/PDF del plano del salon~~ *(fondo opcional post-piloto; mesas no se autodetectan como camino principal — `ADR-016`)*,
 - soporte modo colaborativo o exclusivo para gestionar preferencias,
 - y genere documentos operativos para salon/restaurante e invitados.
 
@@ -49,7 +49,7 @@ Crear una app que ayude a construir una distribucion de mesas que:
 - Motor de asignacion: estrategia hibrida de optimizacion clasica (sin IA generativa como nucleo).
 - Salida de optimizacion: conservar Top-K candidatas validas para revision (K configurable, default 3).
 - UX/UI: estilo sobrio, elegante, poco cargado y de baja friccion.
-- Configuracion de salon: entrada manual y tambien importacion asistida desde imagen/PDF.
+- Configuracion de salon: **plano espacial** (forma, medidas) + mesas en pantalla dedicada; fondo opcional desde imagen/PDF (`ADR-016`). API legacy deteccion mesas (EP-11) sin UI principal.
 - Datos de invitados: entrada manual y tambien importacion masiva desde Excel estandar.
 - Gobernanza de preferencias: modo configurable por evento + regla de acompanantes juntos por defecto.
 - IA: uso asistivo para acelerar operaciones, no para decidir aprobaciones finales.

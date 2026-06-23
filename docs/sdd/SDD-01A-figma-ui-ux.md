@@ -1,5 +1,7 @@
 # SDD-01A - Plan de Figma (UX/UI)
 
+> **Plano (jun 2026):** flujos de «importar plano → detectar mesas → corregir» sustituidos por **plano espacial dos fases** (`ADR-016`, `SDD-01D`). Mantener wireframes legacy solo como referencia historica.
+
 ## 1) Objetivo
 
 Aterrizar en diseno visual y de interaccion las funcionalidades definidas en SDD-01, para reducir dudas antes de programar.
@@ -23,7 +25,8 @@ Secuencia recomendada:
 - Flujos principales:
   - alta/configuracion de evento,
   - configuracion de forma de mesa y vista previa de asientos,
-  - importacion de plano de salon y correccion de detecciones,
+  - **plano espacial del salon** (Fase A: forma/medidas; Fase B: mesas post-distribucion),
+  - ~~importacion de plano de salon y correccion de detecciones~~ *(legacy — ver `HU-12-LEGACY`)*,
   - descarga de plantilla y precarga de invitados por Excel,
   - selector de modo de preferencias (colaborativo/exclusivo anfitrion),
   - envio de invitaciones y confirmacion RSVP,
@@ -42,7 +45,9 @@ Estas decisiones SI afectan alcance tecnico:
 
 - como mover invitados entre mesas (drag and drop o selector),
 - como representar cercania real entre invitados segun forma de mesa,
-- como mostrar confianza de deteccion en importacion de plano,
+- como redimensionar forma del salon y sincronizar medidas en metros (`ADR-016`),
+- como mostrar invitados al seleccionar mesa en plano (Fase B),
+- ~~como mostrar confianza de deteccion en importacion de plano~~ *(legacy EP-11)*,
 - como validar y corregir errores de importacion en Excel sin frustrar al admin,
 - como comunicar de forma clara cuando un invitado no puede editar preferencias por modo del evento,
 - como mostrar conflictos de reglas duras,

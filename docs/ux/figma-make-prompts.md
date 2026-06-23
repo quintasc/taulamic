@@ -13,7 +13,7 @@ Archivo: [MVP Taulamic App Design](https://www.figma.com/make/SanoIvjqWYghT7bXfN
 | # | Prompt | Prioridad | Página |
 |---|--------|-----------|--------|
 | 1 | Nota piloto auth (CTAs) | Alta | Marketing |
-| 2 | Corregir plano | Alta | Admin |
+| 2 | Plano del salón (Fase A) | Alta | Admin |
 | 3 | Errores Excel | Alta | Admin |
 | 4 | Distribución calculada | Media | Admin |
 | 5 | Mapa navegación | Media | Admin |
@@ -44,24 +44,26 @@ NO crear pantallas de registro, login ni recuperar contraseña. Mantener CTAs "I
 
 ---
 
-## Prompt 2 — Admin: Corregir plano (FALTA — SDD-01D)
+## Prompt 2 — Admin: Plano del salón — Fase A (`ADR-016`, `SDD-01D`)
 
-**Flujo:** Subir plano → **esta pantalla** → Dashboard.
+**Flujo vigente:** Configurar forma y medidas → Guardar y continuar → Mesas / Invitados.
+
+> **Suspendido:** pantalla «Corregir plano» (detección de mesas). Ver `ADR-016`.
 
 ```text
-Nueva pantalla Admin "Corregir plano", misma sidebar que "Subir plano" con Plano activo.
+Pantalla Admin "Plano del salón", sidebar Plano activo.
 
-Título: "Corregir detecciones"
-Subtítulo: "Revisa las mesas detectadas antes de confirmar el layout."
+Título: "Plano del salón"
+Subtítulo: "Define la forma y el tamaño del espacio."
 
 Layout:
-- Zona central (70%): canvas con plano de salón simplificado (rectángulo gris claro) y 6-8 mesas redondas numeradas (M1, M2…).
-- Panel derecho (30%): lista scroll "Mesas detectadas". Cada fila: nombre mesa, capacidad (ej. 8 pax), chip confianza con icono+texto: "Alta" verde, "Media" amarillo, "Baja" rojo. Botones pequeños Editar y Eliminar por fila.
-- Footer panel: botón secundario "+ Añadir mesa manual"
-- Botón primario coral abajo derecha: "Confirmar plano"
+- Canvas central: forma del salón (rectangular / redonda / ovalada) con tirador de redimensionar; medidas sincronizadas en metros.
+- Sidebar derecha plegable "Configuración del salón": pills Forma, inputs Ancho/Largo o Radio (m).
+- Bloque "Accesorios": tarjetas Mesa novios, Pista baile, etc. (marcar en lista; arrastre al canvas post-piloto).
+- Bloque "Fondo inteligente" (opcional post-piloto): subir JPG/PNG/PDF como capa visual — IA detecta contorno del espacio, NO mesas.
+- Botón primario coral header: "Guardar y continuar"
 
-Alert info arriba: "La detección es asistida. Confirma o corrige cada mesa."
-Estilo Taulamic existente, Inter, coral #EB6B4A.
+NO incluir lista "Mesas detectadas" ni chips de confianza de detección. Estilo Taulamic, Inter, coral #EB6B4A.
 ```
 
 ---
@@ -127,7 +129,8 @@ Nueva pantalla o sección Admin "Mapa de navegación", fondo #F5F5F5, diagrama d
 [Marketing landing] → [Acceso directo piloto] → [Dashboard evento]
 Desde Dashboard ramas:
 → Configuración evento ✓
-→ Subir plano → Corregir plano → Confirmar ✓
+→ Plano del salón (forma + medidas) ✓ → Mesas ✓ → … → Distribución → Ver en plano (Fase B) ✓
+~~→ Subir plano → Corregir plano → Confirmar~~ (legacy — suspendido)
 → Importar Excel → Errores fila (si aplica) ✓
 → Preferencias modo ✓
 → Configurar mesas ✓
@@ -151,7 +154,8 @@ Marketing "Crear evento" → Admin Dashboard (acceso directo piloto, sin login).
 Marketing "Iniciar sesión" → Admin Dashboard (mismo, piloto).
 
 Admin:
-- Subir plano botón "Subir plano" → Corregir plano → "Confirmar plano" → Dashboard
+- Plano "Guardar y continuar" → Invitados o Mesas (piloto)
+- ~~Subir plano → Corregir plano → Confirmar~~ (legacy suspendido)
 - Importar invitados "Importar" (con errores simulados) → Errores Excel → "Continuar con válidos" → Dashboard
 - Importar invitados éxito → Dashboard directo
 - Configuración "Guardar" → Dashboard
@@ -173,7 +177,7 @@ En página Sistema, unifica el color primario de marca a #E86B4A en toda la docu
 ## Checklist al terminar
 
 - [x] Prompt 1 — Nota auth en Marketing
-- [x] Prompt 2 — Corregir plano
+- [x] Prompt 2 — Plano del salón Fase A (sustituye «Corregir plano» — `ADR-016`)
 - [x] Prompt 3 — Errores Excel
 - [x] Prompt 4 — Distribución calculada
 - [x] Prompt 5 — Mapa navegación

@@ -67,7 +67,8 @@ Marcar con `[x]` cuando el flujo tenga wireframe low-fi en Figma.
 ### Flujos admin
 
 - [x] Admin — dashboard / evento
-- [x] Admin — importacion plano + correccion
+- [x] Admin — plano espacial Fase A + Fase B (ver en plano) — `ADR-016`
+- ~~Admin — importacion plano + correccion~~ (legacy suspendido)
 - [x] Admin — Excel (plantilla + errores por fila)
 - [x] Admin — modo preferencias
 - [x] Admin — forma de mesa + vista asientos

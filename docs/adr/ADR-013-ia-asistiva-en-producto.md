@@ -15,7 +15,8 @@ No se permite IA como arbitro final de asignacion de asientos.
 
 ## Ambitos permitidos
 
-- deteccion asistida en importacion de plano,
+- deteccion asistida de **contorno del espacio** al importar fondo de plano (`ADR-016` Fase A; opcional post-piloto),
+- deteccion asistida de mesas en importacion de plano *(API legacy EP-11; UI «Corregir plano» suspendida)*,
 - sugerencias desde observaciones de Excel,
 - explicabilidad de resultados,
 - ayuda de redaccion para invitaciones y recordatorios.

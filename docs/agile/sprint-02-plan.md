@@ -2,7 +2,8 @@
 
 > **Decision de ejecucion (Opcion B):** Sprint 01 pospuesto; este es el sprint activo.  
 > Ver `docs/agile/DECISION-001-sprint-01-pospuesto-opcion-b.md`. Seguimiento: #21.  
-> **Hito piloto:** MVP julio (31 jul) — ver `DECISION-002-mvp-julio-piloto-funcional.md` y `mvp-julio-plan.md`.
+> **Hito piloto:** MVP julio (31 jul) — ver `DECISION-002-mvp-julio-piloto-funcional.md` y `mvp-julio-plan.md`.  
+> **Plano UI (jun 2026):** `ADR-016` — plano espacial; API EP-11 legacy sin UI principal.
 
 ## 1) Objetivo del sprint
 Entregar configuracion inteligente del salon y captura asistida de datos para reducir el esfuerzo inicial del admin.
@@ -19,7 +20,7 @@ Entregar configuracion inteligente del salon y captura asistida de datos para re
 Epicas comprometidas:
 
 - #15 - [EP-01] Forma de mesa y topologia de asientos
-- #16 - [EP-11] Importacion de plano por imagen/PDF (#22-#26)
+- #16 - [EP-11] API legacy plano por imagen/PDF (#22-#26); UI producto = plano espacial `ADR-016`
 - #17 - [EP-12] Precarga de invitados desde Excel (#27-#31)
 - #18 - [EP-13] Modo de control de preferencias y acompanantes (#32-#36)
 

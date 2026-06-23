@@ -1,7 +1,7 @@
 ﻿# Contexto de ejecucion — punto de reanudacion
 
 - Ultima actualizacion: **2026-06-23**
-- Commit web referencia: **`0f15b37`** (`main`) — plano Fase A/B, mesas cantidad/etiquetas, invitados al clic
+- Commit web referencia: **`0f15b37`** · docs: **`f873ffb`** (`main`) — plano Fase A/B, mesas cantidad/etiquetas, invitados al clic
 - Hito activo: **MVP julio (piloto)** — ver `DECISION-002-mvp-julio-piloto-funcional.md`
 - Naming: producto **Taulamic**, dominio **taulamic.com**, repo `quintasc/taulamic`
 - **Modo actual:** trabajo en **2 ventanas Cursor** en paralelo (sin solapamiento de codigo)
@@ -57,12 +57,12 @@ Ver `docs/ux/handoff-figma-a-frontend.md` § **Decisiones y backlog UX post-vali
 ### Frase clave (pegar en el chat)
 
 ```text
-Soy Ventana 1. Taulamic main @ 0f15b37. Piloto: Distribución v2, plano Fase A/B (ADR-016), mesas M1…n, invitados al clic en plano. Lee docs/sdd/SDD-PILOTO-alineacion-y-huecos.md. API :3000, web :3001. SDD manda.
+Soy Ventana 1. Taulamic main @ f873ffb (código 0f15b37). Piloto: Distribución v2, plano Fase A/B (ADR-016), mesas M1…n, invitados al clic. Lee docs/sdd/SDD-PILOTO-alineacion-y-huecos.md. API :3000, web :3001. SDD manda.
 ```
 
 ### Objetivo
 
-Completar el piloto demostrable en UI: **Distribución v2**, **Dashboard v2**, validación E2E manual, merge PR #39. **Corregir plano** suspendido (nueva visión plano espacial post-MVP). Ver handoff y `mvp-julio-plan.md` W6.
+Completar y mantener el piloto demostrable: **Distribución v2**, **Dashboard v2**, **plano Fase A/B** (`ADR-016`). «Corregir plano» (detección mesas) **suspendido**. Ver handoff y `mvp-julio-plan.md`.
 
 ### Entregado (W5 PR #38 + W6 PR #39 — en `main`)
 
@@ -118,13 +118,12 @@ cd apps\web; npm run dev:clean
 - OpenAPI: `/api/docs` y `/api-json` (version `1.0-pilot`)
 - E2E backend: `apps/api/test/pilot-flow.e2e-spec.ts`
 - Web: `apps/web/README.md`
-- PR abierta: https://github.com/quintasc/taulamic/pull/39
 
 ### Patron de cierre W6
 
-1. Flujo piloto usable en UI con evidencia manual
-2. Build/tests piloto en verde (`apps/api` + `apps/web`)
-3. Merge PR #39 → actualizar checklist handoff y este archivo
+1. Flujo piloto usable en UI con evidencia manual — **hecho** (jun 2026)
+2. Build/tests piloto en verde (`apps/api` + `apps/web`) — **hecho**
+3. ~~Merge PR #39~~ — en `main`; plano Fase A/B adicional en `0f15b37`; docs `f873ffb` + alineación secundaria
 
 ---
 
@@ -135,7 +134,7 @@ cd apps\web; npm run dev:clean
 ### Frase clave (pegar en el chat)
 
 ```text
-Soy Ventana 2. Retomo Taulamic. Issue #7 Figma MVP alineado con SDD. Trabajo UX en Figma y docs/ux/. No tocar apps/api/. SDD-01A manda.
+Soy Ventana 2. Retomo Taulamic (ADR-016 plano espacial). Trabajo UX en Figma y docs/ux/. No tocar apps/api/. Handoff § Plano + SDD-01D.
 ```
 
 ### Objetivo
@@ -146,10 +145,11 @@ Flujos y wireframes MVP en Figma. Ver `docs/ux/figma-mvp.md`.
 
 **#7 cerrado** (PR #37). Handoff a frontend: `docs/ux/handoff-figma-a-frontend.md`.
 
-### Apoyo sugerido (W6)
+### Apoyo sugerido (post-W6)
 
-- Especificar / revisar UX de **Corregir plano** para implementacion en Ventana 1
-- Refinamiento visual de pantallas ya implementadas en `apps/web` (sin cambiar alcance SDD)
+- Refinar Figma **Plano Fase B** (drag-drop mesas — post-MVP)
+- Lista sin asignar (clic KPI) y edición manual distribución (tras Figma)
+- ~~Especificar «Corregir plano»~~ — suspendido (`ADR-016`)
 
 ### APIs disponibles en main (para wireframes)
 
@@ -157,7 +157,7 @@ Flujos y wireframes MVP en Figma. Ver `docs/ux/figma-mvp.md`.
 - Invitados (#2): `GET/POST/PUT/DELETE .../events/:eventId/guests`
 - Distribucion (#3 piloto): `POST .../distribution/run`, `GET .../distribution`, `POST .../confirm`
 - Forma mesa (#15): `GET .../table-shapes`, `.../seat-topology`
-- Plano (#22–#26), Excel (#27–#31), preferencias (#32–#36)
+- Plano (#22–#26): API legacy deteccion mesas; **UI** plano espacial `ADR-016`
 
 ### Patron de cierre
 

@@ -170,7 +170,7 @@ export function FloorPlanSetupView({
     return <p className="text-sm text-neutral-500">Cargando plano…</p>;
   }
 
-  const roomRecommendation = recommendRoomSize(guestCountHint);
+  const roomRecommendation = recommendRoomSize(guestCountHint, setup.shape);
   const roomComparison = compareRoomToRecommendation(setup, guestCountHint);
 
   return (

@@ -83,7 +83,7 @@ export default function EventConfigPage() {
         preferenceMode: modeToSave,
         configSaved: true,
       });
-      await refreshEvent();
+      await refreshEvent({ silent: true });
       setMessage('Configuración guardada correctamente.');
     } catch {
       setMessage('Error al guardar la configuración.');

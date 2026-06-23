@@ -36,7 +36,7 @@ type EventContextValue = {
   loading: boolean;
   error: string | null;
   syncEventIdFromUrl: (id: string) => void;
-  refreshEvent: () => Promise<void>;
+  refreshEvent: (options?: { silent?: boolean }) => Promise<void>;
   createEvent: (name: string) => Promise<EventDetail>;
   clearEvent: () => void;
 };
@@ -53,14 +53,16 @@ export function EventProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem(LEGACY_STORAGE_KEY);
   }, []);
 
-  const refreshEvent = useCallback(async () => {
+  const refreshEvent = useCallback(async (options?: { silent?: boolean }) => {
     if (!eventId) {
       setEvent(null);
       setLoading(false);
       return;
     }
 
-    setLoading(true);
+    if (!options?.silent) {
+      setLoading(true);
+    }
     setError(null);
     try {
       const detail = await eventsApi.get(eventId);
@@ -69,7 +71,9 @@ export function EventProvider({ children }: { children: ReactNode }) {
       setError('No se pudo cargar el evento.');
       setEvent(null);
     } finally {
-      setLoading(false);
+      if (!options?.silent) {
+        setLoading(false);
+      }
     }
   }, [eventId]);
 

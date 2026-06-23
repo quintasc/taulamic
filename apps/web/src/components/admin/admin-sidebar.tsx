@@ -47,7 +47,7 @@ export function AdminSidebar({
 
       <nav className="min-h-0 flex-1 space-y-0.5 overflow-y-auto p-1.5">
         {navItems.map((item) => {
-          const active = isAdminNavActive(pathname, item.href, item.exact);
+          const active = isAdminNavActive(pathname, item);
           const Icon = item.icon;
           return (
             <Link

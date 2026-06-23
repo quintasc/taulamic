@@ -141,6 +141,15 @@ export const eventsApi = {
       method: 'POST',
       body: JSON.stringify(input),
     }),
+  updateTable: (
+    eventId: string,
+    tableId: string,
+    input: { label: string; shape: string; estimatedCapacity: number },
+  ) =>
+    apiFetch<EventDetail>(`/events/${eventId}/tables/${tableId}`, {
+      method: 'PUT',
+      body: JSON.stringify(input),
+    }),
   removeTable: (eventId: string, tableId: string) =>
     apiFetch<EventDetail>(`/events/${eventId}/tables/${tableId}`, {
       method: 'DELETE',

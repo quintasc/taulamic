@@ -133,6 +133,7 @@ export function buildDistributionTableGroups(
     string,
     { tableLabel: string; guestNames: string[] }
   >();
+  const guestNamesByTableLabel = new Map<string, string[]>();
 
   for (const placement of proposal.placements) {
     const current = placementByTable.get(placement.tableId) ?? {
@@ -141,6 +142,11 @@ export function buildDistributionTableGroups(
     };
     current.guestNames.push(placement.guestName);
     placementByTable.set(placement.tableId, current);
+
+    const labelKey = placement.tableLabel.trim().toLowerCase();
+    const labelGuests = guestNamesByTableLabel.get(labelKey) ?? [];
+    labelGuests.push(placement.guestName);
+    guestNamesByTableLabel.set(labelKey, labelGuests);
   }
 
   const tables = event?.tables ?? [];
@@ -162,7 +168,11 @@ export function buildDistributionTableGroups(
   return tableEntries
     .map((table, index) => {
       const placement = placementByTable.get(table.id);
-      const guestNames = placement?.guestNames ?? [];
+      let guestNames = placement?.guestNames ?? [];
+      if (guestNames.length === 0 && table.label.trim()) {
+        guestNames =
+          guestNamesByTableLabel.get(table.label.trim().toLowerCase()) ?? [];
+      }
       const assignedCount = guestNames.length;
       const capacity = table.capacity;
       const status = getTableOccupancyStatus(assignedCount, capacity);

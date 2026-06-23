@@ -11,8 +11,16 @@ import {
   apiTableShape,
   TableShapePreview,
 } from '@/components/table-shape-preview';
-import { eventsApi, tableShapesApi, distributionApi, ApiError, type DistributionProposal, type SeatTopology } from '@/lib/api';
+import {
+  eventsApi,
+  tableShapesApi,
+  distributionApi,
+  ApiError,
+  type DistributionProposal,
+  type SeatTopology,
+} from '@/lib/api';
 import { useEvent } from '@/lib/event-context';
+import { suggestNextTableLabels } from '@/lib/table-labels';
 
 const shapeOptions = [
   { id: 'redonda', label: 'Redonda', Icon: IconShapeRound },
@@ -22,16 +30,24 @@ const shapeOptions = [
 
 export default function TablesPage() {
   const { event, eventId, refreshEvent } = useEvent();
-  const [label, setLabel] = useState('Mesa nueva');
   const [shape, setShape] = useState('redonda');
   const [capacity, setCapacity] = useState(8);
+  const [quantity, setQuantity] = useState(1);
   const [topology, setTopology] = useState<SeatTopology | null>(null);
   const [distribution, setDistribution] = useState<DistributionProposal | null>(
     null,
   );
   const [saving, setSaving] = useState(false);
   const [removingTableId, setRemovingTableId] = useState<string | null>(null);
+  const [editingTableId, setEditingTableId] = useState<string | null>(null);
+  const [editingLabel, setEditingLabel] = useState('');
+  const [savingLabelId, setSavingLabelId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const previewLabels = suggestNextTableLabels(
+    event?.tables ?? [],
+    Math.max(1, quantity),
+  );
 
   useEffect(() => {
     if (!eventId) {
@@ -59,24 +75,79 @@ export default function TablesPage() {
       .catch(() => setTopology(null));
   }, [eventId, shape, capacity]);
 
-  async function saveTable() {
+  async function saveTables() {
     if (!eventId) {
       return;
     }
+    const count = Math.max(1, Math.min(50, quantity));
+    const labels = suggestNextTableLabels(event?.tables ?? [], count);
+
     setSaving(true);
     setError(null);
     try {
-      await eventsApi.addTable(eventId, {
-        label,
-        shape: apiTableShape(shape),
-        estimatedCapacity: capacity,
-      });
+      for (const tableLabel of labels) {
+        await eventsApi.addTable(eventId, {
+          label: tableLabel,
+          shape: apiTableShape(shape),
+          estimatedCapacity: capacity,
+        });
+      }
       await refreshEvent();
-      setLabel(`Mesa ${(event?.tables.length ?? 0) + 2}`);
+      setQuantity(1);
     } catch {
-      setError('No se pudo guardar la mesa.');
+      setError('No se pudieron guardar las mesas.');
     } finally {
       setSaving(false);
+    }
+  }
+
+  function startEditLabel(tableId: string, currentLabel: string) {
+    setEditingTableId(tableId);
+    setEditingLabel(currentLabel);
+  }
+
+  function cancelEditLabel() {
+    setEditingTableId(null);
+    setEditingLabel('');
+  }
+
+  async function saveEditedLabel(tableId: string) {
+    if (!eventId) {
+      return;
+    }
+    const table = event?.tables.find((item) => item.id === tableId);
+    if (!table) {
+      return;
+    }
+
+    const trimmed = editingLabel.trim();
+    if (!trimmed) {
+      setError('La etiqueta no puede estar vacía.');
+      return;
+    }
+
+    const duplicate = event?.tables.some(
+      (item) => item.id !== tableId && item.label.trim() === trimmed,
+    );
+    if (duplicate) {
+      setError('Ya existe otra mesa con esa etiqueta.');
+      return;
+    }
+
+    setSavingLabelId(tableId);
+    setError(null);
+    try {
+      await eventsApi.updateTable(eventId, tableId, {
+        label: trimmed,
+        shape: table.shape,
+        estimatedCapacity: table.capacity,
+      });
+      await refreshEvent();
+      cancelEditLabel();
+    } catch {
+      setError('No se pudo actualizar la etiqueta.');
+    } finally {
+      setSavingLabelId(null);
     }
   }
 
@@ -188,24 +259,41 @@ export default function TablesPage() {
           </div>
 
           <div>
-            <label className="label-field" htmlFor="table-label">
-              Etiqueta
-            </label>
-            <input
-              id="table-label"
-              className="input-field"
-              value={label}
-              onChange={(event) => setLabel(event.target.value)}
-            />
+            <p className="label-field">Cantidad</p>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                className="btn-secondary px-3 py-2"
+                onClick={() => setQuantity((value) => Math.max(1, value - 1))}
+              >
+                −
+              </button>
+              <span className="min-w-[3rem] text-center text-lg font-semibold">
+                {quantity}
+              </span>
+              <button
+                type="button"
+                className="btn-secondary px-3 py-2"
+                onClick={() => setQuantity((value) => Math.min(50, value + 1))}
+              >
+                +
+              </button>
+              <span className="text-sm text-neutral-500">
+                {quantity === 1 ? 'mesa' : 'mesas'} del mismo tipo
+              </span>
+            </div>
+            <p className="mt-2 text-xs text-neutral-500">
+              Etiquetas: {previewLabels.join(', ')}
+            </p>
           </div>
 
           <button
             type="button"
             className="btn-primary w-full"
             disabled={saving || event?.status === 'plan_approved'}
-            onClick={() => void saveTable()}
+            onClick={() => void saveTables()}
           >
-            Guardar mesa
+            {quantity === 1 ? 'Guardar mesa' : `Guardar ${quantity} mesas`}
           </button>
         </div>
 
@@ -245,21 +333,72 @@ export default function TablesPage() {
               <tbody>
                 {event.tables.map((table) => (
                   <tr key={table.id} className="border-b border-neutral-100">
-                    <td className="py-3 pr-4">{table.label}</td>
+                    <td className="py-3 pr-4">
+                      {editingTableId === table.id ? (
+                        <div className="flex flex-wrap items-center gap-2">
+                          <input
+                            className="input-field max-w-[140px] py-1.5 text-sm"
+                            value={editingLabel}
+                            autoFocus
+                            onChange={(event) =>
+                              setEditingLabel(event.target.value)
+                            }
+                            onKeyDown={(event) => {
+                              if (event.key === 'Enter') {
+                                void saveEditedLabel(table.id);
+                              }
+                              if (event.key === 'Escape') {
+                                cancelEditLabel();
+                              }
+                            }}
+                          />
+                          <button
+                            type="button"
+                            className="text-sm font-medium text-primary-500 hover:text-primary-600 disabled:opacity-50"
+                            disabled={savingLabelId === table.id}
+                            onClick={() => void saveEditedLabel(table.id)}
+                          >
+                            {savingLabelId === table.id ? 'Guardando…' : 'Guardar'}
+                          </button>
+                          <button
+                            type="button"
+                            className="text-sm text-neutral-500 hover:text-neutral-700"
+                            onClick={cancelEditLabel}
+                          >
+                            Cancelar
+                          </button>
+                        </div>
+                      ) : (
+                        table.label
+                      )}
+                    </td>
                     <td className="py-3 pr-4 capitalize">{table.shape}</td>
                     <td className="py-3 pr-4">{table.capacity}</td>
                     <td className="py-3">
-                      <button
-                        type="button"
-                        className="text-sm font-medium text-primary-500 hover:text-primary-600 disabled:cursor-not-allowed disabled:opacity-50"
-                        disabled={
-                          event.status === 'plan_approved' ||
-                          removingTableId === table.id
-                        }
-                        onClick={() => void removeTable(table.id)}
-                      >
-                        {removingTableId === table.id ? 'Eliminando…' : 'Eliminar'}
-                      </button>
+                      <div className="flex flex-wrap items-center gap-3">
+                        {editingTableId !== table.id ? (
+                          <button
+                            type="button"
+                            className="text-sm font-medium text-primary-500 hover:text-primary-600 disabled:cursor-not-allowed disabled:opacity-50"
+                            disabled={event.status === 'plan_approved'}
+                            onClick={() => startEditLabel(table.id, table.label)}
+                          >
+                            Editar
+                          </button>
+                        ) : null}
+                        <button
+                          type="button"
+                          className="text-sm font-medium text-primary-500 hover:text-primary-600 disabled:cursor-not-allowed disabled:opacity-50"
+                          disabled={
+                            event.status === 'plan_approved' ||
+                            removingTableId === table.id ||
+                            editingTableId === table.id
+                          }
+                          onClick={() => void removeTable(table.id)}
+                        >
+                          {removingTableId === table.id ? 'Eliminando…' : 'Eliminar'}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

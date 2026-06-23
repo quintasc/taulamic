@@ -6,6 +6,7 @@
     "clean": "node -e \"try{require('fs').rmSync('.next',{recursive:true,force:true})}catch(e){}\"",
     "dev": "next dev --port 3001",
     "dev:clean": "npm run clean && next dev --port 3001",
+    "dev:restart": "node scripts/restart-dev.mjs",
     "build": "next build",
     "start": "next start --port 3001",
     "lint": "next lint"

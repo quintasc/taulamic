@@ -1,17 +1,19 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   FloorPlanLayoutEmpty,
   FloorPlanLayoutView,
 } from '@/components/admin/floor-plan/floor-plan-layout-view';
 import { Alert } from '@/components/ui';
-import { ApiError, distributionApi } from '@/lib/api';
+import { ApiError, distributionApi, type DistributionProposal } from '@/lib/api';
+import { buildDistributionTableGroups } from '@/lib/distribution-view';
 import {
-  buildDistributionTableGroups,
-  type DistributionTableGroup,
-} from '@/lib/distribution-view';
+  DEFAULT_FLOOR_PLAN_SETUP,
+  loadFloorPlanSetup,
+  type FloorPlanSetup,
+} from '@/lib/floor-plan-setup';
 import { useEvent } from '@/lib/event-context';
 import { adminRoutes } from '@/lib/routes';
 
@@ -22,24 +24,37 @@ export default function FloorPlanLayoutPage() {
   const [loading, setLoading] = useState(true);
   const [missingDistribution, setMissingDistribution] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [tableGroups, setTableGroups] = useState<DistributionTableGroup[]>([]);
+  const [proposal, setProposal] = useState<DistributionProposal | null>(null);
+  const [roomSetup, setRoomSetup] = useState<FloorPlanSetup>(
+    DEFAULT_FLOOR_PLAN_SETUP,
+  );
+
+  const tableGroups = useMemo(
+    () => (proposal ? buildDistributionTableGroups(proposal, event) : []),
+    [proposal, event],
+  );
+
+  useEffect(() => {
+    setRoomSetup(loadFloorPlanSetup(params.eventId));
+  }, [params.eventId]);
 
   useEffect(() => {
     void distributionApi
       .get(params.eventId)
-      .then((proposal) => {
-        setTableGroups(buildDistributionTableGroups(proposal, event));
+      .then((loaded) => {
+        setProposal(loaded);
         setMissingDistribution(false);
       })
       .catch((err: unknown) => {
         if (err instanceof ApiError && err.status === 404) {
           setMissingDistribution(true);
+          setProposal(null);
           return;
         }
         setError('No se pudo cargar la distribución.');
       })
       .finally(() => setLoading(false));
-  }, [params.eventId, event]);
+  }, [params.eventId]);
 
   if (loading) {
     return <p className="text-sm text-neutral-500">Cargando plano…</p>;
@@ -60,6 +75,7 @@ export default function FloorPlanLayoutPage() {
   return (
     <FloorPlanLayoutView
       tableGroups={tableGroups}
+      roomSetup={roomSetup}
       distributionHref={routes.distribution}
       setupHref={routes.floorPlan}
     />

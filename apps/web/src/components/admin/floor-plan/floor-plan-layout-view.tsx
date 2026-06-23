@@ -1,11 +1,18 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { GuestPill } from '@/components/admin/distribution/guest-pill';
+import { RoomShapeDisplay } from '@/components/admin/floor-plan/room-shape-display';
 import { Alert, EmptyState, PageHeader } from '@/components/ui';
+import {
+  formatRoomDimensions,
+  type FloorPlanSetup,
+} from '@/lib/floor-plan-setup';
 import {
   countTablesByStatus,
   filterDistributionTableGroups,
+  getStatusChipLabel,
   type DistributionTableFilter,
   type DistributionTableGroup,
   type TableOccupancyStatus,
@@ -33,20 +40,84 @@ function tableCardClass(status: TableOccupancyStatus): string {
   }
 }
 
-function TablePreviewCard({ group }: { group: DistributionTableGroup }) {
+function TablePreviewCard({
+  group,
+  selected,
+  onSelect,
+}: {
+  group: DistributionTableGroup;
+  selected: boolean;
+  onSelect: () => void;
+}) {
   const isRound =
     group.shapeLabel === 'Redonda' || group.shapeLabel === 'Ovalada';
 
   return (
-    <div
-      className={`flex flex-col items-center justify-center border-2 px-3 py-4 ${tableCardClass(group.status)} ${
+    <button
+      type="button"
+      aria-pressed={selected}
+      aria-label={`Mesa ${group.tableLabel}, ${group.assignedCount} de ${group.capacity} asientos`}
+      onClick={onSelect}
+      className={`flex flex-col items-center justify-center border-2 px-3 py-4 transition hover:brightness-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500 ${tableCardClass(group.status)} ${
         isRound ? 'aspect-square min-w-[88px] rounded-full' : 'min-w-[100px] rounded-xl'
-      }`}
+      } ${selected ? 'ring-2 ring-primary-500 ring-offset-2' : ''}`}
     >
       <span className="text-sm font-bold">{group.tableLabel}</span>
       <span className="mt-1 text-xs font-medium">
         {group.assignedCount}/{group.capacity}
       </span>
+    </button>
+  );
+}
+
+function TableGuestsPanel({
+  group,
+  onClose,
+  compact = false,
+}: {
+  group: DistributionTableGroup;
+  onClose: () => void;
+  compact?: boolean;
+}) {
+  return (
+    <div
+      className={`card-admin shadow-lg ${compact ? 'border-primary-500/30 bg-neutral-0' : ''}`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-[10px] font-bold uppercase tracking-[0.08em] text-wf-5">
+            Invitados en mesa
+          </h2>
+          <p className="mt-1 text-sm font-semibold text-neutral-900">
+            {group.tableLabel}
+          </p>
+          <p className="mt-0.5 text-xs text-neutral-500">
+            {group.shapeLabel} · {getStatusChipLabel(group)} ·{' '}
+            {group.assignedCount}/{group.capacity}
+          </p>
+        </div>
+        <button
+          type="button"
+          className="shrink-0 text-xs font-medium text-neutral-500 hover:text-neutral-700"
+          onClick={onClose}
+        >
+          Cerrar
+        </button>
+      </div>
+
+      <div className="mt-4 max-h-40 overflow-y-auto">
+        {group.guestNames.length > 0 ? (
+          <ul className="flex flex-wrap gap-2">
+            {group.guestNames.map((name) => (
+              <li key={`${group.tableId}-${name}`}>
+                <GuestPill name={name} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-neutral-500">Sin invitados asignados</p>
+        )}
+      </div>
     </div>
   );
 }
@@ -109,10 +180,12 @@ function FilterChip({
 
 export function FloorPlanLayoutView({
   tableGroups,
+  roomSetup,
   distributionHref,
   setupHref,
 }: {
   tableGroups: DistributionTableGroup[];
+  roomSetup: FloorPlanSetup;
   distributionHref: string;
   setupHref: string;
 }) {
@@ -120,6 +193,8 @@ export function FloorPlanLayoutView({
   const [statusFilter, setStatusFilter] =
     useState<DistributionTableFilter>('all');
   const [shapeFilter, setShapeFilter] = useState<string | 'all'>('all');
+  const [selectedGroup, setSelectedGroup] =
+    useState<DistributionTableGroup | null>(null);
 
   const statusCounts = useMemo(
     () => countTablesByStatus(tableGroups),
@@ -154,11 +229,23 @@ export function FloorPlanLayoutView({
 
   const counts = statusCounts;
 
+  useEffect(() => {
+    if (!selectedGroup) {
+      return;
+    }
+    const fresh = tableGroups.find(
+      (group) => group.tableId === selectedGroup.tableId,
+    );
+    if (fresh) {
+      setSelectedGroup(fresh);
+    }
+  }, [tableGroups, selectedGroup?.tableId]);
+
   return (
     <>
       <PageHeader
         title="Plano del salón"
-        subtitle="Arrastra las mesas para posicionarlas. Las formas reflejan la distribución calculada."
+        subtitle="Pulsa una mesa para ver los invitados asignados."
         action={
           <div className="flex flex-wrap gap-2">
             <button type="button" className="btn-secondary" disabled>
@@ -173,32 +260,67 @@ export function FloorPlanLayoutView({
 
       <div className="mb-6">
         <Alert variant="info">
-          Arrastrar y guardar posiciones en el canvas — disponible post-MVP.
-          Vista previa de la distribución calculada.
+          Pulsa una mesa en el plano para ver sus invitados. Arrastrar y guardar
+          posiciones — disponible post-MVP.
         </Alert>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
-        <div className="card-admin min-h-[480px] border-2 border-dashed border-neutral-200 bg-neutral-50/50 p-6">
-          {filteredGroups.length > 0 ? (
-            <div className="flex flex-wrap gap-4">
-              {filteredGroups.map((group) => (
-                <TablePreviewCard key={group.tableId} group={group} />
-              ))}
+        <div className="flex min-h-[520px] flex-col">
+          <div className="card-admin relative flex min-h-[480px] flex-1 flex-col overflow-visible border-2 border-dashed border-neutral-200 bg-neutral-50/50 p-6">
+            <div className="flex flex-1 flex-col items-center justify-center gap-4">
+              <RoomShapeDisplay setup={roomSetup} maxPx={400}>
+                <div className="absolute inset-3 flex flex-wrap content-center justify-center gap-2">
+                  {filteredGroups.map((group) => (
+                    <TablePreviewCard
+                      key={group.tableId}
+                      group={group}
+                      selected={selectedGroup?.tableId === group.tableId}
+                      onSelect={() =>
+                        setSelectedGroup((current) =>
+                          current?.tableId === group.tableId ? null : group,
+                        )
+                      }
+                    />
+                  ))}
+                </div>
+              </RoomShapeDisplay>
+              {filteredGroups.length === 0 ? (
+                <p className="text-sm text-neutral-500">
+                  Ninguna mesa coincide con los filtros
+                </p>
+              ) : null}
             </div>
-          ) : (
-            <div className="flex min-h-[400px] flex-col items-center justify-center text-center">
-              <p className="text-sm font-medium text-neutral-700">
-                Ninguna mesa coincide con los filtros
-              </p>
-              <p className="mt-1 text-xs text-neutral-500">
-                Prueba otro nombre o cambia estado / forma
-              </p>
-            </div>
-          )}
+
+            {selectedGroup ? (
+              <div className="absolute inset-x-4 bottom-4 z-30 max-w-md sm:inset-x-auto sm:right-4 sm:left-auto sm:w-80">
+                <TableGuestsPanel
+                  group={selectedGroup}
+                  compact
+                  onClose={() => setSelectedGroup(null)}
+                />
+              </div>
+            ) : null}
+          </div>
+          <p className="mt-3 text-center text-sm font-medium text-neutral-600">
+            {formatRoomDimensions(roomSetup)}
+          </p>
         </div>
 
         <aside className="space-y-4">
+          {selectedGroup ? (
+            <TableGuestsPanel
+              group={selectedGroup}
+              onClose={() => setSelectedGroup(null)}
+            />
+          ) : (
+            <div className="card-admin border border-dashed border-neutral-200 bg-neutral-50/50">
+              <p className="text-sm text-neutral-600">
+                Selecciona una mesa en el plano para ver quién está sentado.
+              </p>
+            </div>
+          )}
+
           <div className="card-admin">
             <h2 className="text-[10px] font-bold uppercase tracking-[0.08em] text-wf-5">
               Resumen

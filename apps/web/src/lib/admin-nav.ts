@@ -7,6 +7,8 @@ export type AdminNavItem = {
   label: string;
   icon: ComponentType<SVGProps<SVGSVGElement>>;
   exact?: boolean;
+  /** Resaltar nav en subrutas (p. ej. plano upload + layout). */
+  activeBasePath?: string;
 };
 
 export const setupSteps = [
@@ -20,6 +22,7 @@ export const setupSteps = [
 
 export function getAdminNavItems(eventId: string): AdminNavItem[] {
   const routes = adminRoutes(eventId);
+
   return [
     {
       href: routes.dashboard,
@@ -28,7 +31,12 @@ export function getAdminNavItems(eventId: string): AdminNavItem[] {
       exact: true,
     },
     { href: routes.config, label: 'Configuración', icon: navIcons.config },
-    { href: routes.floorPlan, label: 'Plano', icon: navIcons.floorPlan },
+    {
+      href: routes.floorPlan,
+      label: 'Plano',
+      icon: navIcons.floorPlan,
+      activeBasePath: routes.floorPlan,
+    },
     { href: routes.guests, label: 'Invitados', icon: navIcons.guests },
     {
       href: routes.preferences,
@@ -44,13 +52,11 @@ export function getAdminNavItems(eventId: string): AdminNavItem[] {
   ];
 }
 
-export function isAdminNavActive(
-  pathname: string,
-  href: string,
-  exact?: boolean,
-): boolean {
-  if (exact) {
-    return pathname === href;
+export function isAdminNavActive(pathname: string, item: AdminNavItem): boolean {
+  const href = item.activeBasePath ?? item.href;
+
+  if (item.exact) {
+    return pathname === item.href;
   }
   return pathname === href || pathname.startsWith(`${href}/`);
 }

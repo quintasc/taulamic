@@ -150,4 +150,17 @@ El isotipo simplificado: círculo central coral + 2–3 nodos/líneas (sin red d
 2. Página **2 — Marketing**: landing.
 3. Página **3 — Admin**: secciones por flujo + enlaces prototipo.
 
-URL documentada en `figma-mvp.md`.
+---
+
+## 9) Implementacion en codigo (web)
+
+| Documento | Contenido |
+|-----------|-----------|
+| `docs/ux/frontend-component-system.md` | Mapa de carpetas, reglas de reutilizacion |
+| `docs/adr/ADR-017-frontend-design-system-modular.md` | Decision arquitectura + theming futuro |
+| `apps/web/src/theme/brand.config.ts` | Rutas PNG y nombre de producto |
+| `apps/web/src/app/globals.css` | Variables CSS y clases `.btn-*`, `.card-*` |
+
+**Piloto julio:** tokens fijos. **MVP completo:** paquetes de tema (colores, tipografia, assets) intercambiables sin reescribir pantallas.
+
+URL Figma: `figma-mvp.md`.

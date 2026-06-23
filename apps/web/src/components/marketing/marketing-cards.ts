@@ -1,2 +1,2 @@
-export type { MarketingCard } from '@/components/marketing-illustrations';
-export { marketingCards } from '@/components/marketing-illustrations';
+export type { MarketingCard } from './marketing-illustrations';
+export { marketingCards } from './marketing-illustrations';

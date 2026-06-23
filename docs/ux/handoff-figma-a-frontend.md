@@ -468,7 +468,18 @@ Ejemplos de filas en mockup imperfecto: M9 En uso 8/10 71%, M10 Llena 8/8 93%, M
 
 Assets: `docs/ux/assets/taulamic-logo.png`, `taulamic-icon-bodas.png`.
 
-Componentes Figma → React (sugerencia): shadcn/ui o componentes propios siguiendo página **Sistema** del Make.
+Componentes Figma → React: componentes propios en capas (`ui/` → dominio → `app/`). Ver `docs/ux/frontend-component-system.md` y **ADR-017**.
+
+### Sistema de componentes (jun 2026)
+
+| Capa | Ruta código | Reutilización |
+|------|-------------|---------------|
+| Marca / tema | `src/theme/brand.config.ts` | Rutas PNG, nombre producto; theming completo post-MVP |
+| Primitivos | `components/ui/` | Alert, PageHeader, StatCard… |
+| Dominio | `admin/`, `marketing/`, `tables/`, `brand/` | Pantallas compuestas |
+| Páginas | `app/` | Solo routing y datos |
+
+Cambiar logo PNG: `public/` + `brand.config.ts`. Cambiar colores/tipografía sin tocar pantallas: planificado post-piloto (paquetes CSS en `:root`).
 
 ---
 

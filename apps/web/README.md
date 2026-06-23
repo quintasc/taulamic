@@ -4,21 +4,26 @@ Frontend Next.js del MVP julio (issue W5). Diseño según Figma Make y `docs/ux/
 
 ## Estructura modular (`src/`)
 
+Ver inventario completo: `docs/ux/frontend-component-system.md` · ADR: `docs/adr/ADR-017-frontend-design-system-modular.md`
+
 ```
 app/              Rutas Next.js (páginas finas)
   (marketing)/    Landing → /
   admin/          Panel organizador
-  sistema/        Design system (placeholder)
+  sistema/        Design system (placeholder → galería post-MVP)
+theme/            Marca y rutas de assets (`brand.config.ts`)
 components/
   ui/             Piezas reutilizables (Alert, StatCard, PageHeader…)
-  marketing/      Landing, header, tarjetas, hero
-  admin/          Shell, sidebar, dashboard, checklist, distribution
+  marketing/      Landing, header, tarjetas, hero, ilustraciones
+  admin/          Shell, sidebar, dashboard, distribution, floor-plan
   brand/          Logo Taulamic
-  icons/          Iconos SVG (nav, formas mesa…)
   tables/         Preview y utilidades de mesas
+  icons.tsx       Iconos SVG (nav, formas mesa…)
 hooks/            Lógica de pantalla (p. ej. useEventDashboard)
 lib/              API, rutas, contexto evento, nav admin
 ```
+
+**Cambiar imagen de marca (piloto):** sustituir PNG en `public/` y actualizar `src/theme/brand.config.ts`. Colores/tipografía modular completa: post-MVP (ADR-017).
 
 ## Arranque local
 
@@ -55,5 +60,6 @@ Header admin: `x-taulamic-actor-role: admin` (piloto sin JWT).
 ## Referencias UX
 
 - Tokens: `docs/ux/design-tokens-mvp.md`
+- **Componentes y theming:** `docs/ux/frontend-component-system.md`
 - Capturas: `docs/ux/exports/capturas-figma/`
 - Handoff: `docs/ux/handoff-figma-a-frontend.md`

@@ -103,6 +103,7 @@ Regla base:
 ## 11) Estrategia tecnica (alto nivel)
 
 - App web responsive.
+- Frontend modular por capas (`ui` / dominio / `theme`) — `ADR-017`; theming completo post-piloto.
 - Backend monolito modular + worker asincrono.
 - Motor de optimizacion combinatoria hibrido.
 - OpenAPI/Swagger como contrato de API.

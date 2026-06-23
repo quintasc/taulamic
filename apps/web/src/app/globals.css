@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 :root {
+  /* Tokens de marca — ampliar post-MVP (ADR-017). Fuente de diseño: design-tokens-mvp.md */
   --color-primary: #e86b4a;
   --color-primary-hover: #d45a3a;
   --color-border: #e8e8e8;

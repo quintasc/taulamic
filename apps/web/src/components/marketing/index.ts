@@ -4,3 +4,4 @@ export { MarketingCard } from './marketing-card';
 export { HeroFloorplan } from './hero-floorplan';
 export { marketingCards } from './marketing-cards';
 export type { MarketingCard as MarketingCardData } from './marketing-cards';
+export { IlluBoda, IlluAula, IlluEmpresa } from './marketing-illustrations';

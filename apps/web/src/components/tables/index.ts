@@ -1,4 +1,4 @@
 export {
   apiTableShape,
   TableShapePreview,
-} from '@/components/table-shape-preview';
+} from './table-shape-preview';

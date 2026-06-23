@@ -10,7 +10,7 @@ import {
 import {
   apiTableShape,
   TableShapePreview,
-} from '@/components/table-shape-preview';
+} from '@/components/tables';
 import {
   eventsApi,
   tableShapesApi,

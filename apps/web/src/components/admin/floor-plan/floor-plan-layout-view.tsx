@@ -122,33 +122,6 @@ function TableGuestsPanel({
   );
 }
 
-function SummaryRow({
-  label,
-  count,
-  status,
-}: {
-  label: string;
-  count: number;
-  status: TableOccupancyStatus;
-}) {
-  const dotClass =
-    status === 'full'
-      ? 'bg-success-500'
-      : status === 'in-use'
-        ? 'bg-warning-500'
-        : 'bg-neutral-500';
-
-  return (
-    <div className="flex items-center justify-between text-sm">
-      <span className="flex items-center gap-2 text-neutral-700">
-        <span className={`inline-block h-2 w-2 rounded-full ${dotClass}`} />
-        {label}
-      </span>
-      <span className="font-semibold text-neutral-900">{count}</span>
-    </div>
-  );
-}
-
 function FilterChip({
   active,
   label,
@@ -227,8 +200,6 @@ export function FloorPlanLayoutView({
     [tableGroups, statusFilter, search, shapeFilter],
   );
 
-  const counts = statusCounts;
-
   useEffect(() => {
     if (!selectedGroup) {
       return;
@@ -265,149 +236,118 @@ export function FloorPlanLayoutView({
         </Alert>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
-        <div className="flex min-h-[520px] flex-col">
-          <div className="card-admin relative flex min-h-[480px] flex-1 flex-col overflow-visible border-2 border-dashed border-neutral-200 bg-neutral-50/50 p-6">
-            <div className="flex flex-1 flex-col items-center justify-center gap-4">
-              <RoomShapeDisplay setup={roomSetup} maxPx={400}>
-                <div className="absolute inset-3 flex flex-wrap content-center justify-center gap-2">
-                  {filteredGroups.map((group) => (
-                    <TablePreviewCard
-                      key={group.tableId}
-                      group={group}
-                      selected={selectedGroup?.tableId === group.tableId}
-                      onSelect={() =>
-                        setSelectedGroup((current) =>
-                          current?.tableId === group.tableId ? null : group,
-                        )
-                      }
-                    />
-                  ))}
-                </div>
-              </RoomShapeDisplay>
-              {filteredGroups.length === 0 ? (
-                <p className="text-sm text-neutral-500">
-                  Ninguna mesa coincide con los filtros
-                </p>
-              ) : null}
-            </div>
-
-            {selectedGroup ? (
-              <div className="absolute inset-x-4 bottom-4 z-30 max-w-md sm:inset-x-auto sm:right-4 sm:left-auto sm:w-80">
-                <TableGuestsPanel
-                  group={selectedGroup}
-                  compact
-                  onClose={() => setSelectedGroup(null)}
-                />
-              </div>
-            ) : null}
+      <div className="mb-6 card-admin space-y-4">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="min-w-0 flex-1">
+            <label
+              htmlFor="floor-plan-table-search"
+              className="text-[10px] font-bold uppercase tracking-[0.08em] text-wf-5"
+            >
+              Buscar mesa o invitado
+            </label>
+            <input
+              id="floor-plan-table-search"
+              type="search"
+              className="input-field mt-2 w-full max-w-md py-2 text-sm"
+              placeholder="Ej. M1, Ana García…"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
           </div>
-          <p className="mt-3 text-center text-sm font-medium text-neutral-600">
-            {formatRoomDimensions(roomSetup)}
+          <p className="shrink-0 text-xs text-neutral-500 lg:pb-2.5">
+            {filteredGroups.length} de {tableGroups.length}{' '}
+            {tableGroups.length === 1 ? 'mesa visible' : 'mesas visibles'}
           </p>
         </div>
 
-        <aside className="space-y-4">
-          {selectedGroup ? (
-            <TableGuestsPanel
-              group={selectedGroup}
-              onClose={() => setSelectedGroup(null)}
-            />
-          ) : (
-            <div className="card-admin border border-dashed border-neutral-200 bg-neutral-50/50">
-              <p className="text-sm text-neutral-600">
-                Selecciona una mesa en el plano para ver quién está sentado.
-              </p>
-            </div>
-          )}
-
-          <div className="card-admin">
-            <h2 className="text-[10px] font-bold uppercase tracking-[0.08em] text-wf-5">
-              Resumen
-            </h2>
-            <div className="mt-4 space-y-3">
-              <SummaryRow label="Llenas" count={counts.full} status="full" />
-              <SummaryRow
-                label="En uso"
-                count={counts.inUse}
-                status="in-use"
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-wf-5">
+            Estado
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {STATUS_FILTER_OPTIONS.map((option) => (
+              <FilterChip
+                key={option.id}
+                active={statusFilter === option.id}
+                label={option.label}
+                count={statusCounts[option.countKey]}
+                onClick={() => setStatusFilter(option.id)}
               />
-              <SummaryRow label="Vacías" count={counts.empty} status="empty" />
+            ))}
+          </div>
+        </div>
+
+        {shapeOptions.length > 1 ? (
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-wf-5">
+              Forma
+            </p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {shapeOptions.map((option) => (
+                <FilterChip
+                  key={option.id}
+                  active={shapeFilter === option.id}
+                  label={option.label}
+                  count={option.count}
+                  onClick={() => setShapeFilter(option.id)}
+                />
+              ))}
             </div>
           </div>
+        ) : null}
+      </div>
 
-          <div className="card-admin space-y-4">
-            <div>
-              <label
-                htmlFor="floor-plan-table-search"
-                className="text-[10px] font-bold uppercase tracking-[0.08em] text-wf-5"
-              >
-                Buscar mesa
-              </label>
-              <input
-                id="floor-plan-table-search"
-                type="search"
-                className="input-field mt-2 w-full py-2 text-sm"
-                placeholder="Ej. M1, Ana García…"
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-              />
-            </div>
-
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-wf-5">
-                Estado
-              </p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {STATUS_FILTER_OPTIONS.map((option) => (
-                  <FilterChip
-                    key={option.id}
-                    active={statusFilter === option.id}
-                    label={option.label}
-                    count={statusCounts[option.countKey]}
-                    onClick={() => setStatusFilter(option.id)}
+      <div className="flex min-h-[520px] flex-col">
+        <div className="card-admin relative flex min-h-[480px] flex-1 flex-col overflow-visible border-2 border-dashed border-neutral-200 bg-neutral-50/50 p-6">
+          <div className="flex flex-1 flex-col items-center justify-center gap-4">
+            <RoomShapeDisplay setup={roomSetup} maxPx={400}>
+              <div className="absolute inset-3 flex flex-wrap content-center justify-center gap-2">
+                {filteredGroups.map((group) => (
+                  <TablePreviewCard
+                    key={group.tableId}
+                    group={group}
+                    selected={selectedGroup?.tableId === group.tableId}
+                    onSelect={() =>
+                      setSelectedGroup((current) =>
+                        current?.tableId === group.tableId ? null : group,
+                      )
+                    }
                   />
                 ))}
               </div>
-            </div>
-
-            {shapeOptions.length > 1 ? (
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-wf-5">
-                  Forma
-                </p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {shapeOptions.map((option) => (
-                    <FilterChip
-                      key={option.id}
-                      active={shapeFilter === option.id}
-                      label={option.label}
-                      count={option.count}
-                      onClick={() => setShapeFilter(option.id)}
-                    />
-                  ))}
-                </div>
-              </div>
+            </RoomShapeDisplay>
+            {filteredGroups.length === 0 ? (
+              <p className="text-sm text-neutral-500">
+                Ninguna mesa coincide con los filtros
+              </p>
             ) : null}
-
-            <p className="text-xs text-neutral-500">
-              {filteredGroups.length} de {tableGroups.length}{' '}
-              {tableGroups.length === 1 ? 'mesa visible' : 'mesas visibles'}
-            </p>
           </div>
 
-          <div className="flex flex-col gap-2 text-sm">
-            <Link href={distributionHref} className="btn-secondary text-center">
-              Volver a distribución
-            </Link>
-            <Link
-              href={setupHref}
-              className="text-center text-neutral-500 hover:text-neutral-700"
-            >
-              Configurar plano del salón
-            </Link>
-          </div>
-        </aside>
+          {selectedGroup ? (
+            <div className="absolute inset-x-4 bottom-4 z-30 max-w-md sm:inset-x-auto sm:right-4 sm:left-auto sm:w-80">
+              <TableGuestsPanel
+                group={selectedGroup}
+                compact
+                onClose={() => setSelectedGroup(null)}
+              />
+            </div>
+          ) : null}
+        </div>
+        <p className="mt-3 text-center text-sm font-medium text-neutral-600">
+          {formatRoomDimensions(roomSetup)}
+        </p>
+      </div>
+
+      <div className="mt-6 flex flex-wrap items-center gap-4">
+        <Link href={distributionHref} className="btn-secondary">
+          Volver a distribución
+        </Link>
+        <Link
+          href={setupHref}
+          className="text-sm font-medium text-neutral-500 hover:text-neutral-700"
+        >
+          Configurar plano del salón
+        </Link>
       </div>
     </>
   );

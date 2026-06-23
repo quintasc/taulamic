@@ -350,7 +350,7 @@ export function GuestsPanelV2({
       </div>
 
       <Alert variant="info">
-        <span className="font-medium">Vista previa v2.</span> Misma API y meta RSVP
+        <span className="font-medium">Vista previa.</span> Misma API y meta RSVP
         que el piloto actual. Alertas logísticas solo en localStorage (reversible).
         {' '}
         <Link href={routes.guests} className="font-medium text-primary-600 underline">

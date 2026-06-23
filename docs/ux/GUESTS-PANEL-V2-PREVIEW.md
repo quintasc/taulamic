@@ -1,8 +1,22 @@
-# Vista previa Invitados v2 (reversible)
+# Panel Invitados v2
 
-Propuesta de UI basada en el Prompt 8 de Figma Make y en el mockup de concepto (Gemini), **sin sustituir** la pantalla piloto actual.
+Implementación en código del rediseño (Prompt 8 / mockup concepto). **Validado por PO (jun 2026).**
 
-## Cómo probarla
+## Estado actual
+
+- Ruta temporal: `/admin/events/{eventId}/guests-v2`
+- La vista tabla legacy (`guests-list-view`, `/guests` actual) **queda descartada**.
+
+## Próximo paso (pendiente)
+
+1. **Eliminar avisos azules** de preview (panel v2 y enlace desde `/guests`).
+2. **Promover v2 a `/guests`** y retirar ruta `/guests-v2` + flag de preview.
+3. **Retirar** `guests-list-view.tsx` tras migrar importación Excel al panel nuevo.
+4. **Feedback único** por acción (mensajes de éxito que se sustituyen, no persisten).
+
+Ver `docs/agile/CONTEXTO-EJECUCION.md` § Siguiente sesión 2026-06-24.
+
+## Cómo probarla (hasta el corte)
 
 1. Arranca web (`npm run dev` en `apps/web`).
 2. Abre un evento con invitados importados.
@@ -23,9 +37,11 @@ Propuesta de UI basada en el Prompt 8 de Figma Make y en el mockup de concepto (
 | Bulk bar | Acciones masivas deshabilitadas (post-piloto) |
 | Estilo | Componentes Taulamic existentes (`btn-*`, `card-admin`, `input-field`, colores semánticos) |
 
-## Aislamiento / revertir
+## Histórico — aislamiento inicial (ya superado)
 
-Para **desactivar** sin borrar código:
+La primera entrega (`b360bed`) aisló v2 en ruta paralela con flag reversible. PO confirmó adopción del rediseño; el bloque siguiente describe el rollback solo si hiciera falta antes del corte:
+
+Para **desactivar** sin borrar código (obsoleto tras promoción a `/guests`):
 
 ```ts
 // apps/web/src/lib/pilot-features.ts
@@ -40,7 +56,7 @@ Para **eliminar por completo**, borrar solo:
 - Entrada `guestsV2Preview` en `routes.ts` y el banner en `guests/page.tsx`
 - Flag en `pilot-features.ts`
 
-La ruta `/guests` y `guests-list-view.tsx` **no se modifican** salvo el banner informativo opcional.
+La ruta `/guests` legacy y `guests-list-view.tsx` se retirarán al consolidar v2.
 
 ## Datos
 

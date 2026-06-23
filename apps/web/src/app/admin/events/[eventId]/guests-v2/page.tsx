@@ -112,12 +112,7 @@ export default function GuestsV2PreviewPage() {
     <>
       <PageHeader
         title="Invitados"
-        subtitle="Vista previa del panel tabular v2 (post-piloto). No sustituye el flujo actual."
-        action={
-          <span className="rounded-full border border-primary-500/30 bg-primary-500/10 px-3 py-1 text-xs font-medium text-primary-700">
-            Preview v2
-          </span>
-        }
+        subtitle="Vista previa del panel tabular (post-piloto). No sustituye el flujo actual."
       />
 
       {message ? (

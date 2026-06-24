@@ -1,6 +1,7 @@
 # Sistema de componentes frontend — Taulamic Web
 
 - Estado: **Vigente** (jun 2026)
+- Guía canónica UX/UI: **`guia-estilo-taulamic.md`**
 - ADR: `docs/adr/ADR-017-frontend-design-system-modular.md`
 - Codigo: `apps/web/src/`
 - Tokens: `design-tokens-mvp.md` · implementacion: `globals.css` + `tailwind.config.ts`
@@ -31,9 +32,9 @@ apps/web/src/
 
 | Modulo | Componentes clave | Reutilizable en |
 |--------|-------------------|-----------------|
-| `ui/` | Alert, EmptyState, PageHeader, StatCard, UploadZone, PreferenceOption, QuickAccessCard, SectionLabel | Cualquier pagina |
+| `ui/` | Alert, EmptyState, PageHeader, StatCard, UploadZone, PreferenceOption, QuickAccessCard, SectionLabel, Toast, SaveStatusIndicator | Cualquier pagina |
 | `marketing/` | MarketingLanding, MarketingHeader, MarketingCard, HeroFloorplan, marketing-illustrations | Landing, futuras landings verticales |
-| `admin/` | AdminShell, AdminSidebar, EventDashboard, SetupChecklist | Todo el panel admin |
+| `admin/` | AdminShell, AdminSidebar, EventDashboard, SetupChecklist, SetupNavBar, EventCountdown | Todo el panel admin |
 | `admin/distribution/` | DistributionCalculatedView, GuestPill, DistributionTableList | Distribucion, plano Fase B |
 | `admin/floor-plan/` | FloorPlanSetupView, FloorPlanLayoutView, ResizableRoomCanvas, RoomShapeDisplay | Plano |
 | `brand/` | TaulamicLogo, LogoIcon | Header admin, marketing, emails futuros |
@@ -94,6 +95,21 @@ Nuevos imports deben usar la ruta canonica (`@/components/ui`, `@/components/bra
 
 ---
 
+## 4) Patrones de feedback (obligatorios)
+
+Detalle completo: **`guia-estilo-taulamic.md` §7**.
+
+| Capa | Componente | Cuándo |
+|------|------------|--------|
+| Validación setup | `SetupNavBar` + `Alert` error | `nextReady={false}` |
+| Acción puntual | `useToast()` | Alta, import, CRUD con confirmación breve |
+| Auto-guardado | `SaveStatusIndicator` en `PageHeader` | Config, Plano, Afinidades |
+| Contexto persistente | `Alert` bajo header | Errores API, avisos piloto |
+
+**Provider global:** `ToastProvider` en `app/providers.tsx`.
+
+---
+
 ## 5) Responsive — admin, marketing e invitado
 
 **ADR:** `docs/adr/ADR-019-responsive-y-mobile-invitado.md`
@@ -149,6 +165,7 @@ Placeholder en piloto. Objetivo post-MVP:
 
 ## 7) Checklist al anadir componente
 
+- [ ] ¿Feedback según `guia-estilo-taulamic.md` §7 (toast / save indicator / alert / nav)?
 - [ ] ¿Es reutilizable? → `ui/` o modulo de dominio correcto
 - [ ] ¿Exportado en `index.ts`?
 - [ ] ¿Sin hex sueltos (salvo ilustracion)?
@@ -164,5 +181,6 @@ Placeholder en piloto. Objetivo post-MVP:
 - `apps/web/README.md`
 - `docs/adr/ADR-017-frontend-design-system-modular.md`
 - `docs/adr/ADR-019-responsive-y-mobile-invitado.md`
+- `docs/ux/guia-estilo-taulamic.md`
 - `docs/ux/design-tokens-mvp.md`
 - `docs/ux/handoff-figma-a-frontend.md`

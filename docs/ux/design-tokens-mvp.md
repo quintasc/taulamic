@@ -1,11 +1,11 @@
 # Design tokens MVP — Taulamic
 
-- Estado: **Borrador** (Ventana 2, issue #7)
-- Rama: `feat/7-figma-mvp`
+- Estado: **Vigente** (tokens visuales del piloto)
+- Guía canónica UX/UI: **`guia-estilo-taulamic.md`** (patrones de interacción + esta paleta)
 - Referencias SDD: `SDD-01C-principios-estilo-y-baja-friccion.md`, `SDD-01A-figma-ui-ux.md`
 - Origen visual: propuesta landing «Afinidad Inteligente» (jun 2026)
 
-Este documento fija tokens iniciales y dos modos de interfaz. Los valores hex son **propuesta** hasta validar contraste WCAG AA en Figma.
+Este documento fija **tokens visuales** (color, tipo, espaciado). Los patrones de comportamiento (setup, feedback, navegación) viven en `guia-estilo-taulamic.md`.
 
 ---
 
@@ -100,21 +100,26 @@ Teal `#5BA3A8`, amarillo `#E8C547`, azul `#6B9FD4` — solo en ilustraciones e i
 
 ---
 
-## 5) Componentes base (checklist Figma)
+## 5) Componentes base (checklist Figma / código)
 
-Marcar en Figma cuando existan variantes **default / hover / disabled / loading / error / empty**.
+Marcar cuando existan variantes **default / hover / disabled / loading / error / empty** en Figma y primitivo en `components/ui/`.
 
-- [ ] Botón primario (coral, texto blanco)
-- [ ] Botón secundario (borde, fondo blanco)
-- [ ] Botón texto / link
-- [ ] Input texto, textarea, select
-- [ ] Checkbox, radio, toggle (modo preferencias)
-- [ ] Chip de estado (info, éxito, alerta, error)
-- [ ] Tarjeta (marketing vs admin)
-- [ ] Tabla / lista (filas, vacío, error por fila Excel)
-- [ ] Alert / toast (feedback inmediato)
-- [ ] Skeleton / spinner (carga)
-- [ ] Empty state (sin datos)
+- [x] Botón primario (coral, texto blanco) — `.btn-primary`
+- [x] Botón secundario (borde, fondo blanco) — `.btn-secondary`
+- [ ] Botón texto / link (patrón inline; links `text-primary-600`)
+- [x] Input texto, textarea — `.input-field`
+- [ ] Select nativo estilizado
+- [x] Toggle / selección (modo preferencias, reglas afinidades)
+- [ ] Chip de estado dedicado (usar `Alert` / badges inline)
+- [x] Tarjeta admin — `.card-admin` · marketing — `.card-marketing`
+- [x] Tabla / lista (filas, vacío; invitados v2, distribución)
+- [x] Alert (feedback persistente)
+- [x] Toast (feedback inmediato autodismiss) — `toast.tsx`
+- [ ] Skeleton / spinner dedicado (carga con copy en pantalla)
+- [x] Empty state — `EmptyState`
+- [x] Indicador auto-guardado — `SaveStatusIndicator`
+- [x] Cabecera de pantalla — `PageHeader` (+ slot `saveStatus`)
+- [x] Navegación setup — `SetupNavBar`
 
 ---
 
@@ -156,6 +161,7 @@ El isotipo simplificado: círculo central coral + 2–3 nodos/líneas (sin red d
 
 | Documento | Contenido |
 |-----------|-----------|
+| **`docs/ux/guia-estilo-taulamic.md`** | **Guía canónica UX/UI** (patrones obligatorios) |
 | `docs/ux/frontend-component-system.md` | Mapa de carpetas, reglas de reutilizacion |
 | `docs/adr/ADR-017-frontend-design-system-modular.md` | Decision arquitectura + theming futuro |
 | `apps/web/src/theme/brand.config.ts` | Rutas PNG y nombre de producto |

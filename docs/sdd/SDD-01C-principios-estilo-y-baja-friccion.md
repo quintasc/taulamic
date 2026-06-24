@@ -62,6 +62,7 @@ Traduccion operativa:
 - Modo responsive para escritorio y movil.
 - **Dos audiencias:** admin desktop-first con degradación; **invitado mobile-first** (modo colaborativo, RSVP, afinidades) — ver `ADR-019`.
 - **Implementacion web:** capas reutilizables y configuracion de marca — `ADR-017`, `docs/ux/frontend-component-system.md` (theming runtime fuera del piloto julio).
+- **Guia canónica UX/UI:** `docs/ux/guia-estilo-taulamic.md` (patrones de interaccion, feedback, setup).
 
 ## 7) Comentarios para principiantes
 

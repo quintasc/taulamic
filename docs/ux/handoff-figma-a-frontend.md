@@ -2,8 +2,11 @@
 
 Documento de traspaso UX → implementación UI. Issue #7 cerrada (PR #37).
 
+> **Patrones UX/UI obligatorios:** `docs/ux/guia-estilo-taulamic.md` (canónica). Este handoff detalla pantallas y API; no sustituye la guía de estilo.
+
 | Recurso | Enlace |
 |---------|--------|
+| **Guía de estilo (canónica)** | `guia-estilo-taulamic.md` |
 | Figma Make | [MVP Taulamic App Design](https://www.figma.com/make/SanoIvjqWYghT7bXfNVpxj/MVP-Taulamic-App-Design?t=95kTMsKGpTjDmpBI-1) |
 | Design tokens | `design-tokens-mvp.md` |
 | OpenAPI (piloto) | `GET /api/docs` · `GET /api-json` (version `1.0-pilot`) |
@@ -29,6 +32,8 @@ Referencia backend E2E (sin plano): crear evento → mesas → preferencias → 
 ---
 
 ## Navegación setup + feedback (jun 2026)
+
+> Resumen operativo. **Especificación normativa:** `guia-estilo-taulamic.md` §6–§7.
 
 Componente: `SetupNavBar` (`apps/web/src/components/admin/setup-nav-bar.tsx`). Orden de pasos: `setup-flow.ts` (ADR-018). Tras Distribución → **Siguiente: Dashboard**.
 

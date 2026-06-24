@@ -148,3 +148,123 @@ export function configFormInitialName(
   }
   return eventName;
 }
+
+export type EventDaysRemainingMetric = {
+  /** Texto principal, p. ej. «42 días» o «—». */
+  value: string;
+  hint?: string;
+};
+
+export type EventCountdownState =
+  | { status: 'no-date' }
+  | { status: 'past'; daysAgo: number; dateLabel: string }
+  | {
+      status: 'active';
+      days: number;
+      hours: number;
+      minutes: number;
+      progressPercent: number;
+      dateLabel: string;
+    };
+
+const COUNTDOWN_PLANNING_WINDOW_DAYS = 120;
+
+function parseEventDateParts(date: string) {
+  const [year, month, day] = date.split('-').map(Number);
+  if (!year || !month || !day) {
+    return null;
+  }
+  return { year, month, day };
+}
+
+/** Cuenta atrás en tiempo real hasta el mediodía del día del evento. */
+export function getEventCountdown(
+  date?: string,
+  now = new Date(),
+): EventCountdownState {
+  if (!date?.trim()) {
+    return { status: 'no-date' };
+  }
+
+  const parts = parseEventDateParts(date);
+  if (!parts) {
+    return { status: 'no-date' };
+  }
+
+  const { year, month, day } = parts;
+  const eventAt = new Date(year, month - 1, day, 12, 0, 0, 0);
+  const dateLabel = formatEventDate(date);
+  const msRemaining = eventAt.getTime() - now.getTime();
+
+  if (msRemaining <= 0) {
+    const daysAgo = Math.max(
+      1,
+      Math.ceil(Math.abs(msRemaining) / 86_400_000),
+    );
+    return { status: 'past', daysAgo, dateLabel };
+  }
+
+  const totalMinutes = Math.floor(msRemaining / 60_000);
+  const days = Math.floor(totalMinutes / (60 * 24));
+  const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
+  const minutes = totalMinutes % 60;
+
+  const windowStart = new Date(eventAt);
+  windowStart.setDate(windowStart.getDate() - COUNTDOWN_PLANNING_WINDOW_DAYS);
+  const windowMs = eventAt.getTime() - windowStart.getTime();
+  const elapsedMs = now.getTime() - windowStart.getTime();
+  const progressPercent = Math.min(
+    100,
+    Math.max(0, Math.round((elapsedMs / windowMs) * 100)),
+  );
+
+  return {
+    status: 'active',
+    days,
+    hours,
+    minutes,
+    progressPercent,
+    dateLabel,
+  };
+}
+
+/** Cuenta atrás hasta la fecha del evento (meta local, zona horaria local). */
+export function getEventDaysRemaining(date?: string): EventDaysRemainingMetric {
+  if (!date?.trim()) {
+    return { value: '—', hint: 'Indica la fecha del evento' };
+  }
+
+  const [year, month, day] = date.split('-').map(Number);
+  if (!year || !month || !day) {
+    return { value: '—', hint: 'Fecha no válida' };
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const eventDay = new Date(year, month - 1, day);
+  eventDay.setHours(0, 0, 0, 0);
+
+  const diffDays = Math.round(
+    (eventDay.getTime() - today.getTime()) / 86_400_000,
+  );
+  const dateLabel = formatEventDate(date);
+
+  if (diffDays > 1) {
+    return { value: `${diffDays} días`, hint: dateLabel };
+  }
+  if (diffDays === 1) {
+    return { value: '1 día', hint: dateLabel };
+  }
+  if (diffDays === 0) {
+    return { value: '0 días', hint: `¡Es hoy! · ${dateLabel}` };
+  }
+
+  const pastDays = Math.abs(diffDays);
+  return {
+    value: '—',
+    hint:
+      pastDays === 1
+        ? `El evento fue ayer · ${dateLabel}`
+        : `El evento fue hace ${pastDays} días · ${dateLabel}`,
+  };
+}

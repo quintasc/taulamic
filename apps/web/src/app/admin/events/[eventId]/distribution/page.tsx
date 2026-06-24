@@ -2,6 +2,7 @@
 
 import { useParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
+import { SetupNavBar } from '@/components/admin/setup-nav-bar';
 import { DistributionCalculatedView } from '@/components/admin/distribution';
 import { IconRefresh } from '@/components/icons';
 import { Alert, EmptyState, PageHeader } from '@/components/ui';
@@ -13,12 +14,14 @@ import {
 } from '@/lib/api';
 import { buildDistributionTableGroups } from '@/lib/distribution-view';
 import { useEvent } from '@/lib/event-context';
+import { getSetupNav } from '@/lib/setup-flow';
 import { adminRoutes } from '@/lib/routes';
 
 export default function DistributionPage() {
   const params = useParams<{ eventId: string }>();
   const routes = adminRoutes(params.eventId);
   const { event, eventId, refreshEvent } = useEvent();
+  const setupNav = eventId ? getSetupNav(eventId, 'dist') : null;
   const [proposal, setProposal] = useState<DistributionProposal | null>(null);
   const [guestTotal, setGuestTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -103,7 +106,7 @@ export default function DistributionPage() {
     <>
       <PageHeader
         title="Distribución"
-        subtitle="Asigna invitados a las mesas por afinidad"
+        subtitle="Paso 7 del setup: asigna invitados a las mesas por afinidad"
         action={
           hasCalculatedView ? (
             <button
@@ -162,6 +165,17 @@ export default function DistributionPage() {
           }
         />
       )}
+
+      {eventId ? (
+        <SetupNavBar
+          hidePrimary
+          previousHref={setupNav?.previous?.href}
+          previousLabel={setupNav?.previous?.previousLabel}
+          nextHref={setupNav?.next?.href}
+          nextLabel={setupNav?.next?.nextLabel}
+          nextReady
+        />
+      ) : null}
     </>
   );
 }

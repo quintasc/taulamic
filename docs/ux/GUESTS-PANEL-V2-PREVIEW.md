@@ -4,27 +4,14 @@ Implementación en código del rediseño (Prompt 8 / mockup concepto). **Validad
 
 ## Estado actual
 
-- Ruta temporal: `/admin/events/{eventId}/guests-v2`
-- La vista tabla legacy (`guests-list-view`, `/guests` actual) **queda descartada**.
+- Ruta canonica: `/admin/events/{eventId}/guests`
+- `/guests-v2` redirige a `/guests` (compatibilidad)
+- Vista tabla legacy (`guests-list-view`) **eliminada** (jun 2026)
 
-## Próximo paso (pendiente)
-
-1. **Eliminar avisos azules** de preview (panel v2 y enlace desde `/guests`).
-2. **Promover v2 a `/guests`** y retirar ruta `/guests-v2` + flag de preview.
-3. **Retirar** `guests-list-view.tsx` tras migrar importación Excel al panel nuevo.
-4. **Feedback único** por acción (mensajes de éxito que se sustituyen, no persisten).
-
-Ver `docs/agile/CONTEXTO-EJECUCION.md` § Siguiente sesión 2026-06-24.
-
-## Cómo probarla (hasta el corte)
+## Cómo probarla
 
 1. Arranca web (`npm run dev` en `apps/web`).
-2. Abre un evento con invitados importados.
-3. Navega a:
-
-   `/admin/events/{eventId}/guests-v2`
-
-   O usa el enlace «vista previa del panel Invitados v2» en la página **Invitados** piloto.
+2. Abre un evento → **Invitados** (`/admin/events/{eventId}/guests`).
 
 ## Qué incluye
 
@@ -37,26 +24,9 @@ Ver `docs/agile/CONTEXTO-EJECUCION.md` § Siguiente sesión 2026-06-24.
 | Bulk bar | Acciones masivas deshabilitadas (post-piloto) |
 | Estilo | Componentes Taulamic existentes (`btn-*`, `card-admin`, `input-field`, colores semánticos) |
 
-## Histórico — aislamiento inicial (ya superado)
+## Histórico — aislamiento inicial (jun 2026)
 
-La primera entrega (`b360bed`) aisló v2 en ruta paralela con flag reversible. PO confirmó adopción del rediseño; el bloque siguiente describe el rollback solo si hiciera falta antes del corte:
-
-Para **desactivar** sin borrar código (obsoleto tras promoción a `/guests`):
-
-```ts
-// apps/web/src/lib/pilot-features.ts
-export const PILOT_GUESTS_PANEL_V2_PREVIEW_ENABLED = false;
-```
-
-Para **eliminar por completo**, borrar solo:
-
-- `apps/web/src/app/admin/events/[eventId]/guests-v2/`
-- `apps/web/src/components/admin/guests/v2/`
-- `apps/web/src/lib/guest-v2-detail-meta.ts`
-- Entrada `guestsV2Preview` en `routes.ts` y el banner en `guests/page.tsx`
-- Flag en `pilot-features.ts`
-
-La ruta `/guests` legacy y `guests-list-view.tsx` se retirarán al consolidar v2.
+La entrega `b360bed` aisló el panel en `/guests-v2` con flag reversible. Consolidado en `/guests` con adopción PO.
 
 ## Datos
 

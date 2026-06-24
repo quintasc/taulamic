@@ -3,12 +3,20 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Alert, PageHeader } from '@/components/ui';
+import { ApiError } from '@/lib/api';
 import { useEvent } from '@/lib/event-context';
 import {
   EVENT_API_PLACEHOLDER_NAME,
   EVENT_NAME_INPUT_PLACEHOLDER,
 } from '@/lib/event-ui-meta';
 import { adminRoutes } from '@/lib/routes';
+
+function formatCreateError(err: unknown): string {
+  if (err instanceof ApiError) {
+    return err.body.message ?? `Error API ${err.status}`;
+  }
+  return 'No se pudo crear el evento. Comprueba que la API esté en marcha (puerto 3000).';
+}
 
 export default function NewEventPage() {
   const router = useRouter();
@@ -26,8 +34,8 @@ export default function NewEventPage() {
         name.trim() || EVENT_API_PLACEHOLDER_NAME,
       );
       router.push(adminRoutes(created.id).config);
-    } catch {
-      setError('No se pudo crear el evento. ¿Está la API en el puerto 3000?');
+    } catch (err: unknown) {
+      setError(formatCreateError(err));
     } finally {
       setCreating(false);
     }

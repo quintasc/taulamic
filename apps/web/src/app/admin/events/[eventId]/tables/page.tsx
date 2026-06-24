@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { SetupNavBar } from '@/components/admin/setup-nav-bar';
 import { Alert, EmptyState, PageHeader } from '@/components/ui';
 import {
   IconShapeOval,
@@ -20,6 +21,7 @@ import {
   type SeatTopology,
 } from '@/lib/api';
 import { useEvent } from '@/lib/event-context';
+import { getSetupNav } from '@/lib/setup-flow';
 import { suggestNextTableLabels } from '@/lib/table-labels';
 
 const shapeOptions = [
@@ -30,6 +32,7 @@ const shapeOptions = [
 
 export default function TablesPage() {
   const { event, eventId, refreshEvent } = useEvent();
+  const setupNav = eventId ? getSetupNav(eventId, 'tables') : null;
   const [shape, setShape] = useState('redonda');
   const [capacity, setCapacity] = useState(8);
   const [quantity, setQuantity] = useState(1);
@@ -95,7 +98,7 @@ export default function TablesPage() {
       await refreshEvent();
       setQuantity(1);
     } catch {
-      setError('No se pudieron guardar las mesas.');
+      setError('No se pudieron añadir las mesas.');
     } finally {
       setSaving(false);
     }
@@ -198,7 +201,7 @@ export default function TablesPage() {
     <>
       <PageHeader
         title="Configurar mesa"
-        subtitle="Define forma y capacidad para las mesas del evento."
+        subtitle="Paso 5 del setup: define forma y capacidad para las mesas del evento."
       />
 
       {error ? (
@@ -293,7 +296,11 @@ export default function TablesPage() {
             disabled={saving || event?.status === 'plan_approved'}
             onClick={() => void saveTables()}
           >
-            {quantity === 1 ? 'Guardar mesa' : `Guardar ${quantity} mesas`}
+            {saving
+              ? 'Añadiendo…'
+              : quantity === 1
+                ? 'Añadir mesa'
+                : `Añadir ${quantity} mesas`}
           </button>
         </div>
 
@@ -412,6 +419,17 @@ export default function TablesPage() {
           />
         )}
       </section>
+
+      {eventId ? (
+        <SetupNavBar
+          hidePrimary
+          previousHref={setupNav?.previous?.href}
+          previousLabel={setupNav?.previous?.previousLabel}
+          nextHref={setupNav?.next?.href}
+          nextLabel={setupNav?.next?.nextLabel}
+          nextReady={(event?.tables.length ?? 0) > 0}
+        />
+      ) : null}
     </>
   );
 }

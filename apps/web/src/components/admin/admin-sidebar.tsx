@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { IconMap } from '@/components/icons';
+import { IconLock, IconMap } from '@/components/icons';
 import { TaulamicLogo } from '@/components/brand/taulamic-logo';
 import {
   getAdminNavItems,
@@ -49,6 +49,26 @@ export function AdminSidebar({
         {navItems.map((item) => {
           const active = isAdminNavActive(pathname, item);
           const Icon = item.icon;
+
+          if (item.locked) {
+            return (
+              <span
+                key={item.label}
+                title={item.lockedHint}
+                className="flex w-full cursor-not-allowed items-center gap-2 rounded-[7px] px-2.5 py-2 text-[13px] font-normal text-neutral-400"
+              >
+                <Icon className="shrink-0 text-wf-4" width={14} height={14} />
+                <span className="flex-1">{item.label}</span>
+                <IconLock
+                  className="shrink-0 text-neutral-400"
+                  width={12}
+                  height={12}
+                  aria-hidden
+                />
+              </span>
+            );
+          }
+
           return (
             <Link
               key={item.href}

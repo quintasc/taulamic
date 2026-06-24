@@ -21,7 +21,7 @@ Documento de traspaso UX → implementación UI. Issue #7 cerrada (PR #37).
 ## Flujo piloto (orden de pantallas)
 
 ```
-Marketing → Dashboard → (Config → Plano → Invitados → Mesas → Afinidades → Distribución)
+Marketing → Dashboard → (Config → Invitados → Tarjetas → Plano → Mesas → Afinidades → Distribución)
 ```
 
 Referencia backend E2E (sin plano): crear evento → mesas → preferencias → Excel → motor → confirmar.

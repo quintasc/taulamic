@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
+import { SetupNavBar } from '@/components/admin/setup-nav-bar';
 import { IconChevronDown } from '@/components/icons';
 import { ResizableRoomCanvas } from '@/components/admin/floor-plan/resizable-room-canvas';
 import { Alert, PageHeader } from '@/components/ui';
@@ -25,6 +25,7 @@ import {
   type RoomShape,
 } from '@/lib/floor-plan-setup';
 import { adminRoutes } from '@/lib/routes';
+import { getSetupNav } from '@/lib/setup-flow';
 import {
   compareRoomToRecommendation,
   recommendRoomSize,
@@ -64,15 +65,14 @@ export function FloorPlanSetupView({
   eventId: string;
   hasDistribution: boolean;
 }) {
-  const router = useRouter();
   const routes = adminRoutes(eventId);
+  const setupNav = getSetupNav(eventId, 'plano');
 
   const [setup, setSetup] = useState<FloorPlanSetup>(DEFAULT_FLOOR_PLAN_SETUP);
   const [configOpen, setConfigOpen] = useState(true);
   const [hydrated, setHydrated] = useState(false);
   const [guestCountHint, setGuestCountHint] = useState(0);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -124,6 +124,21 @@ export function FloorPlanSetupView({
     const normalized = normalizeSetupForShape(setup);
     saveFloorPlanSetup(eventId, normalized);
     markFloorPlanUploaded(eventId);
+
+    const timer = window.setTimeout(() => {
+      setSaveError(null);
+      void eventsApi
+        .saveRoomSetup(eventId, normalized)
+        .catch((err: unknown) => {
+          const message =
+            err instanceof ApiError
+              ? err.body.message ?? `Error API ${err.status}`
+              : 'No se pudo sincronizar el plano con el servidor.';
+          setSaveError(message);
+        });
+    }, 600);
+
+    return () => window.clearTimeout(timer);
   }, [eventId, setup, hydrated]);
 
   const updateSetup = useCallback((patch: Partial<FloorPlanSetup>) => {
@@ -143,29 +158,6 @@ export function FloorPlanSetupView({
     });
   }
 
-  function handleSave() {
-    const normalized = normalizeSetupForShape(setup);
-    setSaving(true);
-    setSaveError(null);
-    void eventsApi
-      .saveRoomSetup(eventId, normalized)
-      .then(() => {
-        saveFloorPlanSetup(eventId, normalized);
-        markFloorPlanUploaded(eventId);
-        router.push(routes.guests);
-      })
-      .catch((err: unknown) => {
-        const message =
-          err instanceof ApiError
-            ? err.body.message ?? `Error API ${err.status}`
-            : 'No se pudo guardar el plano en el servidor.';
-        setSaveError(message);
-      })
-      .finally(() => {
-        setSaving(false);
-      });
-  }
-
   if (!hydrated) {
     return <p className="text-sm text-neutral-500">Cargando plano…</p>;
   }
@@ -177,23 +169,13 @@ export function FloorPlanSetupView({
     <>
       <PageHeader
         title="Plano del salón"
-        subtitle="Paso 2 del setup: define la forma y el tamaño del espacio según el volumen de invitados."
+        subtitle="Paso 4 del setup: define la forma y el tamaño del espacio. Si no cambias nada, se usa la configuración por defecto."
         action={
-          <div className="flex flex-wrap items-center gap-2">
-            {hasDistribution ? (
-              <Link href={routes.floorPlanLayout} className="btn-secondary">
-                Ver mesas en plano
-              </Link>
-            ) : null}
-            <button
-              type="button"
-              className="btn-primary"
-              onClick={handleSave}
-              disabled={saving}
-            >
-              {saving ? 'Guardando…' : 'Guardar y continuar'}
-            </button>
-          </div>
+          hasDistribution ? (
+            <Link href={routes.floorPlanLayout} className="btn-secondary">
+              Ver mesas en plano
+            </Link>
+          ) : undefined
         }
       />
 
@@ -379,6 +361,15 @@ export function FloorPlanSetupView({
           </div>
         </aside>
       </div>
+
+      <SetupNavBar
+        hidePrimary
+        previousHref={setupNav.previous?.href}
+        previousLabel={setupNav.previous?.previousLabel}
+        nextHref={setupNav.next?.href}
+        nextLabel={setupNav.next?.nextLabel}
+        nextReady={hydrated}
+      />
     </>
   );
 }

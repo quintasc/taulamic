@@ -122,6 +122,17 @@ export type ImportValidation = {
   }>;
 };
 
+export type ImportBatchResult = {
+  eventId: string;
+  totalRows: number;
+  created: number;
+  updated: number;
+  rejected: number;
+  categoriesEnsured: number;
+  suggestionsGenerated: number;
+  errors: ImportValidation['errors'];
+};
+
 export const eventsApi = {
   create: (name: string) =>
     apiFetch<EventDetail>('/events', {
@@ -222,7 +233,7 @@ export const guestsApi = {
       const body = await response.json().catch(() => ({}));
       throw new ApiError(response.status, body);
     }
-    return response.json();
+    return response.json() as Promise<ImportBatchResult>;
   },
   create: (
     eventId: string,

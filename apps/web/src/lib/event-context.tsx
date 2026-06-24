@@ -9,7 +9,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { eventsApi, type EventDetail } from '@/lib/api';
+import { ApiError, eventsApi, type EventDetail } from '@/lib/api';
 
 /** Clave legacy; el MVP no restaura eventos entre sesiones. */
 const LEGACY_STORAGE_KEY = 'taulamic:eventId';
@@ -83,14 +83,24 @@ export function EventProvider({ children }: { children: ReactNode }) {
 
   const syncEventIdFromUrl = useCallback((id: string) => {
     const sessionId = readSessionEventId();
-    if (sessionId !== id) {
-      setEventIdState(null);
+    if (sessionId === id) {
+      setEventIdState(id);
+      setError(null);
+      return;
+    }
+
+    setEventIdState((currentId) => {
+      if (currentId === id) {
+        writeSessionEventId(id);
+        setError(null);
+        return id;
+      }
+
       setEvent(null);
       setError('No se pudo cargar el evento.');
       setLoading(false);
-      return;
-    }
-    setEventIdState(id);
+      return null;
+    });
   }, []);
 
   const clearEvent = useCallback(() => {

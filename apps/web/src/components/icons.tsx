@@ -339,11 +339,25 @@ export function IconTrash(props: IconProps) {
   );
 }
 
+export function IconLock(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M7 11V7a5 5 0 0110 0v4M6 11h12v9H6V11z"
+      />
+    </svg>
+  );
+}
+
 export const navIcons = {
   dashboard: IconDashboard,
   config: IconSettings,
   floorPlan: IconFloorPlan,
   guests: IconUsers,
+  invitations: IconMail,
   preferences: IconHeart,
   tables: IconTable,
   distribution: IconDistribution,

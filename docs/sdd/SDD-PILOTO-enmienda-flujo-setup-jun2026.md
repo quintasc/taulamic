@@ -15,7 +15,7 @@ Esta enmienda **no sustituye** el SDD-01. Refina el **flujo de configuración de
 |-----------|------------|----------|
 | Nombre del evento sin valor por defecto; placeholder de ejemplo; KPI setup arranca en 0 % | ✅ Acertada | El nombre interno de API puede ser técnico (`Evento nuevo`); el organizador debe **guardar configuración** con un nombre real para marcar el paso 1 |
 | Sustituir «Nº de mesas» por **invitados aproximados** en configuración | ✅ Acertada | El número de mesas sin capacidad no informa planificación; los invitados aproximados orientan plano y mesas |
-| Orden: Config → Plano → Invitados → Mesas → Afinidades → Distribución | ✅ Acertada | Alinea dependencias: volumen → espacio → lista → capacidad → restricciones → motor |
+| Orden: Config → Invitados → Tarjetas (🔒) → Plano → Mesas → Afinidades → Distribución | ✅ Acertada (enmienda jun 2026) | Fases Quién → Dónde → Cómo; lista real antes del espacio; nav no lineal |
 | Plano con **tamaño mínimo recomendado** según invitados | ✅ Acertada | Hint orientativo (~1,5 m²/plaza sentada + circulación); no bloquea guardar |
 | Alta manual de invitados (+1, última hora) | ✅ Acertada | API `POST /guests` ya existe; piloto habilita formulario |
 | Iconos RSVP (confirmado / rechazado / pendiente) | ✅ Acertada (mock piloto) | Visible y editable por organizador; operativo con envío real post-MVP |
@@ -30,13 +30,14 @@ Esta enmienda **no sustituye** el SDD-01. Refina el **flujo de configuración de
 | Paso | Clave | Criterio «hecho» (piloto) | Operativo |
 |------|-------|---------------------------|-----------|
 | 1 | `config` | Organizador guarda configuración con nombre, invitados aprox. y modo de preferencias | ✅ Parcial (meta local + API nombre/modo) |
-| 2 | `plano` | Plano Fase A guardado (`localStorage` / setup persistido) | ✅ |
-| 3 | `guests` | ≥ 1 invitado (Excel o alta manual) | ✅ |
-| 4 | `tables` | ≥ 1 mesa configurada | ✅ |
-| 5 | `prefs` | Borrador de afinidades/reglas guardado (meta local) | 🟡 Mock |
-| 6 | `dist` | Distribución calculada o confirmada | ✅ Motor v0 |
+| 2 | `guests` | ≥ 1 invitado (Excel o alta manual) | ✅ |
+| 3 | `invitations` | Tarjetas diseñadas y enviadas | 🔒 Post-piloto HU-10 (no cuenta en %) |
+| 4 | `plano` | Plano Fase A guardado (`localStorage` / setup persistido) | ✅ |
+| 5 | `tables` | ≥ 1 mesa configurada | ✅ |
+| 6 | `prefs` | Borrador de afinidades/reglas guardado (meta local) | 🟡 Mock |
+| 7 | `dist` | Distribución calculada o confirmada | ✅ Motor v0 |
 
-**KPI setup:** `pasos_completados / 6 × 100`. Sin configuración guardada → **0 %**.
+**KPI setup:** `pasos_completados / 6 × 100` (excluye Tarjetas bloqueado). Sin configuración guardada → **0 %**.
 
 ---
 
@@ -53,7 +54,7 @@ Esta enmienda **no sustituye** el SDD-01. Refina el **flujo de configuración de
 ### RF-P02 — Plano del salón
 
 - **RF-P02.1** Si hay invitados aproximados, mostrar recomendación de superficie mínima y dimensiones orientativas.
-- **RF-P02.2** Tras guardar, navegar a Invitados.
+- **RF-P02.2** Tras guardar, navegar a Mesas.
 
 ### RF-P03 — Lista de invitados
 
@@ -92,7 +93,7 @@ Esta enmienda **no sustituye** el SDD-01. Refina el **flujo de configuración de
 3. Plano muestra hint de tamaño cuando hay invitados aproximados.
 4. Invitados: alta manual funcional; iconos RSVP y menú acciones visibles (acciones masivas no operativas).
 5. Preferencias: sin selector de modo; muestra secciones de afinidades y reglas con aviso de piloto.
-6. Checklist y navegación siguen orden: Config → Plano → Invitados → Mesas → Preferencias → Distribución.
+6. Checklist y navegación siguen orden: Config → Invitados → Tarjetas (🔒) → Plano → Mesas → Preferencias → Distribución.
 
 ---
 
@@ -105,20 +106,21 @@ Esta enmienda **no sustituye** el SDD-01. Refina el **flujo de configuración de
 
 ## 7. Navegación — orden acordado y evolución post-MVP
 
-### 7.1 Orden piloto (confirmado)
+### 7.1 Orden piloto (confirmado — enmienda jun 2026)
 
 ```text
-Config → Plano → Invitados → Mesas → Afinidades → Distribución
+Config → Invitados → Tarjetas (🔒) → Plano → Mesas → Afinidades → Distribución
 ```
 
 **Rationale:**
 
 | Tramo | Por qué este orden |
 |-------|-------------------|
-| Config → Plano | El organizador suele conocer el salón y el volumen aproximado antes de tener la lista cerrada; el hint de m² usa invitados aproximados de Config. |
-| Plano → Invitados | El espacio queda dimensionado antes de cargar personas; la lista real se contrasta después con la capacidad de mesas. |
-| Invitados → Mesas | La capacidad física (plazas) se valida contra invitados reales. |
-| Mesas → Afinidades | En piloto, afinidades es borrador/mock; mesas es operativo — conviene cerrar capacidad antes de reglas sociales. |
+| Config → Invitados | Datos básicos y volumen aproximado; la lista real alimenta RSVP y dimensionamiento posterior. |
+| Invitados → Tarjetas | Sin lista no hay a quién enviar; paso bloqueado en piloto (HU-10). |
+| Tarjetas → Plano | Fase «Dónde»: croquis del salón; hint de m² usa invitados aprox. (Config) o lista importada. |
+| Plano → Mesas | Mesas sobre el perímetro del salón; capacidad operativa antes de reglas. |
+| Mesas → Afinidades | En piloto, afinidades es borrador/mock; mesas es operativo. |
 | Afinidades → Distribución | El motor consume invitados, mesas y (futuro) restricciones. |
 
 ### 7.2 Principio UX transversal

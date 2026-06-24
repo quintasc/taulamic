@@ -39,26 +39,23 @@
 
 **Ventana 1:** implementar `GET/PUT .../room-setup` y conectar web. **Ventana 2:** panel Invitados v2 — preview en codigo (`b360bed`); Figma Prompt 8 pendiente si hay tokens.
 
-### Siguiente sesion (2026-06-24) — Invitados v2 como pantalla definitiva
+### Siguiente sesion — pendiente post-consolidacion Invitados
 
-**Decision PO (sesion 2026-06-23):** el rediseño de Invitados **sustituye** la vista anterior. La tabla legacy (`guests-list-view`, ruta `/guests` actual) **queda descartada**.
+**Hecho (2026-06-24):** panel v2 en `/guests`, vista legacy eliminada, avisos azules de preview retirados, feedback unificado por accion.
 
-**Tareas a ejecutar / perfilar manana:**
+**Pendiente:**
 
-1. **Eliminar mensajes azules de preview** — quitar `Alert variant="info"` del panel v2 («Vista previa…»), el aviso en `/guests` que enlaza a `/guests-v2`, y el subtítulo de cabecera que dice que no sustituye el flujo actual. Mantener solo la leyenda de cabecera *«Vista previa del panel tabular (post-piloto)»* hasta el corte final, o pasar directamente a título «Invitados» sin leyenda de preview.
-2. **Promover v2 a ruta canonica** — mover panel v2 a `/guests` (o redirigir `/guests` → contenido v2); retirar `/guests-v2` y flag `PILOT_GUESTS_PANEL_V2_PREVIEW_ENABLED` cuando esté estable.
-3. **Retirar vista anterior** — eliminar o archivar `guests-list-view.tsx` (tabla legacy) tras migrar flujo de importacion Excel al nuevo panel si aun no está.
-4. **Mensajes de feedback** — el mensaje de exito al modificar un invitado («Invitado actualizado», etc.) **no debe quedarse fijo** si el usuario hace otras acciones; debe **sustituirse** por el feedback de la accion mas reciente (Excel descargado, invitaciones enviadas, importacion, eliminacion, …). Un unico canal de feedback por pantalla.
+1. **Paso setup «Tarjetas»** — candado en checklist (HU-10 post-piloto); etiqueta corta en nav.
+2. **Checklist cierre piloto** — evidencias finales, backlog `post-piloto` en GitHub, prueba usuario real (jul).
 
-- No cambiar alcance funcional SDD; solo UX y consolidacion de pantalla Invitados.
-- UI ya acordada: sin pastilla «Preview v2» (solo leyenda «Vista previa…» en subtitulo, hasta corte).
+---
 
-### Pendiente roadmap — nuevo paso setup «Diseñar invitaciones»
+### Roadmap — paso setup «Tarjetas»
 
-**Idea PO (sesion 2026-06-23):** añadir un paso en el flujo de setup (checklist / nav lateral), p. ej. **«Diseñar invitaciones»** (nombre a cerrar en copy), visible pero **bloqueado con candado** en piloto / hasta activar HU-10.
+**Idea PO (sesión 2026-06-23):** añadir un paso en el flujo de setup (checklist / nav lateral), visible como **«Tarjetas»** (diseño y envío de invitaciones), **bloqueado con candado** en piloto / hasta activar HU-10.
 
 - **UX:** icono candado, estado disabled, tooltip «Próximamente» o similar; no navegable hasta desbloqueo post-piloto.
-- **Posicion tentativa** en cadena ADR-018: tras **Invitados** y antes de **Mesas** o **Distribución** (validar con PO).
+- **Posición:** tras **Invitados** y antes de **Plano** (fase «Quién»).
 - **Alcance funcional:** editor/plantillas de invitacion + envio — **HU-10 / HU-11**; solo placeholder en nav hasta entonces.
 - **Implementacion:** extender checklist setup (dashboard) y `adminRoutes`; sin API hasta spec de invitaciones.
 
@@ -67,11 +64,11 @@
 ### Decisiones producto recientes (jun 2026)
 
 - Validación piloto completada; feedback PO → **`docs/ux/spec-invitados-panel-v2-post-piloto.md`**
-- **Invitados v2 adoptado** (jun 2026): vista tabla legacy **descartada**; eliminar avisos azules de preview y consolidar en `/guests`
-- **Nuevo paso setup (futuro):** «Diseñar invitaciones» en checklist, **bloqueado con candado** hasta HU-10 (post-piloto)
+- **Invitados v2 consolidado** (jun 2026): panel en `/guests`; legacy eliminada
+- **Nuevo paso setup (futuro):** «Tarjetas» en checklist, **bloqueado con candado** hasta HU-10 (post-piloto)
 - Separación estricta **Invitados** (datos) vs **Afinidades** (reglas); drawer + bulk bar post-piloto
 - Google Maps en config — post-piloto (invitaciones HU-10)
-- Flujo setup: **ADR-018** — Config → Plano → Invitados → Mesas → Afinidades → Distribución
+- Flujo setup: **ADR-018** — Config → Invitados → Tarjetas (🔒) → Plano → Mesas → Afinidades → Distribución
 - Plano Fase A: persistencia API — **`ADR-020`** (hoy `localStorage`)
 - HU-05 manual (✕/+/drag): **`SDD-PILOTO-enmienda-HU05-ajuste-manual-postpiloto.md`**
 

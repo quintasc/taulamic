@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { SetupNavBar } from '@/components/admin/setup-nav-bar';
 import { Alert, PageHeader, SectionLabel } from '@/components/ui';
 import { preferencesApi } from '@/lib/api';
 import {
@@ -17,6 +18,7 @@ import {
   PILOT_PREFERENCE_MODE,
   resolvePreferenceModeForPilot,
 } from '@/lib/pilot-features';
+import { getSetupNav } from '@/lib/setup-flow';
 
 const GENERIC_RULES: Array<{
   key: keyof AffinityRuleToggles;
@@ -49,8 +51,7 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
   const routes = adminRoutes(eventId);
   const [mode, setMode] = useState<PreferenceControlMode>(PILOT_PREFERENCE_MODE);
   const [rules, setRules] = useState<AffinityRuleToggles>({});
-  const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const setupNav = getSetupNav(eventId, 'prefs');
 
   useEffect(() => {
     const meta = loadEventUiMeta(eventId);
@@ -58,6 +59,7 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
       setMode(resolvePreferenceModeForPilot(meta.preferenceMode));
     }
     setRules(meta.affinityRules ?? {});
+    markAffinitiesDraftSaved(eventId);
     void preferencesApi
       .get(eventId)
       .then((settings) =>
@@ -66,26 +68,21 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
       .catch(() => undefined);
   }, [eventId]);
 
-  function toggleRule(key: keyof AffinityRuleToggles) {
-    setRules((current) => ({ ...current, [key]: !current[key] }));
+  function persistRules(nextRules: AffinityRuleToggles) {
+    const meta = loadEventUiMeta(eventId);
+    saveEventUiMeta(eventId, {
+      ...meta,
+      affinityRules: nextRules,
+    });
+    markAffinitiesDraftSaved(eventId);
   }
 
-  async function saveDraft() {
-    setSaving(true);
-    setMessage(null);
-    try {
-      const meta = loadEventUiMeta(eventId);
-      saveEventUiMeta(eventId, {
-        ...meta,
-        affinityRules: rules,
-      });
-      markAffinitiesDraftSaved(eventId);
-      setMessage('Borrador de afinidades guardado (piloto).');
-    } catch {
-      setMessage('No se pudo guardar el borrador.');
-    } finally {
-      setSaving(false);
-    }
+  function toggleRule(key: keyof AffinityRuleToggles) {
+    setRules((current) => {
+      const next = { ...current, [key]: !current[key] };
+      persistRules(next);
+      return next;
+    });
   }
 
   const effectiveMode = resolvePreferenceModeForPilot(mode);
@@ -98,27 +95,20 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
     <>
       <PageHeader
         title="Afinidades y reglas"
-        subtitle="Paso 5 del setup: restricciones por persona y reglas genéricas para el motor de distribución."
+        subtitle="Paso 6 del setup: restricciones por persona y reglas genéricas para el motor de distribución."
       />
-
-      {message ? (
-        <div className="mb-6">
-          <Alert variant={message.includes('No') ? 'error' : 'success'}>
-            {message}
-          </Alert>
-        </div>
-      ) : null}
 
       <Alert variant="info">
         <p className="font-medium">Piloto — vista previa del flujo</p>
         <p className="mt-1 text-sm">
-          El motor v0 aún no consume estas reglas. Aquí verás cómo se capturarán
-          afinidades (+), incompatibilidades (−) y criterios de grupo. El modo de
+          El motor v0 aún no consume estas reglas. Puedes dejarlas vacías: la
+          distribución asignará invitados sin criterios de afinidad. El modo de
           captura se configura en{' '}
           <Link href={routes.config} className="font-medium text-primary-600">
             Configuración
           </Link>
-          .
+          . Las reglas se guardan automáticamente en este dispositivo (piloto);
+          no persisten en la API hasta post-piloto.
         </p>
       </Alert>
 
@@ -162,8 +152,8 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
       <div className="mt-6 card-admin space-y-4">
         <SectionLabel>Reglas genéricas</SectionLabel>
         <p className="text-sm text-neutral-600">
-          Criterios que aplican a todo el evento y alimentan el algoritmo de
-          distribución óptima.
+          Criterios opcionales que aplican a todo el evento. Si no marcas ninguno,
+          el motor distribuirá sin reglas adicionales.
         </p>
         <div className="space-y-3">
           {GENERIC_RULES.map((rule) => {
@@ -202,16 +192,14 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
         </div>
       </div>
 
-      <div className="mt-6 flex justify-end">
-        <button
-          type="button"
-          className="btn-primary"
-          disabled={saving}
-          onClick={() => void saveDraft()}
-        >
-          {saving ? 'Guardando…' : 'Guardar borrador de afinidades'}
-        </button>
-      </div>
+      <SetupNavBar
+        hidePrimary
+        previousHref={setupNav.previous?.href}
+        previousLabel={setupNav.previous?.previousLabel}
+        nextHref={setupNav.next?.href}
+        nextLabel={setupNav.next?.nextLabel}
+        nextReady
+      />
     </>
   );
 }

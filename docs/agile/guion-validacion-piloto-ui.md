@@ -4,7 +4,7 @@
 - **Fecha:** 2026-06-21 (actualizado tras enmienda flujo setup)
 - **Referencias:** `DECISION-002`, `ADR-018`, `SDD-PILOTO-enmienda-flujo-setup-jun2026.md`, `handoff-figma-a-frontend.md`, `pilot-flow.e2e-spec.ts` (API)
 - **Entorno:** API `:3000`, Web `:3001` (`npm run start:dev` + `npm run dev:clean`)
-- **Orden setup piloto:** Config → Plano → Invitados → Mesas → Afinidades → Distribución
+- **Orden setup piloto:** Config → Invitados → Tarjetas (🔒) → Plano → Mesas → Afinidades → Distribución
 
 Este guion valida el **mismo flujo funcional** que el E2E backend, pero desde la interfaz admin, con el **orden y criterios** del piloto jun 2026. Marca cada paso al completarlo.
 
@@ -71,7 +71,7 @@ Este guion valida el **mismo flujo funcional** que el E2E backend, pero desde la
 | 17 | KPIs coherentes | `/admin/events/[id]` | Invitados, Mesas/plazas coherentes con datos cargados | [ ] |
 | 18 | Afinidad honesta | Dashboard | Texto **«No calculado en piloto»** (sin % falso) | [ ] |
 | 19 | Progreso setup | Dashboard | Checklist 5/6 antes de distribuir; barra setup refleja pasos reales | [ ] |
-| 20 | Nav orden | Sidebar | Orden: Config → Plano → Invitados → Mesas → Afinidades → Distribución | [ ] |
+| 20 | Nav orden | Sidebar | Orden: Config → Invitados → Tarjetas (🔒) → Plano → Mesas → Afinidades → Distribución | [ ] |
 
 ---
 

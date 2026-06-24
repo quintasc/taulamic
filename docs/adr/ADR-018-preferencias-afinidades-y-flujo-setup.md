@@ -17,9 +17,23 @@ El piloto mezclaba en «Preferencias» solo el modo colaborativo/exclusivo (HU-1
 
 ### 1. Reordenar setup
 
+**Enmienda jun 2026 (PO):** orden por fases cognitivas Quién → Dónde → Cómo.
+
 ```
-Configuración → Plano → Invitados → Mesas → Afinidades (Preferencias) → Distribución
+Configuración → Invitados → Tarjetas (🔒 HU-10) → Plano → Mesas → Afinidades (Preferencias) → Distribución
 ```
+
+Orden anterior (`Config → Plano → Invitados → …`) queda sustituido para nav y checklist. La nav sigue siendo no lineal.
+
+**Fases:**
+
+| Fase | Pasos |
+|------|-------|
+| Quién | Invitados, Tarjetas |
+| Dónde | Plano, Mesas |
+| Cómo | Afinidades, Distribución |
+
+**Tarjetas:** etiqueta corta en nav para el paso de diseño y envío de invitaciones (HU-10). Bloqueado en piloto; no cuenta para % de setup.
 
 ### 2. Configuración del evento absorbe modo HU-16
 

@@ -47,7 +47,7 @@ Este documento **no sustituye** el SDD-01; resume cumplimiento del **piloto juli
 
 | Flujo | Estado | Comentario |
 |-------|--------|------------|
-| A — Configuracion inicial | 🟡 | Config → Plano → Invitados → Mesas → Afinidades (enmienda jun 2026) |
+| A — Configuracion inicial | 🟡 | Config → Invitados → Tarjetas → Plano → Mesas → Afinidades (enmienda jun 2026) |
 | B — Captura invitados | 🟡 | Excel + alta manual; RSVP UI mock |
 | C — Calculo y revision | 🟡 | Run + lista; sin Top-K ni ajuste manual visual |
 | D — Aprobacion y publicacion | 🟡 | Confirmar distribucion; sin publicar a invitados |

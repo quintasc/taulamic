@@ -28,6 +28,57 @@ Referencia backend E2E (sin plano): crear evento → mesas → preferencias → 
 
 ---
 
+## Navegación setup + feedback (jun 2026)
+
+Componente: `SetupNavBar` (`apps/web/src/components/admin/setup-nav-bar.tsx`). Orden de pasos: `setup-flow.ts` (ADR-018). Tras Distribución → **Siguiente: Dashboard**.
+
+### Patrón sin botón «Guardar»
+
+| Paso | Persistencia | «Siguiente» |
+|------|--------------|-------------|
+| Config | Auto-save debounced (500 ms) + flush en `onBeforeNext` | Bloqueado sin nombre válido |
+| Invitados | Alta/import en contenido | Bloqueado con 0 invitados |
+| Plano | Auto-save local + API (600 ms) | Activo tras hidratar |
+| Mesas | «Añadir mesa» | Bloqueado con 0 mesas |
+| Afinidades | Toggle reglas → `localStorage` (instantáneo) | Siempre activo |
+| Distribución | Motor en pantalla | Siempre activo (`hidePrimary`) |
+
+### Validación visible (prioridad alta — implementado)
+
+Cuando `nextReady={false}`, la barra de navegación muestra un **banner rojo** (`Alert` error) con `nextDisabledHint` por paso. El botón «Siguiente» deshabilitado sigue siendo clicable: hace scroll al aviso y lo resalta brevemente (móvil: barra sticky inferior).
+
+| Paso | `nextDisabledHint` |
+|------|-------------------|
+| Config | Indica el nombre del evento para continuar |
+| Invitados | Añade al menos un invitado para continuar |
+| Mesas | Añade al menos una mesa para continuar |
+| Plano (carga) | Espera a que cargue el plano del salón |
+
+### Toast / feedback de acciones (prioridad media — implementado)
+
+`ToastProvider` + `useToast()` en `components/ui/toast.tsx`, montado en `app/providers.tsx`.
+
+| Superficie | Acciones con toast |
+|------------|-------------------|
+| Invitados | Añadir, actualizar, eliminar, import Excel, descargar plantilla (+ errores) |
+| Mesas | Añadir (1 o N), renombrar etiqueta, eliminar (+ errores de validación) |
+
+Comportamiento: aparece arriba al centro, autodismiss ~4 s, cierre manual con ✕. Variantes `success` / `error` / `info` (mismos tokens que `Alert`).
+
+### Indicador auto-guardado (prioridad baja — implementado)
+
+`SaveStatusIndicator` + `useAutoSaveIndicator()` en `components/ui/save-status-indicator.tsx`. Slot `saveStatus` en `PageHeader`.
+
+| Pantalla | Estados |
+|----------|---------|
+| Config | «Guardando…» durante debounce/API · «Guardado automáticamente» ~3 s tras éxito |
+| Plano | Idem al sincronizar forma/medidas/accesorios (debounce 600 ms) |
+| Afinidades | «Guardado automáticamente» al activar/desactivar reglas genéricas (local, instantáneo) |
+
+Errores de guardado siguen en `Alert` rojo bajo el header; el indicador vuelve a ocultarse.
+
+---
+
 ## Responsive y móvil invitado (`ADR-019`)
 
 | Superficie | Viewport prioritario | Piloto |

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { SetupNavBar } from '@/components/admin/setup-nav-bar';
-import { Alert, PageHeader, SectionLabel } from '@/components/ui';
+import { Alert, PageHeader, SaveStatusIndicator, SectionLabel, useAutoSaveIndicator } from '@/components/ui';
 import { preferencesApi } from '@/lib/api';
 import {
   loadEventUiMeta,
@@ -49,6 +49,7 @@ const GENERIC_RULES: Array<{
 
 export function PreferencesAffinityView({ eventId }: { eventId: string }) {
   const routes = adminRoutes(eventId);
+  const { status: saveStatus, markSaved } = useAutoSaveIndicator();
   const [mode, setMode] = useState<PreferenceControlMode>(PILOT_PREFERENCE_MODE);
   const [rules, setRules] = useState<AffinityRuleToggles>({});
   const setupNav = getSetupNav(eventId, 'prefs');
@@ -81,6 +82,7 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
     setRules((current) => {
       const next = { ...current, [key]: !current[key] };
       persistRules(next);
+      markSaved();
       return next;
     });
   }
@@ -96,6 +98,7 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
       <PageHeader
         title="Afinidades y reglas"
         subtitle="Paso 6 del setup: restricciones por persona y reglas genéricas para el motor de distribución."
+        saveStatus={<SaveStatusIndicator status={saveStatus} />}
       />
 
       <Alert variant="info">

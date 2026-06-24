@@ -3,27 +3,35 @@
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
-import { IconFile } from '@/components/icons';
-import {
-  AddGuestForm,
-  GuestsListTable,
-  GuestsToolbar,
-} from '@/components/admin/guests/guests-list-view';
+import { SetupNavBar } from '@/components/admin/setup-nav-bar';
+import type { GuestFormInput } from '@/components/admin/guests/guest-form.types';
+import { GuestsImportSection } from '@/components/admin/guests/guests-import-section';
+import { GuestDrawerV2 } from '@/components/admin/guests/v2/guest-drawer-v2';
+import { GuestsPanelV2 } from '@/components/admin/guests/v2/guests-panel-v2';
 import {
   Alert,
   EmptyState,
   PageHeader,
-  SectionLabel,
-  UploadZone,
 } from '@/components/ui';
 import {
+  ApiError,
   guestsApi,
   type GuestView,
   type ImportValidation,
 } from '@/lib/api';
 import { useEvent } from '@/lib/event-context';
+import { getSetupNav } from '@/lib/setup-flow';
 import { adminRoutes } from '@/lib/routes';
-import { PILOT_GUESTS_PANEL_V2_PREVIEW_ENABLED } from '@/lib/pilot-features';
+
+function feedbackVariant(text: string): 'error' | 'success' | 'info' {
+  if (text.includes('Error')) {
+    return 'error';
+  }
+  if (text.endsWith('…')) {
+    return 'info';
+  }
+  return 'success';
+}
 
 export default function GuestsPage() {
   const router = useRouter();
@@ -33,12 +41,10 @@ export default function GuestsPage() {
   const [guests, setGuests] = useState<GuestView[]>([]);
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
-  const [adding, setAdding] = useState(false);
-  const [savingGuest, setSavingGuest] = useState(false);
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [message, setMessage] = useState<string | null>(null);
-  const [metaVersion, setMetaVersion] = useState(0);
+  const [manualDrawerOpen, setManualDrawerOpen] = useState(false);
 
   const reloadGuests = useCallback(async () => {
     if (!eventId) {
@@ -57,17 +63,26 @@ export default function GuestsPage() {
       .finally(() => setLoading(false));
   }, [eventId, reloadGuests]);
 
+  function showFeedback(text: string) {
+    setMessage(text);
+  }
+
   async function downloadTemplate() {
     if (!eventId) {
       return;
     }
-    const blob = await guestsApi.downloadTemplate(eventId);
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = 'plantilla_invitados_taulamic.xlsx';
-    anchor.click();
-    URL.revokeObjectURL(url);
+    try {
+      const blob = await guestsApi.downloadTemplate(eventId);
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = 'plantilla_invitados_taulamic.xlsx';
+      anchor.click();
+      URL.revokeObjectURL(url);
+      showFeedback('Plantilla Excel descargada.');
+    } catch {
+      showFeedback('Error al descargar la plantilla.');
+    }
   }
 
   async function handleImport() {
@@ -75,7 +90,7 @@ export default function GuestsPage() {
       return;
     }
     setImporting(true);
-    setMessage(null);
+    showFeedback('Importando invitados…');
     try {
       const validation: ImportValidation = await guestsApi.validate(
         eventId,
@@ -90,62 +105,61 @@ export default function GuestsPage() {
         router.push(routes.guestErrors);
         return;
       }
-      await guestsApi.import(eventId, selectedFile);
+      const result = await guestsApi.import(eventId, selectedFile);
       await reloadGuests();
       setSelectedFile(null);
-      setMessage(`Importados correctamente.`);
-    } catch {
-      setMessage('Error al importar el Excel.');
+      const parts = [
+        `${result.created} nuevo${result.created === 1 ? '' : 's'}`,
+        `${result.updated} actualizado${result.updated === 1 ? '' : 's'}`,
+      ];
+      let feedback = `Importación completada: ${parts.join(', ')}.`;
+      if (result.rejected > 0) {
+        feedback += ` ${result.rejected} fila${result.rejected === 1 ? '' : 's'} rechazada${result.rejected === 1 ? '' : 's'}.`;
+      }
+      showFeedback(feedback);
+    } catch (error) {
+      if (error instanceof ApiError) {
+        showFeedback(`Error al importar el Excel: ${error.message}`);
+      } else {
+        showFeedback('Error al importar el Excel.');
+      }
     } finally {
       setImporting(false);
     }
   }
 
-  async function handleAddGuest(input: {
-    nombre: string;
-    correo: string;
-    telefono: string;
-    categoryNames?: string[];
-  }) {
+  async function handleAddGuest(input: GuestFormInput) {
     if (!eventId) {
       return;
     }
-    setAdding(true);
-    setMessage(null);
+    setSaving(true);
+    showFeedback('Añadiendo invitado…');
     try {
       await guestsApi.create(eventId, input);
       await reloadGuests();
-      setShowAddForm(false);
-      setMessage(`Invitado «${input.nombre}» añadido.`);
+      setManualDrawerOpen(false);
+      showFeedback(`Invitado «${input.nombre}» añadido.`);
     } catch {
-      setMessage('Error al añadir el invitado. Revisa correo y teléfono.');
+      showFeedback('Error al añadir el invitado. Revisa correo y teléfono.');
     } finally {
-      setAdding(false);
+      setSaving(false);
     }
   }
 
-  async function handleUpdateGuest(
-    guestId: string,
-    input: {
-      nombre: string;
-      correo: string;
-      telefono: string;
-      categoryNames?: string[];
-    },
-  ) {
+  async function handleUpdateGuest(guestId: string, input: GuestFormInput) {
     if (!eventId) {
       return;
     }
-    setSavingGuest(true);
-    setMessage(null);
+    setSaving(true);
+    showFeedback('Guardando cambios…');
     try {
       await guestsApi.update(eventId, guestId, input);
       await reloadGuests();
-      setMessage(`Invitado «${input.nombre}» actualizado.`);
+      showFeedback(`Invitado «${input.nombre}» actualizado.`);
     } catch {
-      setMessage('Error al actualizar el invitado.');
+      showFeedback('Error al actualizar el invitado.');
     } finally {
-      setSavingGuest(false);
+      setSaving(false);
     }
   }
 
@@ -159,165 +173,81 @@ export default function GuestsPage() {
     if (!confirmed) {
       return;
     }
-    setMessage(null);
+    showFeedback('Eliminando invitado…');
     try {
       await guestsApi.remove(eventId, guestId);
       await reloadGuests();
-      setMessage(`Invitado «${guestName}» eliminado.`);
+      showFeedback(`Invitado «${guestName}» eliminado.`);
     } catch {
-      setMessage('Error al eliminar el invitado.');
+      showFeedback('Error al eliminar el invitado.');
     }
   }
 
   const showImportFlow = !loading && guests.length === 0;
+  const setupNav = eventId ? getSetupNav(eventId, 'guests') : null;
 
   return (
     <>
       <PageHeader
         title="Invitados"
-        subtitle="Paso 3 del setup: importa la lista o añade invitados de última hora manualmente."
+        subtitle="Paso 2 del setup: importa la lista o gestiona invitados de última hora."
       />
 
       {message ? (
         <div className="mb-6">
-          <Alert variant={message.includes('Error') ? 'error' : 'success'}>
-            {message}
-          </Alert>
-        </div>
-      ) : null}
-
-      {PILOT_GUESTS_PANEL_V2_PREVIEW_ENABLED && !loading && guests.length > 0 ? (
-        <div className="mb-6">
-          <Alert variant="info">
-            Hay una{' '}
-            <Link
-              href={routes.guestsV2Preview}
-              className="font-medium text-primary-600 underline"
-            >
-              vista previa del panel Invitados v2
-            </Link>{' '}
-            (tabla, drawer y acciones masivas). El flujo piloto actual no cambia.
-          </Alert>
-        </div>
-      ) : null}
-
-      {!loading ? (
-        <GuestsToolbar
-          showAddForm={showAddForm}
-          onAddClick={() => setShowAddForm((open) => !open)}
-        />
-      ) : null}
-
-      {showAddForm ? (
-        <div className="mb-6">
-          <AddGuestForm
-            saving={adding}
-            onCancel={() => setShowAddForm(false)}
-            onSubmit={(input) => void handleAddGuest(input)}
-          />
+          <Alert variant={feedbackVariant(message)}>{message}</Alert>
         </div>
       ) : null}
 
       {showImportFlow ? (
-        <div className="max-w-2xl space-y-6">
-          <div className="card-admin">
-            <SectionLabel>Paso 1 — Descarga la plantilla</SectionLabel>
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-neutral-200 bg-neutral-100/50 p-4">
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-0 text-neutral-600">
-                  <IconFile width={20} height={20} />
-                </span>
-                <span className="text-sm font-medium text-neutral-900">
-                  plantilla_invitados_taulamic.xlsx
-                </span>
-              </div>
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={() => void downloadTemplate()}
-              >
-                Descargar
-              </button>
-            </div>
-          </div>
-
-          <div className="card-admin">
-            <SectionLabel>Paso 2 — Sube tu Excel completado</SectionLabel>
-            <div className="mt-4">
-              <UploadZone
-                title="Haz clic o arrastra el archivo"
-                hint="Formato .xlsx"
-                accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                disabled={importing}
-                buttonLabel={selectedFile ? selectedFile.name : 'Seleccionar archivo'}
-                onFile={(file) => setSelectedFile(file)}
-              />
-            </div>
-          </div>
-
-          <button
-            type="button"
-            className="btn-primary w-full max-w-2xl py-3 disabled:opacity-40"
-            disabled={!selectedFile || importing}
-            onClick={() => void handleImport()}
-          >
-            {importing ? 'Importando…' : 'Importar invitados'}
-          </button>
-
-          <p className="text-sm text-neutral-500">
-            ¿Solo un +1? Usa{' '}
-            <button
-              type="button"
-              className="font-medium text-primary-600"
-              onClick={() => setShowAddForm(true)}
-            >
-              Añadir invitado
-            </button>{' '}
-            arriba.
-          </p>
-        </div>
+        <>
+          <GuestsImportSection
+            variant="empty"
+            selectedFile={selectedFile}
+            importing={importing}
+            onSelectFile={setSelectedFile}
+            onImport={() => void handleImport()}
+            onDownloadTemplate={() => void downloadTemplate()}
+            onAddManual={() => setManualDrawerOpen(true)}
+          />
+          {eventId ? (
+            <GuestDrawerV2
+              eventId={eventId}
+              mode="add"
+              saving={saving}
+              open={manualDrawerOpen}
+              onClose={() => setManualDrawerOpen(false)}
+              onSubmit={(input) => void handleAddGuest(input)}
+            />
+          ) : null}
+        </>
       ) : loading ? (
         <p className="text-sm text-neutral-500">Cargando invitados…</p>
       ) : guests.length ? (
-        <GuestsListTable
-          eventId={eventId!}
-          guests={guests}
-          refreshToken={metaVersion}
-          saving={savingGuest}
-          onMetaChange={() => setMetaVersion((v) => v + 1)}
-          onUpdateGuest={(guestId, input) => void handleUpdateGuest(guestId, input)}
-          onDeleteGuest={(guestId, name) => void handleDeleteGuest(guestId, name)}
-        />
+        <>
+          <GuestsPanelV2
+            eventId={eventId!}
+            guests={guests}
+            saving={saving}
+            onMetaChange={() => {}}
+            onAddGuest={(input) => void handleAddGuest(input)}
+            onUpdateGuest={(id, input) => void handleUpdateGuest(id, input)}
+            onDeleteGuest={(id, name) => void handleDeleteGuest(id, name)}
+          />
+          <GuestsImportSection
+            variant="more"
+            selectedFile={selectedFile}
+            importing={importing}
+            onSelectFile={setSelectedFile}
+            onImport={() => void handleImport()}
+          />
+        </>
       ) : (
         <EmptyState
           title="Sin invitados"
           description="Importa un Excel o añade invitados manualmente."
         />
       )}
-
-      {!showImportFlow && guests.length > 0 ? (
-        <div className="mt-6 card-admin max-w-2xl">
-          <SectionLabel>Importar más invitados</SectionLabel>
-          <div className="mt-4">
-            <UploadZone
-              title="Subir Excel actualizado"
-              hint="Formato .xlsx"
-              accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-              disabled={importing}
-              buttonLabel={selectedFile ? selectedFile.name : 'Seleccionar archivo'}
-              onFile={(file) => setSelectedFile(file)}
-            />
-          </div>
-          <button
-            type="button"
-            className="btn-secondary mt-4"
-            disabled={!selectedFile || importing}
-            onClick={() => void handleImport()}
-          >
-            {importing ? 'Importando…' : 'Importar'}
-          </button>
-        </div>
-      ) : null}
 
       <p className="mt-6 text-xs text-neutral-500">
         También puedes{' '}
@@ -326,6 +256,17 @@ export default function GuestsPage() {
         </Link>{' '}
         si el Excel tiene filas inválidas.
       </p>
+
+      {eventId ? (
+        <SetupNavBar
+          hidePrimary
+          previousHref={setupNav?.previous?.href}
+          previousLabel={setupNav?.previous?.previousLabel}
+          nextHref={setupNav?.next?.href}
+          nextLabel={setupNav?.next?.nextLabel}
+          nextReady={!loading && guests.length > 0}
+        />
+      ) : null}
     </>
   );
 }

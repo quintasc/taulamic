@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { SetupNavBar } from '@/components/admin/setup-nav-bar';
 import { Alert, PageHeader, PreferenceOption } from '@/components/ui';
-import { eventsApi, preferencesApi } from '@/lib/api';
+import { ApiError, eventsApi, preferencesApi } from '@/lib/api';
 import {
   EVENT_NAME_INPUT_PLACEHOLDER,
   configFormInitialName,
+  isApiPlaceholderEventName,
   loadEventUiMeta,
   saveEventUiMeta,
   type EventUiMeta,
@@ -18,7 +19,7 @@ import {
   PILOT_PREFERENCE_MODE,
   resolvePreferenceModeForPilot,
 } from '@/lib/pilot-features';
-import { adminRoutes } from '@/lib/routes';
+import { getSetupNav } from '@/lib/setup-flow';
 
 function saveMeta(eventId: string, meta: EventUiMeta) {
   saveEventUiMeta(eventId, meta);
@@ -26,7 +27,7 @@ function saveMeta(eventId: string, meta: EventUiMeta) {
 
 export default function EventConfigPage() {
   const { event, eventId, refreshEvent } = useEvent();
-  const routes = eventId ? adminRoutes(eventId) : null;
+  const setupNav = eventId ? getSetupNav(eventId, 'config') : null;
   const [name, setName] = useState('');
   const [date, setDate] = useState('');
   const [approximateGuests, setApproximateGuests] = useState('');
@@ -34,8 +35,11 @@ export default function EventConfigPage() {
   const [notes, setNotes] = useState('');
   const [preferenceMode, setPreferenceMode] =
     useState<PreferenceControlMode>(PILOT_PREFERENCE_MODE);
-  const [saving, setSaving] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+
+  const canAdvance =
+    Boolean(name.trim()) && !isApiPlaceholderEventName(name.trim());
 
   useEffect(() => {
     if (eventId) {
@@ -50,6 +54,7 @@ export default function EventConfigPage() {
       if (meta.preferenceMode) {
         setPreferenceMode(resolvePreferenceModeForPilot(meta.preferenceMode));
       }
+      setHydrated(true);
     }
   }, [event?.name, eventId]);
 
@@ -65,11 +70,10 @@ export default function EventConfigPage() {
       .catch(() => undefined);
   }, [eventId]);
 
-  async function save() {
+  const persistConfig = useCallback(async (): Promise<boolean> => {
     if (!eventId || !name.trim()) {
-      return;
+      return false;
     }
-    setSaving(true);
     setMessage(null);
     try {
       const modeToSave = resolvePreferenceModeForPilot(preferenceMode);
@@ -84,13 +88,54 @@ export default function EventConfigPage() {
         configSaved: true,
       });
       await refreshEvent({ silent: true });
-      setMessage('Configuración guardada correctamente.');
-    } catch {
-      setMessage('Error al guardar la configuración.');
-    } finally {
-      setSaving(false);
+      return true;
+    } catch (err: unknown) {
+      const detail =
+        err instanceof ApiError
+          ? err.body.message ?? `Error API ${err.status}`
+          : err instanceof Error
+            ? err.message
+            : null;
+      setMessage(
+        detail
+          ? `No se pudo guardar: ${detail}`
+          : 'No se pudo guardar. Comprueba que la API esté en marcha (puerto 3000).',
+      );
+      return false;
     }
-  }
+  }, [
+    approximateGuests,
+    date,
+    eventId,
+    location,
+    name,
+    notes,
+    preferenceMode,
+    refreshEvent,
+  ]);
+
+  const persistConfigRef = useRef(persistConfig);
+  persistConfigRef.current = persistConfig;
+
+  useEffect(() => {
+    if (!hydrated || !eventId || !canAdvance) {
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      void persistConfigRef.current();
+    }, 500);
+    return () => window.clearTimeout(timer);
+  }, [
+    hydrated,
+    eventId,
+    canAdvance,
+    name,
+    date,
+    location,
+    approximateGuests,
+    notes,
+    preferenceMode,
+  ]);
 
   return (
     <>
@@ -101,9 +146,7 @@ export default function EventConfigPage() {
 
       {message ? (
         <div className="mb-6">
-          <Alert variant={message.includes('Error') ? 'error' : 'success'}>
-            {message}
-          </Alert>
+          <Alert variant="error">{message}</Alert>
         </div>
       ) : null}
 
@@ -207,29 +250,23 @@ export default function EventConfigPage() {
         </div>
 
         <p className="text-xs text-neutral-500">
-          Fecha, lugar, invitados aproximados y notas se guardan en este
-          dispositivo (piloto). Nombre y modo de preferencias persisten en la
-          API.
+          Los cambios se guardan automáticamente al editar. Al pulsar Siguiente
+          se guarda de nuevo antes de continuar. El nombre del evento es
+          obligatorio. Fecha, lugar, invitados aproximados y notas se guardan en
+          este dispositivo (piloto).
         </p>
-
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-200 pt-5">
-          {routes ? (
-            <Link href={routes.floorPlan} className="btn-secondary">
-              Ir al plano
-            </Link>
-          ) : (
-            <span />
-          )}
-          <button
-            type="button"
-            className="btn-primary"
-            disabled={saving || !name.trim()}
-            onClick={() => void save()}
-          >
-            {saving ? 'Guardando…' : 'Guardar configuración'}
-          </button>
-        </div>
       </div>
+
+      {eventId ? (
+        <SetupNavBar
+          hidePrimary
+          nextHref={setupNav?.next?.href}
+          nextLabel={setupNav?.next?.nextLabel}
+          nextReady={canAdvance}
+          nextDisabledHint="Indica el nombre del evento para continuar"
+          onBeforeNext={() => persistConfig()}
+        />
+      ) : null}
     </>
   );
 }

@@ -9,7 +9,7 @@ import {
 } from '@/lib/event-ui-meta';
 import { PILOT_AFFINITY_LABEL } from '@/lib/distribution-view';
 import { hasFloorPlanSetupSaved } from '@/lib/floor-plan-setup';
-import { setupSteps } from '@/lib/admin-nav';
+import { setupSteps, getCountableSetupSteps } from '@/lib/admin-nav';
 import type { EventDetail } from '@/lib/api';
 
 function getGuestDashboardMeta(
@@ -125,26 +125,33 @@ export function useEventDashboard(event: EventDetail | null, eventId: string | n
     );
   }, [event?.name, eventId]);
 
-  const setupStatus = useMemo(
-    () => [
-      configComplete,
-      floorPlanUploaded,
-      guestTotal > 0,
-      tablesConfigured > 0,
-      affinitiesConfigured,
-      hasDistribution,
-    ],
-    [
-      configComplete,
-      floorPlanUploaded,
-      guestTotal,
-      tablesConfigured,
-      affinitiesConfigured,
-      hasDistribution,
-    ],
+  const setupStatus = useMemo(() => {
+    const statusByKey: Record<string, boolean> = {
+      config: configComplete,
+      plano: floorPlanUploaded,
+      guests: guestTotal > 0,
+      invitations: false,
+      tables: tablesConfigured > 0,
+      prefs: affinitiesConfigured,
+      dist: hasDistribution,
+    };
+    return setupSteps.map((step) => statusByKey[step.key] ?? false);
+  }, [
+    configComplete,
+    floorPlanUploaded,
+    guestTotal,
+    tablesConfigured,
+    affinitiesConfigured,
+    hasDistribution,
+  ]);
+
+  const countableSetupSteps = getCountableSetupSteps();
+  const setupDone = setupStatus.filter(
+    (done, index) => done && !setupSteps[index]?.locked,
+  ).length;
+  const setupPercent = Math.round(
+    (setupDone / countableSetupSteps.length) * 100,
   );
-  const setupDone = setupStatus.filter(Boolean).length;
-  const setupPercent = Math.round((setupDone / setupSteps.length) * 100);
 
   const guestMeta = useMemo(
     () => getGuestDashboardMeta(guestTotal, unassigned),

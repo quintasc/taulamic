@@ -1,7 +1,7 @@
 'use client';
 
-import Link from 'next/link';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   IconMail,
   IconMoreVertical,
@@ -12,8 +12,7 @@ import {
   IconTrash,
   IconUserPlus,
 } from '@/components/icons';
-import type { GuestFormInput } from '@/components/admin/guests/guests-list-view';
-import { Alert } from '@/components/ui';
+import type { GuestFormInput } from '@/components/admin/guests/guest-form.types';
 import type { GuestView } from '@/lib/api';
 import { getGuestV2DetailMeta } from '@/lib/guest-v2-detail-meta';
 import {
@@ -23,7 +22,6 @@ import {
   updateGuestPilotMeta,
   type GuestRsvpStatus,
 } from '@/lib/guest-ui-meta';
-import { adminRoutes } from '@/lib/routes';
 import {
   invitationSentBadgeClass,
   rsvpIconClass,
@@ -31,7 +29,7 @@ import {
 import { GuestDrawerV2 } from './guest-drawer-v2';
 import { GuestsBulkBarV2 } from './guests-bulk-bar-v2';
 
-type FilterChip = 'all' | 'pending-rsvp' | 'dietary' | 'no-category';
+type FilterChip = 'all' | 'pending-rsvp' | 'dietary' | 'mobility' | 'no-category';
 
 const POST_PILOT_ROW_ACTIONS = [
   { id: 'send-invite', label: 'Enviar invitación' },
@@ -53,23 +51,48 @@ function RsvpIcon({ status }: { status: GuestRsvpStatus }) {
   return <IconRsvpPending {...props} />;
 }
 
-function useClickOutside(
-  ref: React.RefObject<HTMLElement | null>,
-  onOutside: () => void,
-  active: boolean,
+const ROW_MENU_EST_HEIGHT = 220;
+
+type RowMenuState = {
+  guest: GuestView;
+  left: number;
+  top: number;
+  bottom: number;
+  openUp: boolean;
+  trigger: HTMLElement;
+};
+
+function useDismissRowMenu(
+  menuRef: React.RefObject<HTMLElement | null>,
+  rowMenu: RowMenuState | null,
+  onClose: () => void,
 ) {
   useEffect(() => {
-    if (!active) {
+    if (!rowMenu) {
       return;
     }
-    function handle(event: MouseEvent) {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        onOutside();
+    function handlePointer(event: MouseEvent) {
+      const target = event.target as Node;
+      if (menuRef.current?.contains(target)) {
+        return;
       }
+      if (rowMenu.trigger.contains(target)) {
+        return;
+      }
+      onClose();
     }
-    document.addEventListener('mousedown', handle);
-    return () => document.removeEventListener('mousedown', handle);
-  }, [active, onOutside, ref]);
+    function handleScroll() {
+      onClose();
+    }
+    document.addEventListener('mousedown', handlePointer);
+    window.addEventListener('scroll', handleScroll, true);
+    window.addEventListener('resize', handleScroll);
+    return () => {
+      document.removeEventListener('mousedown', handlePointer);
+      window.removeEventListener('scroll', handleScroll, true);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, [menuRef, onClose, rowMenu]);
 }
 
 function RowActionsMenu({
@@ -82,7 +105,7 @@ function RowActionsMenu({
   onClose: () => void;
 }) {
   return (
-    <div className="absolute right-0 z-20 mt-1 min-w-[200px] rounded-lg border border-neutral-200 bg-neutral-0 py-1 shadow-lg">
+    <div className="min-w-[200px] rounded-lg border border-neutral-200 bg-neutral-0 py-1 shadow-lg">
       <button
         type="button"
         className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-neutral-800 hover:bg-neutral-50"
@@ -119,6 +142,40 @@ function RowActionsMenu({
         </button>
       ))}
     </div>
+  );
+}
+
+function RowActionsMenuPortal({
+  rowMenu,
+  onEdit,
+  onDelete,
+  onClose,
+}: {
+  rowMenu: RowMenuState;
+  onEdit: () => void;
+  onDelete: () => void;
+  onClose: () => void;
+}) {
+  const menuRef = useRef<HTMLDivElement>(null);
+  useDismissRowMenu(menuRef, rowMenu, onClose);
+
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  const style: React.CSSProperties = {
+    left: rowMenu.left,
+    transform: 'translateX(-100%)',
+    ...(rowMenu.openUp
+      ? { bottom: window.innerHeight - rowMenu.top + 4 }
+      : { top: rowMenu.bottom + 4 }),
+  };
+
+  return createPortal(
+    <div ref={menuRef} className="fixed z-50" style={style}>
+      <RowActionsMenu onEdit={onEdit} onDelete={onDelete} onClose={onClose} />
+    </div>,
+    document.body,
   );
 }
 
@@ -175,16 +232,41 @@ export function GuestsPanelV2({
   onUpdateGuest: (guestId: string, input: GuestFormInput) => void;
   onDeleteGuest: (guestId: string, guestName: string) => void;
 }) {
-  const routes = adminRoutes(eventId);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<FilterChip>('all');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [metaVersion, setMetaVersion] = useState(0);
-  const [rowMenuId, setRowMenuId] = useState<string | null>(null);
+  const [rowMenu, setRowMenu] = useState<RowMenuState | null>(null);
   const [drawerMode, setDrawerMode] = useState<'add' | 'edit' | null>(null);
   const [editingGuest, setEditingGuest] = useState<GuestView | null>(null);
-  const rowMenuRef = useRef<HTMLDivElement>(null);
-  useClickOutside(rowMenuRef, () => setRowMenuId(null), rowMenuId !== null);
+
+  const closeRowMenu = useCallback(() => setRowMenu(null), []);
+
+  function openRowMenu(guest: GuestView, button: HTMLButtonElement) {
+    const rect = button.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const openUp = spaceBelow < ROW_MENU_EST_HEIGHT;
+    setRowMenu({
+      guest,
+      left: rect.right,
+      top: rect.top,
+      bottom: rect.bottom,
+      openUp,
+      trigger: button,
+    });
+  }
+
+  function toggleRowMenu(
+    guest: GuestView,
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) {
+    const button = event.currentTarget;
+    if (rowMenu?.guest.id === guest.id) {
+      closeRowMenu();
+      return;
+    }
+    openRowMenu(guest, button);
+  }
 
   const filteredGuests = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -198,6 +280,9 @@ export function GuestsPanelV2({
         return false;
       }
       if (filter === 'dietary' && !detail.dietaryAlert) {
+        return false;
+      }
+      if (filter === 'mobility' && !detail.mobilityAlert) {
         return false;
       }
       if (filter === 'no-category' && category) {
@@ -298,6 +383,7 @@ export function GuestsPanelV2({
     }
     if (drawerMode === 'edit' && editingGuest) {
       onUpdateGuest(editingGuest.id, input);
+      bumpMeta();
       closeDrawer();
     }
   }
@@ -306,6 +392,7 @@ export function GuestsPanelV2({
     { id: 'all', label: 'Todos' },
     { id: 'pending-rsvp', label: 'Pendientes de confirmar' },
     { id: 'dietary', label: 'Menú especial' },
+    { id: 'mobility', label: 'Movilidad reducida' },
     { id: 'no-category', label: 'Sin categoría' },
   ];
 
@@ -318,7 +405,7 @@ export function GuestsPanelV2({
           onClick={openAddDrawer}
         >
           <IconUserPlus width={16} height={16} />
-          Invitados
+          Añadir invitado
         </button>
         <div className="w-full max-w-xs sm:w-auto sm:min-w-[220px]">
           <input
@@ -349,16 +436,7 @@ export function GuestsPanelV2({
         ))}
       </div>
 
-      <Alert variant="info">
-        <span className="font-medium">Vista previa.</span> Misma API y meta RSVP
-        que el piloto actual. Alertas logísticas solo en localStorage (reversible).
-        {' '}
-        <Link href={routes.guests} className="font-medium text-primary-600 underline">
-          Volver a Invitados piloto
-        </Link>
-      </Alert>
-
-      <div className="card-admin overflow-x-auto pb-2 mt-4">
+      <div className="card-admin overflow-x-auto pb-2">
         <table className="w-full min-w-[880px] text-left text-sm">
           <thead>
             <tr className="border-b border-neutral-200 text-xs font-semibold uppercase tracking-wide text-neutral-500">
@@ -448,30 +526,16 @@ export function GuestsPanelV2({
                       {meta.invitationSent ? 'Enviada' : 'Pendiente'}
                     </button>
                   </td>
-                  <td className="relative py-3">
+                  <td className="py-3">
                     <button
                       type="button"
                       className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg text-neutral-500 hover:bg-neutral-100"
                       aria-label={`Más acciones sobre ${guest.nombre}`}
-                      onClick={() =>
-                        setRowMenuId((id) =>
-                          id === guest.id ? null : guest.id,
-                        )
-                      }
+                      aria-expanded={rowMenu?.guest.id === guest.id}
+                      onClick={(event) => toggleRowMenu(guest, event)}
                     >
                       <IconMoreVertical width={16} height={16} />
                     </button>
-                    {rowMenuId === guest.id ? (
-                      <div ref={rowMenuRef}>
-                        <RowActionsMenu
-                          onEdit={() => openEditDrawer(guest)}
-                          onDelete={() =>
-                            onDeleteGuest(guest.id, guest.nombre)
-                          }
-                          onClose={() => setRowMenuId(null)}
-                        />
-                      </div>
-                    ) : null}
                   </td>
                 </tr>
               );
@@ -485,6 +549,15 @@ export function GuestsPanelV2({
           </p>
         ) : null}
       </div>
+
+      {rowMenu ? (
+        <RowActionsMenuPortal
+          rowMenu={rowMenu}
+          onEdit={() => openEditDrawer(rowMenu.guest)}
+          onDelete={() => onDeleteGuest(rowMenu.guest.id, rowMenu.guest.nombre)}
+          onClose={closeRowMenu}
+        />
+      ) : null}
 
       <GuestsBulkBarV2
         selectedCount={selectedIds.size}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { GuestFormInput } from '@/components/admin/guests/guests-list-view';
+import type { GuestFormInput } from '@/components/admin/guests/guest-form.types';
 import {
   getGuestV2DetailMeta,
   updateGuestV2DetailMeta,

@@ -5,8 +5,9 @@ import { IconCheck } from '@/components/icons';
 
 const branches: Array<{ nodes: string[]; optional?: string }> = [
   { nodes: ['Configuración evento', 'Modo afinidades'] },
-  { nodes: ['Plano salón', 'Tamaño recomendado'] },
   { nodes: ['Importar Excel', 'Añadir manual', 'RSVP mock'], optional: 'errores fila si aplica' },
+  { nodes: ['Tarjetas'], optional: 'bloqueado · post-piloto HU-10' },
+  { nodes: ['Plano salón', 'Tamaño recomendado'] },
   { nodes: ['Configurar mesas'] },
   { nodes: ['Afinidades y reglas', 'Borrador piloto'] },
   { nodes: ['Calcular distribución', 'Confirmar'] },

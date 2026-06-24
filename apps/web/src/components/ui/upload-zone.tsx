@@ -1,3 +1,6 @@
+'use client';
+
+import { useRef } from 'react';
 import { IconUpload } from '@/components/icons';
 
 export function UploadZone({
@@ -15,10 +18,15 @@ export function UploadZone({
   onFile: (file: File) => void;
   buttonLabel?: string;
 }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
   function pick(fileList: FileList | null) {
     const file = fileList?.[0];
     if (file) {
       onFile(file);
+    }
+    if (inputRef.current) {
+      inputRef.current.value = '';
     }
   }
 
@@ -42,10 +50,14 @@ export function UploadZone({
       <p className="mt-1 text-sm text-neutral-500">{hint}</p>
       <span className="btn-primary mt-6">{buttonLabel}</span>
       <input
+        ref={inputRef}
         type="file"
         accept={accept}
         className="hidden"
         disabled={disabled}
+        onClick={(event) => {
+          (event.target as HTMLInputElement).value = '';
+        }}
         onChange={(event) => pick(event.target.files)}
       />
     </label>

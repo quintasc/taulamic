@@ -132,8 +132,9 @@ cd apps\web; npm run dev:clean
 - `docs/agile/mvp-julio-plan.md` (cierre piloto)
 - `docs/sdd/SDD-PILOTO-alineacion-y-huecos.md` (cumplimiento piloto vs SDD-01)
 - `docs/adr/ADR-016-plano-espacial-salon-dos-fases.md`
+- **`docs/ux/guia-estilo-taulamic.md`** (patrones UX/UI obligatorios)
 - **`docs/ux/handoff-figma-a-frontend.md`** (mapa pantallas → API + checklist)
-- `docs/ux/design-tokens-mvp.md` · `docs/ux/figma-mvp.md` · `docs/ux/figma-make-prompts.md`
+- `docs/ux/design-tokens-mvp.md` · `docs/ux/frontend-component-system.md` · `docs/ux/figma-mvp.md` · `docs/ux/figma-make-prompts.md`
 - OpenAPI: `/api/docs` y `/api-json` (version `1.0-pilot`)
 - E2E backend: `apps/api/test/pilot-flow.e2e-spec.ts`
 - Web: `apps/web/README.md`

@@ -1,10 +1,10 @@
 # Taulamic Web — Admin piloto
 
-Frontend Next.js del MVP julio (issue W5). Diseño según Figma Make y `docs/ux/handoff-figma-a-frontend.md`.
+Frontend Next.js del MVP julio (issue W5). Diseño según **`docs/ux/guia-estilo-taulamic.md`** y `docs/ux/handoff-figma-a-frontend.md`.
 
 ## Estructura modular (`src/`)
 
-Ver inventario completo: `docs/ux/frontend-component-system.md` · ADR: `docs/adr/ADR-017-frontend-design-system-modular.md`
+Ver inventario completo: `docs/ux/frontend-component-system.md` · guía UX/UI: `docs/ux/guia-estilo-taulamic.md` · ADR: `docs/adr/ADR-017-frontend-design-system-modular.md`
 
 ```
 app/              Rutas Next.js (páginas finas)

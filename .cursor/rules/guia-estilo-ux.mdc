@@ -1,0 +1,17 @@
+---
+description: Guía canónica UX/UI Taulamic — consultar antes de diseñar o implementar interfaz
+globs: apps/web/**/*,docs/ux/**/*
+alwaysApply: false
+---
+
+# Guía de estilo UX/UI (obligatoria)
+
+Documento canónico: `docs/ux/guia-estilo-taulamic.md`
+
+Antes de añadir o cambiar pantallas, componentes o patrones de feedback en Taulamic:
+
+1. Lee la guía de estilo y cumple sus patrones (setup sin «Guardar», feedback en tres capas, `PageHeader`, etc.).
+2. Tokens visuales: `docs/ux/design-tokens-mvp.md` · componentes: `docs/ux/frontend-component-system.md`.
+3. Detalle por pantalla/API: `docs/ux/handoff-figma-a-frontend.md` (no contradice la guía sin ADR/SDD aprobado).
+
+**Prohibido sin aprobación de producto:** reintroducir botones «Guardar» en setup, alerts fijos para éxito puntual (usar toast), KPIs con datos demo, o patrones listados como anti-patrones en la guía §12.

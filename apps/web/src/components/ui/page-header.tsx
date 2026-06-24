@@ -2,10 +2,12 @@ export function PageHeader({
   title,
   subtitle,
   action,
+  saveStatus,
 }: {
   title: string;
   subtitle?: string;
   action?: React.ReactNode;
+  saveStatus?: React.ReactNode;
 }) {
   return (
     <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
@@ -15,7 +17,12 @@ export function PageHeader({
           <p className="mt-1 text-[13px] text-neutral-500">{subtitle}</p>
         ) : null}
       </div>
-      {action}
+      {saveStatus || action ? (
+        <div className="flex flex-col items-end gap-2">
+          {saveStatus}
+          {action}
+        </div>
+      ) : null}
     </div>
   );
 }

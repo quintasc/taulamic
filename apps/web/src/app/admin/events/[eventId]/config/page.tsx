@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { SetupNavBar } from '@/components/admin/setup-nav-bar';
-import { Alert, PageHeader, PreferenceOption } from '@/components/ui';
+import { Alert, PageHeader, PreferenceOption, SaveStatusIndicator, useAutoSaveIndicator } from '@/components/ui';
 import { ApiError, eventsApi, preferencesApi } from '@/lib/api';
 import {
   EVENT_NAME_INPUT_PLACEHOLDER,
@@ -28,6 +28,13 @@ function saveMeta(eventId: string, meta: EventUiMeta) {
 export default function EventConfigPage() {
   const { event, eventId, refreshEvent } = useEvent();
   const setupNav = eventId ? getSetupNav(eventId, 'config') : null;
+  const {
+    status: saveStatus,
+    markPending,
+    markSaving,
+    markSaved,
+    markIdle,
+  } = useAutoSaveIndicator();
   const [name, setName] = useState('');
   const [date, setDate] = useState('');
   const [approximateGuests, setApproximateGuests] = useState('');
@@ -121,8 +128,16 @@ export default function EventConfigPage() {
     if (!hydrated || !eventId || !canAdvance) {
       return;
     }
+    markPending();
     const timer = window.setTimeout(() => {
-      void persistConfigRef.current();
+      markSaving();
+      void persistConfigRef.current().then((ok) => {
+        if (ok) {
+          markSaved();
+        } else {
+          markIdle();
+        }
+      });
     }, 500);
     return () => window.clearTimeout(timer);
   }, [
@@ -135,6 +150,10 @@ export default function EventConfigPage() {
     approximateGuests,
     notes,
     preferenceMode,
+    markPending,
+    markSaving,
+    markSaved,
+    markIdle,
   ]);
 
   return (
@@ -142,6 +161,7 @@ export default function EventConfigPage() {
       <PageHeader
         title="Configuración del evento"
         subtitle="Paso 1 del setup: nombre, volumen esperado y modo de captura de afinidades."
+        saveStatus={<SaveStatusIndicator status={saveStatus} />}
       />
 
       {message ? (
@@ -264,7 +284,16 @@ export default function EventConfigPage() {
           nextLabel={setupNav?.next?.nextLabel}
           nextReady={canAdvance}
           nextDisabledHint="Indica el nombre del evento para continuar"
-          onBeforeNext={() => persistConfig()}
+          onBeforeNext={async () => {
+            markSaving();
+            const ok = await persistConfig();
+            if (ok) {
+              markSaved();
+            } else {
+              markIdle();
+            }
+            return ok;
+          }}
         />
       ) : null}
     </>

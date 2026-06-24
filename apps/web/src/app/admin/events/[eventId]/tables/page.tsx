@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { SetupNavBar } from '@/components/admin/setup-nav-bar';
-import { Alert, EmptyState, PageHeader } from '@/components/ui';
+import { EmptyState, PageHeader, useToast } from '@/components/ui';
 import {
   IconShapeOval,
   IconShapeRect,
@@ -31,6 +31,7 @@ const shapeOptions = [
 ] as const;
 
 export default function TablesPage() {
+  const toast = useToast();
   const { event, eventId, refreshEvent } = useEvent();
   const setupNav = eventId ? getSetupNav(eventId, 'tables') : null;
   const [shape, setShape] = useState('redonda');
@@ -45,7 +46,6 @@ export default function TablesPage() {
   const [editingTableId, setEditingTableId] = useState<string | null>(null);
   const [editingLabel, setEditingLabel] = useState('');
   const [savingLabelId, setSavingLabelId] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   const previewLabels = suggestNextTableLabels(
     event?.tables ?? [],
@@ -86,7 +86,6 @@ export default function TablesPage() {
     const labels = suggestNextTableLabels(event?.tables ?? [], count);
 
     setSaving(true);
-    setError(null);
     try {
       for (const tableLabel of labels) {
         await eventsApi.addTable(eventId, {
@@ -97,8 +96,13 @@ export default function TablesPage() {
       }
       await refreshEvent();
       setQuantity(1);
+      if (count === 1) {
+        toast.success(`Mesa «${labels[0]}» añadida.`);
+      } else {
+        toast.success(`${count} mesas añadidas.`);
+      }
     } catch {
-      setError('No se pudieron añadir las mesas.');
+      toast.error('No se pudieron añadir las mesas.');
     } finally {
       setSaving(false);
     }
@@ -125,7 +129,7 @@ export default function TablesPage() {
 
     const trimmed = editingLabel.trim();
     if (!trimmed) {
-      setError('La etiqueta no puede estar vacía.');
+      toast.error('La etiqueta no puede estar vacía.');
       return;
     }
 
@@ -133,12 +137,11 @@ export default function TablesPage() {
       (item) => item.id !== tableId && item.label.trim() === trimmed,
     );
     if (duplicate) {
-      setError('Ya existe otra mesa con esa etiqueta.');
+      toast.error('Ya existe otra mesa con esa etiqueta.');
       return;
     }
 
     setSavingLabelId(tableId);
-    setError(null);
     try {
       await eventsApi.updateTable(eventId, tableId, {
         label: trimmed,
@@ -147,8 +150,9 @@ export default function TablesPage() {
       });
       await refreshEvent();
       cancelEditLabel();
+      toast.success(`Mesa renombrada a «${trimmed}».`);
     } catch {
-      setError('No se pudo actualizar la etiqueta.');
+      toast.error('No se pudo actualizar la etiqueta.');
     } finally {
       setSavingLabelId(null);
     }
@@ -178,10 +182,10 @@ export default function TablesPage() {
     }
 
     setRemovingTableId(tableId);
-    setError(null);
     try {
       await eventsApi.removeTable(eventId, tableId);
       await refreshEvent();
+      toast.success(`Mesa «${table?.label ?? 'Mesa'}» eliminada.`);
       try {
         const updatedDistribution = await distributionApi.get(eventId);
         setDistribution(updatedDistribution);
@@ -191,7 +195,7 @@ export default function TablesPage() {
         }
       }
     } catch {
-      setError('No se pudo eliminar la mesa.');
+      toast.error('No se pudo eliminar la mesa.');
     } finally {
       setRemovingTableId(null);
     }
@@ -203,12 +207,6 @@ export default function TablesPage() {
         title="Configurar mesa"
         subtitle="Paso 5 del setup: define forma y capacidad para las mesas del evento."
       />
-
-      {error ? (
-        <div className="mb-6">
-          <Alert variant="error">{error}</Alert>
-        </div>
-      ) : null}
 
       <div className="grid gap-8 lg:grid-cols-2">
         <div className="card-admin space-y-6">
@@ -428,6 +426,7 @@ export default function TablesPage() {
           nextHref={setupNav?.next?.href}
           nextLabel={setupNav?.next?.nextLabel}
           nextReady={(event?.tables.length ?? 0) > 0}
+          nextDisabledHint="Añade al menos una mesa para continuar"
         />
       ) : null}
     </>

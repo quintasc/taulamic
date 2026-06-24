@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { SetupNavBar } from '@/components/admin/setup-nav-bar';
 import { IconChevronDown } from '@/components/icons';
 import { ResizableRoomCanvas } from '@/components/admin/floor-plan/resizable-room-canvas';
-import { Alert, PageHeader } from '@/components/ui';
+import { Alert, PageHeader, SaveStatusIndicator, useAutoSaveIndicator } from '@/components/ui';
 import { ApiError, eventsApi } from '@/lib/api';
 import {
   loadEventUiMeta,
@@ -68,6 +68,14 @@ export function FloorPlanSetupView({
   const routes = adminRoutes(eventId);
   const setupNav = getSetupNav(eventId, 'plano');
 
+  const {
+    status: saveStatus,
+    markPending,
+    markSaving,
+    markSaved,
+    markIdle,
+  } = useAutoSaveIndicator();
+
   const [setup, setSetup] = useState<FloorPlanSetup>(DEFAULT_FLOOR_PLAN_SETUP);
   const [configOpen, setConfigOpen] = useState(true);
   const [hydrated, setHydrated] = useState(false);
@@ -125,11 +133,17 @@ export function FloorPlanSetupView({
     saveFloorPlanSetup(eventId, normalized);
     markFloorPlanUploaded(eventId);
 
+    markPending();
     const timer = window.setTimeout(() => {
+      markSaving();
       setSaveError(null);
       void eventsApi
         .saveRoomSetup(eventId, normalized)
+        .then(() => {
+          markSaved();
+        })
         .catch((err: unknown) => {
+          markIdle();
           const message =
             err instanceof ApiError
               ? err.body.message ?? `Error API ${err.status}`
@@ -139,7 +153,15 @@ export function FloorPlanSetupView({
     }, 600);
 
     return () => window.clearTimeout(timer);
-  }, [eventId, setup, hydrated]);
+  }, [
+    eventId,
+    setup,
+    hydrated,
+    markPending,
+    markSaving,
+    markSaved,
+    markIdle,
+  ]);
 
   const updateSetup = useCallback((patch: Partial<FloorPlanSetup>) => {
     setSetup((current) => normalizeSetupForShape({ ...current, ...patch }));
@@ -170,6 +192,7 @@ export function FloorPlanSetupView({
       <PageHeader
         title="Plano del salón"
         subtitle="Paso 4 del setup: define la forma y el tamaño del espacio. Si no cambias nada, se usa la configuración por defecto."
+        saveStatus={<SaveStatusIndicator status={saveStatus} />}
         action={
           hasDistribution ? (
             <Link href={routes.floorPlanLayout} className="btn-secondary">
@@ -369,6 +392,7 @@ export function FloorPlanSetupView({
         nextHref={setupNav.next?.href}
         nextLabel={setupNav.next?.nextLabel}
         nextReady={hydrated}
+        nextDisabledHint="Espera a que cargue el plano del salón"
       />
     </>
   );

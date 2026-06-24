@@ -9,9 +9,9 @@ import { GuestsImportSection } from '@/components/admin/guests/guests-import-sec
 import { GuestDrawerV2 } from '@/components/admin/guests/v2/guest-drawer-v2';
 import { GuestsPanelV2 } from '@/components/admin/guests/v2/guests-panel-v2';
 import {
-  Alert,
   EmptyState,
   PageHeader,
+  useToast,
 } from '@/components/ui';
 import {
   ApiError,
@@ -23,17 +23,8 @@ import { useEvent } from '@/lib/event-context';
 import { getSetupNav } from '@/lib/setup-flow';
 import { adminRoutes } from '@/lib/routes';
 
-function feedbackVariant(text: string): 'error' | 'success' | 'info' {
-  if (text.includes('Error')) {
-    return 'error';
-  }
-  if (text.endsWith('…')) {
-    return 'info';
-  }
-  return 'success';
-}
-
 export default function GuestsPage() {
+  const toast = useToast();
   const router = useRouter();
   const params = useParams<{ eventId: string }>();
   const { eventId } = useEvent();
@@ -43,7 +34,6 @@ export default function GuestsPage() {
   const [importing, setImporting] = useState(false);
   const [saving, setSaving] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
   const [manualDrawerOpen, setManualDrawerOpen] = useState(false);
 
   const reloadGuests = useCallback(async () => {
@@ -63,10 +53,6 @@ export default function GuestsPage() {
       .finally(() => setLoading(false));
   }, [eventId, reloadGuests]);
 
-  function showFeedback(text: string) {
-    setMessage(text);
-  }
-
   async function downloadTemplate() {
     if (!eventId) {
       return;
@@ -79,9 +65,9 @@ export default function GuestsPage() {
       anchor.download = 'plantilla_invitados_taulamic.xlsx';
       anchor.click();
       URL.revokeObjectURL(url);
-      showFeedback('Plantilla Excel descargada.');
+      toast.success('Plantilla Excel descargada.');
     } catch {
-      showFeedback('Error al descargar la plantilla.');
+      toast.error('Error al descargar la plantilla.');
     }
   }
 
@@ -90,7 +76,6 @@ export default function GuestsPage() {
       return;
     }
     setImporting(true);
-    showFeedback('Importando invitados…');
     try {
       const validation: ImportValidation = await guestsApi.validate(
         eventId,
@@ -116,12 +101,12 @@ export default function GuestsPage() {
       if (result.rejected > 0) {
         feedback += ` ${result.rejected} fila${result.rejected === 1 ? '' : 's'} rechazada${result.rejected === 1 ? '' : 's'}.`;
       }
-      showFeedback(feedback);
+      toast.success(feedback);
     } catch (error) {
       if (error instanceof ApiError) {
-        showFeedback(`Error al importar el Excel: ${error.message}`);
+        toast.error(`Error al importar el Excel: ${error.message}`);
       } else {
-        showFeedback('Error al importar el Excel.');
+        toast.error('Error al importar el Excel.');
       }
     } finally {
       setImporting(false);
@@ -133,14 +118,13 @@ export default function GuestsPage() {
       return;
     }
     setSaving(true);
-    showFeedback('Añadiendo invitado…');
     try {
       await guestsApi.create(eventId, input);
       await reloadGuests();
       setManualDrawerOpen(false);
-      showFeedback(`Invitado «${input.nombre}» añadido.`);
+      toast.success(`Invitado «${input.nombre}» añadido.`);
     } catch {
-      showFeedback('Error al añadir el invitado. Revisa correo y teléfono.');
+      toast.error('Error al añadir el invitado. Revisa correo y teléfono.');
     } finally {
       setSaving(false);
     }
@@ -151,13 +135,12 @@ export default function GuestsPage() {
       return;
     }
     setSaving(true);
-    showFeedback('Guardando cambios…');
     try {
       await guestsApi.update(eventId, guestId, input);
       await reloadGuests();
-      showFeedback(`Invitado «${input.nombre}» actualizado.`);
+      toast.success(`Invitado «${input.nombre}» actualizado.`);
     } catch {
-      showFeedback('Error al actualizar el invitado.');
+      toast.error('Error al actualizar el invitado.');
     } finally {
       setSaving(false);
     }
@@ -173,13 +156,12 @@ export default function GuestsPage() {
     if (!confirmed) {
       return;
     }
-    showFeedback('Eliminando invitado…');
     try {
       await guestsApi.remove(eventId, guestId);
       await reloadGuests();
-      showFeedback(`Invitado «${guestName}» eliminado.`);
+      toast.success(`Invitado «${guestName}» eliminado.`);
     } catch {
-      showFeedback('Error al eliminar el invitado.');
+      toast.error('Error al eliminar el invitado.');
     }
   }
 
@@ -192,12 +174,6 @@ export default function GuestsPage() {
         title="Invitados"
         subtitle="Paso 2 del setup: importa la lista o gestiona invitados de última hora."
       />
-
-      {message ? (
-        <div className="mb-6">
-          <Alert variant={feedbackVariant(message)}>{message}</Alert>
-        </div>
-      ) : null}
 
       {showImportFlow ? (
         <>
@@ -265,6 +241,7 @@ export default function GuestsPage() {
           nextHref={setupNav?.next?.href}
           nextLabel={setupNav?.next?.nextLabel}
           nextReady={!loading && guests.length > 0}
+          nextDisabledHint="Añade al menos un invitado para continuar"
         />
       ) : null}
     </>

@@ -2,7 +2,9 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+
+import { Alert } from '@/components/ui';
 
 export type SetupNavBarProps = {
   variant?: 'sticky-bottom' | 'header' | 'inline';
@@ -39,11 +41,23 @@ function NavControls({
   compact = false,
 }: SetupNavBarProps & { compact?: boolean }) {
   const router = useRouter();
+  const blockedBannerRef = useRef<HTMLDivElement>(null);
   const [nextLoading, setNextLoading] = useState(false);
+  const [blockedPulse, setBlockedPulse] = useState(false);
   const showPrimary =
     !hidePrimary && primaryLabel !== undefined && onPrimaryClick !== undefined;
   const showNext = Boolean(nextHref && nextLabel);
   const showPrevious = Boolean(previousHref && previousLabel);
+  const showBlockedBanner = showNext && !nextReady && Boolean(nextDisabledHint);
+
+  function emphasizeBlockedMessage() {
+    blockedBannerRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+    });
+    setBlockedPulse(true);
+    window.setTimeout(() => setBlockedPulse(false), 700);
+  }
 
   async function handleNext() {
     if (!nextHref) {
@@ -65,13 +79,27 @@ function NavControls({
   }
 
   return (
-    <div
-      className={
-        compact
-          ? 'flex flex-wrap items-center gap-2'
-          : 'flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'
-      }
-    >
+    <div className={compact ? 'flex flex-col gap-2' : 'flex flex-col gap-3'}>
+      {showBlockedBanner ? (
+        <div
+          ref={blockedBannerRef}
+          className={
+            blockedPulse
+              ? 'rounded-xl ring-2 ring-error-500/40 ring-offset-2 transition-shadow'
+              : undefined
+          }
+        >
+          <Alert variant="error">{nextDisabledHint}</Alert>
+        </div>
+      ) : null}
+
+      <div
+        className={
+          compact
+            ? 'flex flex-wrap items-center gap-2'
+            : 'flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'
+        }
+      >
       {showPrevious ? (
         <Link
           href={previousHref!}
@@ -121,14 +149,17 @@ function NavControls({
               </Link>
             )
           ) : (
-            <span
-              className="btn-secondary pointer-events-none w-full text-center opacity-50 sm:w-auto"
-              title={nextDisabledHint}
+            <button
+              type="button"
+              className="btn-secondary w-full text-center opacity-50 sm:w-auto"
+              aria-disabled="true"
+              onClick={emphasizeBlockedMessage}
             >
               {nextLabel} →
-            </span>
+            </button>
           )
         ) : null}
+      </div>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import { IconCheck, IconLock } from '@/components/icons';
-import { setupSteps } from '@/lib/admin-nav';
+import { setupSteps } from '@/lib/domain/setup-steps';
 
 export function SetupChecklist({
   setupStatus,

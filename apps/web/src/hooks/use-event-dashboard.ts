@@ -9,7 +9,7 @@ import {
 } from '@/lib/event-ui-meta';
 import { PILOT_AFFINITY_LABEL } from '@/lib/distribution-view';
 import { hasFloorPlanSetupSaved } from '@/lib/floor-plan-setup';
-import { setupSteps, getCountableSetupSteps } from '@/lib/admin-nav';
+import { getCountableSetupSteps, setupSteps } from '@/lib/domain/setup-steps';
 import type { EventDetail } from '@/lib/api';
 
 function getGuestDashboardMeta(

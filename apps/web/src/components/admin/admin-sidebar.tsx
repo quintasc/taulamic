@@ -7,7 +7,7 @@ import { TaulamicLogo } from '@/components/brand/taulamic-logo';
 import {
   getAdminNavItems,
   isAdminNavActive,
-} from '@/lib/admin-nav';
+} from '@/components/admin/admin-nav';
 import { adminRoutes } from '@/lib/routes';
 
 export function AdminSidebar({

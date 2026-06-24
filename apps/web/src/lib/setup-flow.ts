@@ -1,4 +1,4 @@
-import { setupSteps } from '@/lib/admin-nav';
+import { setupSteps } from '@/lib/domain/setup-steps';
 import { adminRoutes } from '@/lib/routes';
 
 /** Claves de pantallas del setup (orden recomendado ADR-018). */

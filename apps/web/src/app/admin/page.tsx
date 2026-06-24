@@ -1,7 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+
+import { Alert, Button } from '@/components/ui';
 import { useEvent } from '@/lib/event-context';
 import { EVENT_API_PLACEHOLDER_NAME } from '@/lib/event-ui-meta';
 import { adminEntryPaths, adminRoutes } from '@/lib/routes';
@@ -41,14 +43,10 @@ export default function AdminIndexPage() {
   if (error) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-wf-1 p-8 text-center">
-        <p className="max-w-md text-sm text-error-600">{error}</p>
-        <button
-          type="button"
-          className="btn-primary"
-          onClick={() => router.push(adminEntryPaths.newEvent)}
-        >
+        <Alert variant="error">{error}</Alert>
+        <Button onClick={() => router.push(adminEntryPaths.newEvent)}>
           Reintentar manualmente
-        </button>
+        </Button>
       </div>
     );
   }

@@ -1,4 +1,9 @@
 export { Alert } from './alert';
+export { Button } from './button';
+export { FormField } from './form-field';
+export { SelectableChip } from './selectable-chip';
+export { Stepper } from './stepper';
+export { TextLink } from './text-link';
 export {
   SaveStatusIndicator,
   useAutoSaveIndicator,

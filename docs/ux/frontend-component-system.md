@@ -2,7 +2,7 @@
 
 - Estado: **Vigente** (jun 2026)
 - Guía canónica UX/UI: **`guia-estilo-taulamic.md`**
-- ADR: `docs/adr/ADR-017-frontend-design-system-modular.md`
+- ADR: `docs/adr/ADR-017-frontend-design-system-modular.md` · capas: `docs/adr/ADR-021-frontend-clean-architecture-pragmatica.md`
 - Codigo: `apps/web/src/`
 - Tokens: `design-tokens-mvp.md` · implementacion: `globals.css` + `tailwind.config.ts`
 
@@ -23,8 +23,10 @@ apps/web/src/
     brand/               # Logo (SVG parametrizable)
     tables/              # Preview formas de mesa
     icons.tsx            # Iconos nav y UI (→ icons/ si crece)
-  hooks/                 # Estado de pantalla compartido
-  lib/                   # API, rutas, utilidades
+  hooks/                 # Capa aplicacion (casos de uso de pantalla)
+  lib/
+    api.ts               # Infraestructura HTTP
+    domain/              # Reglas y datos puros (sin React)
   app/                   # Paginas Next.js (finas)
 ```
 
@@ -32,9 +34,11 @@ apps/web/src/
 
 | Modulo | Componentes clave | Reutilizable en |
 |--------|-------------------|-----------------|
-| `ui/` | Alert, EmptyState, PageHeader, StatCard, UploadZone, PreferenceOption, QuickAccessCard, SectionLabel, Toast, SaveStatusIndicator | Cualquier pagina |
+| `ui/` | Alert, **Button**, EmptyState, **FormField**, PageHeader, **Stepper**, **SelectableChip**, **TextLink**, StatCard, Toast, SaveStatusIndicator, UploadZone, PreferenceOption, SectionLabel | Cualquier pagina |
 | `marketing/` | MarketingLanding, MarketingHeader, MarketingCard, HeroFloorplan, marketing-illustrations | Landing, futuras landings verticales |
-| `admin/` | AdminShell, AdminSidebar, EventDashboard, SetupChecklist, SetupNavBar, EventCountdown | Todo el panel admin |
+| `admin/` | AdminShell, AdminSidebar, EventDashboard, SetupChecklist, SetupNavBar, **EventConfigView**, **TablesSetupView**, **GuestsPageView** | Todo el panel admin |
+| `hooks/` | `use-event-config`, `use-tables-setup`, `use-guests-page`, `use-event-dashboard` | Logica de pantalla |
+| `lib/domain/` | `setup-steps` | Flujo setup sin dependencias UI |
 | `admin/distribution/` | DistributionCalculatedView, GuestPill, DistributionTableList | Distribucion, plano Fase B |
 | `admin/floor-plan/` | FloorPlanSetupView, FloorPlanLayoutView, ResizableRoomCanvas, RoomShapeDisplay | Plano |
 | `brand/` | TaulamicLogo, LogoIcon | Header admin, marketing, emails futuros |

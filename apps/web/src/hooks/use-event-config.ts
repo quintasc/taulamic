@@ -1,0 +1,188 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+import { useAutoSaveIndicator } from '@/components/ui';
+import { ApiError, eventsApi, preferencesApi } from '@/lib/api';
+import {
+  configFormInitialName,
+  isApiPlaceholderEventName,
+  loadEventUiMeta,
+  saveEventUiMeta,
+  type EventUiMeta,
+  type PreferenceControlMode,
+} from '@/lib/event-ui-meta';
+import { useEvent } from '@/lib/event-context';
+import {
+  PILOT_PREFERENCE_MODE,
+  resolvePreferenceModeForPilot,
+} from '@/lib/pilot-features';
+import { getSetupNav } from '@/lib/setup-flow';
+
+function saveMeta(eventId: string, meta: EventUiMeta) {
+  saveEventUiMeta(eventId, meta);
+}
+
+export function useEventConfig() {
+  const { event, eventId, refreshEvent } = useEvent();
+  const setupNav = eventId ? getSetupNav(eventId, 'config') : null;
+  const saveIndicator = useAutoSaveIndicator();
+  const {
+    status: saveStatus,
+    markPending,
+    markSaving,
+    markSaved,
+    markIdle,
+  } = saveIndicator;
+
+  const [name, setName] = useState('');
+  const [date, setDate] = useState('');
+  const [approximateGuests, setApproximateGuests] = useState('');
+  const [location, setLocation] = useState('');
+  const [notes, setNotes] = useState('');
+  const [preferenceMode, setPreferenceMode] =
+    useState<PreferenceControlMode>(PILOT_PREFERENCE_MODE);
+  const [hydrated, setHydrated] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  const canAdvance =
+    Boolean(name.trim()) && !isApiPlaceholderEventName(name.trim());
+
+  useEffect(() => {
+    if (eventId) {
+      const meta = loadEventUiMeta(eventId);
+      setName(configFormInitialName(event?.name));
+      setDate(meta.date ?? '');
+      setLocation(meta.location ?? '');
+      setApproximateGuests(
+        meta.approximateGuestCount ?? meta.tableCount ?? '',
+      );
+      setNotes(meta.notes ?? '');
+      if (meta.preferenceMode) {
+        setPreferenceMode(resolvePreferenceModeForPilot(meta.preferenceMode));
+      }
+      setHydrated(true);
+    }
+  }, [event?.name, eventId]);
+
+  useEffect(() => {
+    if (!eventId) {
+      return;
+    }
+    void preferencesApi
+      .get(eventId)
+      .then((settings) =>
+        setPreferenceMode(resolvePreferenceModeForPilot(settings.mode)),
+      )
+      .catch(() => undefined);
+  }, [eventId]);
+
+  const persistConfig = useCallback(async (): Promise<boolean> => {
+    if (!eventId || !name.trim()) {
+      return false;
+    }
+    setMessage(null);
+    try {
+      const modeToSave = resolvePreferenceModeForPilot(preferenceMode);
+      await eventsApi.update(eventId, name.trim());
+      await preferencesApi.update(eventId, modeToSave);
+      saveMeta(eventId, {
+        date,
+        location,
+        approximateGuestCount: approximateGuests,
+        notes,
+        preferenceMode: modeToSave,
+        configSaved: true,
+      });
+      await refreshEvent({ silent: true });
+      return true;
+    } catch (err: unknown) {
+      const detail =
+        err instanceof ApiError
+          ? err.body.message ?? `Error API ${err.status}`
+          : err instanceof Error
+            ? err.message
+            : null;
+      setMessage(
+        detail
+          ? `No se pudo guardar: ${detail}`
+          : 'No se pudo guardar. Comprueba que la API esté en marcha (puerto 3000).',
+      );
+      return false;
+    }
+  }, [
+    approximateGuests,
+    date,
+    eventId,
+    location,
+    name,
+    notes,
+    preferenceMode,
+    refreshEvent,
+  ]);
+
+  const persistConfigRef = useRef(persistConfig);
+  persistConfigRef.current = persistConfig;
+
+  useEffect(() => {
+    if (!hydrated || !eventId || !canAdvance) {
+      return;
+    }
+    markPending();
+    const timer = window.setTimeout(() => {
+      markSaving();
+      void persistConfigRef.current().then((ok) => {
+        if (ok) {
+          markSaved();
+        } else {
+          markIdle();
+        }
+      });
+    }, 500);
+    return () => window.clearTimeout(timer);
+  }, [
+    hydrated,
+    eventId,
+    canAdvance,
+    name,
+    date,
+    location,
+    approximateGuests,
+    notes,
+    preferenceMode,
+    markPending,
+    markSaving,
+    markSaved,
+    markIdle,
+  ]);
+
+  const handleBeforeNext = useCallback(async () => {
+    markSaving();
+    const ok = await persistConfig();
+    if (ok) {
+      markSaved();
+    } else {
+      markIdle();
+    }
+    return ok;
+  }, [markIdle, markSaved, markSaving, persistConfig]);
+
+  return {
+    eventId,
+    setupNav,
+    saveStatus,
+    name,
+    setName,
+    date,
+    setDate,
+    approximateGuests,
+    setApproximateGuests,
+    location,
+    setLocation,
+    notes,
+    setNotes,
+    preferenceMode,
+    setPreferenceMode,
+    message,
+    canAdvance,
+    handleBeforeNext,
+  };
+}

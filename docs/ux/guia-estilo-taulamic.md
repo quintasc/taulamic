@@ -326,6 +326,7 @@ Evitar: «borrador» en UI de organizador salvo copy técnico interno; «Guardar
 
 | Tema | Documento |
 |------|-----------|
+| Capas frontend | ADR-021 |
 | Flujo setup | ADR-018, `SDD-PILOTO-enmienda-flujo-setup-jun2026.md` |
 | Plano dos fases | ADR-016, ADR-020 |
 | Design system código | ADR-017, `frontend-component-system.md` |

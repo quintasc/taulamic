@@ -1,213 +1,193 @@
 ﻿# Contexto de ejecucion — punto de reanudacion
 
-- Ultima actualizacion: **2026-06-23**
-- Commit referencia: **`b360bed`** (`main`) — vista previa panel Invitados v2 aislada (`/guests-v2`)
-- Hito activo: **MVP julio (piloto)** — cierre W2: API room-setup + estabilizacion
+- Ultima actualizacion: **2026-06-24**
+- Commit referencia: **`796329b`** (`main`) — refactor clean architecture frontend (#43)
+- Hito activo: **MVP julio (piloto)** — **cierre** (DoD `mvp-julio-plan.md` §4)
 - Naming: producto **Taulamic**, dominio **taulamic.com**, repo `quintasc/taulamic`
-- **Modo actual:** trabajo en **2 ventanas Cursor** en paralelo (sin solapamiento de codigo)
+- **Modo actual:** una ventana Cursor (cierre piloto); segunda ventana opcional solo para Figma/UX post-piloto
 
-## Como indicar tu ventana al agente
+## Frase clave (pegar al agente)
 
-| Ventana | Di al agente |
-|---------|----------------|
-| **Ventana 1** | `Soy Ventana 1. Lee docs/agile/CONTEXTO-EJECUCION.md seccion Ventana 1.` |
-| **Ventana 2** | `Soy Ventana 2. Lee docs/agile/CONTEXTO-EJECUCION.md seccion Ventana 2.` |
+```text
+Retomo Taulamic. main @ 796329b. Piloto casi cerrado: falta guion validacion actualizado, tests en verde, evidencias finales y issues post-piloto. Lee docs/agile/mvp-julio-plan.md §4 y guion-validacion-piloto-ui.md. SDD manda.
+```
 
 ---
 
-## Estado compartido (ambas ventanas)
+## Estado compartido
 
 | Aspecto | Estado |
 |---------|--------|
-| Sprint activo | Sprint 02 (#21) — UX #7 **cerrado** (PR #37) |
-| EP-11 / EP-12 / EP-13 | **Cerrados** (#22–#36) |
-| EP-01 | **Cerrado** (#1 + #15) |
-| EP-02 | **Cerrado** (#2) |
-| EP-03 piloto | **Motor v0 entregado** (#3 abierta: EP-03 completo post-piloto) |
-| Integracion E2E piloto | **Cerrada** (`pilot-flow.e2e-spec.ts`) |
-| OpenAPI piloto (#9) | **Cerrado** (`/api/docs`, `/api-json`, contrato validado) |
-| Frontend admin W5 | **Cerrado** (PR #38 — base `apps/web`) |
-| **Frontend piloto UI W6** | **Cerrado** — refinamiento jun 2026 (`010cbae`) |
-| **Validacion manual piloto** | **Cerrada** — `evidencias-piloto/sesion-2026-06-21.md` |
-| Rebrand Taulamic | **Cerrado** |
+| Sprint activo | Sprint 02 — UX #7 **cerrado** |
+| EP-11 / EP-12 / EP-13 | **Cerrados** |
+| EP-01 / EP-02 | **Cerrados** |
+| EP-03 piloto | **Motor v0 entregado** (EP-03 completo = post-piloto) |
+| Integracion E2E API | **Cerrada** (`pilot-flow.e2e-spec.ts`) |
+| OpenAPI piloto | **Cerrado** (`/api/docs`, `/api-json`) |
+| API room-setup Fase A | **Cerrado** (`GET/PUT .../room-setup`, ADR-020) |
+| Frontend admin piloto | **Cerrado** (flujo setup + pantallas piloto) |
+| **Barra setup + guardado implicito** | **Cerrado** (PR #40) |
+| **Feedback UX (toast, auto-save, validacion)** | **Cerrado** (PR #41) |
+| **Guia estilo canonica** | **Cerrado** (PR #42, `guia-estilo-taulamic.md`) |
+| **Clean architecture frontend** | **Cerrado** (PR #43, ADR-021) |
+| Invitados v2 en `/guests` | **Cerrado** — legacy eliminada |
+| Paso setup «Tarjetas» (candado) | **Cerrado** — nav + checklist bloqueados (HU-10 post-piloto) |
+| Validacion manual piloto (jun-21) | **Ejecutada** — `evidencias-piloto/sesion-2026-06-21.md` |
+| **Validacion manual post-UX** | **Pendiente** — guion desactualizado (boton «Guardar») |
+| **DoD piloto julio** | **Pendiente** — ver checklist abajo |
 | Plan piloto | `docs/agile/mvp-julio-plan.md` · Gantt `roadmap-mvp-julio.md` |
 
-| Ventana | Issue / foco | Rama | Estado |
-|---------|--------------|------|--------|
-| **1** | API room-setup Fase A (`ADR-020`) | `feat/api-room-setup` | **Siguiente** |
-| **2** | Figma panel Invitados v2 | — | **Siguiente** — `spec-invitados-panel-v2-post-piloto.md` |
-
-**Ventana 1:** implementar `GET/PUT .../room-setup` y conectar web. **Ventana 2:** panel Invitados v2 — preview en codigo (`b360bed`); Figma Prompt 8 pendiente si hay tokens.
-
-### Siguiente sesion — pendiente post-consolidacion Invitados
-
-**Hecho (2026-06-24):** panel v2 en `/guests`, vista legacy eliminada, avisos azules de preview retirados, feedback unificado por accion.
-
-**Pendiente:**
-
-1. **Paso setup «Tarjetas»** — candado en checklist (HU-10 post-piloto); etiqueta corta en nav.
-2. **Checklist cierre piloto** — evidencias finales, backlog `post-piloto` en GitHub, prueba usuario real (jul).
-
 ---
 
-### Roadmap — paso setup «Tarjetas»
+## Entregado reciente en `main` (jun 2026)
 
-**Idea PO (sesión 2026-06-23):** añadir un paso en el flujo de setup (checklist / nav lateral), visible como **«Tarjetas»** (diseño y envío de invitaciones), **bloqueado con candado** en piloto / hasta activar HU-10.
+| PR / commit | Que aporta |
+|-------------|------------|
+| **#40** `b324221` | `SetupNavBar` (Anterior/Siguiente), guardado implicito, cuenta atras setup |
+| **#41** `6863fd9` | Banner validacion al pulsar «Siguiente» bloqueado; `ToastProvider`; `SaveStatusIndicator` en Config, Plano, Afinidades; toasts en Invitados y Mesas |
+| **#42** `7851c73` | `docs/ux/guia-estilo-taulamic.md`; regla Cursor `guia-estilo-ux.mdc`; referencias cruzadas UX |
+| **#43** `796329b` | ADR-021; primitivos UI (`Button`, `FormField`, `Stepper`, …); paginas delgadas (`EventConfigView`, `TablesSetupView`, `GuestsPageView` + hooks); `lib/domain/setup-steps.ts` |
+| `dfae7ef` | Notas adopcion Invitados v2 |
+| `74ca926` | API room-setup + validacion DTO |
+| `b360bed` → consolidacion | Panel Invitados v2 unico en `/guests`; `/guests-v2` eliminado |
 
-- **UX:** icono candado, estado disabled, tooltip «Próximamente» o similar; no navegable hasta desbloqueo post-piloto.
-- **Posición:** tras **Invitados** y antes de **Plano** (fase «Quién»).
-- **Alcance funcional:** editor/plantillas de invitacion + envio — **HU-10 / HU-11**; solo placeholder en nav hasta entonces.
-- **Implementacion:** extender checklist setup (dashboard) y `adminRoutes`; sin API hasta spec de invitaciones.
+### Flujo setup vigente (ADR-018)
 
----
+Config → Invitados → **Tarjetas** (🔒) → Plano → Mesas → Afinidades → Distribución
 
-### Decisiones producto recientes (jun 2026)
+### Arquitectura frontend (ADR-021)
 
-- Validación piloto completada; feedback PO → **`docs/ux/spec-invitados-panel-v2-post-piloto.md`**
-- **Invitados v2 consolidado** (jun 2026): panel en `/guests`; legacy eliminada
-- **Nuevo paso setup (futuro):** «Tarjetas» en checklist, **bloqueado con candado** hasta HU-10 (post-piloto)
-- Separación estricta **Invitados** (datos) vs **Afinidades** (reglas); drawer + bulk bar post-piloto
-- Google Maps en config — post-piloto (invitaciones HU-10)
-- Flujo setup: **ADR-018** — Config → Invitados → Tarjetas (🔒) → Plano → Mesas → Afinidades → Distribución
-- Plano Fase A: persistencia API — **`ADR-020`** (hoy `localStorage`)
-- HU-05 manual (✕/+/drag): **`SDD-PILOTO-enmienda-HU05-ajuste-manual-postpiloto.md`**
-
----
-
-## Ventana 1 — API room-setup + estabilizacion piloto
-
-**Para:** esta ventana de Cursor (API + `apps/web`).
-
-### Frase clave (pegar en el chat)
-
-```text
-Soy Ventana 1. Taulamic main @ 7e33e21. Siguiente: API room-setup Fase A (ADR-020) + conectar web. Lee docs/agile/CONTEXTO-EJECUCION.md. API :3000, web :3001. SDD manda.
+```
+app/ (rutas finas) → components/admin/*View + components/ui/
+                   → hooks/use-* (orquestacion)
+                   → lib/domain/ (reglas puras)
+                   → lib/api.ts (infra HTTP)
 ```
 
-### Objetivo
+Paginas refactorizadas: `config`, `tables`, `guests`. Pendiente modularizar: `distribution`, `floor-plan/layout`, `guests-panel-v2` (~578 LOC).
 
-1. **Implementar** `GET/PUT /events/{id}/room-setup` (`ADR-020`).
-2. Conectar `floor-plan-setup.ts` / Fase A y layout a la API (localStorage como fallback opcional).
-3. Estabilizar incidencias que surjan del guion de validación.
+---
 
-### Entregado (en `main` hasta `7e33e21`)
+## Pendiente — cierre piloto (prioridad)
 
-- Nucleo piloto UI + refinamiento setup (`010cbae`, `10da7d5`)
-- Plano Fase A/B, distribucion v2, dashboard v2, invitados manual, afinidades mock
-- Docs: ADR-018/019, enmienda HU-05, guion validacion, spec Invitados v2
+Orden sugerido para cumplir **DoD** (`mvp-julio-plan.md` §4):
 
-### Pendiente inmediato
+| # | Tarea | Notas |
+|---|-------|-------|
+| 1 | **Actualizar guion validacion** | Quitar pasos «Guardar»; reflejar auto-save, toasts, `SetupNavBar`, `SaveStatusIndicator` |
+| 2 | **Ejecutar validacion manual E2E UI** | Tras guion actualizado; flujo punta a punta |
+| 3 | **Evidencias finales** | Nueva sesion en `docs/agile/evidencias-piloto/` (jun-21 queda como referencia historica) |
+| 4 | **Tests/CI en verde** | `apps/api`: build + test + test:e2e; `apps/web`: build (+ e2e si aplica piloto) |
+| 5 | **Prueba con organizador real** | Julio 2026 — feedback cualitativo |
+| 6 | **Issues `post-piloto` en GitHub** | HU-05, auth, PostgreSQL, panel Invitados v2 completo, Maps, etc. |
+| 7 | **Verificar OpenAPI vs UI** | Contrato alineado con pantallas piloto |
 
-1. **API room-setup** — `ADR-020` (critico W2)
-2. Fondo opcional plano + accesorios drag canvas (post-piloto parcial)
-3. Panel Invitados v2 — **tras Figma** (`spec-invitados-panel-v2`)
-4. Post-piloto: HU-05, Maps config, bulk bar, lista sin asignar
+### Fuera de alcance piloto (no bloquea cierre)
 
-### Documentacion gobernanza plano (2026-06-23)
+- HU-05 ajuste manual distribucion (`SDD-PILOTO-enmienda-HU05-ajuste-manual-postpiloto.md`)
+- Google Maps en config
+- Drawer + bulk bar Invitados v2 completo (`spec-invitados-panel-v2-post-piloto.md`)
+- Lista sin asignar (clic KPI)
+- Auth JWT/RBAC, PostgreSQL prod
+- Refactors tecnicos: hooks `distribution` / `floor-plan/layout`; split `event-ui-meta.ts`
 
-- `docs/adr/ADR-016-plano-espacial-salon-dos-fases.md`
-- `docs/sdd/SDD-01D-importacion-plano-salon.md` (reescrito)
-- `docs/sdd/SDD-PILOTO-alineacion-y-huecos.md` (tabla HU / huecos)
+---
 
-### Dev local (Windows / OneDrive)
+## Como indicar ventana al agente (opcional)
+
+Si trabajas en **2 ventanas Cursor** en paralelo:
+
+| Ventana | Di al agente |
+|---------|----------------|
+| **Ventana 1** | `Soy Ventana 1. Cierre piloto: guion, tests, evidencias. Lee CONTEXTO-EJECUCION.md.` |
+| **Ventana 2** | `Soy Ventana 2. UX post-piloto / Figma. No tocar apps/api/. spec-invitados-panel-v2-post-piloto.md` |
+
+### Ventana 1 — codigo + validacion
+
+**Objetivo:** cerrar DoD piloto (guion, evidencias, CI verde).
+
+**Referencias inmediatas:**
+
+- `docs/agile/guion-validacion-piloto-ui.md` (actualizar primero)
+- `docs/agile/evidencias-piloto/sesion-2026-06-21.md` (sesion anterior)
+- `docs/sdd/SDD-PILOTO-alineacion-y-huecos.md`
+
+### Ventana 2 — UX / Figma post-piloto
+
+**Objetivo:** wireframes panel Invitados v2 (drawer, bulk bar, filtros) — **no bloquea cierre piloto**.
+
+- `docs/ux/spec-invitados-panel-v2-post-piloto.md` §8
+- `docs/ux/figma-make-prompts.md` — Prompt 8
+- `docs/ux/guia-estilo-taulamic.md` — patrones obligatorios
+
+---
+
+## Decisiones producto (jun 2026)
+
+- Validacion piloto jun-21 completada; feedback PO → spec Invitados v2 post-piloto
+- **Invitados v2** consolidado en `/guests`; separacion estricta Invitados (datos) vs Afinidades (reglas)
+- **Paso «Tarjetas»:** placeholder en nav/checklist, candado hasta HU-10/HU-11
+- **Guardado implicito:** sin boton «Guardar» en Config/Plano/Afinidades; indicador «Guardando… / Guardado» + toasts en acciones puntuales
+- **Plano Fase A:** persistencia API (`room-setup`); `localStorage` como legado/fallback en utilidades
+- **HU-05 manual:** post-piloto (enmienda SDD)
+
+---
+
+## Dev local (Windows / OneDrive)
 
 ```powershell
 # Terminal 1 — API
 cd apps\api; npm run start:dev
 
-# Terminal 2 — Web (usar ruta corta si falla el path con apóstrofo)
+# Terminal 2 — Web
 cd apps\web; npm run dev:clean
 ```
 
-- Web: http://localhost:3001
-- Si **Internal Server Error** o pantalla blanca: matar proceso en `:3001` (`netstat -ano | findstr :3001` → `taskkill /PID … /F`) y **`npm run dev:clean`** (sin argumentos extra).
-- PowerShell: usar `;` en lugar de `&&`.
+- API: http://localhost:3000 · Web: http://localhost:3001
+- Si pantalla blanca o Internal Server Error en web: matar proceso `:3001` y `npm run dev:clean`
+- Paths con apóstrofo (OneDrive): `git -C "ruta\taulamic" ...` o rutas cortas; PowerShell: `;` en lugar de `&&`
 
-### Referencias
-
-- `docs/agile/guion-validacion-piloto-ui.md`
-- `docs/agile/evidencias-piloto/sesion-2026-06-21.md`
-- `docs/adr/ADR-020-api-persistencia-room-setup-fase-a.md`
-- `docs/ux/spec-invitados-panel-v2-post-piloto.md`
-- `docs/agile/mvp-julio-plan.md` (cierre piloto)
-- `docs/sdd/SDD-PILOTO-alineacion-y-huecos.md` (cumplimiento piloto vs SDD-01)
-- `docs/adr/ADR-016-plano-espacial-salon-dos-fases.md`
-- **`docs/ux/guia-estilo-taulamic.md`** (patrones UX/UI obligatorios)
-- **`docs/ux/handoff-figma-a-frontend.md`** (mapa pantallas → API + checklist)
-- `docs/ux/design-tokens-mvp.md` · `docs/ux/frontend-component-system.md` · `docs/ux/figma-mvp.md` · `docs/ux/figma-make-prompts.md`
-- OpenAPI: `/api/docs` y `/api-json` (version `1.0-pilot`)
-- E2E backend: `apps/api/test/pilot-flow.e2e-spec.ts`
-- Web: `apps/web/README.md`
-
-### Patron de cierre W6
-
-1. Flujo piloto usable en UI con evidencia manual — **hecho** (jun 2026)
-2. Build/tests piloto en verde (`apps/api` + `apps/web`) — **hecho**
-3. ~~Merge PR #39~~ — en `main`; plano Fase A/B adicional en `0f15b37`; docs `f873ffb` + alineación secundaria
-
----
-
-## Ventana 2 — Figma Invitados v2 + apoyo UX
-
-**Para:** segunda ventana de Cursor (UX; sin codigo API).
-
-### Frase clave (pegar en el chat)
-
-```text
-Soy Ventana 2. Taulamic spec Invitados v2 post-piloto. Figma Make prompt 8 en figma-make-prompts.md. No tocar apps/api/. spec-invitados-panel-v2-post-piloto.md
-```
-
-### Objetivo
-
-Wireframes **panel Invitados v2**: tabla, drawer lateral, bulk action bar, filtros. Ver `docs/ux/spec-invitados-panel-v2-post-piloto.md` §8.
-
-### Estado
-
-**#7 cerrado.** Validacion PO jun 2026 alimenta spec v2.
-
-### Apoyo sugerido (orden)
-
-1. **Prompt 8** — Invitados v2 (tabla + drawer + bulk bar)
-2. Lista sin asignar (clic KPI) — post-piloto
-3. Plano Fase B drag mesas — post-MVP
-4. Edicion manual distribucion (HU-05) — tras Figma
-
-### APIs disponibles en main (para wireframes)
-
-- Evento/mesas (#1): `POST/GET /api/v1/events`, `.../tables`
-- Invitados (#2): `GET/POST/PUT/DELETE .../events/:eventId/guests`
-- Distribucion (#3 piloto): `POST .../distribution/run`, `GET .../distribution`, `POST .../confirm`
-- Forma mesa (#15): `GET .../table-shapes`, `.../seat-topology`
-- Plano (#22–#26): API legacy deteccion mesas; **UI** plano espacial `ADR-016`
-
-### Patron de cierre
-
-Merge rama UX → `main` → actualizar handoff si cambia contrato visual → avisar Ventana 1
-
----
-
-## Comandos utiles (Ventana 1)
+### Comandos validacion
 
 ```powershell
 # API
-cd apps\api
-npm run build; npm test; npm run test:e2e
-npm run start:dev
+cd apps\api; npm run build; npm test; npm run test:e2e
 
-# Web admin
-cd apps\web
-npm install
-npm run dev:clean
-npm run build
+# Web
+cd apps\web; npm run build
 ```
+
+---
+
+## Referencias
+
+| Documento | Para que |
+|-----------|----------|
+| `docs/agile/mvp-julio-plan.md` | DoD piloto §4 |
+| `docs/agile/guion-validacion-piloto-ui.md` | Validacion manual UI |
+| `docs/ux/guia-estilo-taulamic.md` | Patrones UX/UI obligatorios |
+| `docs/ux/frontend-component-system.md` | Capas + inventario componentes |
+| `docs/ux/handoff-figma-a-frontend.md` | Mapa pantallas → API |
+| `docs/adr/ADR-018-preferencias-afinidades-y-flujo-setup.md` | Orden setup |
+| `docs/adr/ADR-020-api-persistencia-room-setup-fase-a.md` | API plano Fase A |
+| `docs/adr/ADR-021-frontend-clean-architecture-pragmatica.md` | Capas frontend |
+| `docs/sdd/SDD-PILOTO-alineacion-y-huecos.md` | Cumplimiento vs SDD |
+| `docs/ux/spec-invitados-panel-v2-post-piloto.md` | Invitados v2 post-piloto |
+| OpenAPI | `/api/docs` y `/api-json` (version `1.0-pilot`) |
+| E2E backend | `apps/api/test/pilot-flow.e2e-spec.ts` |
+| Web | `apps/web/README.md` |
+
+---
 
 ## Ultimos commits de referencia (`main`)
 
 | Commit | Descripcion |
 |--------|-------------|
-| 7e33e21 | docs(ux): spec Invitados v2 + evidencias validacion |
-| b360bed | feat(web): vista previa panel Invitados v2 aislada |
-| 7cc6e11 | docs(agile): Gantt MVP julio actualizado |
-| b4cd158 | docs(agile): guion validacion ADR-018 |
+| 796329b | refactor(web): clean architecture pragmatica (#43) |
+| 7851c73 | docs(ux): guia estilo canonica (#42) |
+| 6863fd9 | feat(web): feedback UX setup (#41) |
+| b324221 | feat(web): barra setup, guardado implicito (#40) |
+| dfae7ef | docs(agile): notas sesion jun 2026 e Invitados v2 |
+| b360bed | feat(web): vista previa Invitados v2 (consolidada despues) |
+| 74ca926 | fix(api): validar DTO room-setup |
 | 010cbae | feat(piloto): refinamiento UI setup invitados plano |
-| 10da7d5 | docs(sdd): HU-05 post-piloto |

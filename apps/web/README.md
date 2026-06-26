@@ -57,6 +57,25 @@ Si el puerto 3001 está ocupado o ves **Internal Server Error**: `netstat -ano |
 
 Header admin: `x-taulamic-actor-role: admin` (piloto sin JWT).
 
+## Tests E2E (Playwright)
+
+Automatizan el **flujo feliz** del guion `docs/agile/guion-validacion-piloto-ui.md`. **No sustituyen** la validación manual con evidencias.
+
+```bash
+cd apps/web
+npm run test:e2e          # headless
+npm run test:e2e:ui       # modo interactivo
+npm run test:e2e:report   # informe HTML
+```
+
+Detalle: `docs/agile/observabilidad-y-e2e-web-piloto.md`
+
+## Sentry (opcional)
+
+Errores en web y API. Sin `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN` no se envían eventos.
+
+Variables: `apps/web/.env.example` · `apps/api/.env.example`
+
 ## Referencias UX
 
 - Tokens: `docs/ux/design-tokens-mvp.md`

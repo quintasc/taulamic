@@ -1,10 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { GuestFormInput } from '@/components/admin/guests/guest-form.types';
+import type {
+  GuestDrawerSubmit,
+  GuestFormInput,
+} from '@/components/admin/guests/guest-form.types';
 import {
   getGuestV2DetailMeta,
-  updateGuestV2DetailMeta,
 } from '@/lib/guest-v2-detail-meta';
 import type { GuestView } from '@/lib/api';
 
@@ -25,7 +27,7 @@ export function GuestDrawerV2({
   saving: boolean;
   open: boolean;
   onClose: () => void;
-  onSubmit: (input: GuestFormInput) => void;
+  onSubmit: (payload: GuestDrawerSubmit) => void;
 }) {
   const [nombre, setNombre] = useState('');
   const [correo, setCorreo] = useState('');
@@ -86,15 +88,15 @@ export function GuestDrawerV2({
       telefono: telefono.trim(),
       categoryNames: categoria.trim() ? [categoria.trim()] : undefined,
     };
-    if (mode === 'edit' && guest) {
-      updateGuestV2DetailMeta(eventId, guest.id, {
+    onSubmit({
+      input,
+      detailMeta: {
         dietaryAlert,
         mobilityAlert,
         notes: notes.trim() || undefined,
         companionGroup: companionGroup.trim() || undefined,
-      });
-    }
-    onSubmit(input);
+      },
+    });
   }
 
   return (

@@ -1,0 +1,18 @@
+{
+  "name": "taulamic",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Monorepo Taulamic — scripts de desarrollo en raíz",
+  "scripts": {
+    "install:apps": "npm install --prefix apps/api && npm install --prefix apps/web",
+    "dev": "concurrently -k -n api,web -c blue,magenta \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "npm run start:dev --prefix apps/api",
+    "dev:web": "npm run dev:clean --prefix apps/web"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -8,7 +8,7 @@ export type AutoSaveStatus = 'idle' | 'pending' | 'saving' | 'saved';
 
 export function useAutoSaveIndicator() {
   const [status, setStatus] = useState<AutoSaveStatus>('idle');
-  const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const savedTimerRef = useRef<number | null>(null);
 
   const clearSavedTimer = useCallback(() => {
     if (savedTimerRef.current) {

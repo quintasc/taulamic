@@ -73,7 +73,24 @@ Este repositorio guarda decisiones de producto y tecnologia antes de programar e
 - `apps/web/`: Frontend Next.js admin piloto (W5, Figma Make).
 - Convencion arquitectonica: Clean Architecture pragmatica por modulo/feature (ADR-015).
 
-### Arrancar API local
+### Arrancar todo (recomendado)
+
+Desde la **raíz** del repositorio:
+
+```bash
+npm install
+npm run install:apps   # primera vez, o tras cambios de dependencias
+npm run dev
+```
+
+- API: `http://localhost:3000/api/v1` · OpenAPI: `http://localhost:3000/api/docs`
+- Web: `http://localhost:3001` (proxy `/api/v1` → API)
+
+Solo API o solo web: `npm run dev:api` · `npm run dev:web`
+
+### Arrancar por app (alternativa)
+
+**API:**
 
 ```bash
 cd apps/api
@@ -81,18 +98,16 @@ npm install
 npm run start:dev
 ```
 
-- API base: `http://localhost:3000/api/v1`
-- OpenAPI UI: `http://localhost:3000/api/docs`
-
-### Arrancar Web admin piloto
+**Web admin piloto:**
 
 ```bash
 cd apps/web
 npm install
-npm run dev
+npm run dev:clean
 ```
 
-- Web: `http://localhost:3001` (proxy `/api/v1` → API)
+(`dev:clean` en web borra `.next` antes de arrancar; recomendado en OneDrive.)
+
 - Handoff UX: `docs/ux/handoff-figma-a-frontend.md`
 
 ## Como usar este repositorio

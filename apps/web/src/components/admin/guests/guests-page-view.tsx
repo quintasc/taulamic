@@ -55,7 +55,7 @@ export function GuestsPageView() {
               saving={saving}
               open={manualDrawerOpen}
               onClose={() => setManualDrawerOpen(false)}
-              onSubmit={(input) => void handleAddGuest(input)}
+              onSubmit={(payload) => void handleAddGuest(payload)}
             />
           ) : null}
         </>
@@ -68,8 +68,8 @@ export function GuestsPageView() {
             guests={guests}
             saving={saving}
             onMetaChange={() => {}}
-            onAddGuest={(input) => void handleAddGuest(input)}
-            onUpdateGuest={(id, input) => void handleUpdateGuest(id, input)}
+            onAddGuest={(payload) => void handleAddGuest(payload)}
+            onUpdateGuest={(id, payload) => void handleUpdateGuest(id, payload)}
             onDeleteGuest={(id, name) => void handleDeleteGuest(id, name)}
           />
           <GuestsImportSection

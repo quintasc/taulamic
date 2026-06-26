@@ -136,11 +136,16 @@ Si trabajas en **2 ventanas Cursor** en paralelo:
 ## Dev local (Windows / OneDrive)
 
 ```powershell
-# Terminal 1 — API
-cd apps\api; npm run start:dev
+# Raíz — API + web (recomendado)
+npm install
+npm run install:apps   # primera vez
+npm run dev
+```
 
-# Terminal 2 — Web
-cd apps\web; npm run dev:clean
+```powershell
+# Solo una app
+npm run dev:api
+npm run dev:web
 ```
 
 - API: http://localhost:3000 · Web: http://localhost:3001

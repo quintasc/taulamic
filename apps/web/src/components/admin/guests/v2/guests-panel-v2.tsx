@@ -12,7 +12,7 @@ import {
   IconTrash,
   IconUserPlus,
 } from '@/components/icons';
-import type { GuestFormInput } from '@/components/admin/guests/guest-form.types';
+import type { GuestDrawerSubmit } from '@/components/admin/guests/guest-form.types';
 import type { GuestView } from '@/lib/api';
 import { getGuestV2DetailMeta } from '@/lib/guest-v2-detail-meta';
 import {
@@ -71,12 +71,13 @@ function useDismissRowMenu(
     if (!rowMenu) {
       return;
     }
+    const activeMenu = rowMenu;
     function handlePointer(event: MouseEvent) {
       const target = event.target as Node;
       if (menuRef.current?.contains(target)) {
         return;
       }
-      if (rowMenu.trigger.contains(target)) {
+      if (activeMenu.trigger.contains(target)) {
         return;
       }
       onClose();
@@ -228,8 +229,8 @@ export function GuestsPanelV2({
   guests: GuestView[];
   saving: boolean;
   onMetaChange: () => void;
-  onAddGuest: (input: GuestFormInput) => void;
-  onUpdateGuest: (guestId: string, input: GuestFormInput) => void;
+  onAddGuest: (payload: GuestDrawerSubmit) => void;
+  onUpdateGuest: (guestId: string, payload: GuestDrawerSubmit) => void;
   onDeleteGuest: (guestId: string, guestName: string) => void;
 }) {
   const [search, setSearch] = useState('');
@@ -375,14 +376,14 @@ export function GuestsPanelV2({
     setEditingGuest(null);
   }
 
-  function handleDrawerSubmit(input: GuestFormInput) {
+  function handleDrawerSubmit(payload: GuestDrawerSubmit) {
     if (drawerMode === 'add') {
-      onAddGuest(input);
+      onAddGuest(payload);
       closeDrawer();
       return;
     }
     if (drawerMode === 'edit' && editingGuest) {
-      onUpdateGuest(editingGuest.id, input);
+      onUpdateGuest(editingGuest.id, payload);
       bumpMeta();
       closeDrawer();
     }

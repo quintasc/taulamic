@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 
-import type { GuestFormInput } from '@/components/admin/guests/guest-form.types';
+import type { GuestDrawerSubmit } from '@/components/admin/guests/guest-form.types';
 import { useToast } from '@/components/ui';
 import {
   ApiError,
@@ -10,6 +10,7 @@ import {
   type ImportValidation,
 } from '@/lib/api';
 import { useEvent } from '@/lib/event-context';
+import { updateGuestV2DetailMeta } from '@/lib/guest-v2-detail-meta';
 import { adminRoutes } from '@/lib/routes';
 import { getSetupNav } from '@/lib/setup-flow';
 
@@ -106,16 +107,17 @@ export function useGuestsPage() {
   }, [eventId, reloadGuests, router, routes.guestErrors, selectedFile, toast]);
 
   const handleAddGuest = useCallback(
-    async (input: GuestFormInput) => {
+    async (payload: GuestDrawerSubmit) => {
       if (!eventId) {
         return;
       }
       setSaving(true);
       try {
-        await guestsApi.create(eventId, input);
+        const created = await guestsApi.create(eventId, payload.input);
+        updateGuestV2DetailMeta(eventId, created.id, payload.detailMeta);
         await reloadGuests();
         setManualDrawerOpen(false);
-        toast.success(`Invitado «${input.nombre}» añadido.`);
+        toast.success(`Invitado «${payload.input.nombre}» añadido.`);
       } catch {
         toast.error('Error al añadir el invitado. Revisa correo y teléfono.');
       } finally {
@@ -126,15 +128,16 @@ export function useGuestsPage() {
   );
 
   const handleUpdateGuest = useCallback(
-    async (guestId: string, input: GuestFormInput) => {
+    async (guestId: string, payload: GuestDrawerSubmit) => {
       if (!eventId) {
         return;
       }
       setSaving(true);
       try {
-        await guestsApi.update(eventId, guestId, input);
+        await guestsApi.update(eventId, guestId, payload.input);
+        updateGuestV2DetailMeta(eventId, guestId, payload.detailMeta);
         await reloadGuests();
-        toast.success(`Invitado «${input.nombre}» actualizado.`);
+        toast.success(`Invitado «${payload.input.nombre}» actualizado.`);
       } catch {
         toast.error('Error al actualizar el invitado.');
       } finally {

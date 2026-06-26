@@ -84,3 +84,15 @@ El sprint se considera cerrado cuando:
 - **Vertical slice:** una funcionalidad completa de punta a punta (subida -> validacion -> respuesta).
 - **Importacion asistida:** el sistema propone; el admin confirma.
 - **E2E:** prueba que simula el recorrido real de un usuario en la app.
+
+## 11) Cierre del sprint (2026-06-24)
+
+| Elemento | Estado |
+|----------|--------|
+| Issue seguimiento [#21](https://github.com/quintasc/taulamic/issues/21) | **Cerrada** |
+| Milestone [Sprint 02](https://github.com/quintasc/taulamic/milestone/2) | **Cerrado** (20/20 issues) |
+| Epicas #16, #17, #18 | **Cerradas** (HUs #22–#36 entregadas en piloto) |
+| Evidencia | `evidencias-piloto/sesion-2026-06-24.md`, E2E API + Playwright |
+| Backlog siguiente | Sprint 03 — `sprint-03-plan.md`, issues #44–#53 |
+
+**Notas de cierre:** El alcance del sprint se cumplio en el piloto julio (API legacy plano + UI espacial ADR-016, Excel, preferencias, motor v0, UI admin). Validacion simulada PO sustituye usuario real en esta fase (DECISION-002 enmienda 2026-06-24).

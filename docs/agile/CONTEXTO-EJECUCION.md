@@ -1,15 +1,15 @@
 ﻿# Contexto de ejecucion — punto de reanudacion
 
 - Ultima actualizacion: **2026-06-24**
-- Commit referencia: **`d137a4c`** (`main`) — fix alertas invitado, Playwright, Sentry, `npm run dev` raiz
-- Hito activo: **MVP julio (piloto)** — **DoD cerrado** (sin usuario real en esta fase; validación simulada PO)
+- Commit referencia: **`f498e90`** (`main`)
+- Hito activo: **MVP julio (piloto)** — **DoD cerrado**
 - Naming: producto **Taulamic**, dominio **taulamic.com**, repo `quintasc/taulamic`
-- **Modo actual:** cierre piloto; ventana UX post-piloto opcional (Figma Invitados v2)
+- **Modo actual:** post-piloto — Sprint 03 (backlog UX + preparacion MVP SDD)
 
 ## Frase clave (pegar al agente)
 
 ```text
-Retomo Taulamic. main @ e46067a. Piloto julio DoD CERRADO: validacion simulada PO (sesion-2026-06-24) + E2E. Sin usuario real en esta fase (#53 post-piloto). Lee CONTEXTO-EJECUCION.md. SDD manda.
+Retomo Taulamic. main @ f498e90. Sprint 02 CERRADO (#21). Piloto DoD cerrado. Sprint 03 post-piloto activo. Lee CONTEXTO-EJECUCION.md y sprint-03-plan.md. SDD manda.
 ```
 
 ---
@@ -18,7 +18,8 @@ Retomo Taulamic. main @ e46067a. Piloto julio DoD CERRADO: validacion simulada P
 
 | Aspecto | Estado |
 |---------|--------|
-| Sprint activo | Sprint 02 — **cierre** (#21 seguimiento) |
+| Sprint activo | **Sprint 03** — post-piloto (ver `sprint-03-plan.md`) |
+| Sprint 02 | **Cerrado** 2026-06-24 ([#21](https://github.com/quintasc/taulamic/issues/21), [milestone](https://github.com/quintasc/taulamic/milestone/2)) |
 | EP-11 / EP-12 / EP-13 | **Cerrados** |
 | EP-01 / EP-02 | **Cerrados** |
 | EP-03 piloto | **Motor v0 entregado** (EP-03 completo = post-piloto) |
@@ -98,6 +99,7 @@ cd apps\web; npm run build; npm run test:e2e
 | Documento | Para que |
 |-----------|----------|
 | `docs/agile/mvp-julio-plan.md` | DoD piloto §4 |
+| `docs/agile/sprint-03-plan.md` | Sprint activo post-piloto |
 | `docs/agile/guion-validacion-piloto-ui.md` | Validacion manual UI |
 | `docs/agile/evidencias-piloto/sesion-2026-06-24.md` | Evidencias cierre post-UX |
 | `docs/agile/observabilidad-y-e2e-web-piloto.md` | Playwright + Sentry |
@@ -110,8 +112,6 @@ cd apps\web; npm run build; npm run test:e2e
 
 | Commit | Descripcion |
 |--------|-------------|
+| f498e90 | docs(agile): cerrar DoD piloto sin usuario real |
+| e46067a | docs(agile): planificacion post-validacion piloto |
 | d137a4c | fix(web): alertas invitado, Excel piloto, Playwright, Sentry, dev raiz |
-| f188c21 | docs(agile): CONTEXTO post-PRs #40–#43 |
-| 796329b | refactor(web): clean architecture (#43) |
-| 6863fd9 | feat(web): feedback UX setup (#41) |
-| b324221 | feat(web): barra setup (#40) |

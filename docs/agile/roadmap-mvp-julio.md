@@ -1,8 +1,8 @@
 # Roadmap MVP julio — Vista grafica
 
-> **Hoy:** 21 jun 2026 · **Hito piloto:** 31 jul 2026 · **Decision:** [DECISION-002](DECISION-002-mvp-julio-piloto-funcional.md)  
+> **Hoy:** 24 jun 2026 · **Hito piloto:** 31 jul 2026 · **Decision:** [DECISION-002](DECISION-002-mvp-julio-piloto-funcional.md)  
 > Plan detallado: [mvp-julio-plan.md](mvp-julio-plan.md) · Estado operativo: [CONTEXTO-EJECUCION.md](CONTEXTO-EJECUCION.md)  
-> Commits referencia: `010cbae` (refinamiento UI piloto) · `10da7d5` (docs HU-05)
+> Commits referencia: `d137a4c` (cierre validacion + Playwright) · `796329b` (clean architecture #43)
 
 ## Donde estamos ahora
 
@@ -17,12 +17,12 @@ Mar 2026          Jun 2026                              Jul 2026              Ag
 
 | Indicador | Valor |
 |-----------|-------|
-| **Posicion temporal** | Semana 1 de 6 (18–22 jun) — **nucleo piloto adelantado** |
-| **Foco actual** | Refinamiento UX setup/plano/invitados; validacion manual; huecos documentados |
+| **Posicion temporal** | Semana 2 de 6 (23–29 jun) — **nucleo + validacion manual HECHOS** |
+| **Foco actual** | Issues post-piloto GitHub; prueba organizador real (jul); estabilizacion menor |
 | **EP-11 / EP-12 / EP-13** | **Cerrados** (#22–#36) |
-| **EP-01 / EP-02 / motor v0 / E2E / UI W5–W6** | **Cerrados** (PR #37–#39 + commits jun 2026) |
-| **Progreso piloto (nucleo funcional)** | **~85 %** — flujo demostrable en `main` |
-| **Dias hasta piloto** | 40 dias |
+| **EP-01 / EP-02 / motor v0 / E2E / UI / validacion manual** | **Cerrados** |
+| **Progreso piloto (DoD)** | **~95 %** — falta #53 prueba organizador real |
+| **Dias hasta piloto** | 37 dias |
 
 **Estado por color:** `HECHO` · `EN CURSO` · `PLANIFICADO` · `POSPILOTO`
 
@@ -34,7 +34,7 @@ Copia o visualiza este bloque en GitHub, VS Code o [mermaid.live](https://mermai
 
 ```mermaid
 gantt
-    title Roadmap Taulamic — MVP julio piloto (actualizado 21 jun 2026)
+    title Roadmap Taulamic — MVP julio piloto (actualizado 24 jun 2026)
     dateFormat YYYY-MM-DD
     axisFormat %d %b
 
@@ -64,7 +64,9 @@ gantt
     Docs ADR-018 019 HU-05       :done, docs, 2026-06-20, 2026-06-21
 
     section Cierre piloto (W1-W6 restante)
-    Validacion manual guion UI   :active, val, 2026-06-18, 2026-06-28
+    Validacion manual guion UI   :done, val, 2026-06-18, 2026-06-24
+    Playwright E2E + Sentry prep :done, e2ew, 2026-06-22, 2026-06-24
+    Issues post-piloto GitHub    :done, gh, 2026-06-24, 2026-06-24
     API persistencia layout      :crit, layout, 2026-06-23, 2026-07-10
     Fondo accesorios canvas      :layout2, 2026-06-25, 2026-07-15
     Estabilizacion y fixes       :crit, fix, 2026-07-14, 2026-07-30
@@ -91,8 +93,8 @@ timeline
         Jun : EP-01 EP-02 motor v0 E2E OpenAPI
         Jun : UI admin W5 W6 Distribucion v2 plano Fase A/B
     section En curso (jun)
-        18-28 jun : Validacion manual refinamiento setup invitados
-        23 jun+ : API layout salon fondo accesorios
+        24 jun : Validacion manual post-UX HECHA sesion-2026-06-24
+        24 jun : Issues post-piloto #44-#52 creadas; #53 prueba organizador
     section Cierre (jul)
         14-31 jul : Estabilizacion prueba piloto real
         31 jul : Hito MVP piloto
@@ -106,8 +108,8 @@ timeline
 
 | Semana | Fechas | Entregable clave | Estado |
 |--------|--------|------------------|--------|
-| **W1** | 18–22 jun | Nucleo piloto + refinamiento UX | **EN CURSO** — nucleo **HECHO**; pulido activo |
-| W2 | 23–29 jun | API layout salon; fondo/accesorios | Planificado |
+| **W1** | 18–22 jun | Nucleo piloto + refinamiento UX | **HECHO** |
+| **W2** | 23–29 jun | Validacion manual; issues post-piloto | **EN CURSO** — validacion **HECHA** |
 | W3 | 30 jun – 6 jul | Cierre huecos plano; checklist setup | Planificado |
 | W4 | 7–13 jul | Estabilizacion integracion | Planificado |
 | W5 | 14–20 jul | Prueba piloto interna | Planificado |
@@ -120,10 +122,9 @@ timeline
 
 ```mermaid
 pie showData
-    title Entregables MVP julio por estado (21 jun)
-    "Hecho (API UI motor E2E)" : 16
-    "En curso (refinamiento)" : 2
-    "Pendiente cierre piloto" : 3
+    title Entregables MVP julio por estado (24 jun)
+    "Hecho (nucleo + validacion)" : 18
+    "En curso (usuario real jul)" : 1
 ```
 
 | Bloque | Issues / ambito | Hecho | En curso | Pendiente |
@@ -134,8 +135,9 @@ pie showData
 | Evento EP-01 | #1, #15 | 2 | — | — |
 | Invitados EP-02 | #2 + UI manual | 1 + UI | refinamiento UX | — |
 | Distribucion piloto | motor v0, E2E | 2 | — | HU-05 manual (post-piloto) |
-| UI admin | W5 + W6 + jun 2026 | 1 + refinamiento | validacion manual | — |
-| Docs gobernanza | ADR-016 018 019 HU-05 | 4 | — | — |
+| UI admin | W5 + W6 + jun 2026 | 1 + refinamiento | — | — |
+| Validacion + E2E UI | guion + Playwright | 2 | — | — |
+| Docs gobernanza | ADR-016 018 019 021 | 5 | — | — |
 
 ---
 

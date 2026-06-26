@@ -53,10 +53,15 @@ Un admin puede:
 
 ## 4) Definition of Done del MVP julio
 
-- Flujo piloto ejecutado de punta a punta con evidencia.
-- `npm run build && npm test && npm run test:e2e` en verde en modulos del piloto.
-- OpenAPI actualizado.
-- Lista de issues `post-piloto` creada para MVP SDD completo.
+| Criterio | Estado (24 jun 2026) |
+|----------|----------------------|
+| Flujo piloto ejecutado de punta a punta con evidencia | **Hecho** — `evidencias-piloto/sesion-2026-06-24.md` |
+| `npm run build && npm test && npm run test:e2e` en modulos piloto | **Hecho** (API); web: build + `test:e2e` Playwright |
+| OpenAPI actualizado | **Hecho** (`1.0-pilot`); revision UI vs contrato pendiente puntual |
+| Lista de issues `post-piloto` en GitHub | **Hecho** — #44–#52 (MEJ-01…09), #53 prueba organizador |
+| Prueba con organizador real | **Pendiente** — ventana jul 2026 |
+
+**Resumen:** nucleo piloto **demostrable** en `main`; cierre administrativo tras issues post-piloto + prueba usuario real.
 
 ## 5) Despues del piloto (agosto 2026+)
 

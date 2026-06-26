@@ -58,10 +58,11 @@ Un admin puede:
 | Flujo piloto ejecutado de punta a punta con evidencia | **Hecho** — `evidencias-piloto/sesion-2026-06-24.md` |
 | `npm run build && npm test && npm run test:e2e` en modulos piloto | **Hecho** (API); web: build + `test:e2e` Playwright |
 | OpenAPI actualizado | **Hecho** (`1.0-pilot`); revision UI vs contrato pendiente puntual |
-| Lista de issues `post-piloto` en GitHub | **Hecho** — #44–#52 (MEJ-01…09), #53 prueba organizador |
-| Prueba con organizador real | **Pendiente** — ventana jul 2026 |
+| Lista de issues `post-piloto` en GitHub | **Hecho** — #44–#52 (MEJ-01…09) |
+| Prueba con organizador real | **Pospuesto** — sin disponibilidad en esta fase; [#53](https://github.com/quintasc/taulamic/issues/53) post-piloto |
+| Validación simulada (DECISION-002) | **Hecho** — PO `sesion-2026-06-24.md` + E2E |
 
-**Resumen:** nucleo piloto **demostrable** en `main`; cierre administrativo tras issues post-piloto + prueba usuario real.
+**Resumen:** piloto julio **cerrado** en `main` con validación simulada. Usuario real cuando haya disponibilidad (post-piloto).
 
 ## 5) Despues del piloto (agosto 2026+)
 

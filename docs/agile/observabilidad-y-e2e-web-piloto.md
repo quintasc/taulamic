@@ -58,7 +58,7 @@ npm run test:e2e:report
 - Juicio visual / usabilidad (< 30 min, fricción)
 - Capturas y notas PO
 - Fuera de alcance (sección I del guion)
-- Prueba con organizador real
+- Prueba con organizador real → **pospuesta** post-piloto ([#53](https://github.com/quintasc/taulamic/issues/53)); cierre piloto con validación simulada PO
 
 ---
 

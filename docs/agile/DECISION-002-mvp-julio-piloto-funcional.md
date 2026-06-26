@@ -48,6 +48,8 @@ Un admin debe poder completar este flujo de punta a punta:
 - Existe evidencia de prueba (E2E o guion manual documentado).
 - OpenAPI actualizado para endpoints del piloto.
 
+**Enmienda 2026-06-24 (PO):** no hay organizador real disponible en la fase piloto julio. Cierre del hito con **organizador simulado** (validación manual PO `sesion-2026-06-24.md` + E2E API/Playwright). Prueba con usuario real pospuesta a post-piloto ([#53](https://github.com/quintasc/taulamic/issues/53)).
+
 ## Alcance OUT del MVP julio (pospuesto post-piloto)
 
 Queda **fuera del piloto** pero **dentro del MVP SDD completo**:

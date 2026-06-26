@@ -18,10 +18,10 @@ Mar 2026          Jun 2026                              Jul 2026              Ag
 | Indicador | Valor |
 |-----------|-------|
 | **Posicion temporal** | Semana 2 de 6 (23–29 jun) — **nucleo + validacion manual HECHOS** |
-| **Foco actual** | Issues post-piloto GitHub; prueba organizador real (jul); estabilizacion menor |
+| **Foco actual** | Estabilización menor; backlog post-piloto (#44–#52); MVP SDD agosto+ |
 | **EP-11 / EP-12 / EP-13** | **Cerrados** (#22–#36) |
 | **EP-01 / EP-02 / motor v0 / E2E / UI / validacion manual** | **Cerrados** |
-| **Progreso piloto (DoD)** | **~95 %** — falta #53 prueba organizador real |
+| **Progreso piloto (DoD)** | **100 % cerrado** — sin usuario real (pospuesto #53) |
 | **Dias hasta piloto** | 37 dias |
 
 **Estado por color:** `HECHO` · `EN CURSO` · `PLANIFICADO` · `POSPILOTO`
@@ -70,7 +70,7 @@ gantt
     API persistencia layout      :crit, layout, 2026-06-23, 2026-07-10
     Fondo accesorios canvas      :layout2, 2026-06-25, 2026-07-15
     Estabilizacion y fixes       :crit, fix, 2026-07-14, 2026-07-30
-    Prueba piloto usuario real   :crit, test, 2026-07-20, 2026-07-31
+    Prueba piloto usuario real   :post, test, 2026-08-01, 2026-12-31
     Hito MVP piloto              :milestone, mvp, 2026-07-31, 0d
 
     section Post-piloto ago+
@@ -94,7 +94,8 @@ timeline
         Jun : UI admin W5 W6 Distribucion v2 plano Fase A/B
     section En curso (jun)
         24 jun : Validacion manual post-UX HECHA sesion-2026-06-24
-        24 jun : Issues post-piloto #44-#52 creadas; #53 prueba organizador
+        24 jun : DoD piloto CERRADO (validacion simulada PO)
+        post-piloto : Usuario real cuando disponible (#53)
     section Cierre (jul)
         14-31 jul : Estabilizacion prueba piloto real
         31 jul : Hito MVP piloto
@@ -109,11 +110,11 @@ timeline
 | Semana | Fechas | Entregable clave | Estado |
 |--------|--------|------------------|--------|
 | **W1** | 18–22 jun | Nucleo piloto + refinamiento UX | **HECHO** |
-| **W2** | 23–29 jun | Validacion manual; issues post-piloto | **EN CURSO** — validacion **HECHA** |
+| **W2** | 23–29 jun | Validacion manual; issues post-piloto; cierre DoD | **HECHO** |
 | W3 | 30 jun – 6 jul | Cierre huecos plano; checklist setup | Planificado |
 | W4 | 7–13 jul | Estabilizacion integracion | Planificado |
 | W5 | 14–20 jul | Prueba piloto interna | Planificado |
-| W6 | 21–31 jul | Fixes finales; demo usuario real | Planificado |
+| W6 | 21–31 jul | Estabilización; preparación post-piloto | Planificado — **sin usuario real** |
 | Post | ago 2026+ | MVP SDD completo | Pospuesto (SDD intacto) |
 
 ---
@@ -123,8 +124,8 @@ timeline
 ```mermaid
 pie showData
     title Entregables MVP julio por estado (24 jun)
-    "Hecho (nucleo + validacion)" : 18
-    "En curso (usuario real jul)" : 1
+    "Hecho (piloto cerrado)" : 19
+    "Pospuesto post-piloto" : 1
 ```
 
 | Bloque | Issues / ambito | Hecho | En curso | Pendiente |

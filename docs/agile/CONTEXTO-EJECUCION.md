@@ -1,15 +1,15 @@
 ﻿# Contexto de ejecucion — punto de reanudacion
 
-- Ultima actualizacion: **2026-06-24**
-- Commit referencia: **`f498e90`** (`main`)
+- Ultima actualizacion: **2026-06-26**
+- Commit referencia: **`21d249e`** (`main`)
 - Hito activo: **MVP julio (piloto)** — **DoD cerrado**
 - Naming: producto **Taulamic**, dominio **taulamic.com**, repo `quintasc/taulamic`
-- **Modo actual:** post-piloto — Sprint 03 (backlog UX + preparacion MVP SDD)
+- **Modo actual:** post-piloto — **Sprint 03 CERRADO** · backlog Sprint 04 (#45, #48, #50, #51)
 
 ## Frase clave (pegar al agente)
 
 ```text
-Retomo Taulamic. main @ f498e90. Sprint 02 CERRADO (#21). Piloto DoD cerrado. Sprint 03 post-piloto activo. Lee CONTEXTO-EJECUCION.md y sprint-03-plan.md. SDD manda.
+Retomo Taulamic. main @ 21d249e. Sprint 03 CERRADO (MEJ-01/03/04/06/09 + marca). Piloto DoD cerrado. Backlog: #45 #48 #50 #51 #53. Lee CONTEXTO-EJECUCION.md y sprint-03-cierre.md. SDD manda.
 ```
 
 ---
@@ -18,8 +18,9 @@ Retomo Taulamic. main @ f498e90. Sprint 02 CERRADO (#21). Piloto DoD cerrado. Sp
 
 | Aspecto | Estado |
 |---------|--------|
-| Sprint activo | **Sprint 03** — post-piloto (ver `sprint-03-plan.md`) |
-| Sprint 02 | **Cerrado** 2026-06-24 ([#21](https://github.com/quintasc/taulamic/issues/21), [milestone](https://github.com/quintasc/taulamic/milestone/2)) |
+| Sprint activo | **Sprint 04** (por planificar) — ver backlog § abajo |
+| Sprint 03 | **Cerrado** 2026-06-26 — `sprint-03-cierre.md` · commits `6d0b074`, `21d249e` |
+| Sprint 02 | **Cerrado** 2026-06-24 ([#21](https://github.com/quintasc/taulamic/issues/21)) |
 | EP-11 / EP-12 / EP-13 | **Cerrados** |
 | EP-01 / EP-02 | **Cerrados** |
 | EP-03 piloto | **Motor v0 entregado** (EP-03 completo = post-piloto) |
@@ -28,28 +29,26 @@ Retomo Taulamic. main @ f498e90. Sprint 02 CERRADO (#21). Piloto DoD cerrado. Sp
 | OpenAPI piloto | **Cerrado** (`/api/docs`, `/api-json`) |
 | API room-setup Fase A | **Cerrado** (ADR-020) |
 | Frontend admin piloto | **Cerrado** (flujo setup + pantallas) |
-| Barra setup + guardado implicito | **Cerrado** (#40) |
-| Feedback UX (toast, auto-save) | **Cerrado** (#41) |
-| Guia estilo canonica | **Cerrado** (#42) |
-| Clean architecture frontend | **Cerrado** (#43, ADR-021) |
-| Invitados v2 en `/guests` | **Cerrado** |
-| **Guion validacion post-UX** | **Cerrado** (`guion-validacion-piloto-ui.md`) |
-| **Validacion manual post-UX** | **Cerrada** — `evidencias-piloto/sesion-2026-06-24.md` (apta cierre; H parcial 409/F5) |
-| **Observabilidad** | **Preparada** — Sentry opcional (web+API); doc `observabilidad-y-e2e-web-piloto.md` |
+| **MEJ-01…09 (Sprint 03)** | **5/9 cerradas** — #44, #46, #47, #49, #52 · resto en backlog |
+| **Marca wordmark PNG** | **Cerrado** — `taulamic-wordmark.png` 2 colores |
+| **Footer admin + countdown** | **Cerrado** — sidebar no solapada; animación separadores |
+| **Observabilidad** | **Preparada** — Sentry opcional (web+API) |
 | **Dev unificado** | **Cerrado** — `npm run dev` en raiz |
 | **DoD piloto julio** | **Cerrado** — validación simulada PO; usuario real pospuesto (#53) |
 | Plan piloto | `mvp-julio-plan.md` · Gantt `roadmap-mvp-julio.md` |
 
 ---
 
-## Entregado reciente en `main` (jun 2026)
+## Entregado en Sprint 03 (`main`)
 
-| PR / commit | Que aporta |
-|-------------|------------|
-| **`d137a4c`** | Fix alertas drawer invitado manual; Excel piloto alineado; Playwright E2E; Sentry opcional; `npm run dev` raiz; evidencias sesion 2026-06-24 |
+| Commit | Que aporta |
+|--------|------------|
+| **`21d249e`** | Wordmark PNG 2 colores; footer fijo alineado a sidebar; animación cuenta atrás |
+| **`6d0b074`** | MEJ-01 plantilla Excel persistente; MEJ-03 filtros invitados; MEJ-04 confirm delete; MEJ-06 iconos plano; MEJ-09 fix flash F5; fix Sentry dev |
+| **`d137a4c`** | Fix alertas drawer; Excel piloto; Playwright; Sentry; `npm run dev` raiz |
 | **#40–#43** | SetupNavBar, feedback UX, guia estilo, clean architecture frontend |
-| `f188c21` | CONTEXTO post-PRs #40–#43 |
-| PR #37 | UX Figma / docs piloto |
+
+Detalle completo: **`docs/agile/sprint-03-cierre.md`**.
 
 ### Flujo setup vigente (ADR-018)
 
@@ -57,23 +56,27 @@ Config → Invitados → **Tarjetas** (🔒) → Plano → Mesas → Afinidades 
 
 ---
 
-## Pendiente — cierre DoD (`mvp-julio-plan.md` §4)
+## Backlog activo (post-piloto)
 
-**Estado 24 jun 2026:** DoD **cerrado**. No hay organizador real disponible en esta fase; se aplica el criterio DECISION-002 «organizador real **o simulado**» mediante `sesion-2026-06-24.md` (PO, < 30 min) + E2E API/Playwright.
+| Prioridad | Issue | Descripcion | Estado |
+|-----------|-------|-------------|--------|
+| P2 | [#48](https://github.com/quintasc/taulamic/issues/48) | MEJ-05 — plano límites/resize | Abierta |
+| P2 | [#50](https://github.com/quintasc/taulamic/issues/50) | MEJ-07 — orden afinidades UI | Abierta |
+| Backlog | [#45](https://github.com/quintasc/taulamic/issues/45) | MEJ-02 — Excel ampliado + IA observaciones | Abierta |
+| Backlog | [#51](https://github.com/quintasc/taulamic/issues/51) | MEJ-08 — distribución manual HU-05 | Abierta |
+| Pospuesto | [#53](https://github.com/quintasc/taulamic/issues/53) | Organizador real julio 2026 | Abierta |
 
-| # | Tarea | Estado |
-|---|-------|--------|
-| 1 | Guion validacion post-UX | ✅ |
-| 2 | Validacion manual E2E UI | ✅ `sesion-2026-06-24.md` |
-| 3 | Evidencias finales | ✅ |
-| 4 | Tests/CI piloto | ✅ API build+test+e2e; web build + Playwright |
-| 5 | **Issues `post-piloto` en GitHub** | ✅ #44–#52 (MEJ-01…09) |
-| 6 | **Organizador real** | ⏭️ **Pospuesto** — sin disponibilidad; [#53](https://github.com/quintasc/taulamic/issues/53) → post-piloto |
-| 7 | Verificar OpenAPI vs UI | ⏳ Revisión puntual recomendada (no bloquea cierre) |
+**Cerradas en Sprint 03:** #44, #46, #47, #49, #52.
 
-### Fuera de alcance piloto (backlog GitHub `post-piloto`)
+---
 
-Ver issues GitHub **#44–#52** (`post-piloto`, MEJ sesion 2026-06-24) y epicos agosto en `mvp-julio-plan.md` §5.
+## Pendiente menor (no bloquea)
+
+| Tarea | Estado |
+|-------|--------|
+| Verificar OpenAPI vs UI | ⏳ Revisión puntual recomendada |
+| Batería tests pre-Sprint 04 | ⏳ `build` + `test` + `test:e2e` API/web |
+| Capturas opcionales piloto | ⏳ `evidencias-piloto/capturas-2026-06-24/` |
 
 ---
 
@@ -84,6 +87,8 @@ npm install
 npm run install:apps   # primera vez
 npm run dev            # API :3000 + Web :3001
 ```
+
+Ruta con apóstrofo: usar `subst X:` apuntando al repo o `git -C X:\`.
 
 ### Comandos validacion
 
@@ -98,12 +103,12 @@ cd apps\web; npm run build; npm run test:e2e
 
 | Documento | Para que |
 |-----------|----------|
-| `docs/agile/mvp-julio-plan.md` | DoD piloto §4 |
-| `docs/agile/sprint-03-plan.md` | Sprint activo post-piloto |
+| `docs/agile/sprint-03-cierre.md` | Registro entregas Sprint 03 |
+| `docs/agile/sprint-03-plan.md` | Plan original Sprint 03 |
+| `docs/agile/mvp-julio-plan.md` | DoD piloto §4 · epicas agosto §5 |
 | `docs/agile/guion-validacion-piloto-ui.md` | Validacion manual UI |
 | `docs/agile/evidencias-piloto/sesion-2026-06-24.md` | Evidencias cierre post-UX |
 | `docs/agile/observabilidad-y-e2e-web-piloto.md` | Playwright + Sentry |
-| `docs/ux/spec-invitados-panel-v2-post-piloto.md` | Invitados v2 post-piloto |
 | GitHub Project | https://github.com/users/quintasc/projects/2 |
 
 ---
@@ -112,6 +117,8 @@ cd apps\web; npm run build; npm run test:e2e
 
 | Commit | Descripcion |
 |--------|-------------|
+| 21d249e | feat(web): wordmark PNG, footer admin y animacion cuenta atras |
+| 6d0b074 | feat(web): Sprint 03 piloto, iconos del plano y fix Sentry |
+| fd57185 | docs(agile): cerrar Sprint 02 e iniciar Sprint 03 |
 | f498e90 | docs(agile): cerrar DoD piloto sin usuario real |
-| e46067a | docs(agile): planificacion post-validacion piloto |
 | d137a4c | fix(web): alertas invitado, Excel piloto, Playwright, Sentry, dev raiz |

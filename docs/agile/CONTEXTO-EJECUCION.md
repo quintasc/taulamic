@@ -1,7 +1,7 @@
 ﻿# Contexto de ejecucion — punto de reanudacion
 
 - Ultima actualizacion: **2026-06-26**
-- Commit referencia: **`21d249e`** (`main`)
+- Commit referencia: **`02f1a5b`** (`main`)
 - Hito activo: **MVP julio (piloto)** — **DoD cerrado**
 - Naming: producto **Taulamic**, dominio **taulamic.com**, repo `quintasc/taulamic`
 - **Modo actual:** post-piloto — **Sprint 03 CERRADO** · backlog Sprint 04 (#45, #48, #50, #51)
@@ -9,7 +9,7 @@
 ## Frase clave (pegar al agente)
 
 ```text
-Retomo Taulamic. main @ 21d249e. Sprint 03 CERRADO (MEJ-01/03/04/06/09 + marca). Piloto DoD cerrado. Backlog: #45 #48 #50 #51 #53. Lee CONTEXTO-EJECUCION.md y sprint-03-cierre.md. SDD manda.
+Retomo Taulamic. main @ 02f1a5b. Sprint 03 CERRADO (MEJ-01/03/04/06/09 + marca). Piloto DoD cerrado. Backlog: #45 #48 #50 #51 #53. Lee CONTEXTO-EJECUCION.md y sprint-03-cierre.md. SDD manda.
 ```
 
 ---
@@ -117,6 +117,7 @@ cd apps\web; npm run build; npm run test:e2e
 
 | Commit | Descripcion |
 |--------|-------------|
+| 02f1a5b | docs(agile): cerrar Sprint 03 y actualizar contexto |
 | 21d249e | feat(web): wordmark PNG, footer admin y animacion cuenta atras |
 | 6d0b074 | feat(web): Sprint 03 piloto, iconos del plano y fix Sentry |
 | fd57185 | docs(agile): cerrar Sprint 02 e iniciar Sprint 03 |

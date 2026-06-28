@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Alert, Button } from '@/components/ui';
 import { useEvent } from '@/lib/event-context';
@@ -13,21 +13,20 @@ export default function AdminIndexPage() {
   const { createEvent, clearEvent } = useEvent();
   const [booting, setBooting] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const attemptRef = useRef(0);
 
   useEffect(() => {
-    const attemptId = ++attemptRef.current;
-    clearEvent();
+    let cancelled = false;
 
     async function startNewEvent() {
+      clearEvent();
       try {
         const created = await createEvent(EVENT_API_PLACEHOLDER_NAME);
-        if (attemptId !== attemptRef.current) {
+        if (cancelled) {
           return;
         }
         router.replace(adminRoutes(created.id).config);
       } catch {
-        if (attemptId !== attemptRef.current) {
+        if (cancelled) {
           return;
         }
         setError(
@@ -38,7 +37,13 @@ export default function AdminIndexPage() {
     }
 
     void startNewEvent();
-  }, [clearEvent, createEvent, router]);
+
+    return () => {
+      cancelled = true;
+    };
+    // router es estable; omitido para evitar re-ejecuciones en Strict Mode (dev/E2E)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clearEvent, createEvent]);
 
   if (error) {
     return (

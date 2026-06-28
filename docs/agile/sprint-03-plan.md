@@ -39,7 +39,7 @@ Entregar mejoras UX de alto impacto del backlog post-piloto y mantener el nucleo
 |----------|--------|
 | Issues P1 del sprint cerradas con evidencia | ✅ |
 | Issues P2 del sprint cerradas | ✅ |
-| `npm run build` + tests piloto en verde | ⏳ Verificar antes de Sprint 04 |
+| `npm run build` + tests piloto en verde | ✅ 2026-06-26 |
 | CONTEXTO y roadmap actualizados | ✅ |
 
 ## 5) Referencias

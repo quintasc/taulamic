@@ -75,7 +75,7 @@ Config → Invitados → **Tarjetas** (🔒) → Plano → Mesas → Afinidades 
 | Tarea | Estado |
 |-------|--------|
 | Verificar OpenAPI vs UI | ⏳ Revisión puntual recomendada |
-| Batería tests pre-Sprint 04 | ⏳ `build` + `test` + `test:e2e` API/web |
+| Batería tests pre-Sprint 04 | ✅ API build+test+e2e; web build + Playwright 3/3 (2026-06-26) |
 | Capturas opcionales piloto | ⏳ `evidencias-piloto/capturas-2026-06-24/` |
 
 ---

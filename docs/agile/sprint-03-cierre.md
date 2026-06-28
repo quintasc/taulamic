@@ -35,6 +35,7 @@ Sprint 03 abordó las mejoras UX **P1 y P2** derivadas de la validación PO del 
 | [#49](https://github.com/quintasc/taulamic/issues/49) | MEJ-06 | Iconos SVG por accesorio en `icons.tsx` + `FloorAccessoryIcon`; tamaños card/overlay; escenario micro PNG sólido; servicio «WC». |
 | [#52](https://github.com/quintasc/taulamic/issues/52) | MEJ-09 | `event-context` + `RequireEvent` + `layout`: estado `hydrating` para evitar flash «Crear evento» al F5. |
 | — | — | Fix Sentry opcional en dev (`instrumentation.ts`, `report-client-error.ts`, `error.tsx`). |
+| — | — | Fix redirect `/admin` en Strict Mode dev/E2E (`admin/page.tsx`, cleanup + deps estables). |
 | — | — | Ajustes menores API room-setup (validator spec + DTO). |
 
 **Archivos clave:**
@@ -92,19 +93,22 @@ Sprint 03 abordó las mejoras UX **P1 y P2** derivadas de la validación PO del 
 | Issues P1 (#44, #46) cerradas | ✅ |
 | Issues P2 (#47, #52) cerradas | ✅ |
 | MEJ-06 (#49) entregada | ✅ |
-| `npm run build` + tests piloto | ⏳ Ejecutar antes de iniciar Sprint 04 |
+| `npm run build` + tests piloto | ✅ 2026-06-26 — API 69+61 tests; web build OK; Playwright 3/3 (`CI=1`, puertos libres) |
 | CONTEXTO y roadmap actualizados | ✅ (este doc + `CONTEXTO-EJECUCION.md`) |
 
 ---
 
-## 5) Validación recomendada antes de retomar desarrollo
+## 5) Validación (2026-06-26)
 
-```powershell
-npm run dev   # API :3000 + Web :3001
+| Comando | Resultado |
+|---------|-----------|
+| API `npm run build` | ✅ |
+| API `npm test` | ✅ 23 suites · 69 tests |
+| API `npm run test:e2e` | ✅ 14 suites · 61 tests |
+| Web `npm run build` | ✅ (2 warnings ESLint hooks, no bloquean) |
+| Web `npm run test:e2e` | ✅ 3/3 Playwright |
 
-cd apps\api; npm run build; npm test; npm run test:e2e
-cd apps\web; npm run build; npm run test:e2e
-```
+**Nota E2E:** con `npm run dev` ya en marcha en :3000/:3001, Playwright puede quedarse en «Creando evento…». Usar puertos libres o `$env:CI='1'; npm run test:e2e` para servidores dedicados.
 
 **Smoke manual rápido:**
 

@@ -1,7 +1,7 @@
 ﻿# Contexto de ejecucion — punto de reanudacion
 
 - Ultima actualizacion: **2026-06-28**
-- Commit referencia: **`main`** (Sprint 04 — ver `sprint-04-cierre.md`)
+- Commit referencia: **`8a851da`** (`main`)
 - Hito activo: **MVP julio (piloto)** — **DoD cerrado**
 - Naming: producto **Taulamic**, dominio **taulamic.com**, repo `quintasc/taulamic`
 - **Modo actual:** post-piloto — **Sprint 04 CERRADO** · backlog #45, #51, #53
@@ -9,7 +9,7 @@
 ## Frase clave (pegar al agente)
 
 ```text
-Retomo Taulamic. main @ HEAD. Sprint 04 CERRADO (MEJ-05 plano resize, MEJ-07 afinidades). Backlog: #45 #51 #53. Lee CONTEXTO-EJECUCION.md y sprint-04-cierre.md. SDD manda.
+Retomo Taulamic. main @ 8a851da. Sprint 04 CERRADO (MEJ-05 plano resize, MEJ-07 afinidades). Backlog: #45 #51 #53. Lee CONTEXTO-EJECUCION.md y sprint-04-cierre.md. SDD manda.
 ```
 
 ---

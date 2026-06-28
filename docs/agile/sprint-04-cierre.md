@@ -2,7 +2,7 @@
 
 - **Inicio:** 2026-06-26
 - **Cierre documental:** 2026-06-28
-- **Rama:** `main` (commit pendiente de push)
+- **Rama:** `main` @ **`8a851da`**
 - **Origen feedback:** `evidencias-piloto/sesion-2026-06-24.md` (MEJ-05, MEJ-07)
 - **Plan:** `sprint-04-plan.md`
 

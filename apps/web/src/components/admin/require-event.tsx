@@ -3,10 +3,21 @@
 import Link from 'next/link';
 import { useEvent } from '@/lib/event-context';
 
-export function RequireEvent({ children }: { children: React.ReactNode }) {
-  const { eventId, loading, error } = useEvent();
+export function RequireEvent({
+  urlEventId,
+  children,
+}: {
+  /** ID del evento en la URL (`/admin/events/[eventId]/…`) */
+  urlEventId?: string;
+  children: React.ReactNode;
+}) {
+  const { eventId, loading, sessionHydrated, error } = useEvent();
 
-  if (loading) {
+  const awaitingSession = !sessionHydrated;
+  const awaitingUrlSync =
+    Boolean(urlEventId) && !error && eventId !== urlEventId;
+
+  if (awaitingSession || loading || awaitingUrlSync) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center text-sm text-neutral-500">
         Cargando evento…

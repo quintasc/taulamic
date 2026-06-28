@@ -61,7 +61,7 @@ body {
 
   /* Accesorios de plano (marca) */
   .badge-floor-accessory {
-    @apply rounded-full border border-primary-500/30 bg-primary-500/10 px-2.5 py-1 text-[10px] font-semibold text-primary-600 shadow-sm;
+    @apply rounded-xl border border-primary-500/30 bg-neutral-0/95 text-primary-600 shadow-sm backdrop-blur-[1px];
   }
 }
 

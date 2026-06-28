@@ -6,7 +6,7 @@ import { SetupNavBar } from '@/components/admin/setup-nav-bar';
 import { GuestsImportSection } from '@/components/admin/guests/guests-import-section';
 import { GuestDrawerV2 } from '@/components/admin/guests/v2/guest-drawer-v2';
 import { GuestsPanelV2 } from '@/components/admin/guests/v2/guests-panel-v2';
-import { EmptyState, PageHeader } from '@/components/ui';
+import { ConfirmDialog, EmptyState, PageHeader } from '@/components/ui';
 import { useGuestsPage } from '@/hooks/use-guests-page';
 
 export function GuestsPageView() {
@@ -28,10 +28,29 @@ export function GuestsPageView() {
     handleAddGuest,
     handleUpdateGuest,
     handleDeleteGuest,
+    pendingDelete,
+    deleting,
+    confirmDeleteGuest,
+    cancelDeleteGuest,
   } = useGuestsPage();
 
   return (
     <>
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title="Eliminar invitado"
+        description={
+          pendingDelete
+            ? `¿Eliminar a «${pendingDelete.name}» de la lista de invitados? Esta acción no se puede deshacer.`
+            : ''
+        }
+        confirmLabel="Eliminar"
+        cancelLabel="Cancelar"
+        destructive
+        confirming={deleting}
+        onConfirm={() => void confirmDeleteGuest()}
+        onCancel={cancelDeleteGuest}
+      />
       <PageHeader
         title="Invitados"
         subtitle="Paso 2 del setup: importa la lista o gestiona invitados de última hora."
@@ -68,6 +87,7 @@ export function GuestsPageView() {
             guests={guests}
             saving={saving}
             onMetaChange={() => {}}
+            onDownloadTemplate={() => void downloadTemplate()}
             onAddGuest={(payload) => void handleAddGuest(payload)}
             onUpdateGuest={(id, payload) => void handleUpdateGuest(id, payload)}
             onDeleteGuest={(id, name) => void handleDeleteGuest(id, name)}
@@ -78,6 +98,7 @@ export function GuestsPageView() {
             importing={importing}
             onSelectFile={setSelectedFile}
             onImport={() => void handleImport()}
+            onDownloadTemplate={() => void downloadTemplate()}
           />
         </>
       ) : (

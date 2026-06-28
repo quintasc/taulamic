@@ -9,6 +9,7 @@ export {
   useAutoSaveIndicator,
   type AutoSaveStatus,
 } from './save-status-indicator';
+export { ConfirmDialog } from './confirm-dialog';
 export { ToastProvider, useToast } from './toast';
 export { EmptyState } from './empty-state';
 export { PageHeader } from './page-header';

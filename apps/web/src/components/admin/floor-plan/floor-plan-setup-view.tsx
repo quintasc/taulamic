@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { SetupNavBar } from '@/components/admin/setup-nav-bar';
+import { FloorAccessoryIcon, getFloorAccessoryDisplaySize } from '@/components/admin/floor-plan/floor-accessory-icon';
 import { IconChevronDown } from '@/components/icons';
 import { ResizableRoomCanvas } from '@/components/admin/floor-plan/resizable-room-canvas';
 import { Alert, PageHeader, SaveStatusIndicator, useAutoSaveIndicator } from '@/components/ui';
@@ -32,10 +33,12 @@ import {
 } from '@/lib/room-size-recommendation';
 
 function AccessoryCard({
+  accessoryId,
   label,
   active,
   onClick,
 }: {
+  accessoryId: string;
   label: string;
   active: boolean;
   onClick: () => void;
@@ -50,8 +53,15 @@ function AccessoryCard({
           : 'border-neutral-200 bg-neutral-0 hover:border-primary-500/40 hover:bg-primary-500/5'
       }`}
     >
-      <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-wf-2 text-lg text-neutral-500">
-        ▢
+      <span
+        className={`flex h-14 w-14 items-center justify-center rounded-lg ${
+          active ? 'bg-primary-500/15 text-primary-600' : 'bg-wf-2 text-neutral-600'
+        }`}
+      >
+        <FloorAccessoryIcon
+          id={accessoryId}
+          size={getFloorAccessoryDisplaySize(accessoryId, 'card')}
+        />
       </span>
       <span className="text-xs font-medium text-neutral-700">{label}</span>
     </button>
@@ -375,6 +385,7 @@ export function FloorPlanSetupView({
               {FLOOR_PLAN_ACCESSORIES.map((accessory) => (
                 <AccessoryCard
                   key={accessory.id}
+                  accessoryId={accessory.id}
                   label={accessory.label}
                   active={setup.placedAccessories.includes(accessory.id)}
                   onClick={() => toggleAccessory(accessory.id)}

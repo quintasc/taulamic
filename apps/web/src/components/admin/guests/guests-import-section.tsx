@@ -109,6 +109,21 @@ export function GuestsImportSection({
         Puedes subir un Excel nuevo o el mismo archivo actualizado; los correos
         existentes se actualizan y los nuevos se añaden.
       </p>
+      {onDownloadTemplate ? (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-neutral-100/50 p-3">
+          <div className="flex items-center gap-2 text-sm text-neutral-800">
+            <IconFile width={18} height={18} className="text-neutral-500" />
+            <span className="font-medium">plantilla_invitados_taulamic.xlsx</span>
+          </div>
+          <button
+            type="button"
+            className="btn-secondary shrink-0"
+            onClick={onDownloadTemplate}
+          >
+            Descargar plantilla
+          </button>
+        </div>
+      ) : null}
       <div className="mt-4">
         <UploadZone
           title="Subir Excel actualizado"

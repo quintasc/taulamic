@@ -11,20 +11,27 @@ const BULK_ACTIONS = [
 
 export function GuestsBulkBarV2({
   selectedCount,
+  totalSelectedCount,
   onClear,
 }: {
   selectedCount: number;
+  /** Selección total incluyendo filas ocultas por filtro */
+  totalSelectedCount?: number;
   onClear: () => void;
 }) {
   if (selectedCount === 0) {
     return null;
   }
 
+  const total = totalSelectedCount ?? selectedCount;
+  const countLabel =
+    total !== selectedCount
+      ? `${selectedCount} visible${selectedCount === 1 ? '' : 's'} (${total} en total)`
+      : `${selectedCount} seleccionado${selectedCount === 1 ? '' : 's'}`;
+
   return (
     <div className="fixed bottom-6 left-1/2 z-30 flex w-[min(100%,42rem)] -translate-x-1/2 flex-wrap items-center gap-3 rounded-xl border border-neutral-200 bg-neutral-0 px-4 py-3 shadow-lg">
-      <span className="text-sm font-medium text-neutral-900">
-        {selectedCount} seleccionado{selectedCount === 1 ? '' : 's'}
-      </span>
+      <span className="text-sm font-medium text-neutral-900">{countLabel}</span>
       <div className="flex flex-1 flex-wrap gap-2">
         {BULK_ACTIONS.map((action) => (
           <button

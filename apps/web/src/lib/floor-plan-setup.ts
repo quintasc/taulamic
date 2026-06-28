@@ -20,12 +20,13 @@ export const ROOM_SHAPE_OPTIONS: Array<{ id: RoomShape; label: string }> = [
 ];
 
 export const FLOOR_PLAN_ACCESSORIES = [
-  { id: 'mesa-novios', label: 'Mesa novios' },
-  { id: 'pista-baile', label: 'Pista baile' },
+  { id: 'mesa-presidencial', label: 'Mesa presidencial' },
+  { id: 'pista-baile', label: 'Pista de baile' },
   { id: 'barra-bar', label: 'Barra bar' },
   { id: 'puerta', label: 'Puerta' },
+  { id: 'servicio', label: 'Servicio' },
   { id: 'escenario', label: 'Escenario' },
-  { id: 'entrada', label: 'Entrada' },
+  { id: 'entrada', label: 'Entrada principal' },
 ] as const;
 
 /** Posición por defecto dentro del perímetro del salón (%). */
@@ -33,11 +34,12 @@ export const ACCESSORY_LAYOUT: Record<
   string,
   { top: string; left: string }
 > = {
-  'mesa-novios': { top: '14%', left: '50%' },
+  'mesa-presidencial': { top: '14%', left: '50%' },
   escenario: { top: '10%', left: '50%' },
   'pista-baile': { top: '52%', left: '50%' },
   'barra-bar': { top: '28%', left: '18%' },
   puerta: { top: '82%', left: '22%' },
+  servicio: { top: '72%', left: '78%' },
   entrada: { top: '86%', left: '50%' },
 };
 
@@ -84,12 +86,16 @@ function migrateLegacySetup(parsed: Partial<FloorPlanSetup & { shape?: string }>
       ? Math.round(Math.max(widthM, lengthM) / 2)
       : DEFAULT_FLOOR_PLAN_SETUP.radiusM);
 
+  const placedAccessories = (parsed.placedAccessories ?? []).map((id) =>
+    id === 'mesa-novios' ? 'mesa-presidencial' : id,
+  );
+
   return normalizeSetupForShape({
     shape,
     widthM,
     lengthM,
     radiusM,
-    placedAccessories: parsed.placedAccessories ?? [],
+    placedAccessories,
   });
 }
 

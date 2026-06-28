@@ -26,7 +26,7 @@ export default function EventAdminLayout({
 
   return (
     <AdminShell eventId={eventId}>
-      <RequireEvent>{children}</RequireEvent>
+      <RequireEvent urlEventId={eventId}>{children}</RequireEvent>
     </AdminShell>
   );
 }

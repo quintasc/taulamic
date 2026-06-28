@@ -9,14 +9,14 @@ describe('parseRoomSetupInput', () => {
         widthM: 20,
         lengthM: 10,
         radiusM: 12,
-        placedAccessories: ['mesa-novios'],
+        placedAccessories: ['mesa-presidencial'],
       }),
     ).toEqual({
       shape: 'rectangular',
       widthM: 20,
       lengthM: 10,
       radiusM: 12,
-      placedAccessories: ['mesa-novios'],
+      placedAccessories: ['mesa-presidencial'],
     });
   });
 

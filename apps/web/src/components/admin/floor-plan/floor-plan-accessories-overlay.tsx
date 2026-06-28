@@ -2,6 +2,7 @@ import {
   ACCESSORY_LAYOUT,
   FLOOR_PLAN_ACCESSORIES,
 } from '@/lib/floor-plan-setup';
+import { FloorAccessoryIcon, getFloorAccessoryDisplaySize } from './floor-accessory-icon';
 
 export function FloorPlanAccessoriesOverlay({
   accessoryIds,
@@ -23,10 +24,18 @@ export function FloorPlanAccessoriesOverlay({
         return (
           <span
             key={id}
-            className="badge-floor-accessory absolute z-[1] max-w-[42%] -translate-x-1/2 -translate-y-1/2 truncate"
+            className="badge-floor-accessory absolute z-[1] flex max-w-[48%] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1 px-2.5 py-2 text-center"
             style={{ top: layout.top, left: layout.left }}
+            title={accessory.label}
           >
-            {accessory.label}
+            <FloorAccessoryIcon
+              id={id}
+              size={getFloorAccessoryDisplaySize(id, 'overlay')}
+              className="shrink-0 text-primary-600"
+            />
+            <span className="max-w-full truncate text-[10px] font-semibold leading-tight">
+              {accessory.label}
+            </span>
           </span>
         );
       })}

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
+  IconFile,
   IconMail,
   IconMoreVertical,
   IconPencil,
@@ -29,7 +30,14 @@ import {
 import { GuestDrawerV2 } from './guest-drawer-v2';
 import { GuestsBulkBarV2 } from './guests-bulk-bar-v2';
 
-type FilterChip = 'all' | 'pending-rsvp' | 'dietary' | 'mobility' | 'no-category';
+type FilterChip =
+  | 'all'
+  | 'pending-rsvp'
+  | 'confirmed'
+  | 'declined'
+  | 'dietary'
+  | 'mobility'
+  | 'no-category';
 
 const POST_PILOT_ROW_ACTIONS = [
   { id: 'send-invite', label: 'Enviar invitación' },
@@ -221,6 +229,7 @@ export function GuestsPanelV2({
   guests,
   saving,
   onMetaChange,
+  onDownloadTemplate,
   onAddGuest,
   onUpdateGuest,
   onDeleteGuest,
@@ -229,6 +238,7 @@ export function GuestsPanelV2({
   guests: GuestView[];
   saving: boolean;
   onMetaChange: () => void;
+  onDownloadTemplate?: () => void;
   onAddGuest: (payload: GuestDrawerSubmit) => void;
   onUpdateGuest: (guestId: string, payload: GuestDrawerSubmit) => void;
   onDeleteGuest: (guestId: string, guestName: string) => void;
@@ -278,6 +288,12 @@ export function GuestsPanelV2({
       const category = guest.categories[0]?.name ?? '';
 
       if (filter === 'pending-rsvp' && status !== 'pending') {
+        return false;
+      }
+      if (filter === 'confirmed' && status !== 'confirmed') {
+        return false;
+      }
+      if (filter === 'declined' && status !== 'declined') {
         return false;
       }
       if (filter === 'dietary' && !detail.dietaryAlert) {
@@ -391,23 +407,41 @@ export function GuestsPanelV2({
 
   const filterChips: { id: FilterChip; label: string }[] = [
     { id: 'all', label: 'Todos' },
+    { id: 'confirmed', label: 'Confirmados' },
     { id: 'pending-rsvp', label: 'Pendientes de confirmar' },
+    { id: 'declined', label: 'Invitación rechazada' },
     { id: 'dietary', label: 'Menú especial' },
     { id: 'mobility', label: 'Movilidad reducida' },
     { id: 'no-category', label: 'Sin categoría' },
   ];
 
+  const visibleSelectedCount = filteredGuests.filter((g) =>
+    selectedIds.has(g.id),
+  ).length;
+
   return (
     <>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <button
-          type="button"
-          className="btn-secondary inline-flex items-center gap-2 border-neutral-200"
-          onClick={openAddDrawer}
-        >
-          <IconUserPlus width={16} height={16} />
-          Añadir invitado
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            className="btn-primary inline-flex items-center gap-2"
+            onClick={openAddDrawer}
+          >
+            <IconUserPlus width={16} height={16} />
+            Añadir invitado
+          </button>
+          {onDownloadTemplate ? (
+            <button
+              type="button"
+              className="btn-secondary inline-flex items-center gap-2"
+              onClick={onDownloadTemplate}
+            >
+              <IconFile width={16} height={16} />
+              Descargar plantilla
+            </button>
+          ) : null}
+        </div>
         <div className="w-full max-w-xs sm:w-auto sm:min-w-[220px]">
           <input
             type="search"
@@ -436,6 +470,27 @@ export function GuestsPanelV2({
           </button>
         ))}
       </div>
+
+      <p className="mb-4 text-sm text-neutral-600">
+        Mostrando{' '}
+        <span className="font-medium text-neutral-900">
+          {filteredGuests.length}
+        </span>{' '}
+        de {guests.length} invitado{guests.length === 1 ? '' : 's'}
+        {filter !== 'all' ? ' (filtro activo)' : ''}
+        {visibleSelectedCount > 0 ? (
+          <>
+            {' · '}
+            <span className="font-medium text-neutral-900">
+              {visibleSelectedCount}
+            </span>{' '}
+            seleccionado{visibleSelectedCount === 1 ? '' : 's'}
+            {visibleSelectedCount !== selectedIds.size
+              ? ` (${selectedIds.size} en total)`
+              : ''}
+          </>
+        ) : null}
+      </p>
 
       <div className="card-admin overflow-x-auto pb-2">
         <table className="w-full min-w-[880px] text-left text-sm">
@@ -561,7 +616,8 @@ export function GuestsPanelV2({
       ) : null}
 
       <GuestsBulkBarV2
-        selectedCount={selectedIds.size}
+        selectedCount={visibleSelectedCount}
+        totalSelectedCount={selectedIds.size}
         onClear={() => setSelectedIds(new Set())}
       />
 

@@ -38,7 +38,7 @@ export class UpsertRoomSetupDto {
   @Max(MAX_ROOM_DIMENSION_M)
   radiusM!: number;
 
-  @ApiProperty({ type: [String], example: ['mesa-novios'] })
+  @ApiProperty({ type: [String], example: ['mesa-presidencial'] })
   @IsArray()
   @IsString({ each: true })
   placedAccessories!: string[];

@@ -28,6 +28,11 @@ export function useGuestsPage() {
   const [saving, setSaving] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [manualDrawerOpen, setManualDrawerOpen] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const reloadGuests = useCallback(async () => {
     if (!eventId) {
@@ -147,27 +152,32 @@ export function useGuestsPage() {
     [eventId, reloadGuests, toast],
   );
 
-  const handleDeleteGuest = useCallback(
-    async (guestId: string, guestName: string) => {
-      if (!eventId) {
-        return;
-      }
-      const confirmed = window.confirm(
-        `¿Eliminar a «${guestName}» de la lista de invitados?`,
-      );
-      if (!confirmed) {
-        return;
-      }
-      try {
-        await guestsApi.remove(eventId, guestId);
-        await reloadGuests();
-        toast.success(`Invitado «${guestName}» eliminado.`);
-      } catch {
-        toast.error('Error al eliminar el invitado.');
-      }
-    },
-    [eventId, reloadGuests, toast],
-  );
+  const handleDeleteGuest = useCallback((guestId: string, guestName: string) => {
+    setPendingDelete({ id: guestId, name: guestName });
+  }, []);
+
+  const cancelDeleteGuest = useCallback(() => {
+    if (!deleting) {
+      setPendingDelete(null);
+    }
+  }, [deleting]);
+
+  const confirmDeleteGuest = useCallback(async () => {
+    if (!eventId || !pendingDelete) {
+      return;
+    }
+    setDeleting(true);
+    try {
+      await guestsApi.remove(eventId, pendingDelete.id);
+      await reloadGuests();
+      toast.success(`Invitado «${pendingDelete.name}» eliminado.`);
+      setPendingDelete(null);
+    } catch {
+      toast.error('Error al eliminar el invitado.');
+    } finally {
+      setDeleting(false);
+    }
+  }, [eventId, pendingDelete, reloadGuests, toast]);
 
   return {
     eventId,
@@ -187,5 +197,9 @@ export function useGuestsPage() {
     handleAddGuest,
     handleUpdateGuest,
     handleDeleteGuest,
+    pendingDelete,
+    deleting,
+    confirmDeleteGuest,
+    cancelDeleteGuest,
   };
 }

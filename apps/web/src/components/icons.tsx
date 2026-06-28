@@ -352,6 +352,125 @@ export function IconLock(props: IconProps) {
   );
 }
 
+const accessoryDefaults: IconProps = {
+  ...defaults,
+};
+
+/** Mesa presidencial — mesa rectangular con sillas en un lado (referencia PO). */
+export function IconAccessoryPresidentialTable(props: IconProps) {
+  return (
+    <svg {...accessoryDefaults} {...props}>
+      <rect x="1.5" y="11" width="21" height="5" rx="0.75" />
+      <path d="M4 11a2.75 3 0 0 1 5.5 0M9.5 11a2.75 3 0 0 1 5.5 0M15 11a2.75 3 0 0 1 5.5 0" />
+    </svg>
+  );
+}
+
+/** Pista de baile — marco + nota musical. */
+export function IconAccessoryDanceFloor(props: IconProps) {
+  return (
+    <svg {...accessoryDefaults} {...props}>
+      <rect x="4" y="5" width="16" height="14" rx="1.25" />
+      <circle cx="11.5" cy="14.5" r="1.5" fill="currentColor" stroke="none" />
+      <path d="M13 14.5V8" />
+      <path d="M13 8c1.6-.8 2.8-.8 3.8 0" />
+    </svg>
+  );
+}
+
+/** Copa martini (referencia PO). */
+export function MartiniGlassIconFine(props: IconProps) {
+  return (
+    <svg {...accessoryDefaults} {...props}>
+      <path d="M4 6l8 9 8-9z" />
+      <path d="M12 15v6" />
+      <path d="M9.5 21h5" />
+      <path d="M7 9.5h10" />
+      <path d="M17 4.5l-6.5 7.5" />
+      <circle cx="12" cy="9.5" r="1.25" />
+    </svg>
+  );
+}
+
+/** Barra bar — copa martini. */
+export const IconAccessoryBar = MartiniGlassIconFine;
+
+/** Puerta — marco, separación central y pomos. */
+export function IconAccessoryDoor(props: IconProps) {
+  return (
+    <svg {...accessoryDefaults} {...props}>
+      <rect x="5" y="4" width="14" height="16" rx="1" />
+      <path d="M12 4v16" />
+      <circle cx="10.25" cy="12" r="0.75" fill="currentColor" stroke="none" />
+      <circle cx="13.75" cy="12" r="0.75" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+/** Escenario — micrófono de cantante (referencia PO). */
+export function IconAccessoryStage(props: IconProps) {
+  return (
+    <svg
+      width={20}
+      height={20}
+      viewBox="0 0 32 32"
+      fill="currentColor"
+      stroke="none"
+      aria-hidden
+      {...props}
+    >
+      <path d="M13.66,10.08,2.22,24.38a1,1,0,0,0,.07,1.33l4,4A1,1,0,0,0,7,30a1,1,0,0,0,.62-.22l14.3-11.44Zm1,8.63a1,1,0,0,1-1.42,0,1,1,0,0,1,0-1.42l2-2a1,1,0,0,1,1.42,1.42Z" />
+      <path d="M28.31,14.9A8,8,0,0,0,17.1,3.69Z" />
+      <path d="M26.9,16.31a8.08,8.08,0,0,1-2.78,1.39l-1.41-1.41-7-7L14.3,7.88A8.08,8.08,0,0,1,15.69,5.1Z" />
+    </svg>
+  );
+}
+
+/** Entrada principal — arco de acceso. */
+export function IconAccessoryEntrance(props: IconProps) {
+  return (
+    <svg {...accessoryDefaults} {...props}>
+      <path d="M3.5 20V10c0-3.8 4.2-7.5 8.5-7.5s8.5 3.7 8.5 7.5v10" />
+      <path d="M3.5 20h17" />
+    </svg>
+  );
+}
+
+/** Servicio — lavabos (cartel WC). */
+export function IconAccessoryRestroom(props: IconProps) {
+  return (
+    <svg {...accessoryDefaults} {...props}>
+      <rect x="4" y="5" width="16" height="14" rx="1.5" />
+      <text
+        x="12"
+        y="14.5"
+        textAnchor="middle"
+        fontSize="7.5"
+        fontWeight="700"
+        fill="currentColor"
+        stroke="none"
+        fontFamily="ui-sans-serif, system-ui, sans-serif"
+      >
+        WC
+      </text>
+    </svg>
+  );
+}
+
+export const floorAccessoryIcons = {
+  'mesa-presidencial': IconAccessoryPresidentialTable,
+  /** @deprecated alias migrado desde piloto */
+  'mesa-novios': IconAccessoryPresidentialTable,
+  'pista-baile': IconAccessoryDanceFloor,
+  'barra-bar': IconAccessoryBar,
+  puerta: IconAccessoryDoor,
+  servicio: IconAccessoryRestroom,
+  escenario: IconAccessoryStage,
+  entrada: IconAccessoryEntrance,
+} as const;
+
+export type FloorAccessoryIconId = keyof typeof floorAccessoryIcons;
+
 export const navIcons = {
   dashboard: IconDashboard,
   config: IconSettings,

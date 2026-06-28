@@ -34,6 +34,8 @@ type EventContextValue = {
   eventId: string | null;
   event: EventDetail | null;
   loading: boolean;
+  /** false hasta leer sessionStorage en el cliente */
+  sessionHydrated: boolean;
   error: string | null;
   syncEventIdFromUrl: (id: string) => void;
   refreshEvent: (options?: { silent?: boolean }) => Promise<void>;
@@ -47,10 +49,17 @@ export function EventProvider({ children }: { children: ReactNode }) {
   const [eventId, setEventIdState] = useState<string | null>(null);
   const [event, setEvent] = useState<EventDetail | null>(null);
   const [loading, setLoading] = useState(false);
+  const [sessionHydrated, setSessionHydrated] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     localStorage.removeItem(LEGACY_STORAGE_KEY);
+    const sessionId = readSessionEventId();
+    if (sessionId) {
+      setEventIdState(sessionId);
+      setLoading(true);
+    }
+    setSessionHydrated(true);
   }, []);
 
   const refreshEvent = useCallback(async (options?: { silent?: boolean }) => {
@@ -126,6 +135,7 @@ export function EventProvider({ children }: { children: ReactNode }) {
       eventId,
       event,
       loading,
+      sessionHydrated,
       error,
       syncEventIdFromUrl,
       refreshEvent,
@@ -136,6 +146,7 @@ export function EventProvider({ children }: { children: ReactNode }) {
       eventId,
       event,
       loading,
+      sessionHydrated,
       error,
       syncEventIdFromUrl,
       refreshEvent,

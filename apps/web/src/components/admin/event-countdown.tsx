@@ -49,16 +49,40 @@ function DotMatrixDigit({ char }: { char: string }) {
   );
 }
 
-function DotMatrixValue({ value, label }: { value: string; label: string }) {
+function DotMatrixColon() {
   return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="flex items-center gap-1">
-        {value.split('').map((char, index) => (
-          <DotMatrixDigit key={`${char}-${index}`} char={char} />
+    <div
+      className="countdown-colon-pulse col-start-2 row-start-1 flex flex-col items-center justify-center gap-[9px] self-center sm:gap-[11px]"
+      aria-hidden
+    >
+      <span className="h-[3px] w-[3px] rounded-full bg-neutral-700 sm:h-1 sm:w-1" />
+      <span className="h-[3px] w-[3px] rounded-full bg-neutral-700 sm:h-1 sm:w-1" />
+    </div>
+  );
+}
+
+function DotMatrixClock({ hours, minutes }: { hours: number; minutes: number }) {
+  const hoursStr = pad2(hours);
+  const minutesStr = pad2(minutes);
+
+  return (
+    <div className="inline-grid grid-cols-[auto_auto_auto] items-end gap-x-3 sm:gap-x-4 gap-y-2">
+      <div className="col-start-1 flex gap-1">
+        {hoursStr.split('').map((char, index) => (
+          <DotMatrixDigit key={`h-${char}-${index}`} char={char} />
         ))}
       </div>
-      <span className="text-[9px] font-medium uppercase tracking-[0.12em] text-neutral-400">
-        {label}
+      <DotMatrixColon />
+      <div className="col-start-3 flex gap-1">
+        {minutesStr.split('').map((char, index) => (
+          <DotMatrixDigit key={`m-${char}-${index}`} char={char} />
+        ))}
+      </div>
+      <span className="col-start-1 text-center text-[9px] font-medium uppercase tracking-[0.12em] text-neutral-400">
+        Horas
+      </span>
+      <span className="col-start-3 text-center text-[9px] font-medium uppercase tracking-[0.12em] text-neutral-400">
+        Minutos
       </span>
     </div>
   );
@@ -112,9 +136,8 @@ function CountdownBody({ state }: { state: EventCountdownState }) {
     <>
       <div className="flex items-end justify-between gap-4 sm:gap-8">
         <DaysRemainingDisplay days={state.days} />
-        <div className="flex items-end gap-6 sm:gap-10">
-          <DotMatrixValue value={pad2(state.hours)} label="Horas" />
-          <DotMatrixValue value={pad2(state.minutes)} label="Minutos" />
+        <div className="flex items-end">
+          <DotMatrixClock hours={state.hours} minutes={state.minutes} />
         </div>
       </div>
       <div className="mt-6 h-[3px] w-full overflow-hidden rounded-sm bg-wf-3">

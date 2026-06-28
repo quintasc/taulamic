@@ -1,5 +1,31 @@
 /** Logo Taulamic — 8 nodos coral · líneas coral · círculo central peach (Figma Make). */
 
+import { brandConfig } from '@/theme';
+
+function WordmarkImage({
+  height,
+  light = false,
+}: {
+  height: number;
+  light?: boolean;
+}) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element -- wordmark PNG con proporción variable
+    <img
+      src={brandConfig.assets.wordmarkPng}
+      alt={brandConfig.productNameDisplay}
+      height={height}
+      style={{
+        height,
+        width: 'auto',
+        display: 'block',
+        flexShrink: 0,
+        ...(light ? { filter: 'brightness(0) invert(1)' } : {}),
+      }}
+    />
+  );
+}
+
 export function LogoIcon({
   size,
   light = false,
@@ -91,11 +117,9 @@ export function TaulamicLogo({
   vertical?: boolean;
   iconSize?: number;
 }) {
-  const textCol = light ? '#FFFFFF' : '#E86B4A';
-
   if (vertical) {
     const S = iconSize ?? 72;
-    const fs = S < 40 ? 13 : S < 52 ? 16 : 22;
+    const wordmarkHeight = S < 40 ? 36 : S < 52 ? 44 : 52;
     const gap = S < 40 ? 6 : S < 52 ? 8 : 10;
     return (
       <div
@@ -107,23 +131,13 @@ export function TaulamicLogo({
         }}
       >
         <LogoIcon size={S} light={light} />
-        <span
-          style={{
-            color: textCol,
-            fontWeight: 700,
-            fontSize: fs,
-            letterSpacing: '-0.03em',
-            lineHeight: 1,
-          }}
-        >
-          taulamic
-        </span>
+        <WordmarkImage height={wordmarkHeight} light={light} />
       </div>
     );
   }
 
-  const S = compact ? 28 : 40;
-  const fs = compact ? 15 : 20;
+  const S = compact ? 40 : 52;
+  const wordmarkHeight = compact ? 38 : 48;
   const gap = compact ? 8 : 10;
   return (
     <div
@@ -134,17 +148,7 @@ export function TaulamicLogo({
       }}
     >
       <LogoIcon size={S} light={light} />
-      <span
-        style={{
-          color: textCol,
-          fontWeight: 700,
-          fontSize: fs,
-          letterSpacing: '-0.03em',
-          lineHeight: 1,
-        }}
-      >
-        taulamic
-      </span>
+      <WordmarkImage height={wordmarkHeight} light={light} />
     </div>
   );
 }

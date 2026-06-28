@@ -23,7 +23,7 @@ export function AdminSidebar({
   const navMapActive = pathname === routes.navMap;
 
   return (
-    <aside className="flex h-full w-sidebar shrink-0 flex-col border-r border-wf-3 bg-wf-1">
+    <aside className="flex h-full w-[var(--admin-sidebar-width)] shrink-0 flex-col border-r border-wf-3 bg-wf-1">
       <div className="shrink-0 border-b border-wf-3 px-4 py-3.5">
         <Link
           href="/"

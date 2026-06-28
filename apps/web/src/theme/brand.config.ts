@@ -9,6 +9,7 @@ export const brandConfig = {
   productNameDisplay: 'Taulamic',
   assets: {
     logoPng: '/taulamic-logo.png',
+    wordmarkPng: '/taulamic-wordmark.png',
     iconBodasPng: '/taulamic-icon-bodas.png',
   },
 } as const;

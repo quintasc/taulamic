@@ -182,9 +182,9 @@ export function SetupNavBar(props: SetupNavBarProps) {
 
   return (
     <>
-      <div className="h-28 md:hidden" aria-hidden />
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-neutral-200 bg-neutral-0/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_20px_rgba(0,0,0,0.06)] backdrop-blur md:static md:z-auto md:mt-6 md:border-0 md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none">
-        <div className="mx-auto max-w-4xl md:border-t md:border-neutral-200 md:pt-5">
+      <div className="h-28" aria-hidden />
+      <div className="fixed bottom-0 left-[var(--admin-sidebar-width)] z-40 w-[calc(100%-var(--admin-sidebar-width))] border-t border-wf-3 bg-neutral-0/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_20px_rgba(0,0,0,0.06)] backdrop-blur md:px-8">
+        <div className="mx-auto max-w-4xl">
           <NavControls {...props} />
         </div>
       </div>

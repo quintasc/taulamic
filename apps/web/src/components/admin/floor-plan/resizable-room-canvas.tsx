@@ -1,14 +1,28 @@
 'use client';
 
-import { useCallback, useRef, type CSSProperties } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { FloorPlanAccessoriesOverlay } from '@/components/admin/floor-plan/floor-plan-accessories-overlay';
 import {
-  patchFromPixelResize,
+  RESIZE_DRAG_THRESHOLD_PX,
+  patchFromDragResize,
+  resolveRoomResizeAxis,
+  roomDisplayRefSideM,
   roomPixelSize,
   type FloorPlanSetup,
+  type RoomResizeAxis,
 } from '@/lib/floor-plan-setup';
 
 const HANDLE_SIZE_PX = 20;
+
+type DragSession = {
+  startX: number;
+  startY: number;
+  startSetup: FloorPlanSetup;
+  startWidthPx: number;
+  startHeightPx: number;
+  frozenRefSideM: number;
+  axis: RoomResizeAxis | null;
+};
 
 function roundHandlePosition(diameterPx: number): CSSProperties {
   const radiusPx = diameterPx / 2;
@@ -45,11 +59,14 @@ export function ResizableRoomCanvas({
   setup: FloorPlanSetup;
   onChange: (patch: Partial<FloorPlanSetup>) => void;
 }) {
-  const setupRef = useRef(setup);
-  setupRef.current = setup;
+  const dragSessionRef = useRef<DragSession | null>(null);
+  /** Escala congelada al iniciar el gesto; se mantiene al soltar para no saltar el tamaño. */
+  const [displayRefSideM, setDisplayRefSideM] = useState<number | undefined>();
+  const { widthPx, heightPx } = roomPixelSize(setup, 400, displayRefSideM);
 
-  const dragRef = useRef<{ x: number; y: number } | null>(null);
-  const { widthPx, heightPx } = roomPixelSize(setup);
+  useEffect(() => {
+    setDisplayRefSideM(undefined);
+  }, [setup.shape]);
 
   const handlePointerDown = useCallback(
     (event: React.PointerEvent<HTMLButtonElement>) => {
@@ -58,25 +75,58 @@ export function ResizableRoomCanvas({
 
       const handle = event.currentTarget;
       handle.setPointerCapture(event.pointerId);
-      dragRef.current = { x: event.clientX, y: event.clientY };
+
+      const refSideM = displayRefSideM ?? roomDisplayRefSideM(setup);
+      const { widthPx: startWidthPx, heightPx: startHeightPx } = roomPixelSize(
+        setup,
+        400,
+        refSideM,
+      );
+
+      dragSessionRef.current = {
+        startX: event.clientX,
+        startY: event.clientY,
+        startSetup: setup,
+        startWidthPx,
+        startHeightPx,
+        frozenRefSideM: refSideM,
+        axis: null,
+      };
+      setDisplayRefSideM(refSideM);
 
       const onMove = (moveEvent: PointerEvent) => {
-        if (!dragRef.current) {
+        const session = dragSessionRef.current;
+        if (!session) {
           return;
         }
-        const deltaWidthPx = moveEvent.clientX - dragRef.current.x;
-        const deltaHeightPx = moveEvent.clientY - dragRef.current.y;
-        dragRef.current = { x: moveEvent.clientX, y: moveEvent.clientY };
 
-        const current = setupRef.current;
-        const { metersPerPx } = roomPixelSize(current);
+        const totalDxPx = moveEvent.clientX - session.startX;
+        const totalDyPx = moveEvent.clientY - session.startY;
+
+        if (session.axis === null) {
+          if (
+            Math.abs(totalDxPx) < RESIZE_DRAG_THRESHOLD_PX &&
+            Math.abs(totalDyPx) < RESIZE_DRAG_THRESHOLD_PX
+          ) {
+            return;
+          }
+          session.axis = resolveRoomResizeAxis(totalDxPx, totalDyPx);
+        }
+
         onChange(
-          patchFromPixelResize(current, deltaWidthPx, deltaHeightPx, metersPerPx),
+          patchFromDragResize(
+            session.startSetup,
+            session.startWidthPx,
+            session.startHeightPx,
+            totalDxPx,
+            totalDyPx,
+            session.axis,
+          ),
         );
       };
 
       const onUp = (upEvent: PointerEvent) => {
-        dragRef.current = null;
+        dragSessionRef.current = null;
         if (handle.hasPointerCapture(upEvent.pointerId)) {
           handle.releasePointerCapture(upEvent.pointerId);
         }
@@ -89,7 +139,7 @@ export function ResizableRoomCanvas({
       window.addEventListener('pointerup', onUp);
       window.addEventListener('pointercancel', onUp);
     },
-    [onChange],
+    [displayRefSideM, onChange, setup],
   );
 
   const handleStyle: CSSProperties =
@@ -114,7 +164,9 @@ export function ResizableRoomCanvas({
         >
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6">
             <p className="text-center text-xs font-medium text-neutral-500">
-              Arrastra el marcador para ajustar
+              {setup.shape === 'round'
+                ? 'Arrastra el marcador para cambiar el radio'
+                : 'Arrastra el marcador: horizontal (ancho), vertical (largo) o diagonal (ambos a la vez)'}
             </p>
           </div>
           <FloorPlanAccessoriesOverlay accessoryIds={setup.placedAccessories} />

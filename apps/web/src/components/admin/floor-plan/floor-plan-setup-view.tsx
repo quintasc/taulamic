@@ -18,7 +18,10 @@ import {
   FLOOR_PLAN_ACCESSORIES,
   ROOM_SHAPE_OPTIONS,
   applyShapeChange,
+  formatDimensionLimitsLabel,
   formatRoomDimensions,
+  isRoomAtMaxLength,
+  isRoomAtMaxWidth,
   loadFloorPlanSetup,
   normalizeSetupForShape,
   saveFloorPlanSetup,
@@ -368,6 +371,32 @@ export function FloorPlanSetupView({
                   <p className="text-xs text-neutral-500">
                     Ovalada: dos ejes del rectángulo que la contiene (como una
                     elipse).
+                  </p>
+                ) : null}
+
+                <p className="text-xs text-neutral-500">
+                  {formatDimensionLimitsLabel()} Arrastra el marcador del plano:
+                  horizontal (ancho), vertical (largo) o en diagonal (ancho y largo
+                  a la vez).
+                </p>
+
+                {setup.shape !== 'round' && isRoomAtMaxWidth(setup) ? (
+                  <p className="text-xs font-medium text-warning-600">
+                    Ancho máximo alcanzado ({setup.widthM} m). Sigue arrastrando
+                    a la derecha para reducir el largo.
+                  </p>
+                ) : null}
+
+                {setup.shape !== 'round' && isRoomAtMaxLength(setup) ? (
+                  <p className="text-xs font-medium text-warning-600">
+                    Largo máximo alcanzado ({setup.lengthM} m). Sigue arrastrando
+                    hacia abajo para reducir el ancho.
+                  </p>
+                ) : null}
+
+                {setup.shape === 'round' && isRoomAtMaxWidth(setup) ? (
+                  <p className="text-xs font-medium text-warning-600">
+                    Radio máximo alcanzado ({setup.radiusM} m).
                   </p>
                 ) : null}
               </div>

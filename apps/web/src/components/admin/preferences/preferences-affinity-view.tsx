@@ -124,35 +124,6 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
       </div>
 
       <div className="mt-6 card-admin space-y-4">
-        <SectionLabel>Por persona — afinidades e incompatibilidades</SectionLabel>
-        <p className="text-sm text-neutral-600">
-          Como organizador, marcarás quién debe sentarse junto a quién y quién no.
-          {!PILOT_COLLABORATIVE_MODE_ENABLED ? (
-            <span className="mt-1 block text-xs text-neutral-500">
-              El modo colaborativo (invitados editan sus restricciones) no está
-              disponible en el piloto julio.
-            </span>
-          ) : null}
-        </p>
-        <div className="rounded-xl border border-dashed border-neutral-300 bg-neutral-50/80 p-6 text-center">
-          <p className="text-sm font-medium text-neutral-700">
-            Matriz de relaciones invitado ↔ invitado
-          </p>
-          <p className="mt-1 text-xs text-neutral-500">
-            Próximamente — selector visual o búsqueda por nombre
-          </p>
-          <button
-            type="button"
-            disabled
-            className="btn-secondary mt-4 opacity-50"
-            title="No operativo en piloto"
-          >
-            Añadir afinidad
-          </button>
-        </div>
-      </div>
-
-      <div className="mt-6 card-admin space-y-4">
         <SectionLabel>Reglas genéricas</SectionLabel>
         <p className="text-sm text-neutral-600">
           Criterios opcionales que aplican a todo el evento. Si no marcas ninguno,
@@ -192,6 +163,35 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
               </button>
             );
           })}
+        </div>
+      </div>
+
+      <div className="mt-6 card-admin space-y-4">
+        <SectionLabel>Por persona — afinidades e incompatibilidades</SectionLabel>
+        <p className="text-sm text-neutral-600">
+          Como organizador, marcarás quién debe sentarse junto a quién y quién no.
+          {!PILOT_COLLABORATIVE_MODE_ENABLED ? (
+            <span className="mt-1 block text-xs text-neutral-500">
+              El modo colaborativo (invitados editan sus restricciones) no está
+              disponible en el piloto julio.
+            </span>
+          ) : null}
+        </p>
+        <div className="rounded-xl border border-dashed border-neutral-300 bg-neutral-50/80 p-6 text-center">
+          <p className="text-sm font-medium text-neutral-700">
+            Matriz de relaciones invitado ↔ invitado
+          </p>
+          <p className="mt-1 text-xs text-neutral-500">
+            Próximamente — selector visual o búsqueda por nombre
+          </p>
+          <button
+            type="button"
+            disabled
+            className="btn-secondary mt-4 opacity-50"
+            title="No operativo en piloto"
+          >
+            Añadir afinidad
+          </button>
         </div>
       </div>
 

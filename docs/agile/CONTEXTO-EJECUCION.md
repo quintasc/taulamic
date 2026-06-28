@@ -1,15 +1,15 @@
 ﻿# Contexto de ejecucion — punto de reanudacion
 
-- Ultima actualizacion: **2026-06-26**
-- Commit referencia: **`02f1a5b`** (`main`)
+- Ultima actualizacion: **2026-06-28**
+- Commit referencia: **`main`** (Sprint 04 — ver `sprint-04-cierre.md`)
 - Hito activo: **MVP julio (piloto)** — **DoD cerrado**
 - Naming: producto **Taulamic**, dominio **taulamic.com**, repo `quintasc/taulamic`
-- **Modo actual:** post-piloto — **Sprint 03 CERRADO** · backlog Sprint 04 (#45, #48, #50, #51)
+- **Modo actual:** post-piloto — **Sprint 04 CERRADO** · backlog #45, #51, #53
 
 ## Frase clave (pegar al agente)
 
 ```text
-Retomo Taulamic. main @ 02f1a5b. Sprint 03 CERRADO (MEJ-01/03/04/06/09 + marca). Piloto DoD cerrado. Backlog: #45 #48 #50 #51 #53. Lee CONTEXTO-EJECUCION.md y sprint-03-cierre.md. SDD manda.
+Retomo Taulamic. main @ HEAD. Sprint 04 CERRADO (MEJ-05 plano resize, MEJ-07 afinidades). Backlog: #45 #51 #53. Lee CONTEXTO-EJECUCION.md y sprint-04-cierre.md. SDD manda.
 ```
 
 ---
@@ -18,7 +18,8 @@ Retomo Taulamic. main @ 02f1a5b. Sprint 03 CERRADO (MEJ-01/03/04/06/09 + marca).
 
 | Aspecto | Estado |
 |---------|--------|
-| Sprint activo | **Sprint 04** (por planificar) — ver backlog § abajo |
+| Sprint activo | **Backlog post-Sprint 04** — #45, #51, #53 |
+| Sprint 04 | **Cerrado** 2026-06-28 — `sprint-04-cierre.md` · MEJ-05, MEJ-07 |
 | Sprint 03 | **Cerrado** 2026-06-26 — `sprint-03-cierre.md` · commits `6d0b074`, `21d249e` |
 | Sprint 02 | **Cerrado** 2026-06-24 ([#21](https://github.com/quintasc/taulamic/issues/21)) |
 | EP-11 / EP-12 / EP-13 | **Cerrados** |
@@ -60,11 +61,11 @@ Config → Invitados → **Tarjetas** (🔒) → Plano → Mesas → Afinidades 
 
 | Prioridad | Issue | Descripcion | Estado |
 |-----------|-------|-------------|--------|
-| P2 | [#48](https://github.com/quintasc/taulamic/issues/48) | MEJ-05 — plano límites/resize | Abierta |
-| P2 | [#50](https://github.com/quintasc/taulamic/issues/50) | MEJ-07 — orden afinidades UI | Abierta |
 | Backlog | [#45](https://github.com/quintasc/taulamic/issues/45) | MEJ-02 — Excel ampliado + IA observaciones | Abierta |
 | Backlog | [#51](https://github.com/quintasc/taulamic/issues/51) | MEJ-08 — distribución manual HU-05 | Abierta |
 | Pospuesto | [#53](https://github.com/quintasc/taulamic/issues/53) | Organizador real julio 2026 | Abierta |
+
+**Cerradas en Sprint 04:** #48, #50.
 
 **Cerradas en Sprint 03:** #44, #46, #47, #49, #52.
 

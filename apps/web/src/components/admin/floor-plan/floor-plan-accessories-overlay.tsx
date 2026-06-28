@@ -1,6 +1,6 @@
 import {
-  ACCESSORY_LAYOUT,
   FLOOR_PLAN_ACCESSORIES,
+  resolveAccessoryLayouts,
 } from '@/lib/floor-plan-setup';
 import { FloorAccessoryIcon, getFloorAccessoryDisplaySize } from './floor-accessory-icon';
 
@@ -13,6 +13,8 @@ export function FloorPlanAccessoriesOverlay({
     return null;
   }
 
+  const layouts = resolveAccessoryLayouts(accessoryIds);
+
   return (
     <>
       {accessoryIds.map((id) => {
@@ -20,7 +22,7 @@ export function FloorPlanAccessoriesOverlay({
         if (!accessory) {
           return null;
         }
-        const layout = ACCESSORY_LAYOUT[id] ?? { top: '50%', left: '50%' };
+        const layout = layouts[id] ?? { top: '50%', left: '50%' };
         return (
           <span
             key={id}

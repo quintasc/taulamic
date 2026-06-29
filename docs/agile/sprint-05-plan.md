@@ -1,8 +1,9 @@
 # Sprint 05 — Post-piloto (Excel + distribución manual)
 
 > **Inicio:** 2026-06-28  
-> **Contexto:** Sprint 04 cerrado (`sprint-04-cierre.md` · `main` @ `7d147cf`).  
-> **SDD manda** — feedback PO en `evidencias-piloto/sesion-2026-06-24.md`.
+> **Contexto:** Sprint 04 cerrado (`sprint-04-cierre.md`).  
+> **SDD manda** — feedback PO en `evidencias-piloto/sesion-2026-06-24.md`.  
+> **Referencia `main`:** `a106257` (MEJ-02 cerrado).
 
 ## 1) Objetivo
 
@@ -12,23 +13,25 @@ Entregar MEJ-02 (Excel ampliado) y MEJ-08 Fase 1 (ajuste manual HU-05: desasigna
 
 | Prioridad | Issue | MEJ | Descripcion | Estado |
 |-----------|-------|-----|-------------|--------|
-| P2 | [#45](https://github.com/quintasc/taulamic/issues/45) | MEJ-02 | Columnas menú/movilidad; notas internas; import → alertas UI | 🔄 |
-| P2 | [#51](https://github.com/quintasc/taulamic/issues/51) | MEJ-08 | PP-HU05-01…04: ✕ pill, + mesa, KPIs, reglas duras | ⏭️ |
+| P2 | [#45](https://github.com/quintasc/taulamic/issues/45) | MEJ-02 | Columnas menú/movilidad; notas internas; import → alertas UI | ✅ Cerrado — `evidencias-mej-02-cierre.md` |
+| P2 | [#51](https://github.com/quintasc/taulamic/issues/51) | MEJ-08 | PP-HU05-01…04: ✕ pill, + mesa, KPIs, reglas duras | ⏭️ En curso |
 | Pospuesto | [#53](https://github.com/quintasc/taulamic/issues/53) | — | Organizador real julio 2026 | ⏭️ |
 
 ## 3) Fuera de alcance Sprint 05
 
-- IA interpretación de observaciones (SDD-03; issue #45 menciona post-piloto)
+- Pantalla UI sugerencias IA (API lista; matriz afinidades post-piloto)
 - Drag invitado entre mesas (PP-HU05-03 Fase 2)
 - Auditoría cambios manuales (PP-HU05-06)
 - PostgreSQL / auth
 
-## 4) MEJ-02 — criterios de aceptación
+## 4) MEJ-02 — criterios de aceptación (cerrado)
 
 1. Plantilla descargable incluye `menu_especial`, `movilidad_reducida`, `notas_internas`.
-2. Import acepta legacy con columna `observaciones` (mapeo a notas internas).
+2. Solo se acepta plantilla v1 (sin columna legacy `observaciones`).
 3. Tras import, iconos 🌾 / ♿ visibles en panel Invitados v2.
-4. `observaciones` ya no se usa en plantilla nueva; sugerencias IA siguen solo para legacy si aplica.
+4. `notas_internas` se muestra en drawer; la IA genera sugerencias desde ese texto (sin autoaplicar).
+
+Evidencia: `docs/agile/evidencias-mej-02-cierre.md` · commits `ae1a1fb`, `a106257`.
 
 ## 5) MEJ-08 Fase 1 — criterios (referencia)
 

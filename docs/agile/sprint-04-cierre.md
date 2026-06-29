@@ -40,6 +40,5 @@ Sprint 04 entregó MEJ-05 (resize y límites del plano) y MEJ-07 (orden UI de af
 
 ## 5) Backlog siguiente
 
-- #45 MEJ-02 Excel ampliado
 - #51 MEJ-08 Distribución manual
 - #53 Organizador real julio 2026

@@ -1,15 +1,15 @@
 ﻿# Contexto de ejecucion — punto de reanudacion
 
-- Ultima actualizacion: **2026-06-28**
-- Commit referencia: **`8a851da`** (`main`)
+- Ultima actualizacion: **2026-06-21**
+- Commit referencia: **`a106257`** (`main`)
 - Hito activo: **MVP julio (piloto)** — **DoD cerrado**
 - Naming: producto **Taulamic**, dominio **taulamic.com**, repo `quintasc/taulamic`
-- **Modo actual:** **Sprint 05 en curso** — MEJ-02 (#45) · MEJ-08 (#51) · #53 pospuesto
+- **Modo actual:** **Sprint 05 en curso** — MEJ-02 ✅ · MEJ-08 (#51) · #53 pospuesto
 
 ## Frase clave (pegar al agente)
 
 ```text
-Retomo Taulamic. main @ 7d147cf. Sprint 05 en curso: MEJ-02 Excel (#45) y MEJ-08 distribución manual (#51). Lee sprint-05-plan.md y CONTEXTO-EJECUCION.md. SDD manda.
+Retomo Taulamic. main @ a106257. Sprint 05: MEJ-02 cerrado (#45); activo MEJ-08 distribución manual (#51). Lee sprint-05-plan.md y CONTEXTO-EJECUCION.md. SDD manda.
 ```
 
 ---
@@ -18,7 +18,7 @@ Retomo Taulamic. main @ 7d147cf. Sprint 05 en curso: MEJ-02 Excel (#45) y MEJ-08
 
 | Aspecto | Estado |
 |---------|--------|
-| Sprint activo | **Sprint 05** — `sprint-05-plan.md` · #45, #51 |
+| Sprint activo | **Sprint 05** — `sprint-05-plan.md` · #51 (MEJ-08) |
 | Sprint 04 | **Cerrado** 2026-06-28 — `sprint-04-cierre.md` · MEJ-05, MEJ-07 |
 | Sprint 03 | **Cerrado** 2026-06-26 — `sprint-03-cierre.md` · commits `6d0b074`, `21d249e` |
 | Sprint 02 | **Cerrado** 2026-06-24 ([#21](https://github.com/quintasc/taulamic/issues/21)) |
@@ -36,7 +36,19 @@ Retomo Taulamic. main @ 7d147cf. Sprint 05 en curso: MEJ-02 Excel (#45) y MEJ-08
 | **Observabilidad** | **Preparada** — Sentry opcional (web+API) |
 | **Dev unificado** | **Cerrado** — `npm run dev` en raiz |
 | **DoD piloto julio** | **Cerrado** — validación simulada PO; usuario real pospuesto (#53) |
+| **MEJ-02 (#45)** | **Cerrado** 2026-06-21 — `evidencias-mej-02-cierre.md` · `ae1a1fb`, `a106257` |
 | Plan piloto | `mvp-julio-plan.md` · Gantt `roadmap-mvp-julio.md` |
+
+---
+
+## Entregado MEJ-02 (Sprint 05)
+
+| Commit | Que aporta |
+|--------|------------|
+| **`ae1a1fb`** | Plantilla MEJ-02, `detailMetaByCorreo`, iconos Invitados v2, UX bulk |
+| **`a106257`** | Solo plantilla v1; IA sobre `notas_internas`; sync drawer ↔ API |
+
+Evidencia: **`docs/agile/evidencias-mej-02-cierre.md`**.
 
 ---
 
@@ -61,9 +73,10 @@ Config → Invitados → **Tarjetas** (🔒) → Plano → Mesas → Afinidades 
 
 | Prioridad | Issue | Descripcion | Estado |
 |-----------|-------|-------------|--------|
-| Backlog | [#45](https://github.com/quintasc/taulamic/issues/45) | MEJ-02 — Excel ampliado + IA observaciones | Abierta |
-| Backlog | [#51](https://github.com/quintasc/taulamic/issues/51) | MEJ-08 — distribución manual HU-05 | Abierta |
+| Sprint 05 | [#51](https://github.com/quintasc/taulamic/issues/51) | MEJ-08 — distribución manual HU-05 | Abierta |
 | Pospuesto | [#53](https://github.com/quintasc/taulamic/issues/53) | Organizador real julio 2026 | Abierta |
+
+**Cerradas en Sprint 05:** #45 (MEJ-02).
 
 **Cerradas en Sprint 04:** #48, #50.
 
@@ -104,7 +117,8 @@ cd apps\web; npm run build; npm run test:e2e
 
 | Documento | Para que |
 |-----------|----------|
-| `docs/agile/sprint-03-cierre.md` | Registro entregas Sprint 03 |
+| `docs/agile/evidencias-mej-02-cierre.md` | Cierre MEJ-02 (#45) |
+| `docs/agile/sprint-05-plan.md` | Sprint 05 activo |
 | `docs/agile/sprint-03-plan.md` | Plan original Sprint 03 |
 | `docs/agile/mvp-julio-plan.md` | DoD piloto §4 · epicas agosto §5 |
 | `docs/agile/guion-validacion-piloto-ui.md` | Validacion manual UI |
@@ -118,9 +132,8 @@ cd apps\web; npm run build; npm run test:e2e
 
 | Commit | Descripcion |
 |--------|-------------|
-| 02f1a5b | docs(agile): cerrar Sprint 03 y actualizar contexto |
-| 21d249e | feat(web): wordmark PNG, footer admin y animacion cuenta atras |
-| 6d0b074 | feat(web): Sprint 03 piloto, iconos del plano y fix Sentry |
-| fd57185 | docs(agile): cerrar Sprint 02 e iniciar Sprint 03 |
-| f498e90 | docs(agile): cerrar DoD piloto sin usuario real |
-| d137a4c | fix(web): alertas invitado, Excel piloto, Playwright, Sentry, dev raiz |
+| `a106257` | feat(guest-import): eliminar Excel legacy; IA sobre notas_internas |
+| `47d797f` | fix(web): fechas de evento pasadas en configuracion |
+| `ae1a1fb` | feat(guest-import,web): MEJ-02 plantilla Excel y UX invitados v2 |
+| `8a851da` | docs(agile): cerrar Sprint 04 |
+| `21d249e` | feat(web): wordmark PNG, footer admin y animacion cuenta atras |

@@ -17,7 +17,7 @@ export function AdminShell({
   return (
     <div className="flex h-screen overflow-hidden bg-wf-1">
       <AdminSidebar eventId={eventId} eventName={displayName} />
-      <main className="min-h-0 min-w-0 flex-1 overflow-y-auto bg-wf-1 p-8">
+      <main className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto bg-wf-1 p-4 md:p-6 lg:p-8">
         {children}
       </main>
     </div>

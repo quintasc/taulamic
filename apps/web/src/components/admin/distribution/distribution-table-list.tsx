@@ -29,6 +29,10 @@ import {
   tableStatusDotClass,
 } from '@/lib/semantic-ui';
 
+/** Con sidebar fija (~220px), el grid multi-columna necesita más ancho que el breakpoint sm. */
+const TABLE_ROW_GRID_CLASS =
+  'lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.75fr)_minmax(0,0.9fr)_minmax(0,0.65fr)_auto]';
+
 const FILTER_OPTIONS: Array<{
   id: DistributionTableFilter;
   label: string;
@@ -81,14 +85,14 @@ function CapacityBar({ group }: { group: DistributionTableGroup }) {
   const barClass = tableStatusBarClass(group.status);
 
   return (
-    <div className="flex min-w-[7.5rem] items-center gap-2">
-      <div className="h-2 w-20 overflow-hidden rounded-full bg-wf-2">
+    <div className="flex min-w-0 max-w-full items-center gap-2">
+      <div className="h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-wf-2 sm:max-w-20">
         <div
           className={`h-full rounded-full transition-all ${barClass}`}
           style={{ width: `${fillPercent}%` }}
         />
       </div>
-      <span className="text-xs font-medium tabular-nums text-neutral-700">
+      <span className="shrink-0 text-xs font-medium tabular-nums text-neutral-700">
         {group.assignedCount}/{group.capacity}
       </span>
     </div>
@@ -102,8 +106,8 @@ function AffinityCell({ group }: { group: DistributionTableGroup }) {
   }
   return (
     <span
-      className="text-xs font-medium text-neutral-500"
-      title={PILOT_AFFINITY_LABEL}
+      className="block min-w-0 truncate text-xs font-medium text-neutral-500"
+      title={`${label} — ${PILOT_AFFINITY_LABEL}`}
     >
       {label}
     </span>
@@ -190,21 +194,21 @@ function DistributionTableRow({
     >
       <button
         type="button"
-        className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-start gap-3 px-5 py-4 text-left transition hover:bg-neutral-50 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)_minmax(0,1fr)_minmax(0,0.6fr)_auto] sm:items-center"
+        className={`grid w-full grid-cols-[minmax(0,1fr)_auto] items-start gap-3 px-5 py-4 text-left transition hover:bg-neutral-50 lg:items-center ${TABLE_ROW_GRID_CLASS}`}
         aria-expanded={open}
         onClick={onToggle}
       >
         <TableMesaCell group={group} />
 
-        <span className="hidden text-sm text-neutral-600 sm:block">
+        <span className="hidden min-w-0 text-sm text-neutral-600 lg:block">
           {group.shapeLabel}
         </span>
 
-        <span className="hidden sm:block">
+        <span className="hidden min-w-0 lg:block">
           <CapacityBar group={group} />
         </span>
 
-        <span className="hidden text-right text-sm sm:block">
+        <span className="hidden min-w-0 text-right text-sm lg:block">
           <AffinityCell group={group} />
         </span>
 
@@ -217,7 +221,7 @@ function DistributionTableRow({
         />
       </button>
 
-      <div className="px-5 pb-3 sm:hidden">
+      <div className="px-5 pb-3 lg:hidden">
         <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-500">
           <span>{group.shapeLabel}</span>
           <CapacityBar group={group} />
@@ -383,7 +387,9 @@ export function DistributionTableList({
       </div>
 
       <div className="card-admin overflow-hidden p-0">
-        <div className="hidden border-b border-neutral-200 px-5 py-3 text-[10px] font-bold uppercase tracking-[0.08em] text-wf-5 sm:grid sm:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)_minmax(0,1fr)_minmax(0,0.6fr)_auto] sm:gap-3">
+        <div
+          className={`hidden border-b border-neutral-200 px-5 py-3 text-[10px] font-bold uppercase tracking-[0.08em] text-wf-5 lg:grid lg:gap-3 ${TABLE_ROW_GRID_CLASS}`}
+        >
           <span>Mesa</span>
           <span>Forma</span>
           <span>Capacidad</span>

@@ -155,14 +155,16 @@ function SetupNavControlsRow({
     <div
       className={
         compact
-          ? 'flex w-full flex-wrap items-center gap-2'
-          : 'flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3'
+          ? 'flex w-full min-w-0 flex-wrap items-center gap-2'
+          : dense
+            ? 'flex w-full min-w-0 flex-col gap-2 lg:flex-row lg:items-center lg:justify-between lg:gap-3'
+            : 'flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3'
       }
     >
       {showPrevious ? (
         <Link
           href={previousHref!}
-          className={`${previousLinkClass} ${compact ? 'order-1' : ''}`}
+          className={`${previousLinkClass} min-w-0 max-w-full truncate ${compact ? 'order-1' : ''}`}
         >
           ← {previousLabel}
         </Link>
@@ -171,14 +173,14 @@ function SetupNavControlsRow({
       )}
 
       <div
-        className={`flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:justify-end ${
+        className={`flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:justify-end lg:w-auto ${
           compact ? 'order-2' : ''
         }`}
       >
         {showPrimary ? (
           <button
             type="button"
-            className={`${primaryBtnClass} w-full sm:w-auto`}
+            className={`${primaryBtnClass} w-full min-w-0 sm:w-auto`}
             disabled={primaryDisabled || primarySaving}
             onClick={onPrimaryClick}
           >
@@ -191,7 +193,7 @@ function SetupNavControlsRow({
             onBeforeNext ? (
               <button
                 type="button"
-                className={`${secondaryBtnClass} w-full sm:w-auto`}
+                className={`${secondaryBtnClass} w-full min-w-0 sm:w-auto`}
                 disabled={nextLoading}
                 onClick={() => void onHandleNext()}
               >
@@ -200,7 +202,7 @@ function SetupNavControlsRow({
             ) : (
               <Link
                 href={nextHref!}
-                className={`${secondaryBtnClass} w-full text-center sm:w-auto`}
+                className={`${secondaryBtnClass} w-full min-w-0 text-center sm:w-auto`}
               >
                 {nextLabel} →
               </Link>
@@ -208,7 +210,7 @@ function SetupNavControlsRow({
           ) : (
             <button
               type="button"
-              className={`${secondaryBtnClass} w-full text-center opacity-50 sm:w-auto`}
+              className={`${secondaryBtnClass} w-full min-w-0 text-center opacity-50 sm:w-auto`}
               aria-disabled="true"
               onClick={onEmphasizeBlocked}
             >
@@ -281,7 +283,7 @@ function StickySetupNavBar(props: SetupNavBarProps) {
       <div
         className={`admin-setup-bar-shell ${MAIN_SETUP_BAR_REGION_CLASS} bottom-0`}
       >
-        <div className="admin-setup-bar-inner mx-auto max-w-4xl">
+        <div className="admin-setup-bar-inner mx-auto max-w-4xl min-w-0">
           <SetupNavControlsRow
             {...props}
             dense

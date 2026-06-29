@@ -252,6 +252,7 @@ Inventario en `frontend-component-system.md`. Primitivos en `apps/web/src/compon
 
 - **Fase A (setup):** forma, medidas, accesorios; sin detección IA de mesas como camino principal (ADR-016).
 - **Fase B (layout):** tras distribución; «Ver mesas en plano» solo si hay distribución calculada.
+- **Marcadores mesa (propuesta MEJ-12):** chips compactos (~44 px) con label + color ocupación; detalle e invitados en panel lateral al **un clic**; `n/cap` en tooltip. Validar PO antes de implementar.
 - Auto-guardado + indicador en header; sin «Guardar» en header Fase A.
 
 ### Mesas

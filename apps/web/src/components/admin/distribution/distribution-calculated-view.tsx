@@ -96,19 +96,19 @@ export function DistributionCalculatedView({
         mutationError={mutationError}
       />
 
-      <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-8 flex min-w-0 flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <p className="text-xs text-neutral-500">
           Comparador Top-K — disponible post-piloto
         </p>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <Link href={floorPlanHref} className="btn-secondary gap-2">
+        <div className="flex w-full min-w-0 flex-col gap-2 lg:w-auto lg:flex-row lg:items-center">
+          <Link href={floorPlanHref} className="btn-secondary w-full gap-2 lg:w-auto">
             <IconMap width={16} height={16} />
             Ver en plano
           </Link>
           {proposal.status !== 'confirmed' ? (
             <button
               type="button"
-              className="btn-primary shrink-0"
+              className="btn-primary w-full min-w-0 lg:w-auto"
               disabled={confirming || proposal.unassignedGuestIds.length > 0}
               onClick={onConfirm}
             >

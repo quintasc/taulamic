@@ -23,23 +23,33 @@ Opcionales:
 4. `direccion`
 5. `categoria_1`
 6. `categoria_2`
-7. `observaciones`
-8. `acompanante_key`
-9. `separar_acompanante`
+7. `menu_especial` — vacío = no; `X` / `Si` = sí; activa alerta de menú en panel Invitados v2
+8. `movilidad_reducida` — vacío = no; `X` / `Si` = sí; activa alerta de movilidad en panel Invitados v2
+9. `notas_internas` — texto libre solo visible para el organizador
+10. `acompanante_key`
+11. `separar_acompanante`
 
 ### Piloto julio (2026-06-24)
 
 - La **plantilla descargable** ya **no incluye** `preferencia_control` (modo en pantalla Preferencias).
 - La **importacion** sigue aceptando archivos legacy con esa columna opcional.
 
+### MEJ-02 (2026-06-28)
+
+- `observaciones` sustituido por `notas_internas` en plantilla nueva.
+- Import legacy con columna `observaciones` sigue aceptado (mapeo a notas internas + sugerencias IA).
+
 Legacy (solo importacion, no en plantilla nueva):
 
-10. `preferencia_control` — override por fila si el archivo lo trae; por defecto usa modo del evento.
+12. `observaciones` — texto libre; genera sugerencias de restricciones si aplica
+13. `preferencia_control` — override por fila si el archivo lo trae; por defecto usa modo del evento.
 
 ## 4) Semantica de campos clave
 
 - `acompanante_key`: identificador comun para personas que vienen juntas (ejemplo: `PAREJA_001`).
-- `separar_acompanante`: `true/false` para excepcion explicita a regla de acompanantes juntos.
+- `separar_acompanante`: vacío = no separar; `X` / `Si` = excepción explícita en grupo acompañante.
+- `menu_especial` / `movilidad_reducida`: vacío = no; `X` / `Si` activan iconos en Invitados v2. Import legacy acepta también `true`/`false`.
+- `notas_internas`: texto libre del organizador; no genera sugerencias automaticas.
 - `preferencia_control`: `colaborativo` o `anfitrion_exclusivo` — **solo import legacy**; en piloto el modo es **anfitrión exclusivo** (configuración del evento).
 
 ## 5) Reglas de validacion
@@ -48,14 +58,15 @@ Legacy (solo importacion, no en plantilla nueva):
 - `correo`: formato email valido.
 - `telefono`: formato telefono valido segun pais configurado.
 - `categoria_1`, `categoria_2`: texto libre corto (max 80) o catalogo si activado.
-- `separar_acompanante`: solo `true` o `false`.
+- `separar_acompanante`, `menu_especial`, `movilidad_reducida`: vacío, `X`, `Si` (import legacy: `true`/`false`).
 - `acompanante_key`: requerido si hay acompanante; mismo valor para integrantes del grupo acompanante.
 
 ## 6) Reglas de negocio en importacion
 
 - Si `acompanante_key` coincide en varias filas, se interpreta como grupo acompanante.
-- Si `separar_acompanante=true`, se registra excepcion explicita.
-- Si `observaciones` contiene patrones conocidos, se generan sugerencias de restricciones (nunca autoaplicadas).
+- Si `separar_acompanante` está marcado (`X` / `Si` / legacy `true`), se registra excepcion explicita.
+- Si `observaciones` (legacy) contiene patrones conocidos, se generan sugerencias de restricciones (nunca autoaplicadas).
+- `notas_internas` no dispara sugerencias automaticas (MEJ-02).
 
 ## 7) Catalogo de errores sugerido (codigos)
 

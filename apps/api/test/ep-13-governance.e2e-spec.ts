@@ -8,7 +8,7 @@ import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
 import { ApiExceptionFilter } from '../src/common/filters/api-exception.filter';
 import {
-  GUEST_TEMPLATE_COLUMNS,
+  GUEST_TEMPLATE_LEGACY_IMPORT_HEADERS,
   GUEST_TEMPLATE_SHEET_NAME,
 } from '../src/guest-import/domain/guest-template.schema';
 
@@ -230,7 +230,7 @@ async function importCompanionPair(
 ): Promise<string> {
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet(GUEST_TEMPLATE_SHEET_NAME);
-  sheet.addRow([...GUEST_TEMPLATE_COLUMNS]);
+  sheet.addRow([...GUEST_TEMPLATE_LEGACY_IMPORT_HEADERS, 'preferencia_control']);
   sheet.addRow([
     'Ana Garcia Lopez',
     'ana.garcia@ejemplo.com',
@@ -241,7 +241,6 @@ async function importCompanionPair(
     '',
     'PAREJA_001',
     'false',
-    '',
   ]);
   sheet.addRow([
     'Luis Martinez Ruiz',

@@ -39,7 +39,8 @@ function NavControls({
   primarySaving = false,
   hidePrimary = false,
   compact = false,
-}: SetupNavBarProps & { compact?: boolean }) {
+  dense = false,
+}: SetupNavBarProps & { compact?: boolean; dense?: boolean }) {
   const router = useRouter();
   const blockedBannerRef = useRef<HTMLDivElement>(null);
   const [nextLoading, setNextLoading] = useState(false);
@@ -49,6 +50,11 @@ function NavControls({
   const showNext = Boolean(nextHref && nextLabel);
   const showPrevious = Boolean(previousHref && previousLabel);
   const showBlockedBanner = showNext && !nextReady && Boolean(nextDisabledHint);
+  const primaryBtnClass = dense ? 'btn-primary-compact' : 'btn-primary';
+  const secondaryBtnClass = dense ? 'btn-secondary-compact' : 'btn-secondary';
+  const previousLinkClass = dense
+    ? 'text-xs font-medium text-neutral-600 hover:text-primary-600'
+    : 'text-sm font-medium text-neutral-600 hover:text-primary-600';
 
   function emphasizeBlockedMessage() {
     blockedBannerRef.current?.scrollIntoView({
@@ -79,7 +85,9 @@ function NavControls({
   }
 
   return (
-    <div className={compact ? 'flex flex-col gap-2' : 'flex flex-col gap-3'}>
+    <div
+      className={`${compact || dense ? 'flex w-full flex-col gap-2' : 'flex w-full flex-col gap-3'}`}
+    >
       {showBlockedBanner ? (
         <div
           ref={blockedBannerRef}
@@ -96,70 +104,68 @@ function NavControls({
       <div
         className={
           compact
-            ? 'flex flex-wrap items-center gap-2'
-            : 'flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'
+            ? 'flex w-full flex-wrap items-center gap-2'
+            : 'flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3'
         }
       >
-      {showPrevious ? (
-        <Link
-          href={previousHref!}
-          className={`text-sm font-medium text-neutral-600 hover:text-primary-600 ${
-            compact ? 'order-1' : ''
+        {showPrevious ? (
+          <Link
+            href={previousHref!}
+            className={`${previousLinkClass} ${compact ? 'order-1' : ''}`}
+          >
+            ← {previousLabel}
+          </Link>
+        ) : (
+          <span className={compact ? 'hidden' : 'hidden sm:block sm:flex-1'} />
+        )}
+
+        <div
+          className={`flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:justify-end ${
+            compact ? 'order-2' : ''
           }`}
         >
-          ← {previousLabel}
-        </Link>
-      ) : (
-        <span className={compact ? 'hidden' : 'hidden sm:block sm:flex-1'} />
-      )}
-
-      <div
-        className={`flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:justify-end ${
-          compact ? 'order-2' : ''
-        }`}
-      >
-        {showPrimary ? (
-          <button
-            type="button"
-            className="btn-primary w-full sm:w-auto"
-            disabled={primaryDisabled || primarySaving}
-            onClick={onPrimaryClick}
-          >
-            {primarySaving ? 'Guardando…' : primaryLabel}
-          </button>
-        ) : null}
-
-        {showNext ? (
-          nextReady ? (
-            onBeforeNext ? (
-              <button
-                type="button"
-                className="btn-secondary w-full sm:w-auto"
-                disabled={nextLoading}
-                onClick={() => void handleNext()}
-              >
-                {nextLoading ? 'Guardando…' : `${nextLabel} →`}
-              </button>
-            ) : (
-              <Link
-                href={nextHref!}
-                className="btn-secondary w-full text-center sm:w-auto"
-              >
-                {nextLabel} →
-              </Link>
-            )
-          ) : (
+          {showPrimary ? (
             <button
               type="button"
-              className="btn-secondary w-full text-center opacity-50 sm:w-auto"
-              aria-disabled="true"
-              onClick={emphasizeBlockedMessage}
+              className={`${primaryBtnClass} w-full sm:w-auto`}
+              disabled={primaryDisabled || primarySaving}
+              onClick={onPrimaryClick}
             >
-              {nextLabel} →
+              {primarySaving ? 'Guardando…' : primaryLabel}
             </button>
-          )
-        ) : null}
-      </div>
+          ) : null}
+
+          {showNext ? (
+            nextReady ? (
+              onBeforeNext ? (
+                <button
+                  type="button"
+                  className={`${secondaryBtnClass} w-full sm:w-auto`}
+                  disabled={nextLoading}
+                  onClick={() => void handleNext()}
+                >
+                  {nextLoading ? 'Guardando…' : `${nextLabel} →`}
+                </button>
+              ) : (
+                <Link
+                  href={nextHref!}
+                  className={`${secondaryBtnClass} w-full text-center sm:w-auto`}
+                >
+                  {nextLabel} →
+                </Link>
+              )
+            ) : (
+              <button
+                type="button"
+                className={`${secondaryBtnClass} w-full text-center opacity-50 sm:w-auto`}
+                aria-disabled="true"
+                onClick={emphasizeBlockedMessage}
+              >
+                {nextLabel} →
+              </button>
+            )
+          ) : null}
+        </div>
       </div>
     </div>
   );
@@ -169,7 +175,7 @@ export function SetupNavBar(props: SetupNavBarProps) {
   const { variant = 'sticky-bottom' } = props;
 
   if (variant === 'header') {
-    return <NavControls {...props} compact />;
+    return <NavControls {...props} compact dense />;
   }
 
   if (variant === 'inline') {
@@ -182,10 +188,10 @@ export function SetupNavBar(props: SetupNavBarProps) {
 
   return (
     <>
-      <div className="h-28" aria-hidden />
-      <div className="fixed bottom-0 left-[var(--admin-sidebar-width)] z-40 w-[calc(100%-var(--admin-sidebar-width))] border-t border-wf-3 bg-neutral-0/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_20px_rgba(0,0,0,0.06)] backdrop-blur md:px-8">
-        <div className="mx-auto max-w-4xl">
-          <NavControls {...props} />
+      <div className="h-20" aria-hidden />
+      <div className="admin-setup-bar-shell fixed bottom-0 left-[var(--admin-sidebar-width)] z-40 w-[calc(100%-var(--admin-sidebar-width))] px-4 md:px-8">
+        <div className="admin-setup-bar-inner mx-auto max-w-4xl">
+          <NavControls {...props} dense />
         </div>
       </div>
     </>

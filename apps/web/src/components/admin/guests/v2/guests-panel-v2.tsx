@@ -28,7 +28,7 @@ import {
   rsvpIconClass,
 } from '@/lib/semantic-ui';
 import { GuestDrawerV2 } from './guest-drawer-v2';
-import { GuestsBulkBarV2 } from './guests-bulk-bar-v2';
+import { GuestsBulkSelectionToolbar } from './guests-bulk-selection-toolbar';
 
 type FilterChip =
   | 'all'
@@ -90,7 +90,11 @@ function useDismissRowMenu(
       }
       onClose();
     }
-    function handleScroll() {
+    function handleScroll(event: Event) {
+      const target = event.target;
+      if (target instanceof Node && menuRef.current?.contains(target)) {
+        return;
+      }
       onClose();
     }
     document.addEventListener('mousedown', handlePointer);
@@ -104,6 +108,29 @@ function useDismissRowMenu(
   }, [menuRef, onClose, rowMenu]);
 }
 
+function RowMoreActionsButton({
+  guestName,
+  expanded,
+  onClick,
+}: {
+  guestName: string;
+  expanded: boolean;
+  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+}) {
+  return (
+    <button
+      type="button"
+      className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg text-neutral-500 hover:bg-neutral-100"
+      aria-label={`Más acciones sobre ${guestName}`}
+      title="Más acciones"
+      aria-expanded={expanded}
+      onClick={onClick}
+    >
+      <IconMoreVertical width={16} height={16} />
+    </button>
+  );
+}
+
 function RowActionsMenu({
   onEdit,
   onDelete,
@@ -114,7 +141,7 @@ function RowActionsMenu({
   onClose: () => void;
 }) {
   return (
-    <div className="min-w-[200px] rounded-lg border border-neutral-200 bg-neutral-0 py-1 shadow-lg">
+    <div className="max-h-[min(70vh,20rem)] min-w-[200px] overflow-y-auto rounded-lg border border-neutral-200 bg-neutral-0 py-1 shadow-lg">
       <button
         type="button"
         className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-neutral-800 hover:bg-neutral-50"
@@ -233,6 +260,9 @@ export function GuestsPanelV2({
   onAddGuest,
   onUpdateGuest,
   onDeleteGuest,
+  onBulkDeleteGuest,
+  deleteResetToken = 0,
+  deleting = false,
 }: {
   eventId: string;
   guests: GuestView[];
@@ -242,6 +272,9 @@ export function GuestsPanelV2({
   onAddGuest: (payload: GuestDrawerSubmit) => void;
   onUpdateGuest: (guestId: string, payload: GuestDrawerSubmit) => void;
   onDeleteGuest: (guestId: string, guestName: string) => void;
+  onBulkDeleteGuest: (guestIds: string[]) => void;
+  deleteResetToken?: number;
+  deleting?: boolean;
 }) {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<FilterChip>('all');
@@ -252,6 +285,10 @@ export function GuestsPanelV2({
   const [editingGuest, setEditingGuest] = useState<GuestView | null>(null);
 
   const closeRowMenu = useCallback(() => setRowMenu(null), []);
+
+  useEffect(() => {
+    setSelectedIds(new Set());
+  }, [deleteResetToken]);
 
   function openRowMenu(guest: GuestView, button: HTMLButtonElement) {
     const rect = button.getBoundingClientRect();
@@ -471,6 +508,14 @@ export function GuestsPanelV2({
         ))}
       </div>
 
+      <GuestsBulkSelectionToolbar
+        totalSelectedCount={selectedIds.size}
+        visibleSelectedCount={visibleSelectedCount}
+        deleting={deleting}
+        onClear={() => setSelectedIds(new Set())}
+        onDelete={() => onBulkDeleteGuest(Array.from(selectedIds))}
+      />
+
       <p className="mb-4 text-sm text-neutral-600">
         Mostrando{' '}
         <span className="font-medium text-neutral-900">
@@ -478,18 +523,6 @@ export function GuestsPanelV2({
         </span>{' '}
         de {guests.length} invitado{guests.length === 1 ? '' : 's'}
         {filter !== 'all' ? ' (filtro activo)' : ''}
-        {visibleSelectedCount > 0 ? (
-          <>
-            {' · '}
-            <span className="font-medium text-neutral-900">
-              {visibleSelectedCount}
-            </span>{' '}
-            seleccionado{visibleSelectedCount === 1 ? '' : 's'}
-            {visibleSelectedCount !== selectedIds.size
-              ? ` (${selectedIds.size} en total)`
-              : ''}
-          </>
-        ) : null}
       </p>
 
       <div className="card-admin overflow-x-auto pb-2">
@@ -583,15 +616,11 @@ export function GuestsPanelV2({
                     </button>
                   </td>
                   <td className="py-3">
-                    <button
-                      type="button"
-                      className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg text-neutral-500 hover:bg-neutral-100"
-                      aria-label={`Más acciones sobre ${guest.nombre}`}
-                      aria-expanded={rowMenu?.guest.id === guest.id}
+                    <RowMoreActionsButton
+                      guestName={guest.nombre}
+                      expanded={rowMenu?.guest.id === guest.id}
                       onClick={(event) => toggleRowMenu(guest, event)}
-                    >
-                      <IconMoreVertical width={16} height={16} />
-                    </button>
+                    />
                   </td>
                 </tr>
               );
@@ -614,12 +643,6 @@ export function GuestsPanelV2({
           onClose={closeRowMenu}
         />
       ) : null}
-
-      <GuestsBulkBarV2
-        selectedCount={visibleSelectedCount}
-        totalSelectedCount={selectedIds.size}
-        onClear={() => setSelectedIds(new Set())}
-      />
 
       <GuestDrawerV2
         eventId={eventId}

@@ -58,7 +58,10 @@ export class ExcelJsGuestImportParser implements GuestImportParserPort {
 
       for (const column of GUEST_TEMPLATE_COLUMNS) {
         const columnIndex = columnIndexes[column];
-        values[column] = cellToString(excelRow.getCell(columnIndex).value);
+        values[column] =
+          columnIndex !== undefined
+            ? cellToString(excelRow.getCell(columnIndex).value)
+            : '';
       }
 
       if (isGuestImportRowEmpty(values)) {
@@ -82,10 +85,6 @@ export class ExcelJsGuestImportParser implements GuestImportParserPort {
         indexes[header as GuestTemplateColumn] = colNumber;
       }
     });
-
-    for (const column of GUEST_TEMPLATE_COLUMNS) {
-      indexes[column] ??= GUEST_TEMPLATE_COLUMNS.indexOf(column) + 1;
-    }
 
     return indexes;
   }

@@ -29,10 +29,11 @@ export function useGuestsPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [manualDrawerOpen, setManualDrawerOpen] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<{
-    id: string;
-    name: string;
+    ids: string[];
+    singleName?: string;
   } | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [deleteResetToken, setDeleteResetToken] = useState(0);
 
   const reloadGuests = useCallback(async () => {
     if (!eventId) {
@@ -89,7 +90,18 @@ export function useGuestsPage() {
         return;
       }
       const result = await guestsApi.import(eventId, selectedFile);
-      await reloadGuests();
+      const list = await guestsApi.list(eventId);
+      for (const guest of list.guests) {
+        const correo = guest.correo?.trim().toLowerCase();
+        if (!correo) {
+          continue;
+        }
+        const detailMeta = result.detailMetaByCorreo?.[correo];
+        if (detailMeta) {
+          updateGuestV2DetailMeta(eventId, guest.id, detailMeta);
+        }
+      }
+      setGuests(list.guests);
       setSelectedFile(null);
       const parts = [
         `${result.created} nuevo${result.created === 1 ? '' : 's'}`,
@@ -153,7 +165,14 @@ export function useGuestsPage() {
   );
 
   const handleDeleteGuest = useCallback((guestId: string, guestName: string) => {
-    setPendingDelete({ id: guestId, name: guestName });
+    setPendingDelete({ ids: [guestId], singleName: guestName });
+  }, []);
+
+  const handleBulkDeleteGuests = useCallback((guestIds: string[]) => {
+    if (guestIds.length === 0) {
+      return;
+    }
+    setPendingDelete({ ids: guestIds });
   }, []);
 
   const cancelDeleteGuest = useCallback(() => {
@@ -168,12 +187,22 @@ export function useGuestsPage() {
     }
     setDeleting(true);
     try {
-      await guestsApi.remove(eventId, pendingDelete.id);
+      for (const guestId of pendingDelete.ids) {
+        await guestsApi.remove(eventId, guestId);
+      }
       await reloadGuests();
-      toast.success(`Invitado «${pendingDelete.name}» eliminado.`);
+      const count = pendingDelete.ids.length;
+      if (count === 1 && pendingDelete.singleName) {
+        toast.success(`Invitado «${pendingDelete.singleName}» eliminado.`);
+      } else {
+        toast.success(
+          `${count} invitado${count === 1 ? '' : 's'} eliminado${count === 1 ? '' : 's'}.`,
+        );
+      }
       setPendingDelete(null);
+      setDeleteResetToken((token) => token + 1);
     } catch {
-      toast.error('Error al eliminar el invitado.');
+      toast.error('Error al eliminar los invitados seleccionados.');
     } finally {
       setDeleting(false);
     }
@@ -197,8 +226,10 @@ export function useGuestsPage() {
     handleAddGuest,
     handleUpdateGuest,
     handleDeleteGuest,
+    handleBulkDeleteGuests,
     pendingDelete,
     deleting,
+    deleteResetToken,
     confirmDeleteGuest,
     cancelDeleteGuest,
   };

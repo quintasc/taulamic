@@ -3,6 +3,10 @@ import {
   validateGuestImportHeaders,
   validateGuestImportRows,
 } from './guest-row.validator';
+import {
+  GUEST_TEMPLATE_DOWNLOAD_COLUMNS,
+  GUEST_TEMPLATE_LEGACY_IMPORT_HEADERS,
+} from './guest-template.schema';
 
 describe('guest-row.validator', () => {
   it('detecta encabezados faltantes (XLS-001)', () => {
@@ -16,6 +20,15 @@ describe('guest-row.validator', () => {
     ]);
   });
 
+  it('acepta plantilla nueva y legacy con observaciones', () => {
+    expect(
+      validateGuestImportHeaders([...GUEST_TEMPLATE_DOWNLOAD_COLUMNS]),
+    ).toEqual([]);
+    expect(
+      validateGuestImportHeaders([...GUEST_TEMPLATE_LEGACY_IMPORT_HEADERS]),
+    ).toEqual([]);
+  });
+
   it('detecta correo, telefono y obligatorios por fila', () => {
     const rows: GuestImportRow[] = [
       {
@@ -27,9 +40,12 @@ describe('guest-row.validator', () => {
           direccion: '',
           categoria_1: '',
           categoria_2: '',
-          observaciones: '',
+          menu_especial: '',
+          movilidad_reducida: '',
+          notas_internas: '',
           acompanante_key: '',
           separar_acompanante: 'maybe',
+          observaciones: '',
           preferencia_control: '',
         },
       },
@@ -76,6 +92,23 @@ describe('guest-row.validator', () => {
 
     expect(errors.some((error) => error.code === 'XLS-006')).toBe(true);
   });
+
+  it('rechaza menu_especial invalido (XLS-005)', () => {
+    const rows: GuestImportRow[] = [
+      buildRow(2, { menu_especial: 'quizas' }),
+    ];
+
+    const errors = validateGuestImportRows(rows);
+
+    expect(errors).toEqual([
+      expect.objectContaining({
+        row: 2,
+        field: 'menu_especial',
+        code: 'XLS-005',
+        message: expect.stringContaining('X'),
+      }),
+    ]);
+  });
 });
 
 function buildRow(
@@ -91,9 +124,12 @@ function buildRow(
       direccion: '',
       categoria_1: '',
       categoria_2: '',
-      observaciones: '',
+      menu_especial: '',
+      movilidad_reducida: '',
+      notas_internas: '',
       acompanante_key: '',
       separar_acompanante: '',
+      observaciones: '',
       preferencia_control: '',
       ...overrides,
     },

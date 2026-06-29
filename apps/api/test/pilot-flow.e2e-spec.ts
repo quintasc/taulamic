@@ -8,7 +8,7 @@ import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
 import { ApiExceptionFilter } from '../src/common/filters/api-exception.filter';
 import {
-  GUEST_TEMPLATE_COLUMNS,
+  GUEST_TEMPLATE_DOWNLOAD_COLUMNS,
   GUEST_TEMPLATE_SHEET_NAME,
 } from '../src/guest-import/domain/guest-template.schema';
 
@@ -101,10 +101,11 @@ describe('MVP julio pilot flow (e2e integracion)', () => {
           '',
           'Familia novia',
           '',
+          'X',
           '',
+          'Intolerancia lactosa',
           'PAREJA_001',
-          'false',
-          'colaborativo',
+          '',
         ],
         [
           'Luis Martinez Ruiz',
@@ -114,9 +115,10 @@ describe('MVP julio pilot flow (e2e integracion)', () => {
           'Familia novia',
           'Pareja',
           '',
+          '',
+          '',
           'PAREJA_001',
-          'false',
-          'colaborativo',
+          '',
         ],
         [
           'Maria Santos',
@@ -126,8 +128,9 @@ describe('MVP julio pilot flow (e2e integracion)', () => {
           'Familia novio',
           '',
           '',
+          '',
+          '',
           'PAREJA_002',
-          'false',
           '',
         ],
         [
@@ -138,8 +141,9 @@ describe('MVP julio pilot flow (e2e integracion)', () => {
           'Familia novio',
           '',
           '',
+          '',
+          '',
           'PAREJA_002',
-          'false',
           '',
         ],
       ],
@@ -251,7 +255,7 @@ async function buildGuestWorkbook(options: {
 }): Promise<Buffer> {
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet(GUEST_TEMPLATE_SHEET_NAME);
-  sheet.addRow([...GUEST_TEMPLATE_COLUMNS]);
+  sheet.addRow([...GUEST_TEMPLATE_DOWNLOAD_COLUMNS]);
 
   for (const row of options.rows) {
     sheet.addRow(row);

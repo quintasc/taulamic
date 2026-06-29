@@ -45,6 +45,7 @@ export class ImportGuestBatchUseCase {
         categoriesEnsured: 0,
         suggestionsGenerated: 0,
         errors: parsed.structuralErrors,
+        detailMetaByCorreo: {},
       };
     }
 
@@ -54,9 +55,16 @@ export class ImportGuestBatchUseCase {
       (row) => !invalidRowNumbers.has(row.rowNumber),
     );
 
+    const mappedRows = validRows.map((row) => mapImportRowToGuestInput(row));
+    const detailMetaByCorreo: GuestImportBatchResult['detailMetaByCorreo'] = {};
+
+    for (const mapped of mappedRows) {
+      detailMetaByCorreo[mapped.guest.correo] = mapped.detailMeta;
+    }
+
     const upsertResult = await this.guestRepository.upsertBatch(
       eventId,
-      validRows.map((row) => mapImportRowToGuestInput(row)),
+      mappedRows.map((mapped) => mapped.guest),
     );
 
     for (const change of upsertResult.companionSeparationChanges) {
@@ -83,6 +91,7 @@ export class ImportGuestBatchUseCase {
       categoriesEnsured: upsertResult.categoriesEnsured,
       suggestionsGenerated,
       errors: rowErrors,
+      detailMetaByCorreo,
     };
   }
 }

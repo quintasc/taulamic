@@ -1,5 +1,15 @@
 import type { GuestImportRow } from './guest-import-row';
 import type { GuestPreferenceControl } from './guest';
+import {
+  parseExcelMarkBoolean,
+  parseExcelMarkOptionalBoolean,
+} from './excel-mark-boolean';
+
+export type GuestImportDetailMeta = {
+  dietaryAlert: boolean;
+  mobilityAlert: boolean;
+  notes: string;
+};
 
 export type GuestUpsertInput = {
   nombre: string;
@@ -13,31 +23,41 @@ export type GuestUpsertInput = {
   preferenciaControl: GuestPreferenceControl | null;
 };
 
-export function mapImportRowToGuestInput(row: GuestImportRow): GuestUpsertInput {
+export type GuestImportMappedRow = {
+  guest: GuestUpsertInput;
+  detailMeta: GuestImportDetailMeta;
+};
+
+export function mapImportRowToGuestInput(
+  row: GuestImportRow,
+): GuestImportMappedRow {
   const categoryNames = [row.values.categoria_1, row.values.categoria_2]
     .map((value) => value.trim())
     .filter(Boolean);
 
+  const legacyObservaciones = row.values.observaciones.trim();
+  const notasInternas = row.values.notas_internas.trim();
+
   return {
-    nombre: row.values.nombre.trim(),
-    correo: row.values.correo.trim().toLowerCase(),
-    telefono: row.values.telefono.trim(),
-    direccion: row.values.direccion.trim(),
-    categoryNames,
-    observaciones: row.values.observaciones.trim(),
-    acompananteKey: row.values.acompanante_key.trim(),
-    separarAcompanante: parseOptionalBoolean(row.values.separar_acompanante),
-    preferenciaControl: parsePreferenceControl(row.values.preferencia_control),
+    guest: {
+      nombre: row.values.nombre.trim(),
+      correo: row.values.correo.trim().toLowerCase(),
+      telefono: row.values.telefono.trim(),
+      direccion: row.values.direccion.trim(),
+      categoryNames,
+      observaciones: legacyObservaciones,
+      acompananteKey: row.values.acompanante_key.trim(),
+      separarAcompanante: parseExcelMarkOptionalBoolean(
+        row.values.separar_acompanante,
+      ),
+      preferenciaControl: parsePreferenceControl(row.values.preferencia_control),
+    },
+    detailMeta: {
+      dietaryAlert: parseExcelMarkBoolean(row.values.menu_especial),
+      mobilityAlert: parseExcelMarkBoolean(row.values.movilidad_reducida),
+      notes: notasInternas || legacyObservaciones,
+    },
   };
-}
-
-function parseOptionalBoolean(value: string): boolean | null {
-  const trimmed = value.trim().toLowerCase();
-  if (!trimmed) {
-    return null;
-  }
-
-  return trimmed === 'true';
 }
 
 function parsePreferenceControl(

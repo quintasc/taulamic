@@ -15,6 +15,10 @@
   --wf-4: #c4c4c4;
   --wf-5: #a0a0a0;
   --admin-sidebar-width: 220px;
+  --admin-setup-bar-height: 2.75rem;
+  --admin-setup-bar-offset: calc(
+    var(--admin-setup-bar-height) + max(0.5rem, env(safe-area-inset-bottom))
+  );
 }
 
 body {
@@ -28,6 +32,14 @@ body {
 
   .btn-secondary {
     @apply inline-flex items-center justify-center rounded-xl border border-neutral-200 bg-neutral-0 px-5 py-2.5 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-primary-compact {
+    @apply btn-primary px-3.5 py-2 text-xs;
+  }
+
+  .btn-secondary-compact {
+    @apply btn-secondary px-3.5 py-2 text-xs;
   }
 
   .card-admin {
@@ -58,6 +70,15 @@ body {
 
   .nav-item-active {
     @apply bg-primary-100 font-semibold text-primary-600;
+  }
+
+  /** Banda inferior alineada: footer setup (main) + mapa navegación (sidebar). */
+  .admin-setup-bar-shell {
+    @apply shrink-0 border-t border-wf-3 bg-wf-2 pb-[max(0.5rem,env(safe-area-inset-bottom))];
+  }
+
+  .admin-setup-bar-inner {
+    @apply flex w-full min-h-[var(--admin-setup-bar-height)] items-center;
   }
 
   /* Accesorios de plano (marca) */

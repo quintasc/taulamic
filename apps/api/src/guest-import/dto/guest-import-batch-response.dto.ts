@@ -1,6 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { GuestImportRowErrorDto } from './guest-import-validation-response.dto';
 
+export class GuestImportDetailMetaDto {
+  @ApiProperty({ example: true })
+  dietaryAlert!: boolean;
+
+  @ApiProperty({ example: false })
+  mobilityAlert!: boolean;
+
+  @ApiProperty({ example: 'Intolerancia lactosa', required: false })
+  notes!: string;
+}
+
 export class GuestImportBatchResponseDto {
   @ApiProperty({ example: 'evt_123' })
   eventId!: string;
@@ -25,4 +36,15 @@ export class GuestImportBatchResponseDto {
 
   @ApiProperty({ type: [GuestImportRowErrorDto] })
   errors!: GuestImportRowErrorDto[];
+
+  @ApiProperty({
+    example: {
+      'ana@ejemplo.com': {
+        dietaryAlert: true,
+        mobilityAlert: false,
+        notes: 'Intolerancia lactosa',
+      },
+    },
+  })
+  detailMetaByCorreo!: Record<string, GuestImportDetailMetaDto>;
 }

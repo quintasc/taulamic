@@ -1,3 +1,4 @@
+import type { GuestImportDetailMeta } from './guest-import.mapper';
 import type { GuestImportRowError } from './guest-import-row-error';
 
 export type GuestImportBatchResult = {
@@ -9,4 +10,5 @@ export type GuestImportBatchResult = {
   categoriesEnsured: number;
   suggestionsGenerated: number;
   errors: GuestImportRowError[];
+  detailMetaByCorreo: Record<string, GuestImportDetailMeta>;
 };

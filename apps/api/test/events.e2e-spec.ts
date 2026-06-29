@@ -7,7 +7,7 @@ import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
 import { ApiExceptionFilter } from '../src/common/filters/api-exception.filter';
-import { GUEST_TEMPLATE_COLUMNS, GUEST_TEMPLATE_SHEET_NAME } from '../src/guest-import/domain/guest-template.schema';
+import { GUEST_TEMPLATE_LEGACY_IMPORT_HEADERS, GUEST_TEMPLATE_SHEET_NAME } from '../src/guest-import/domain/guest-template.schema';
 
 describe('Event preference control mode (e2e #32)', () => {
   let app: INestApplication<App>;
@@ -115,7 +115,7 @@ describe('Event preference control mode (e2e #32)', () => {
   it('no pierde preferencias historicas de invitados al cambiar el modo', async () => {
     const workbook = new ExcelJS.Workbook();
     const sheet = workbook.addWorksheet(GUEST_TEMPLATE_SHEET_NAME);
-    sheet.addRow([...GUEST_TEMPLATE_COLUMNS]);
+    sheet.addRow([...GUEST_TEMPLATE_LEGACY_IMPORT_HEADERS]);
     sheet.addRow([
       'Ana Garcia',
       'ana@ejemplo.com',
@@ -124,7 +124,6 @@ describe('Event preference control mode (e2e #32)', () => {
       '',
       '',
       'Intolerancia lactosa',
-      '',
       '',
       '',
     ]);

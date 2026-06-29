@@ -4,12 +4,12 @@
 - Commit referencia: **`8a851da`** (`main`)
 - Hito activo: **MVP julio (piloto)** — **DoD cerrado**
 - Naming: producto **Taulamic**, dominio **taulamic.com**, repo `quintasc/taulamic`
-- **Modo actual:** post-piloto — **Sprint 04 CERRADO** · backlog #45, #51, #53
+- **Modo actual:** **Sprint 05 en curso** — MEJ-02 (#45) · MEJ-08 (#51) · #53 pospuesto
 
 ## Frase clave (pegar al agente)
 
 ```text
-Retomo Taulamic. main @ 8a851da. Sprint 04 CERRADO (MEJ-05 plano resize, MEJ-07 afinidades). Backlog: #45 #51 #53. Lee CONTEXTO-EJECUCION.md y sprint-04-cierre.md. SDD manda.
+Retomo Taulamic. main @ 7d147cf. Sprint 05 en curso: MEJ-02 Excel (#45) y MEJ-08 distribución manual (#51). Lee sprint-05-plan.md y CONTEXTO-EJECUCION.md. SDD manda.
 ```
 
 ---
@@ -18,7 +18,7 @@ Retomo Taulamic. main @ 8a851da. Sprint 04 CERRADO (MEJ-05 plano resize, MEJ-07 
 
 | Aspecto | Estado |
 |---------|--------|
-| Sprint activo | **Backlog post-Sprint 04** — #45, #51, #53 |
+| Sprint activo | **Sprint 05** — `sprint-05-plan.md` · #45, #51 |
 | Sprint 04 | **Cerrado** 2026-06-28 — `sprint-04-cierre.md` · MEJ-05, MEJ-07 |
 | Sprint 03 | **Cerrado** 2026-06-26 — `sprint-03-cierre.md` · commits `6d0b074`, `21d249e` |
 | Sprint 02 | **Cerrado** 2026-06-24 ([#21](https://github.com/quintasc/taulamic/issues/21)) |

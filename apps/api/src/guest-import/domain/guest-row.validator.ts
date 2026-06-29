@@ -1,26 +1,58 @@
 import {
+  GUEST_TEMPLATE_COLUMNS,
   GUEST_TEMPLATE_DOWNLOAD_COLUMNS,
+  GUEST_TEMPLATE_LEGACY_IMPORT_HEADERS,
   GUEST_TEMPLATE_REQUIRED_COLUMNS,
   GUEST_TEMPLATE_SHEET_NAME,
   type GuestTemplateColumn,
 } from './guest-template.schema';
 import type { GuestImportRowError } from './guest-import-row-error';
 import type { GuestImportRow } from './guest-import-row';
+import {
+  EXCEL_MARK_FIELD_HINT,
+  isValidExcelMarkInput,
+  normalizeSepararAcompananteForGroupCheck,
+} from './excel-mark-boolean';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_PATTERN = /^\+?[0-9\s()-]{9,20}$/;
-const BOOLEAN_PATTERN = /^(true|false)$/i;
 const PREFERENCE_CONTROL_VALUES = ['colaborativo', 'anfitrion_exclusivo'] as const;
+const EXCEL_MARK_FIELDS = [
+  'menu_especial',
+  'movilidad_reducida',
+  'separar_acompanante',
+] as const;
 
 export function validateGuestImportHeaders(
   headers: string[],
 ): GuestImportRowError[] {
   const normalized = headers.map((header) => header.trim().toLowerCase());
-  const missing = GUEST_TEMPLATE_DOWNLOAD_COLUMNS.filter(
+  const missingRequired = GUEST_TEMPLATE_REQUIRED_COLUMNS.filter(
     (column) => !normalized.includes(column),
   );
 
-  if (missing.length === 0) {
+  if (missingRequired.length > 0) {
+    return [
+      {
+        row: 1,
+        field: GUEST_TEMPLATE_SHEET_NAME,
+        code: 'XLS-001',
+        message: `Encabezado faltante o incorrecto: ${missingRequired.join(', ')}.`,
+      },
+    ];
+  }
+
+  const missingDownload = GUEST_TEMPLATE_DOWNLOAD_COLUMNS.filter(
+    (column) => !normalized.includes(column),
+  );
+  if (missingDownload.length === 0) {
+    return [];
+  }
+
+  const missingLegacy = GUEST_TEMPLATE_LEGACY_IMPORT_HEADERS.filter(
+    (column) => !normalized.includes(column),
+  );
+  if (missingLegacy.length === 0) {
     return [];
   }
 
@@ -29,7 +61,7 @@ export function validateGuestImportHeaders(
       row: 1,
       field: GUEST_TEMPLATE_SHEET_NAME,
       code: 'XLS-001',
-      message: `Encabezado faltante o incorrecto: ${missing.join(', ')}.`,
+      message: `Encabezado faltante o incorrecto: ${missingDownload.join(', ')}.`,
     },
   ];
 }
@@ -102,16 +134,18 @@ function validateSingleRow(row: GuestImportRow): GuestImportRowError[] {
     }
   }
 
-  if (
-    values.separar_acompanante.trim() &&
-    !BOOLEAN_PATTERN.test(values.separar_acompanante.trim())
-  ) {
-    errors.push({
-      row: rowNumber,
-      field: 'separar_acompanante',
-      code: 'XLS-005',
-      message: 'separar_acompanante debe ser true o false.',
-    });
+  for (const markField of EXCEL_MARK_FIELDS) {
+    if (
+      values[markField].trim() &&
+      !isValidExcelMarkInput(values[markField])
+    ) {
+      errors.push({
+        row: rowNumber,
+        field: markField,
+        code: 'XLS-005',
+        message: `${markField}: ${EXCEL_MARK_FIELD_HINT}`,
+      });
+    }
   }
 
   if (
@@ -184,7 +218,9 @@ function validateCompanionGroups(rows: GuestImportRow[]): GuestImportRowError[] 
     const members = groups.get(key) ?? [];
     members.push({
       rowNumber: row.rowNumber,
-      separar: row.values.separar_acompanante.trim().toLowerCase(),
+      separar: normalizeSepararAcompananteForGroupCheck(
+        row.values.separar_acompanante,
+      ),
     });
     groups.set(key, members);
   }
@@ -227,8 +263,10 @@ function normalizePhone(value: string): string {
   return value.replace(/\D/g, '');
 }
 
-export function isGuestImportRowEmpty(values: Record<GuestTemplateColumn, string>): boolean {
-  return GUEST_TEMPLATE_DOWNLOAD_COLUMNS.every((column) => !values[column]?.trim());
+export function isGuestImportRowEmpty(
+  values: Record<GuestTemplateColumn, string>,
+): boolean {
+  return GUEST_TEMPLATE_COLUMNS.every((column) => !values[column]?.trim());
 }
 
 export function cellToString(value: unknown): string {

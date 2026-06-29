@@ -52,6 +52,7 @@ describe('ImportGuestBatchUseCase', () => {
     expect(result.created).toBe(0);
     expect(repository.upsertBatch).not.toHaveBeenCalled();
     expect(result.errors[0]?.code).toBe('XLS-001');
+    expect(result.detailMetaByCorreo).toEqual({});
   });
 
   it('importa filas validas y reporta rechazadas', async () => {
@@ -66,9 +67,12 @@ describe('ImportGuestBatchUseCase', () => {
             direccion: '',
             categoria_1: 'Familia',
             categoria_2: '',
-            observaciones: '',
+            menu_especial: 'true',
+            movilidad_reducida: '',
+            notas_internas: 'Sin gluten',
             acompanante_key: '',
             separar_acompanante: '',
+            observaciones: '',
             preferencia_control: '',
           },
         },
@@ -81,9 +85,12 @@ describe('ImportGuestBatchUseCase', () => {
             direccion: '',
             categoria_1: '',
             categoria_2: '',
-            observaciones: '',
+            menu_especial: '',
+            movilidad_reducida: '',
+            notas_internas: '',
             acompanante_key: '',
             separar_acompanante: '',
+            observaciones: '',
             preferencia_control: '',
           },
         },
@@ -111,5 +118,12 @@ describe('ImportGuestBatchUseCase', () => {
     expect(result.rejected).toBe(1);
     expect(result.totalRows).toBe(2);
     expect(repository.upsertBatch).toHaveBeenCalledTimes(1);
+    expect(result.detailMetaByCorreo).toEqual({
+      'ana@ejemplo.com': {
+        dietaryAlert: true,
+        mobilityAlert: false,
+        notes: 'Sin gluten',
+      },
+    });
   });
 });

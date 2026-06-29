@@ -28,22 +28,32 @@ export function GuestsPageView() {
     handleAddGuest,
     handleUpdateGuest,
     handleDeleteGuest,
+    handleBulkDeleteGuests,
     pendingDelete,
     deleting,
+    deleteResetToken,
     confirmDeleteGuest,
     cancelDeleteGuest,
   } = useGuestsPage();
+
+  const deleteDialogTitle =
+    pendingDelete && pendingDelete.ids.length > 1
+      ? 'Eliminar invitados'
+      : 'Eliminar invitado';
+
+  const deleteDialogDescription =
+    pendingDelete && pendingDelete.ids.length > 1
+      ? `¿Eliminar ${pendingDelete.ids.length} invitados de la lista? Esta acción no se puede deshacer.`
+      : pendingDelete?.singleName
+        ? `¿Eliminar a «${pendingDelete.singleName}» de la lista de invitados? Esta acción no se puede deshacer.`
+        : '';
 
   return (
     <>
       <ConfirmDialog
         open={pendingDelete !== null}
-        title="Eliminar invitado"
-        description={
-          pendingDelete
-            ? `¿Eliminar a «${pendingDelete.name}» de la lista de invitados? Esta acción no se puede deshacer.`
-            : ''
-        }
+        title={deleteDialogTitle}
+        description={deleteDialogDescription}
         confirmLabel="Eliminar"
         cancelLabel="Cancelar"
         destructive
@@ -86,11 +96,14 @@ export function GuestsPageView() {
             eventId={eventId!}
             guests={guests}
             saving={saving}
+            deleting={deleting}
+            deleteResetToken={deleteResetToken}
             onMetaChange={() => {}}
             onDownloadTemplate={() => void downloadTemplate()}
             onAddGuest={(payload) => void handleAddGuest(payload)}
             onUpdateGuest={(id, payload) => void handleUpdateGuest(id, payload)}
             onDeleteGuest={(id, name) => void handleDeleteGuest(id, name)}
+            onBulkDeleteGuest={(ids) => void handleBulkDeleteGuests(ids)}
           />
           <GuestsImportSection
             variant="more"

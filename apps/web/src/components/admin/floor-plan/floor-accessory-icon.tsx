@@ -5,12 +5,7 @@ import {
   type FloorAccessoryIconId,
 } from '@/components/icons';
 
-const LARGER_ACCESSORY_IDS = new Set([
-  'mesa-presidencial',
-  'mesa-novios',
-  'entrada',
-  'escenario',
-]);
+const LARGER_ACCESSORY_IDS = new Set(['mesa-presidencial', 'mesa-novios']);
 
 export function getFloorAccessoryDisplaySize(
   id: string,

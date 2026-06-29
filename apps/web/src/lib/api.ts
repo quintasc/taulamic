@@ -131,6 +131,14 @@ export type ImportBatchResult = {
   categoriesEnsured: number;
   suggestionsGenerated: number;
   errors: ImportValidation['errors'];
+  detailMetaByCorreo: Record<
+    string,
+    {
+      dietaryAlert: boolean;
+      mobilityAlert: boolean;
+      notes: string;
+    }
+  >;
 };
 
 export const eventsApi = {

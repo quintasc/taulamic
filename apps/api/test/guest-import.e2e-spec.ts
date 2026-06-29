@@ -8,10 +8,10 @@ import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
 import { ApiExceptionFilter } from '../src/common/filters/api-exception.filter';
 import {
-  GUEST_TEMPLATE_COLUMNS,
   GUEST_TEMPLATE_DOWNLOAD_COLUMNS,
   GUEST_TEMPLATE_FILENAME,
   GUEST_TEMPLATE_INSTRUCTIONS_SHEET_NAME,
+  GUEST_TEMPLATE_LEGACY_IMPORT_HEADERS,
   GUEST_TEMPLATE_SHEET_NAME,
 } from '../src/guest-import/domain/guest-template.schema';
 
@@ -162,8 +162,9 @@ describe('GuestImport validate (e2e #28)', () => {
           '',
           '',
           '',
-          'maybe',
           '',
+          '',
+          'maybe',
         ],
       ],
     });
@@ -205,11 +206,13 @@ describe('GuestImport validate (e2e #28)', () => {
           '',
           '',
           '',
+          '',
         ],
         [
           'Luis',
           'ana@ejemplo.com',
           '+34600333444',
+          '',
           '',
           '',
           '',
@@ -296,6 +299,7 @@ describe('GuestImport batch import (e2e #29)', () => {
           '',
           '',
           '',
+          '',
         ],
         [
           'Luis Martinez',
@@ -305,9 +309,10 @@ describe('GuestImport batch import (e2e #29)', () => {
           'Familia novia',
           'Pareja',
           '',
+          '',
+          '',
           'PAREJA_001',
-          'false',
-          'colaborativo',
+          '',
         ],
       ],
     });
@@ -345,6 +350,7 @@ describe('GuestImport batch import (e2e #29)', () => {
           '',
           '',
           '',
+          '',
         ],
       ],
     });
@@ -367,8 +373,9 @@ describe('GuestImport batch import (e2e #29)', () => {
           'Madrid',
           'Familia novia',
           '',
-          'Nota',
           '',
+          '',
+          'Nota',
           '',
           '',
         ],
@@ -405,11 +412,13 @@ describe('GuestImport batch import (e2e #29)', () => {
           '',
           '',
           '',
+          '',
         ],
         [
           'Mal fila',
           'correo-invalido',
           '123',
+          '',
           '',
           '',
           '',
@@ -437,6 +446,62 @@ describe('GuestImport batch import (e2e #29)', () => {
       rejected: 1,
     });
     expect(response.body.errors.length).toBeGreaterThan(0);
+  });
+
+  it('devuelve detailMetaByCorreo con alertas MEJ-02 (#45)', async () => {
+    const buffer = await buildGuestWorkbook({
+      rows: [
+        [
+          'Ana Garcia',
+          'ana@ejemplo.com',
+          '+34600111222',
+          '',
+          '',
+          '',
+          'X',
+          '',
+          'Sin lactosa',
+          '',
+          '',
+        ],
+        [
+          'Luis Martinez',
+          'luis@ejemplo.com',
+          '+34600333444',
+          '',
+          '',
+          '',
+          '',
+          'X',
+          '',
+          '',
+          '',
+        ],
+      ],
+    });
+
+    const response = await request(app.getHttpServer())
+      .post('/api/v1/events/evt_123/guest-import/import')
+      .attach('file', buffer, {
+        filename: 'invitados.xlsx',
+        contentType:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      })
+      .expect(200);
+
+    expect(response.body.detailMetaByCorreo).toMatchObject({
+      'ana@ejemplo.com': {
+        dietaryAlert: true,
+        mobilityAlert: false,
+        notes: 'Sin lactosa',
+      },
+      'luis@ejemplo.com': {
+        dietaryAlert: false,
+        mobilityAlert: true,
+        notes: '',
+      },
+    });
+    expect(response.body.suggestionsGenerated).toBe(0);
   });
 });
 
@@ -470,6 +535,7 @@ describe('GuestImport restriction suggestions (e2e #30)', () => {
 
   it('genera sugerencias pendientes al importar observaciones', async () => {
     const buffer = await buildGuestWorkbook({
+      headers: [...GUEST_TEMPLATE_LEGACY_IMPORT_HEADERS],
       rows: [
         [
           'Ana Garcia',
@@ -479,7 +545,6 @@ describe('GuestImport restriction suggestions (e2e #30)', () => {
           '',
           '',
           'No sentar con Juan Perez',
-          '',
           '',
           '',
         ],
@@ -514,6 +579,7 @@ describe('GuestImport restriction suggestions (e2e #30)', () => {
 
   it('acepta sugerencia y rechaza otra sin auto-aplicar', async () => {
     const buffer = await buildGuestWorkbook({
+      headers: [...GUEST_TEMPLATE_LEGACY_IMPORT_HEADERS],
       rows: [
         [
           'Ana Garcia',
@@ -525,7 +591,6 @@ describe('GuestImport restriction suggestions (e2e #30)', () => {
           'Prefiere sentar con Maria Lopez',
           '',
           '',
-          '',
         ],
         [
           'Luis Martinez',
@@ -535,7 +600,6 @@ describe('GuestImport restriction suggestions (e2e #30)', () => {
           '',
           '',
           'Intolerancia lactosa',
-          '',
           '',
           '',
         ],
@@ -594,6 +658,7 @@ describe('GuestImport restriction suggestions (e2e #30)', () => {
 
   it('permite editar sugerencia pendiente antes de confirmar', async () => {
     const buffer = await buildGuestWorkbook({
+      headers: [...GUEST_TEMPLATE_LEGACY_IMPORT_HEADERS],
       rows: [
         [
           'Ana Garcia',
@@ -603,7 +668,6 @@ describe('GuestImport restriction suggestions (e2e #30)', () => {
           '',
           '',
           'No sentar con Juan Perez',
-          '',
           '',
           '',
         ],
@@ -688,6 +752,7 @@ describe('GuestImport precarga E2E flujo completo (#31)', () => {
     expect(headers).toEqual([...GUEST_TEMPLATE_DOWNLOAD_COLUMNS]);
 
     const draftBuffer = await buildGuestWorkbook({
+      headers: [...GUEST_TEMPLATE_LEGACY_IMPORT_HEADERS],
       rows: [
         [
           'Ana Garcia',
@@ -699,13 +764,11 @@ describe('GuestImport precarga E2E flujo completo (#31)', () => {
           'Intolerancia lactosa',
           '',
           '',
-          '',
         ],
         [
           'Luis Mal',
           'correo-invalido',
           '123',
-          '',
           '',
           '',
           '',
@@ -840,7 +903,7 @@ async function buildGuestWorkbook(options: {
 }): Promise<Buffer> {
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet(GUEST_TEMPLATE_SHEET_NAME);
-  sheet.addRow(options.headers ?? [...GUEST_TEMPLATE_COLUMNS]);
+  sheet.addRow(options.headers ?? [...GUEST_TEMPLATE_DOWNLOAD_COLUMNS]);
 
   for (const row of options.rows ?? []) {
     sheet.addRow(row);

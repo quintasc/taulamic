@@ -14,7 +14,9 @@ const COLUMNS = [
   'direccion',
   'categoria_1',
   'categoria_2',
-  'observaciones',
+  'menu_especial',
+  'movilidad_reducida',
+  'notas_internas',
   'acompanante_key',
   'separar_acompanante',
 ];
@@ -27,9 +29,11 @@ const ROWS = [
     '',
     'Familia novia',
     '',
+    'X',
+    '',
     'Intolerancia lactosa',
     'PAREJA_001',
-    'false',
+    '',
   ],
   [
     'Luis Martinez Ruiz',
@@ -39,8 +43,10 @@ const ROWS = [
     'Familia novia',
     'Pareja',
     '',
+    '',
+    '',
     'PAREJA_001',
-    'false',
+    '',
   ],
   [
     'Maria Santos',
@@ -50,8 +56,10 @@ const ROWS = [
     'Familia novio',
     '',
     '',
+    '',
+    '',
     'PAREJA_002',
-    'false',
+    '',
   ],
   [
     'Pedro Ruiz',
@@ -61,14 +69,16 @@ const ROWS = [
     'Familia novio',
     '',
     '',
+    '',
+    '',
     'PAREJA_002',
-    'false',
+    '',
   ],
 ];
 
 const INSTRUCTIONS = [
   'Plantilla de validacion manual piloto Taulamic (4 invitados, 2 parejas).',
-  'Columnas alineadas con la plantilla descargable desde la UI (sin preferencia_control).',
+  'Marcas: deja vacio (no) o escribe X / Si en menu_especial, movilidad_reducida y separar_acompanante.',
   'Modo colaborativo / anfitrion exclusivo: pantalla Preferencias del evento.',
 ];
 

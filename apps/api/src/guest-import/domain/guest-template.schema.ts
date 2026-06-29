@@ -7,7 +7,6 @@ export const GUEST_TEMPLATE_REQUIRED_COLUMNS = [
   'telefono',
 ] as const;
 
-/** Columnas de la plantilla descargable (MEJ-02). */
 export const GUEST_TEMPLATE_OPTIONAL_COLUMNS = [
   'direccion',
   'categoria_1',
@@ -19,32 +18,12 @@ export const GUEST_TEMPLATE_OPTIONAL_COLUMNS = [
   'separar_acompanante',
 ] as const;
 
-/** Solo importacion legacy; no se exporta en plantilla nueva. */
-export const GUEST_TEMPLATE_LEGACY_OPTIONAL_COLUMNS = [
-  'observaciones',
-  'preferencia_control',
-] as const;
-
-/** Encabezados minimos de archivos legacy (sin columnas MEJ-02). */
-export const GUEST_TEMPLATE_LEGACY_IMPORT_HEADERS = [
-  ...GUEST_TEMPLATE_REQUIRED_COLUMNS,
-  'direccion',
-  'categoria_1',
-  'categoria_2',
-  'observaciones',
-  'acompanante_key',
-  'separar_acompanante',
-] as const;
-
 export const GUEST_TEMPLATE_DOWNLOAD_COLUMNS = [
   ...GUEST_TEMPLATE_REQUIRED_COLUMNS,
   ...GUEST_TEMPLATE_OPTIONAL_COLUMNS,
 ] as const;
 
-export const GUEST_TEMPLATE_COLUMNS = [
-  ...GUEST_TEMPLATE_DOWNLOAD_COLUMNS,
-  ...GUEST_TEMPLATE_LEGACY_OPTIONAL_COLUMNS,
-] as const;
+export const GUEST_TEMPLATE_COLUMNS = [...GUEST_TEMPLATE_DOWNLOAD_COLUMNS] as const;
 
 export type GuestTemplateDownloadColumn =
   (typeof GUEST_TEMPLATE_DOWNLOAD_COLUMNS)[number];
@@ -78,7 +57,7 @@ export const GUEST_TEMPLATE_EXAMPLE_ROWS: ReadonlyArray<
     categoria_2: 'Pareja',
     menu_especial: '',
     movilidad_reducida: 'X',
-    notas_internas: '',
+    notas_internas: 'No sentar con Pedro Ruiz',
     acompanante_key: 'PAREJA_001',
     separar_acompanante: '',
   },
@@ -90,7 +69,7 @@ export const GUEST_TEMPLATE_INSTRUCTIONS = [
   '2. Campos obligatorios: nombre, correo, telefono.',
   '3. Elimina las filas de ejemplo antes de subir el archivo.',
   '4. menu_especial / movilidad_reducida: deja vacio (no) o escribe X / Si para marcar alerta en Invitados.',
-  '5. notas_internas: texto libre visible solo para el organizador.',
+  '5. notas_internas: detalle de menu, movilidad o texto libre; afinidades e incompatibilidades se interpretan con IA.',
   '6. acompanante_key: mismo valor para personas que vienen juntas.',
   '7. separar_acompanante: deja vacio (no separar) o X / Si solo si hay excepcion.',
   '8. El modo colaborativo / anfitrion exclusivo se configura en la pantalla Preferencias del evento (no en Excel).',

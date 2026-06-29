@@ -2,46 +2,33 @@ import type { GuestImportRow } from './guest-import-row';
 import { mapImportRowToGuestInput } from './guest-import.mapper';
 
 describe('guest-import.mapper', () => {
-  it('mapea alertas y notas internas de plantilla nueva', () => {
+  it('mapea alertas y notas internas de plantilla', () => {
     const mapped = mapImportRowToGuestInput(
       buildRow({
         menu_especial: 'X',
         movilidad_reducida: 'Si',
         notas_internas: 'Sin gluten',
-        observaciones: '',
       }),
     );
 
-    expect(mapped.guest.observaciones).toBe('');
+    expect(mapped.guest.observaciones).toBe('Sin gluten');
     expect(mapped.detailMeta).toEqual({
       dietaryAlert: true,
       mobilityAlert: true,
       notes: 'Sin gluten',
     });
+    expect(mapped.guest.preferenciaControl).toBeNull();
   });
 
-  it('mapea observaciones legacy a notas y conserva sugerencias', () => {
+  it('mapea notas internas para drawer e IA de sugerencias', () => {
     const mapped = mapImportRowToGuestInput(
       buildRow({
-        observaciones: 'No sentar con Juan Perez',
-        notas_internas: '',
+        notas_internas: 'No sentar con Juan Perez',
       }),
     );
 
     expect(mapped.guest.observaciones).toBe('No sentar con Juan Perez');
     expect(mapped.detailMeta.notes).toBe('No sentar con Juan Perez');
-  });
-
-  it('prioriza notas_internas sobre observaciones legacy', () => {
-    const mapped = mapImportRowToGuestInput(
-      buildRow({
-        observaciones: 'Legacy',
-        notas_internas: 'Interna',
-      }),
-    );
-
-    expect(mapped.detailMeta.notes).toBe('Interna');
-    expect(mapped.guest.observaciones).toBe('Legacy');
   });
 
   it('celda vacia en alertas equivale a no', () => {
@@ -51,7 +38,7 @@ describe('guest-import.mapper', () => {
     expect(mapped.detailMeta.mobilityAlert).toBe(false);
   });
 
-  it('acepta true/false legacy en import', () => {
+  it('acepta true/false en marcas de alerta', () => {
     const mapped = mapImportRowToGuestInput(
       buildRow({ menu_especial: 'true', movilidad_reducida: 'false' }),
     );
@@ -78,8 +65,6 @@ function buildRow(
       notas_internas: '',
       acompanante_key: '',
       separar_acompanante: '',
-      observaciones: '',
-      preferencia_control: '',
       ...overrides,
     },
   };

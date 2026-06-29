@@ -10,7 +10,7 @@ import {
   type GuestUpsertInput,
 } from '../../domain/guest-import.mapper';
 import { companionSeparationFromImport, buildCompanionGroups } from '../../domain/companion-group.engine';
-import { detectSuggestionsFromObservation } from '../../domain/observation-suggestion.engine';
+import { detectSuggestionsFromInternalNotes } from '../../domain/observation-suggestion.engine';
 import type {
   RestrictionSuggestion,
   SuggestionStatus,
@@ -210,7 +210,7 @@ export class FileGuestRepository implements GuestRepositoryPort {
         continue;
       }
 
-      const drafts = detectSuggestionsFromObservation(guest.observaciones);
+      const drafts = detectSuggestionsFromInternalNotes(guest.observaciones);
       for (const draft of drafts) {
         if (this.hasDuplicatePendingSuggestion(store, guest.id, draft)) {
           continue;

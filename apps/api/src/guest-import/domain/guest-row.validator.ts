@@ -1,7 +1,6 @@
 import {
   GUEST_TEMPLATE_COLUMNS,
   GUEST_TEMPLATE_DOWNLOAD_COLUMNS,
-  GUEST_TEMPLATE_LEGACY_IMPORT_HEADERS,
   GUEST_TEMPLATE_REQUIRED_COLUMNS,
   GUEST_TEMPLATE_SHEET_NAME,
   type GuestTemplateColumn,
@@ -16,7 +15,6 @@ import {
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_PATTERN = /^\+?[0-9\s()-]{9,20}$/;
-const PREFERENCE_CONTROL_VALUES = ['colaborativo', 'anfitrion_exclusivo'] as const;
 const EXCEL_MARK_FIELDS = [
   'menu_especial',
   'movilidad_reducida',
@@ -45,25 +43,18 @@ export function validateGuestImportHeaders(
   const missingDownload = GUEST_TEMPLATE_DOWNLOAD_COLUMNS.filter(
     (column) => !normalized.includes(column),
   );
-  if (missingDownload.length === 0) {
-    return [];
+  if (missingDownload.length > 0) {
+    return [
+      {
+        row: 1,
+        field: GUEST_TEMPLATE_SHEET_NAME,
+        code: 'XLS-001',
+        message: `Encabezado faltante o incorrecto: ${missingDownload.join(', ')}.`,
+      },
+    ];
   }
 
-  const missingLegacy = GUEST_TEMPLATE_LEGACY_IMPORT_HEADERS.filter(
-    (column) => !normalized.includes(column),
-  );
-  if (missingLegacy.length === 0) {
-    return [];
-  }
-
-  return [
-    {
-      row: 1,
-      field: GUEST_TEMPLATE_SHEET_NAME,
-      code: 'XLS-001',
-      message: `Encabezado faltante o incorrecto: ${missingDownload.join(', ')}.`,
-    },
-  ];
+  return [];
 }
 
 export function validateGuestImportRows(
@@ -146,21 +137,6 @@ function validateSingleRow(row: GuestImportRow): GuestImportRowError[] {
         message: `${markField}: ${EXCEL_MARK_FIELD_HINT}`,
       });
     }
-  }
-
-  if (
-    values.preferencia_control.trim() &&
-    !PREFERENCE_CONTROL_VALUES.includes(
-      values.preferencia_control.trim() as (typeof PREFERENCE_CONTROL_VALUES)[number],
-    )
-  ) {
-    errors.push({
-      row: rowNumber,
-      field: 'preferencia_control',
-      code: 'XLS-007',
-      message:
-        'preferencia_control debe ser colaborativo o anfitrion_exclusivo.',
-    });
   }
 
   return errors;

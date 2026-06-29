@@ -8,7 +8,7 @@ import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
 import { ApiExceptionFilter } from '../src/common/filters/api-exception.filter';
 import {
-  GUEST_TEMPLATE_LEGACY_IMPORT_HEADERS,
+  GUEST_TEMPLATE_DOWNLOAD_COLUMNS,
   GUEST_TEMPLATE_SHEET_NAME,
 } from '../src/guest-import/domain/guest-template.schema';
 
@@ -165,11 +165,11 @@ describe('Preference permissions enforcement (e2e #33)', () => {
 async function seedGuest(
   app: INestApplication<App>,
   eventId: string,
-  observaciones = '',
+  notasInternas = '',
 ): Promise<string> {
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet(GUEST_TEMPLATE_SHEET_NAME);
-  sheet.addRow([...GUEST_TEMPLATE_LEGACY_IMPORT_HEADERS]);
+  sheet.addRow([...GUEST_TEMPLATE_DOWNLOAD_COLUMNS]);
   sheet.addRow([
     'Ana Garcia',
     'ana@ejemplo.com',
@@ -177,7 +177,9 @@ async function seedGuest(
     '',
     '',
     '',
-    observaciones,
+    '',
+    '',
+    notasInternas,
     '',
     '',
   ]);

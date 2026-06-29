@@ -65,6 +65,8 @@ export type GuestView = {
   correo: string | null;
   telefono?: string | null;
   categories: Array<{ name: string }>;
+  /** Notas internas (solo admin). */
+  observaciones?: string | null;
 };
 
 export type GuestListResponse = {

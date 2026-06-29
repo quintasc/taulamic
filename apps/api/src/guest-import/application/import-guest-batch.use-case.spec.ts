@@ -72,8 +72,6 @@ describe('ImportGuestBatchUseCase', () => {
             notas_internas: 'Sin gluten',
             acompanante_key: '',
             separar_acompanante: '',
-            observaciones: '',
-            preferencia_control: '',
           },
         },
         {
@@ -90,8 +88,6 @@ describe('ImportGuestBatchUseCase', () => {
             notas_internas: '',
             acompanante_key: '',
             separar_acompanante: '',
-            observaciones: '',
-            preferencia_control: '',
           },
         },
       ],

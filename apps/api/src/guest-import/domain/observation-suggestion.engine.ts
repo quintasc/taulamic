@@ -32,10 +32,10 @@ const PATTERN_RULES: PatternRule[] = [
   },
 ];
 
-export function detectSuggestionsFromObservation(
-  observaciones: string,
+export function detectSuggestionsFromInternalNotes(
+  notasInternas: string,
 ): DetectedSuggestionDraft[] {
-  const text = observaciones.trim();
+  const text = notasInternas.trim();
   if (!text) {
     return [];
   }
@@ -57,3 +57,6 @@ export function detectSuggestionsFromObservation(
 
   return suggestions;
 }
+
+/** @deprecated Usar detectSuggestionsFromInternalNotes */
+export const detectSuggestionsFromObservation = detectSuggestionsFromInternalNotes;

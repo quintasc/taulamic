@@ -167,7 +167,7 @@ export class GuestImportController {
   @ApiOperation({
     summary: 'Listar sugerencias de restricciones pendientes',
     description:
-      'Devuelve sugerencias generadas desde observaciones del Excel sin aplicarlas automaticamente.',
+      'Devuelve sugerencias generadas desde notas internas del Excel sin aplicarlas automaticamente.',
   })
   @ApiOkResponse({ type: RestrictionSuggestionListResponseDto })
   async listSuggestions(

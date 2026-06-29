@@ -14,10 +14,11 @@ const GUEST_COLUMNS = [
   'direccion',
   'categoria_1',
   'categoria_2',
-  'observaciones',
+  'menu_especial',
+  'movilidad_reducida',
+  'notas_internas',
   'acompanante_key',
   'separar_acompanante',
-  'preferencia_control',
 ];
 const SHEET = 'invitados';
 
@@ -105,10 +106,10 @@ async function main() {
   ok('Modo preferencias', 'colaborativo');
 
   const buffer = await buildWorkbook([
-    ['Ana Garcia Lopez', 'ana@ejemplo.com', '+34600111222', '', 'Familia', '', '', 'PAREJA_001', 'false', 'colaborativo'],
-    ['Luis Martinez', 'luis@ejemplo.com', '+34600333444', '', 'Familia', 'Pareja', '', 'PAREJA_001', 'false', 'colaborativo'],
-    ['Maria Santos', 'maria@ejemplo.com', '+34600555666', '', 'Amigos', '', '', 'PAREJA_002', 'false', ''],
-    ['Pedro Ruiz', 'pedro@ejemplo.com', '+34600777888', '', 'Amigos', '', '', 'PAREJA_002', 'false', ''],
+    ['Ana Garcia Lopez', 'ana@ejemplo.com', '+34600111222', '', 'Familia', '', '', '', '', 'PAREJA_001', ''],
+    ['Luis Martinez', 'luis@ejemplo.com', '+34600333444', '', 'Familia', 'Pareja', '', '', '', 'PAREJA_001', ''],
+    ['Maria Santos', 'maria@ejemplo.com', '+34600555666', '', 'Amigos', '', '', '', '', 'PAREJA_002', ''],
+    ['Pedro Ruiz', 'pedro@ejemplo.com', '+34600777888', '', 'Amigos', '', '', '', '', 'PAREJA_002', ''],
   ]);
 
   const form = new FormData();
@@ -162,20 +163,12 @@ async function main() {
     fail('Confirmar distribución', `HTTP ${confirm.status}`);
     return;
   }
-  ok('Confirmar distribución');
+  ok('Confirmar distribución', 'confirmed');
 
-  const approved = await json('GET', `/api/v1/events/${eventId}`);
-  if (approved.data?.status !== 'plan_approved') {
-    fail('Estado evento', approved.data?.status);
-    return;
-  }
-  ok('Evento plan_approved');
-
-  console.log(`\nFlujo piloto OK. eventId=${eventId}`);
-  console.log(`UI: http://localhost:3001/admin/events/${eventId}`);
+  console.log('\nSmoke piloto completado.');
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
 });

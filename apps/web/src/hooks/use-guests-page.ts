@@ -130,7 +130,10 @@ export function useGuestsPage() {
       }
       setSaving(true);
       try {
-        const created = await guestsApi.create(eventId, payload.input);
+        const created = await guestsApi.create(eventId, {
+          ...payload.input,
+          observaciones: payload.detailMeta.notes,
+        });
         updateGuestV2DetailMeta(eventId, created.id, payload.detailMeta);
         await reloadGuests();
         setManualDrawerOpen(false);
@@ -151,7 +154,10 @@ export function useGuestsPage() {
       }
       setSaving(true);
       try {
-        await guestsApi.update(eventId, guestId, payload.input);
+        await guestsApi.update(eventId, guestId, {
+          ...payload.input,
+          observaciones: payload.detailMeta.notes,
+        });
         updateGuestV2DetailMeta(eventId, guestId, payload.detailMeta);
         await reloadGuests();
         toast.success(`Invitado «${payload.input.nombre}» actualizado.`);

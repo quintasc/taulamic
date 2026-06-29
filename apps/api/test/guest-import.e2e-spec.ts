@@ -11,7 +11,6 @@ import {
   GUEST_TEMPLATE_DOWNLOAD_COLUMNS,
   GUEST_TEMPLATE_FILENAME,
   GUEST_TEMPLATE_INSTRUCTIONS_SHEET_NAME,
-  GUEST_TEMPLATE_LEGACY_IMPORT_HEADERS,
   GUEST_TEMPLATE_SHEET_NAME,
 } from '../src/guest-import/domain/guest-template.schema';
 
@@ -501,7 +500,7 @@ describe('GuestImport batch import (e2e #29)', () => {
         notes: '',
       },
     });
-    expect(response.body.suggestionsGenerated).toBe(0);
+    expect(response.body.suggestionsGenerated).toBeGreaterThanOrEqual(1);
   });
 });
 
@@ -533,14 +532,15 @@ describe('GuestImport restriction suggestions (e2e #30)', () => {
     });
   });
 
-  it('genera sugerencias pendientes al importar observaciones', async () => {
+  it('genera sugerencias pendientes al importar notas_internas', async () => {
     const buffer = await buildGuestWorkbook({
-      headers: [...GUEST_TEMPLATE_LEGACY_IMPORT_HEADERS],
       rows: [
         [
           'Ana Garcia',
           'ana@ejemplo.com',
           '+34600111222',
+          '',
+          '',
           '',
           '',
           '',
@@ -579,12 +579,13 @@ describe('GuestImport restriction suggestions (e2e #30)', () => {
 
   it('acepta sugerencia y rechaza otra sin auto-aplicar', async () => {
     const buffer = await buildGuestWorkbook({
-      headers: [...GUEST_TEMPLATE_LEGACY_IMPORT_HEADERS],
       rows: [
         [
           'Ana Garcia',
           'ana@ejemplo.com',
           '+34600111222',
+          '',
+          '',
           '',
           '',
           '',
@@ -596,6 +597,8 @@ describe('GuestImport restriction suggestions (e2e #30)', () => {
           'Luis Martinez',
           'luis@ejemplo.com',
           '+34600333444',
+          '',
+          '',
           '',
           '',
           '',
@@ -658,12 +661,13 @@ describe('GuestImport restriction suggestions (e2e #30)', () => {
 
   it('permite editar sugerencia pendiente antes de confirmar', async () => {
     const buffer = await buildGuestWorkbook({
-      headers: [...GUEST_TEMPLATE_LEGACY_IMPORT_HEADERS],
       rows: [
         [
           'Ana Garcia',
           'ana@ejemplo.com',
           '+34600111222',
+          '',
+          '',
           '',
           '',
           '',
@@ -752,7 +756,6 @@ describe('GuestImport precarga E2E flujo completo (#31)', () => {
     expect(headers).toEqual([...GUEST_TEMPLATE_DOWNLOAD_COLUMNS]);
 
     const draftBuffer = await buildGuestWorkbook({
-      headers: [...GUEST_TEMPLATE_LEGACY_IMPORT_HEADERS],
       rows: [
         [
           'Ana Garcia',
@@ -760,6 +763,8 @@ describe('GuestImport precarga E2E flujo completo (#31)', () => {
           '+34600111222',
           '',
           'Familia novia',
+          '',
+          '',
           '',
           'Intolerancia lactosa',
           '',
@@ -769,6 +774,8 @@ describe('GuestImport precarga E2E flujo completo (#31)', () => {
           'Luis Mal',
           'correo-invalido',
           '123',
+          '',
+          '',
           '',
           '',
           '',

@@ -8,7 +8,7 @@ import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
 import { ApiExceptionFilter } from '../src/common/filters/api-exception.filter';
 import {
-  GUEST_TEMPLATE_LEGACY_IMPORT_HEADERS,
+  GUEST_TEMPLATE_DOWNLOAD_COLUMNS,
   GUEST_TEMPLATE_SHEET_NAME,
 } from '../src/guest-import/domain/guest-template.schema';
 
@@ -62,7 +62,7 @@ describe('Companion groups rule (e2e #34)', () => {
   it('registra excepcion desde Excel con trazabilidad', async () => {
     await importCompanionPair(app, 'evt_comp_34_excel', {
       separarAcompanante: 'true',
-      observaciones: 'Separar por peticion de los novios',
+      notasInternas: 'Separar por peticion de los novios',
     });
 
     const response = await request(app.getHttpServer())
@@ -164,7 +164,7 @@ describe('Companion groups rule (e2e #34)', () => {
 
 type CompanionImportOptions = {
   separarAcompanante?: string;
-  observaciones?: string;
+  notasInternas?: string;
 };
 
 async function importCompanionPair(
@@ -174,7 +174,7 @@ async function importCompanionPair(
 ): Promise<string[]> {
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet(GUEST_TEMPLATE_SHEET_NAME);
-  sheet.addRow([...GUEST_TEMPLATE_LEGACY_IMPORT_HEADERS, 'preferencia_control']);
+  sheet.addRow([...GUEST_TEMPLATE_DOWNLOAD_COLUMNS]);
   sheet.addRow([
     'Ana Garcia Lopez',
     'ana.garcia@ejemplo.com',
@@ -182,7 +182,9 @@ async function importCompanionPair(
     '',
     'Familia novia',
     '',
-    options.observaciones ?? '',
+    '',
+    '',
+    options.notasInternas ?? '',
     'PAREJA_001',
     options.separarAcompanante ?? 'false',
   ]);
@@ -194,9 +196,10 @@ async function importCompanionPair(
     'Familia novia',
     'Pareja',
     '',
+    '',
+    '',
     'PAREJA_001',
     options.separarAcompanante ?? 'false',
-    'colaborativo',
   ]);
   const buffer = Buffer.from(await workbook.xlsx.writeBuffer());
 

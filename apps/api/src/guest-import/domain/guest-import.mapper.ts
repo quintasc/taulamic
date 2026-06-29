@@ -1,5 +1,4 @@
 import type { GuestImportRow } from './guest-import-row';
-import type { GuestPreferenceControl } from './guest';
 import {
   parseExcelMarkBoolean,
   parseExcelMarkOptionalBoolean,
@@ -17,10 +16,11 @@ export type GuestUpsertInput = {
   telefono: string;
   direccion: string;
   categoryNames: string[];
+  /** Notas internas del organizador (origen Excel `notas_internas`). */
   observaciones: string;
   acompananteKey: string;
   separarAcompanante: boolean | null;
-  preferenciaControl: GuestPreferenceControl | null;
+  preferenciaControl: null;
 };
 
 export type GuestImportMappedRow = {
@@ -35,7 +35,6 @@ export function mapImportRowToGuestInput(
     .map((value) => value.trim())
     .filter(Boolean);
 
-  const legacyObservaciones = row.values.observaciones.trim();
   const notasInternas = row.values.notas_internas.trim();
 
   return {
@@ -45,30 +44,19 @@ export function mapImportRowToGuestInput(
       telefono: row.values.telefono.trim(),
       direccion: row.values.direccion.trim(),
       categoryNames,
-      observaciones: legacyObservaciones,
+      observaciones: notasInternas,
       acompananteKey: row.values.acompanante_key.trim(),
       separarAcompanante: parseExcelMarkOptionalBoolean(
         row.values.separar_acompanante,
       ),
-      preferenciaControl: parsePreferenceControl(row.values.preferencia_control),
+      preferenciaControl: null,
     },
     detailMeta: {
       dietaryAlert: parseExcelMarkBoolean(row.values.menu_especial),
       mobilityAlert: parseExcelMarkBoolean(row.values.movilidad_reducida),
-      notes: notasInternas || legacyObservaciones,
+      notes: notasInternas,
     },
   };
-}
-
-function parsePreferenceControl(
-  value: string,
-): GuestPreferenceControl | null {
-  const trimmed = value.trim();
-  if (!trimmed) {
-    return null;
-  }
-
-  return trimmed as GuestPreferenceControl;
 }
 
 export function normalizeCategoryName(name: string): string {

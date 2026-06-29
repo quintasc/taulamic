@@ -3,10 +3,7 @@ import {
   validateGuestImportHeaders,
   validateGuestImportRows,
 } from './guest-row.validator';
-import {
-  GUEST_TEMPLATE_DOWNLOAD_COLUMNS,
-  GUEST_TEMPLATE_LEGACY_IMPORT_HEADERS,
-} from './guest-template.schema';
+import { GUEST_TEMPLATE_DOWNLOAD_COLUMNS } from './guest-template.schema';
 
 describe('guest-row.validator', () => {
   it('detecta encabezados faltantes (XLS-001)', () => {
@@ -20,13 +17,32 @@ describe('guest-row.validator', () => {
     ]);
   });
 
-  it('acepta plantilla nueva y legacy con observaciones', () => {
+  it('acepta solo plantilla oficial v1', () => {
     expect(
       validateGuestImportHeaders([...GUEST_TEMPLATE_DOWNLOAD_COLUMNS]),
     ).toEqual([]);
-    expect(
-      validateGuestImportHeaders([...GUEST_TEMPLATE_LEGACY_IMPORT_HEADERS]),
-    ).toEqual([]);
+  });
+
+  it('rechaza encabezados legacy sin columnas MEJ-02', () => {
+    const legacyHeaders = [
+      'nombre',
+      'correo',
+      'telefono',
+      'direccion',
+      'categoria_1',
+      'categoria_2',
+      'observaciones',
+      'acompanante_key',
+      'separar_acompanante',
+    ];
+
+    const errors = validateGuestImportHeaders(legacyHeaders);
+
+    expect(errors).toEqual([
+      expect.objectContaining({
+        code: 'XLS-001',
+      }),
+    ]);
   });
 
   it('detecta correo, telefono y obligatorios por fila', () => {
@@ -45,8 +61,6 @@ describe('guest-row.validator', () => {
           notas_internas: '',
           acompanante_key: '',
           separar_acompanante: 'maybe',
-          observaciones: '',
-          preferencia_control: '',
         },
       },
     ];
@@ -129,8 +143,6 @@ function buildRow(
       notas_internas: '',
       acompanante_key: '',
       separar_acompanante: '',
-      observaciones: '',
-      preferencia_control: '',
       ...overrides,
     },
   };

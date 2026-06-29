@@ -50,7 +50,7 @@ export function GuestDrawerV2({
       setCategoria(guest.categories[0]?.name ?? '');
       setDietaryAlert(Boolean(detail.dietaryAlert));
       setMobilityAlert(Boolean(detail.mobilityAlert));
-      setNotes(detail.notes ?? '');
+      setNotes(detail.notes ?? guest.observaciones ?? '');
       setCompanionGroup(detail.companionGroup ?? '');
     } else {
       setNombre('');

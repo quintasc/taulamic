@@ -9,6 +9,8 @@
 Este guion valida el **mismo flujo funcional** que el E2E backend, pero desde la interfaz admin, con el **orden y criterios** del piloto jun 2026 y los **patrones UX vigentes** (guardado implicito, `SetupNavBar`, toasts). Marca cada paso al completarlo.
 
 > **Nota:** La sesion `evidencias-piloto/sesion-2026-06-21.md` uso un guion anterior (con boton «Guardar»). Esta version sustituye ese guion para la **validacion post-UX**.
+>
+> **MEJ-08 (post-piloto):** validacion de ✕/+ y ajuste manual en `guion-validacion-mej-08-ui.md` — el piloto julio deja ✕/+ fuera de alcance (seccion I).
 
 ---
 

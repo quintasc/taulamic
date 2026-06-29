@@ -1,7 +1,7 @@
 ﻿# Contexto de ejecucion — punto de reanudacion
 
-- Ultima actualizacion: **2026-06-21**
-- Commit referencia: **`a106257`** (`main`)
+- Ultima actualizacion: **2026-06-29**
+- Commit referencia: **`b79789d`** (`main`)
 - Hito activo: **MVP julio (piloto)** — **DoD cerrado**
 - Naming: producto **Taulamic**, dominio **taulamic.com**, repo `quintasc/taulamic`
 - **Modo actual:** **Sprint 05 en curso** — MEJ-02 ✅ · MEJ-08 (#51) · #53 pospuesto
@@ -9,7 +9,7 @@
 ## Frase clave (pegar al agente)
 
 ```text
-Retomo Taulamic. main @ a106257. Sprint 05: MEJ-02 cerrado (#45); activo MEJ-08 distribución manual (#51). Lee sprint-05-plan.md y CONTEXTO-EJECUCION.md. SDD manda.
+Retomo Taulamic. main @ b79789d. Sprint 05: MEJ-02 cerrado (#45); MEJ-08 PP-HU05-01 validado (#51); activo PP-HU05-02+. Lee sprint-05-plan.md y CONTEXTO-EJECUCION.md. SDD manda.
 ```
 
 ---
@@ -37,6 +37,7 @@ Retomo Taulamic. main @ a106257. Sprint 05: MEJ-02 cerrado (#45); activo MEJ-08 
 | **Dev unificado** | **Cerrado** — `npm run dev` en raiz |
 | **DoD piloto julio** | **Cerrado** — validación simulada PO; usuario real pospuesto (#53) |
 | **MEJ-02 (#45)** | **Cerrado** 2026-06-21 — `evidencias-mej-02-cierre.md` · `ae1a1fb`, `a106257` |
+| **MEJ-08 PP-HU05-01 (#51)** | **Validado** 2026-06-29 — `evidencias-mej-08-pp-hu05-01.md` · `b79789d` |
 | Plan piloto | `mvp-julio-plan.md` · Gantt `roadmap-mvp-julio.md` |
 
 ---
@@ -49,6 +50,16 @@ Retomo Taulamic. main @ a106257. Sprint 05: MEJ-02 cerrado (#45); activo MEJ-08 
 | **`a106257`** | Solo plantilla v1; IA sobre `notas_internas`; sync drawer ↔ API |
 
 Evidencia: **`docs/agile/evidencias-mej-02-cierre.md`**.
+
+---
+
+## Entregado MEJ-08 parcial (Sprint 05)
+
+| Commit | Que aporta |
+|--------|------------|
+| **`b79789d`** | PP-HU05-01: ✕ desasignar en Distribucion y plano; endpoint `unassign`; tests unit + e2e |
+
+Evidencia: **`docs/agile/evidencias-mej-08-pp-hu05-01.md`** · guion **`docs/agile/guion-validacion-mej-08-ui.md`**.
 
 ---
 
@@ -118,6 +129,8 @@ cd apps\web; npm run build; npm run test:e2e
 | Documento | Para que |
 |-----------|----------|
 | `docs/agile/evidencias-mej-02-cierre.md` | Cierre MEJ-02 (#45) |
+| `docs/agile/evidencias-mej-08-pp-hu05-01.md` | Validacion PP-HU05-01 (#51) |
+| `docs/agile/guion-validacion-mej-08-ui.md` | Guion manual MEJ-08 |
 | `docs/agile/sprint-05-plan.md` | Sprint 05 activo |
 | `docs/agile/sprint-03-plan.md` | Plan original Sprint 03 |
 | `docs/agile/mvp-julio-plan.md` | DoD piloto §4 · epicas agosto §5 |

@@ -3,7 +3,7 @@
 > **Inicio:** 2026-06-28  
 > **Contexto:** Sprint 04 cerrado (`sprint-04-cierre.md`).  
 > **SDD manda** — feedback PO en `evidencias-piloto/sesion-2026-06-24.md`.  
-> **Referencia `main`:** `a106257` (MEJ-02 cerrado).
+> **Referencia `main`:** `b79789d` (MEJ-08 PP-HU05-01).
 
 ## 1) Objetivo
 
@@ -14,7 +14,7 @@ Entregar MEJ-02 (Excel ampliado) y MEJ-08 Fase 1 (ajuste manual HU-05: desasigna
 | Prioridad | Issue | MEJ | Descripcion | Estado |
 |-----------|-------|-----|-------------|--------|
 | P2 | [#45](https://github.com/quintasc/taulamic/issues/45) | MEJ-02 | Columnas menú/movilidad; notas internas; import → alertas UI | ✅ Cerrado — `evidencias-mej-02-cierre.md` |
-| P2 | [#51](https://github.com/quintasc/taulamic/issues/51) | MEJ-08 | PP-HU05-01…04: ✕ pill, + mesa, KPIs, reglas duras | ⏭️ En curso |
+| P2 | [#51](https://github.com/quintasc/taulamic/issues/51) | MEJ-08 | PP-HU05-01 ✅ · 02/04/05/07 pendientes | ⏭️ En curso |
 | Pospuesto | [#53](https://github.com/quintasc/taulamic/issues/53) | — | Organizador real julio 2026 | ⏭️ |
 
 ## 3) Fuera de alcance Sprint 05
@@ -36,6 +36,16 @@ Evidencia: `docs/agile/evidencias-mej-02-cierre.md` · commits `ae1a1fb`, `a1062
 ## 5) MEJ-08 Fase 1 — criterios (referencia)
 
 Ver `SDD-PILOTO-enmienda-HU05-ajuste-manual-postpiloto.md`: PP-HU05-01, 02, 04, 05, 07.
+
+| ID | Estado | Evidencia |
+|----|--------|-----------|
+| PP-HU05-01 ✕ desasignar | ✅ Validado UI + E2E | `evidencias-mej-08-pp-hu05-01.md` · `b79789d` |
+| PP-HU05-02 + asignar | ⏭️ Pendiente | — |
+| PP-HU05-04 KPIs | ⏭️ Parcial | — |
+| PP-HU05-05 reglas duras | ⏭️ Pendiente | — |
+| PP-HU05-07 lista sin asignar | ⏭️ Pendiente | — |
+
+Guion manual: `docs/agile/guion-validacion-mej-08-ui.md`.
 
 ## 6) Criterio de cierre
 

@@ -6,6 +6,7 @@ import {
   GetDistributionUseCase,
   RunDistributionUseCase,
 } from './application/manage-distribution.use-case';
+import { AssignGuestToDistributionUseCase } from './application/assign-guest-to-distribution.use-case';
 import { UnassignGuestFromDistributionUseCase } from './application/unassign-guest-from-distribution.use-case';
 import { ReconcileDistributionAfterTableRemovalUseCase } from './application/reconcile-distribution-after-table-removal.use-case';
 import { DistributionController } from './distribution.controller';
@@ -19,6 +20,7 @@ import { DistributionPersistenceModule } from './distribution-persistence.module
     GetDistributionUseCase,
     ConfirmDistributionUseCase,
     UnassignGuestFromDistributionUseCase,
+    AssignGuestToDistributionUseCase,
     ReconcileDistributionAfterTableRemovalUseCase,
   ],
   exports: [ReconcileDistributionAfterTableRemovalUseCase],

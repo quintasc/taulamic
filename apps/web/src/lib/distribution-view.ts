@@ -21,6 +21,21 @@ export type DistributionTableGuest = {
   guestName: string;
 };
 
+export type UnassignedGuestOption = {
+  id: string;
+  nombre: string;
+};
+
+export function buildUnassignedGuestOptions(
+  unassignedGuestIds: string[],
+  guests: Array<{ id: string; nombre: string }>,
+): UnassignedGuestOption[] {
+  const idSet = new Set(unassignedGuestIds);
+  return guests
+    .filter((guest) => idSet.has(guest.id))
+    .map((guest) => ({ id: guest.id, nombre: guest.nombre }));
+}
+
 export type DistributionTableGroup = {
   tableId: string;
   tableLabel: string;

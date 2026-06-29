@@ -8,6 +8,7 @@ import type { DistributionProposal } from '@/lib/api';
 import {
   PILOT_AFFINITY_LABEL,
   type DistributionTableGroup,
+  type UnassignedGuestOption,
 } from '@/lib/distribution-view';
 
 export function DistributionCalculatedView({
@@ -17,8 +18,11 @@ export function DistributionCalculatedView({
   floorPlanHref,
   confirming,
   unassigningGuestId,
+  assigningGuestId,
+  unassignedGuests,
   onConfirm,
   onUnassignGuest,
+  onAssignGuest,
 }: {
   proposal: DistributionProposal;
   tableGroups: DistributionTableGroup[];
@@ -26,8 +30,11 @@ export function DistributionCalculatedView({
   floorPlanHref: string;
   confirming: boolean;
   unassigningGuestId?: string | null;
+  assigningGuestId?: string | null;
+  unassignedGuests?: UnassignedGuestOption[];
   onConfirm: () => void;
   onUnassignGuest?: (guestId: string) => void;
+  onAssignGuest?: (tableId: string, guestId: string) => void | Promise<void>;
 }) {
   const editable = proposal.status === 'draft';
   const freeSeats = Math.max(
@@ -57,7 +64,10 @@ export function DistributionCalculatedView({
         tableGroups={tableGroups}
         editable={editable}
         unassigningGuestId={unassigningGuestId}
+        assigningGuestId={assigningGuestId}
+        unassignedGuests={unassignedGuests}
         onUnassignGuest={onUnassignGuest}
+        onAssignGuest={onAssignGuest}
       />
 
       <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

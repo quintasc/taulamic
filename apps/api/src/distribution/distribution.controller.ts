@@ -1,10 +1,12 @@
 import {
+  Body,
   Controller,
   Get,
   HttpCode,
   HttpStatus,
   Param,
   Post,
+  Put,
 } from '@nestjs/common';
 import {
   ApiConflictResponse,
@@ -24,7 +26,9 @@ import {
   GetDistributionUseCase,
   RunDistributionUseCase,
 } from './application/manage-distribution.use-case';
+import { AssignGuestToDistributionUseCase } from './application/assign-guest-to-distribution.use-case';
 import { UnassignGuestFromDistributionUseCase } from './application/unassign-guest-from-distribution.use-case';
+import { AssignGuestDto } from './dto/assign-guest.dto';
 import { DistributionProposalDto } from './dto/distribution.dto';
 
 @ApiTags('distribution')
@@ -35,6 +39,7 @@ export class DistributionController {
     private readonly getDistributionUseCase: GetDistributionUseCase,
     private readonly confirmDistributionUseCase: ConfirmDistributionUseCase,
     private readonly unassignGuestFromDistributionUseCase: UnassignGuestFromDistributionUseCase,
+    private readonly assignGuestToDistributionUseCase: AssignGuestToDistributionUseCase,
   ) {}
 
   @Post('run')
@@ -122,6 +127,38 @@ export class DistributionController {
     return this.unassignGuestFromDistributionUseCase.execute(
       eventId,
       guestId,
+      actorRole,
+    );
+  }
+
+  @Put('placements/:guestId')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Asignar invitado sin asignar a una mesa (propuesta en borrador)',
+  })
+  @ApiParam({ name: 'eventId', example: 'evt_550e8400' })
+  @ApiParam({ name: 'guestId', example: 'guest-1' })
+  @ApiHeader({
+    name: 'x-taulamic-actor-role',
+    required: true,
+    description: 'Debe ser admin.',
+  })
+  @ApiOkResponse({ type: DistributionProposalDto })
+  @ApiForbiddenResponse({ description: 'Solo admin puede asignar.' })
+  @ApiConflictResponse({
+    description: 'Propuesta confirmada, mesa llena o regla dura.',
+  })
+  @ApiNotFoundResponse({ description: 'Sin propuesta o evento inexistente.' })
+  async assignGuest(
+    @Param('eventId') eventId: string,
+    @Param('guestId') guestId: string,
+    @Body() body: AssignGuestDto,
+    @ActorRoleHeader() actorRole: ActorRole,
+  ): Promise<DistributionProposalDto> {
+    return this.assignGuestToDistributionUseCase.execute(
+      eventId,
+      guestId,
+      body.tableId,
       actorRole,
     );
   }

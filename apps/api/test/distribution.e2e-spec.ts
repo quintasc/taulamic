@@ -173,4 +173,49 @@ describe('Distribution motor v0 (e2e #3)', () => {
       ),
     ).toBe(false);
   });
+
+  it('asigna un invitado sin asignar a una mesa en borrador', async () => {
+    const run = await request(app.getHttpServer())
+      .post(`/api/v1/events/${eventId}/distribution/run`)
+      .set('x-taulamic-actor-role', 'admin')
+      .expect(201);
+
+    const ana = run.body.placements.find(
+      (item: { guestName: string }) => item.guestName === 'Ana Garcia',
+    );
+    const luis = run.body.placements.find(
+      (item: { guestName: string }) => item.guestName === 'Luis Perez',
+    );
+
+    await request(app.getHttpServer())
+      .post(
+        `/api/v1/events/${eventId}/distribution/placements/${ana.guestId}/unassign`,
+      )
+      .set('x-taulamic-actor-role', 'admin')
+      .expect(200);
+
+    const assigned = await request(app.getHttpServer())
+      .put(
+        `/api/v1/events/${eventId}/distribution/placements/${ana.guestId}`,
+      )
+      .set('Content-Type', 'application/json')
+      .set('x-taulamic-actor-role', 'admin')
+      .send({ tableId: luis.tableId })
+      .expect(200);
+
+    expect(assigned.body).toMatchObject({
+      status: 'draft',
+      stats: {
+        assignedCount: 2,
+        unassignedCount: 0,
+      },
+    });
+    expect(assigned.body.unassignedGuestIds).toEqual([]);
+    expect(
+      assigned.body.placements.some(
+        (item: { guestId: string; tableId: string }) =>
+          item.guestId === ana.guestId && item.tableId === luis.tableId,
+      ),
+    ).toBe(true);
+  });
 });

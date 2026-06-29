@@ -7,8 +7,8 @@ import {
   FloorPlanLayoutView,
 } from '@/components/admin/floor-plan/floor-plan-layout-view';
 import { Alert } from '@/components/ui';
-import { ApiError, distributionApi, eventsApi, type DistributionProposal } from '@/lib/api';
-import { buildDistributionTableGroups } from '@/lib/distribution-view';
+import { ApiError, distributionApi, eventsApi, guestsApi, type DistributionProposal, type GuestView } from '@/lib/api';
+import { buildDistributionTableGroups, buildUnassignedGuestOptions } from '@/lib/distribution-view';
 import {
   DEFAULT_FLOOR_PLAN_SETUP,
   loadFloorPlanSetup,
@@ -30,6 +30,8 @@ export default function FloorPlanLayoutPage() {
   const [unassigningGuestId, setUnassigningGuestId] = useState<string | null>(
     null,
   );
+  const [assigningGuestId, setAssigningGuestId] = useState<string | null>(null);
+  const [guests, setGuests] = useState<GuestView[]>([]);
   const [roomSetup, setRoomSetup] = useState<FloorPlanSetup>(
     DEFAULT_FLOOR_PLAN_SETUP,
   );
@@ -38,6 +40,21 @@ export default function FloorPlanLayoutPage() {
     () => (proposal ? buildDistributionTableGroups(proposal, event) : []),
     [proposal, event],
   );
+
+  const unassignedGuests = useMemo(
+    () =>
+      proposal
+        ? buildUnassignedGuestOptions(proposal.unassignedGuestIds, guests)
+        : [],
+    [proposal, guests],
+  );
+
+  useEffect(() => {
+    void guestsApi
+      .list(params.eventId)
+      .then((response) => setGuests(response.guests))
+      .catch(() => setGuests([]));
+  }, [params.eventId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -105,6 +122,27 @@ export default function FloorPlanLayoutPage() {
     }
   }
 
+  async function assignGuest(tableId: string, guestId: string) {
+    setAssigningGuestId(guestId);
+    setError(null);
+    try {
+      const result = await distributionApi.assignGuest(
+        params.eventId,
+        guestId,
+        tableId,
+      );
+      setProposal(result);
+    } catch (err) {
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : 'No se pudo asignar el invitado a la mesa.',
+      );
+    } finally {
+      setAssigningGuestId(null);
+    }
+  }
+
   if (loading) {
     return <p className="text-sm text-neutral-500">Cargando plano…</p>;
   }
@@ -129,7 +167,10 @@ export default function FloorPlanLayoutPage() {
       setupHref={routes.floorPlan}
       editable={proposal?.status === 'draft'}
       unassigningGuestId={unassigningGuestId}
+      assigningGuestId={assigningGuestId}
+      unassignedGuests={unassignedGuests}
       onUnassignGuest={(guestId) => void unassignGuest(guestId)}
+      onAssignGuest={(tableId, guestId) => assignGuest(tableId, guestId)}
     />
   );
 }

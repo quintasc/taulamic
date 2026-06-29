@@ -311,6 +311,14 @@ export const distributionApi = {
       `/events/${eventId}/distribution/placements/${guestId}/unassign`,
       { method: 'POST' },
     ),
+  assignGuest: (eventId: string, guestId: string, tableId: string) =>
+    apiFetch<DistributionProposal>(
+      `/events/${eventId}/distribution/placements/${guestId}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify({ tableId }),
+      },
+    ),
 };
 
 export const tableShapesApi = {

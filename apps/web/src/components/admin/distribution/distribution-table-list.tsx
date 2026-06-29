@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { IconChevronDown } from '@/components/icons';
 import { GuestPill } from '@/components/admin/distribution/guest-pill';
+import { AssignGuestDialog } from '@/components/admin/distribution/assign-guest-dialog';
 import {
   countTablesByStatus,
   filterDistributionTableGroups,
@@ -12,6 +13,7 @@ import {
   type DistributionTableFilter,
   type DistributionTableGroup,
   type TableOccupancyStatus,
+  type UnassignedGuestOption,
 } from '@/lib/distribution-view';
 import {
   filterChipClass,
@@ -109,6 +111,8 @@ function DistributionTableRow({
   editable,
   unassigningGuestId,
   onUnassignGuest,
+  canAssignGuest,
+  onOpenAssignGuest,
 }: {
   group: DistributionTableGroup;
   open: boolean;
@@ -116,6 +120,8 @@ function DistributionTableRow({
   editable: boolean;
   unassigningGuestId: string | null;
   onUnassignGuest?: (guestId: string) => void;
+  canAssignGuest: boolean;
+  onOpenAssignGuest?: () => void;
 }) {
   return (
     <div className="border-b border-neutral-200 last:border-b-0">
@@ -158,9 +164,9 @@ function DistributionTableRow({
 
       {open ? (
         <div className="border-t border-neutral-200 bg-wf-1 px-5 py-4">
-          {group.guests.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {group.guests.map((guest) => (
+          <div className="flex flex-wrap items-center gap-2">
+            {group.guests.length > 0 ? (
+              group.guests.map((guest) => (
                 <GuestPill
                   key={`${group.tableId}-${guest.guestId || guest.guestName}`}
                   name={guest.guestName}
@@ -169,11 +175,24 @@ function DistributionTableRow({
                   removing={unassigningGuestId === guest.guestId}
                   onRemove={onUnassignGuest}
                 />
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-neutral-500">Sin invitados asignados</p>
-          )}
+              ))
+            ) : (
+              <p className="text-sm text-neutral-500">Sin invitados asignados</p>
+            )}
+            {canAssignGuest ? (
+              <button
+                type="button"
+                className="inline-flex h-9 items-center gap-1 rounded-full border border-dashed border-neutral-300 bg-neutral-0 px-3 text-sm font-medium text-neutral-600 transition hover:border-primary-500/50 hover:text-primary-600"
+                aria-label={`Añadir invitado a ${group.tableLabel}`}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onOpenAssignGuest?.();
+                }}
+              >
+                + Añadir
+              </button>
+            ) : null}
+          </div>
         </div>
       ) : null}
     </div>
@@ -184,16 +203,31 @@ export function DistributionTableList({
   tableGroups,
   editable = false,
   unassigningGuestId = null,
+  assigningGuestId = null,
+  unassignedGuests = [],
   onUnassignGuest,
+  onAssignGuest,
 }: {
   tableGroups: DistributionTableGroup[];
   editable?: boolean;
   unassigningGuestId?: string | null;
+  assigningGuestId?: string | null;
+  unassignedGuests?: UnassignedGuestOption[];
   onUnassignGuest?: (guestId: string) => void;
+  onAssignGuest?: (tableId: string, guestId: string) => void | Promise<void>;
 }) {
   const [filter, setFilter] = useState<DistributionTableFilter>('all');
   const [search, setSearch] = useState('');
   const [openTableId, setOpenTableId] = useState<string | null>(null);
+  const [assignTableId, setAssignTableId] = useState<string | null>(null);
+
+  const assignGroup = useMemo(
+    () =>
+      assignTableId
+        ? tableGroups.find((group) => group.tableId === assignTableId) ?? null
+        : null,
+    [assignTableId, tableGroups],
+  );
 
   const statusCounts = useMemo(
     () => countTablesByStatus(tableGroups),
@@ -262,6 +296,12 @@ export function DistributionTableList({
               editable={editable}
               unassigningGuestId={unassigningGuestId}
               onUnassignGuest={onUnassignGuest}
+              canAssignGuest={
+                editable &&
+                group.freeSeats > 0 &&
+                unassignedGuests.length > 0
+              }
+              onOpenAssignGuest={() => setAssignTableId(group.tableId)}
               onToggle={() =>
                 setOpenTableId((current) =>
                   current === group.tableId ? null : group.tableId,
@@ -275,6 +315,22 @@ export function DistributionTableList({
           </p>
         )}
       </div>
+
+      <AssignGuestDialog
+        open={assignGroup !== null}
+        tableLabel={assignGroup?.tableLabel ?? ''}
+        guests={unassignedGuests}
+        assigningGuestId={assigningGuestId}
+        onCancel={() => setAssignTableId(null)}
+        onAssign={(guestId) => {
+          if (!assignGroup || !onAssignGuest) {
+            return;
+          }
+          void Promise.resolve(
+            onAssignGuest(assignGroup.tableId, guestId),
+          ).finally(() => setAssignTableId(null));
+        }}
+      />
     </div>
   );
 }

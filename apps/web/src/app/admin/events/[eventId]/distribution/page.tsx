@@ -6,13 +6,14 @@ import { SetupNavBar } from '@/components/admin/setup-nav-bar';
 import { DistributionCalculatedView } from '@/components/admin/distribution';
 import { IconRefresh } from '@/components/icons';
 import { Alert, EmptyState, PageHeader } from '@/components/ui';
+import { buildDistributionTableGroups, buildUnassignedGuestOptions } from '@/lib/distribution-view';
 import {
   ApiError,
   distributionApi,
   guestsApi,
   type DistributionProposal,
+  type GuestView,
 } from '@/lib/api';
-import { buildDistributionTableGroups } from '@/lib/distribution-view';
 import { useEvent } from '@/lib/event-context';
 import { getSetupNav } from '@/lib/setup-flow';
 import { adminRoutes } from '@/lib/routes';
@@ -23,6 +24,7 @@ export default function DistributionPage() {
   const { event, eventId, refreshEvent } = useEvent();
   const setupNav = eventId ? getSetupNav(eventId, 'dist') : null;
   const [proposal, setProposal] = useState<DistributionProposal | null>(null);
+  const [guests, setGuests] = useState<GuestView[]>([]);
   const [guestTotal, setGuestTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
@@ -30,6 +32,7 @@ export default function DistributionPage() {
   const [unassigningGuestId, setUnassigningGuestId] = useState<string | null>(
     null,
   );
+  const [assigningGuestId, setAssigningGuestId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -39,8 +42,14 @@ export default function DistributionPage() {
 
     void guestsApi
       .list(eventId)
-      .then((response) => setGuestTotal(response.total))
-      .catch(() => setGuestTotal(0));
+      .then((response) => {
+        setGuests(response.guests);
+        setGuestTotal(response.total);
+      })
+      .catch(() => {
+        setGuests([]);
+        setGuestTotal(0);
+      });
 
     void distributionApi
       .get(eventId)
@@ -60,6 +69,14 @@ export default function DistributionPage() {
     [proposal, event],
   );
 
+  const unassignedGuests = useMemo(
+    () =>
+      proposal
+        ? buildUnassignedGuestOptions(proposal.unassignedGuestIds, guests)
+        : [],
+    [proposal, guests],
+  );
+
   async function calculate() {
     if (!eventId) {
       return;
@@ -69,8 +86,9 @@ export default function DistributionPage() {
     try {
       const result = await distributionApi.run(eventId);
       setProposal(result);
-      const guests = await guestsApi.list(eventId);
-      setGuestTotal(guests.total);
+      const guestsResponse = await guestsApi.list(eventId);
+      setGuests(guestsResponse.guests);
+      setGuestTotal(guestsResponse.total);
     } catch (err) {
       setError(
         err instanceof ApiError
@@ -123,6 +141,30 @@ export default function DistributionPage() {
     }
   }
 
+  async function assignGuest(tableId: string, guestId: string) {
+    if (!eventId) {
+      return;
+    }
+    setAssigningGuestId(guestId);
+    setError(null);
+    try {
+      const result = await distributionApi.assignGuest(
+        eventId,
+        guestId,
+        tableId,
+      );
+      setProposal(result);
+    } catch (err) {
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : 'No se pudo asignar el invitado a la mesa.',
+      );
+    } finally {
+      setAssigningGuestId(null);
+    }
+  }
+
   const hasCalculatedView = proposal !== null;
 
   return (
@@ -171,8 +213,11 @@ export default function DistributionPage() {
           floorPlanHref={routes.floorPlanLayout}
           confirming={confirming}
           unassigningGuestId={unassigningGuestId}
+          assigningGuestId={assigningGuestId}
+          unassignedGuests={unassignedGuests}
           onConfirm={() => void confirm()}
           onUnassignGuest={(guestId) => void unassignGuest(guestId)}
+          onAssignGuest={(tableId, guestId) => assignGuest(tableId, guestId)}
         />
       ) : (
         <EmptyState

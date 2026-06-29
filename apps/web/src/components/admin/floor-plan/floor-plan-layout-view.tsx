@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { GuestPill } from '@/components/admin/distribution/guest-pill';
+import { AssignGuestDialog } from '@/components/admin/distribution/assign-guest-dialog';
 import { FloorPlanAccessoriesOverlay } from '@/components/admin/floor-plan/floor-plan-accessories-overlay';
 import { RoomShapeDisplay } from '@/components/admin/floor-plan/room-shape-display';
 import { Alert, EmptyState, PageHeader } from '@/components/ui';
@@ -21,6 +22,7 @@ import {
   getStatusChipLabel,
   type DistributionTableFilter,
   type DistributionTableGroup,
+  type UnassignedGuestOption,
 } from '@/lib/distribution-view';
 
 const STATUS_FILTER_OPTIONS: Array<{
@@ -71,6 +73,8 @@ function TableGuestsPanel({
   editable = false,
   unassigningGuestId = null,
   onUnassignGuest,
+  canAssignGuest = false,
+  onOpenAssignGuest,
 }: {
   group: DistributionTableGroup;
   onClose: () => void;
@@ -78,6 +82,8 @@ function TableGuestsPanel({
   editable?: boolean;
   unassigningGuestId?: string | null;
   onUnassignGuest?: (guestId: string) => void;
+  canAssignGuest?: boolean;
+  onOpenAssignGuest?: () => void;
 }) {
   return (
     <div
@@ -106,23 +112,32 @@ function TableGuestsPanel({
       </div>
 
       <div className="mt-4 max-h-40 overflow-y-auto">
-        {group.guests.length > 0 ? (
-          <ul className="flex flex-wrap gap-2">
-            {group.guests.map((guest) => (
-              <li key={`${group.tableId}-${guest.guestId || guest.guestName}`}>
-                <GuestPill
-                  name={guest.guestName}
-                  guestId={guest.guestId}
-                  removable={editable}
-                  removing={unassigningGuestId === guest.guestId}
-                  onRemove={onUnassignGuest}
-                />
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-sm text-neutral-500">Sin invitados asignados</p>
-        )}
+        <div className="flex flex-wrap gap-2">
+          {group.guests.length > 0 ? (
+            group.guests.map((guest) => (
+              <GuestPill
+                key={`${group.tableId}-${guest.guestId || guest.guestName}`}
+                name={guest.guestName}
+                guestId={guest.guestId}
+                removable={editable}
+                removing={unassigningGuestId === guest.guestId}
+                onRemove={onUnassignGuest}
+              />
+            ))
+          ) : (
+            <p className="text-sm text-neutral-500">Sin invitados asignados</p>
+          )}
+          {canAssignGuest ? (
+            <button
+              type="button"
+              className="inline-flex h-9 items-center gap-1 rounded-full border border-dashed border-neutral-300 bg-neutral-0 px-3 text-sm font-medium text-neutral-600 transition hover:border-primary-500/50 hover:text-primary-600"
+              aria-label={`Añadir invitado a ${group.tableLabel}`}
+              onClick={onOpenAssignGuest}
+            >
+              + Añadir
+            </button>
+          ) : null}
+        </div>
       </div>
     </div>
   );
@@ -160,7 +175,10 @@ export function FloorPlanLayoutView({
   setupHref,
   editable = false,
   unassigningGuestId = null,
+  assigningGuestId = null,
+  unassignedGuests = [],
   onUnassignGuest,
+  onAssignGuest,
 }: {
   tableGroups: DistributionTableGroup[];
   roomSetup: FloorPlanSetup;
@@ -168,7 +186,10 @@ export function FloorPlanLayoutView({
   setupHref: string;
   editable?: boolean;
   unassigningGuestId?: string | null;
+  assigningGuestId?: string | null;
+  unassignedGuests?: UnassignedGuestOption[];
   onUnassignGuest?: (guestId: string) => void;
+  onAssignGuest?: (tableId: string, guestId: string) => void | Promise<void>;
 }) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] =
@@ -176,6 +197,7 @@ export function FloorPlanLayoutView({
   const [shapeFilter, setShapeFilter] = useState<string | 'all'>('all');
   const [selectedGroup, setSelectedGroup] =
     useState<DistributionTableGroup | null>(null);
+  const [assignOpen, setAssignOpen] = useState(false);
 
   const statusCounts = useMemo(
     () => countTablesByStatus(tableGroups),
@@ -342,6 +364,12 @@ export function FloorPlanLayoutView({
                 editable={editable}
                 unassigningGuestId={unassigningGuestId}
                 onUnassignGuest={onUnassignGuest}
+                canAssignGuest={
+                  editable &&
+                  selectedGroup.freeSeats > 0 &&
+                  unassignedGuests.length > 0
+                }
+                onOpenAssignGuest={() => setAssignOpen(true)}
                 onClose={() => setSelectedGroup(null)}
               />
             </div>
@@ -363,6 +391,22 @@ export function FloorPlanLayoutView({
           Configurar plano del salón
         </Link>
       </div>
+
+      <AssignGuestDialog
+        open={assignOpen && selectedGroup !== null}
+        tableLabel={selectedGroup?.tableLabel ?? ''}
+        guests={unassignedGuests}
+        assigningGuestId={assigningGuestId}
+        onCancel={() => setAssignOpen(false)}
+        onAssign={(guestId) => {
+          if (!selectedGroup || !onAssignGuest) {
+            return;
+          }
+          void Promise.resolve(
+            onAssignGuest(selectedGroup.tableId, guestId),
+          ).finally(() => setAssignOpen(false));
+        }}
+      />
     </>
   );
 }

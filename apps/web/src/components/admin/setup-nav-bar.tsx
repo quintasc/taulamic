@@ -192,7 +192,9 @@ function SetupNavControlsRow({
   const rowClass = compact
     ? 'flex w-full min-w-0 flex-wrap items-center gap-2'
     : dense
-      ? 'flex h-full w-full min-w-0 flex-row items-center justify-between gap-2'
+      ? `flex h-full w-full min-w-0 flex-row items-center gap-2 ${
+          showPrevious ? 'justify-between' : 'justify-end'
+        }`
       : 'flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3';
 
   const actionsClass = compact
@@ -217,7 +219,16 @@ function SetupNavControlsRow({
           )}
         </Link>
       ) : (
-        <span className={compact ? 'hidden' : dense ? 'hidden' : 'hidden sm:block sm:flex-1'} />
+        <span
+          className={
+            compact
+              ? 'hidden'
+              : dense
+                ? 'hidden'
+                : 'hidden sm:block sm:flex-1'
+          }
+          aria-hidden
+        />
       )}
 
       <div className={actionsClass}>

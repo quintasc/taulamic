@@ -155,7 +155,7 @@ Componente: `apps/web/src/components/admin/setup-nav-bar.tsx`
 - **Viewport estrecho / móvil (`dense`, `< md`):** solo flechas `←` / `→` en la banda fija; etiqueta completa en `aria-label` + `title` (p. ej. «Anterior: Afinidades»). Desde `md`: texto completo con `truncate` si hace falta.
 - Props clave: `nextReady`, `nextDisabledHint`, `onBeforeNext`, `hidePrimary`.
 
-**Alineación con sidebar (obligatorio):** la banda inferior del contenido (`admin-setup-bar-shell`) y el bloque «Mapa navegación» del sidebar comparten la misma clase, altura (`--admin-setup-bar-height`) y `border-t` a la misma altura de viewport. El banner de bloqueo setup (`Alert` cuando `nextReady={false}`) va **encima** de esa banda en el área principal, **no dentro**, para no desalinear la línea horizontal. En el footer fijo (`dense`), **Anterior** y **Siguiente** van siempre en **fila** dentro de la banda (sin apilar en `flex-col`); textos largos con `truncate`.
+**Alineación con sidebar (obligatorio):** la banda inferior del contenido (`admin-setup-bar-shell`) y el bloque «Mapa navegación» del sidebar comparten la misma clase, altura (`--admin-setup-bar-height`) y `border-t` a la misma altura de viewport. El banner de bloqueo setup (`Alert` cuando `nextReady={false}`) va **encima** de esa banda en el área principal, **no dentro**, para no desalinear la línea horizontal. En el footer fijo (`dense`), **Anterior** y **Siguiente** van siempre en **fila** dentro de la banda (sin apilar en `flex-col`); textos largos con `truncate`. Si no hay paso anterior (p. ej. Config), **Siguiente** alineado a la **derecha** (`justify-end`).
 
 ---
 

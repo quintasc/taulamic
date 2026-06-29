@@ -177,6 +177,33 @@ function parseEventDateParts(date: string) {
   return { year, month, day };
 }
 
+/** Fecha mínima seleccionable (hoy, zona horaria local) en formato `YYYY-MM-DD`. */
+export function getMinEventDateIso(now = new Date()): string {
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/** `true` si la fecha es anterior al día actual (local). Hoy no cuenta como pasada. */
+export function isPastEventDate(date: string, now = new Date()): boolean {
+  if (!date?.trim()) {
+    return false;
+  }
+
+  const parts = parseEventDateParts(date);
+  if (!parts) {
+    return false;
+  }
+
+  const today = new Date(now);
+  today.setHours(0, 0, 0, 0);
+  const eventDay = new Date(parts.year, parts.month - 1, parts.day);
+  eventDay.setHours(0, 0, 0, 0);
+
+  return eventDay.getTime() < today.getTime();
+}
+
 /** Cuenta atrás en tiempo real hasta el mediodía del día del evento. */
 export function getEventCountdown(
   date?: string,

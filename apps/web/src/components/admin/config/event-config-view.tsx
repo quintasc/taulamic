@@ -9,7 +9,10 @@ import {
   SaveStatusIndicator,
 } from '@/components/ui';
 import { useEventConfig } from '@/hooks/use-event-config';
-import { EVENT_NAME_INPUT_PLACEHOLDER } from '@/lib/event-ui-meta';
+import {
+  EVENT_NAME_INPUT_PLACEHOLDER,
+  getMinEventDateIso,
+} from '@/lib/event-ui-meta';
 import { PILOT_COLLABORATIVE_MODE_ENABLED } from '@/lib/pilot-features';
 
 export function EventConfigView() {
@@ -20,7 +23,8 @@ export function EventConfigView() {
     name,
     setName,
     date,
-    setDate,
+    dateError,
+    handleDateChange,
     approximateGuests,
     setApproximateGuests,
     location,
@@ -60,14 +64,24 @@ export function EventConfigView() {
         </FormField>
 
         <div className="grid gap-5 sm:grid-cols-2">
-          <FormField id="event-date" label="Fecha">
+          <FormField
+            id="event-date"
+            label="Fecha"
+            hint="Debe ser hoy o una fecha futura."
+          >
             <input
               id="event-date"
               type="date"
               className="input-field"
               value={date}
-              onChange={(e) => setDate(e.target.value)}
+              min={getMinEventDateIso()}
+              onChange={(e) => handleDateChange(e.target.value)}
             />
+            {dateError ? (
+              <p className="mt-1 text-xs text-error-500" role="alert">
+                {dateError}
+              </p>
+            ) : null}
           </FormField>
           <FormField id="event-guests-approx" label="Invitados aproximados">
             <input

@@ -5,6 +5,7 @@ import { ApiError, eventsApi, preferencesApi } from '@/lib/api';
 import {
   configFormInitialName,
   isApiPlaceholderEventName,
+  isPastEventDate,
   loadEventUiMeta,
   saveEventUiMeta,
   type EventUiMeta,
@@ -42,6 +43,7 @@ export function useEventConfig() {
     useState<PreferenceControlMode>(PILOT_PREFERENCE_MODE);
   const [hydrated, setHydrated] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [dateError, setDateError] = useState<string | null>(null);
 
   const canAdvance =
     Boolean(name.trim()) && !isApiPlaceholderEventName(name.trim());
@@ -50,7 +52,14 @@ export function useEventConfig() {
     if (eventId) {
       const meta = loadEventUiMeta(eventId);
       setName(configFormInitialName(event?.name));
-      setDate(meta.date ?? '');
+      const loadedDate = meta.date ?? '';
+      if (loadedDate && isPastEventDate(loadedDate)) {
+        setDate('');
+        setDateError(null);
+      } else {
+        setDate(loadedDate);
+        setDateError(null);
+      }
       setLocation(meta.location ?? '');
       setApproximateGuests(
         meta.approximateGuestCount ?? meta.tableCount ?? '',
@@ -75,8 +84,26 @@ export function useEventConfig() {
       .catch(() => undefined);
   }, [eventId]);
 
+  const handleDateChange = useCallback((value: string) => {
+    if (!value) {
+      setDate('');
+      setDateError(null);
+      return;
+    }
+    if (isPastEventDate(value)) {
+      setDateError('La fecha del evento no puede ser anterior a hoy.');
+      return;
+    }
+    setDate(value);
+    setDateError(null);
+  }, []);
+
   const persistConfig = useCallback(async (): Promise<boolean> => {
     if (!eventId || !name.trim()) {
+      return false;
+    }
+    if (date.trim() && isPastEventDate(date)) {
+      setDateError('La fecha del evento no puede ser anterior a hoy.');
       return false;
     }
     setMessage(null);
@@ -123,7 +150,7 @@ export function useEventConfig() {
   persistConfigRef.current = persistConfig;
 
   useEffect(() => {
-    if (!hydrated || !eventId || !canAdvance) {
+    if (!hydrated || !eventId || !canAdvance || dateError) {
       return;
     }
     markPending();
@@ -144,6 +171,7 @@ export function useEventConfig() {
     canAdvance,
     name,
     date,
+    dateError,
     location,
     approximateGuests,
     notes,
@@ -172,7 +200,8 @@ export function useEventConfig() {
     name,
     setName,
     date,
-    setDate,
+    dateError,
+    handleDateChange,
     approximateGuests,
     setApproximateGuests,
     location,

@@ -182,6 +182,16 @@ export function useEventConfig() {
     markIdle,
   ]);
 
+  useEffect(() => {
+    if (!eventId || !hydrated || canAdvance) {
+      return;
+    }
+    const meta = loadEventUiMeta(eventId);
+    if (meta.configSaved) {
+      saveMeta(eventId, { ...meta, configSaved: false });
+    }
+  }, [canAdvance, eventId, hydrated]);
+
   const handleBeforeNext = useCallback(async () => {
     markSaving();
     const ok = await persistConfig();

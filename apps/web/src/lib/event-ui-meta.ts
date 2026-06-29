@@ -63,13 +63,13 @@ export function isEventConfigComplete(
   eventId: string,
   eventName: string | undefined,
 ): boolean {
-  const meta = loadEventUiMeta(eventId);
-  if (meta.configSaved) {
-    return true;
+  const hasValidName =
+    Boolean(eventName?.trim()) && !isApiPlaceholderEventName(eventName);
+  if (!hasValidName) {
+    return false;
   }
-  return (
-    Boolean(eventName?.trim()) && !isApiPlaceholderEventName(eventName)
-  );
+  const meta = loadEventUiMeta(eventId);
+  return meta.configSaved ?? true;
 }
 
 export function getDisplayEventName(

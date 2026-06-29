@@ -227,5 +227,6 @@ export function useEventDashboard(event: EventDetail | null, eventId: string | n
     setupPercent,
     setupDone,
     setupStatus,
+    configComplete,
   };
 }

@@ -134,6 +134,14 @@ export function IconCheck(props: IconProps) {
   );
 }
 
+export function IconClose(props: IconProps) {
+  return (
+    <svg {...defaults} {...props}>
+      <path d="M18 6 6 18M6 6l12 12" />
+    </svg>
+  );
+}
+
 export function IconChevronDown(props: IconProps) {
   return (
     <svg {...defaults} {...props}>
@@ -333,7 +341,25 @@ export function IconTrash(props: IconProps) {
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth={2}
-        d="M3 6h18M8 6V4h8v2m-1 0v14a2 2 0 01-2 2H9a2 2 0 01-2-2V6h10z"
+        d="M3 6h18"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M10 11v6M14 11v6"
       />
     </svg>
   );

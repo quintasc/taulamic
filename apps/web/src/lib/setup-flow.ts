@@ -31,6 +31,17 @@ const STEP_LABELS: Record<SetupFlowKey, string> = {
   dist: 'Distribución',
 };
 
+export function getSetupStepShortLabel(key: SetupFlowKey): string {
+  return STEP_LABELS[key];
+}
+
+export function getSetupStepJourneyLabel(
+  key: SetupFlowKey,
+  stepIndex: number,
+): string {
+  return `Paso ${stepIndex + 1}: ${STEP_LABELS[key]}`;
+}
+
 function hrefForStep(eventId: string, key: SetupFlowKey): string {
   const routes = adminRoutes(eventId);
   const hrefByKey: Record<SetupFlowKey, string> = {
@@ -112,4 +123,55 @@ export function getSetupNav(eventId: string, currentKey: SetupFlowKey) {
     previous: getPreviousSetupStep(eventId, currentKey),
     next: getNextSetupStep(eventId, currentKey),
   };
+}
+
+export function getSetupStepHref(eventId: string, key: SetupFlowKey): string {
+  return hrefForStep(eventId, key);
+}
+
+export type SetupNavTarget = {
+  key: SetupFlowKey;
+  href: string;
+  stepLabel: string;
+  ctaLabel: string;
+};
+
+export function getDashboardSetupNav(
+  eventId: string,
+  configComplete: boolean,
+): { next: { href: string; nextLabel: string } } {
+  return {
+    next: {
+      href: adminRoutes(eventId).config,
+      nextLabel: configComplete
+        ? 'Siguiente: Configuración'
+        : 'Siguiente: Definir evento',
+    },
+  };
+}
+
+/** Primer paso incompleto del setup (omite bloqueados). */
+export function getNextIncompleteSetupStep(
+  eventId: string,
+  setupStatus: boolean[],
+): SetupNavTarget | null {
+  for (const key of FLOW_ORDER) {
+    if (isStepLocked(key)) {
+      continue;
+    }
+    const index = setupSteps.findIndex((step) => step.key === key);
+    if (index === -1) {
+      continue;
+    }
+    if (!setupStatus[index]) {
+      const stepLabel = STEP_LABELS[key];
+      return {
+        key,
+        href: hrefForStep(eventId, key),
+        stepLabel,
+        ctaLabel: key === 'config' ? 'Definir evento' : `Continuar: ${stepLabel}`,
+      };
+    }
+  }
+  return null;
 }

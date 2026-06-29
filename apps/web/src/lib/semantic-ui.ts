@@ -49,12 +49,19 @@ export function tableStatusBadgeClass(status: TableOccupancyStatus): string {
 
 export function filterChipClass(active: boolean): string {
   return active
-    ? 'bg-primary-500 text-white'
-    : 'border border-neutral-200 bg-neutral-0 text-neutral-700 hover:bg-neutral-50';
+    ? 'border border-primary-500 bg-primary-500/10 text-primary-700'
+    : 'border border-neutral-200 bg-neutral-0 text-neutral-700 hover:border-neutral-300 hover:bg-neutral-50';
+}
+
+/** Chip de selección en formularios (p. ej. forma de mesa). Misma variante outline que filtros. */
+export function selectionChipClass(selected: boolean): string {
+  return selected
+    ? 'border border-primary-500 bg-primary-500/10 text-primary-700'
+    : 'border border-neutral-200 bg-neutral-0 text-neutral-700 hover:border-neutral-300 hover:bg-neutral-50';
 }
 
 export function filterChipCountClass(active: boolean): string {
-  return active ? 'text-primary-100' : 'text-neutral-500';
+  return active ? 'text-primary-600' : 'text-neutral-500';
 }
 
 export function rsvpIconClass(status: GuestRsvpStatus): string {

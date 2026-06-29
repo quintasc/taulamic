@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useToast } from '@/components/ui';
+import { apiTableShape } from '@/components/tables';
 import {
   ApiError,
   distributionApi,
@@ -9,10 +10,18 @@ import {
   type DistributionProposal,
   type SeatTopology,
 } from '@/lib/api';
-import { apiTableShape } from '@/components/tables';
 import { useEvent } from '@/lib/event-context';
 import { getSetupNav } from '@/lib/setup-flow';
 import { suggestNextTableLabels } from '@/lib/table-labels';
+import {
+  apiShapeFromUi,
+  draftFromTable,
+  getTableAssignedGuestCount,
+  tableDraftEquals,
+  tableMatchesDraft,
+  type TableEditDraft,
+  validateTableDraft,
+} from '@/lib/table-form';
 
 export function useTablesSetup() {
   const toast = useToast();
@@ -28,14 +37,48 @@ export function useTablesSetup() {
   );
   const [saving, setSaving] = useState(false);
   const [removingTableId, setRemovingTableId] = useState<string | null>(null);
+  const [bulkRemoving, setBulkRemoving] = useState(false);
   const [editingTableId, setEditingTableId] = useState<string | null>(null);
-  const [editingLabel, setEditingLabel] = useState('');
-  const [savingLabelId, setSavingLabelId] = useState<string | null>(null);
-
-  const previewLabels = suggestNextTableLabels(
-    event?.tables ?? [],
-    Math.max(1, quantity),
+  const [editingDraft, setEditingDraft] = useState<TableEditDraft | null>(null);
+  const [editingOriginal, setEditingOriginal] = useState<TableEditDraft | null>(
+    null,
   );
+  const [editError, setEditError] = useState<string | null>(null);
+  const [savingTableId, setSavingTableId] = useState<string | null>(null);
+  const [pendingRemoveTableIds, setPendingRemoveTableIds] = useState<
+    string[] | null
+  >(null);
+  const [selectedTableIds, setSelectedTableIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+
+  const tables = event?.tables ?? [];
+  const previewLabels = suggestNextTableLabels(tables, Math.max(1, quantity));
+
+  const assignedGuestCountForTable = useCallback(
+    (tableId: string) =>
+      getTableAssignedGuestCount(distribution?.placements, tableId),
+    [distribution?.placements],
+  );
+
+  const validateDraft = useCallback(
+    (tableId: string, draft: TableEditDraft) =>
+      validateTableDraft(
+        tableId,
+        draft,
+        tables,
+        assignedGuestCountForTable(tableId),
+      ),
+    [assignedGuestCountForTable, tables],
+  );
+
+  useEffect(() => {
+    setSelectedTableIds((current) => {
+      const valid = new Set(tables.map((table) => table.id));
+      const next = new Set([...current].filter((id) => valid.has(id)));
+      return next.size === current.size ? current : next;
+    });
+  }, [tables]);
 
   useEffect(() => {
     if (!eventId) {
@@ -68,7 +111,7 @@ export function useTablesSetup() {
       return;
     }
     const count = Math.max(1, Math.min(50, quantity));
-    const labels = suggestNextTableLabels(event?.tables ?? [], count);
+    const labels = suggestNextTableLabels(tables, count);
 
     setSaving(true);
     try {
@@ -91,90 +134,210 @@ export function useTablesSetup() {
     } finally {
       setSaving(false);
     }
-  }, [capacity, event?.tables, eventId, quantity, refreshEvent, shape, toast]);
+  }, [capacity, eventId, quantity, refreshEvent, shape, tables, toast]);
 
-  const startEditLabel = useCallback((tableId: string, currentLabel: string) => {
-    setEditingTableId(tableId);
-    setEditingLabel(currentLabel);
-  }, []);
-
-  const cancelEditLabel = useCallback(() => {
+  const exitTableEdit = useCallback(() => {
     setEditingTableId(null);
-    setEditingLabel('');
+    setEditingDraft(null);
+    setEditingOriginal(null);
+    setEditError(null);
   }, []);
 
-  const saveEditedLabel = useCallback(
-    async (tableId: string) => {
+  const persistTableEdit = useCallback(
+    async (tableId: string, draft: TableEditDraft) => {
       if (!eventId) {
+        return false;
+      }
+      const table = tables.find((item) => item.id === tableId);
+      if (!table || tableMatchesDraft(table, draft)) {
+        return true;
+      }
+
+      const validationError = validateDraft(tableId, draft);
+      if (validationError) {
+        return false;
+      }
+
+      setSavingTableId(tableId);
+      try {
+        await eventsApi.updateTable(eventId, tableId, {
+          label: draft.label.trim(),
+          shape: apiShapeFromUi(draft.shape),
+          estimatedCapacity: draft.capacity,
+        });
+      await refreshEvent({ silent: true });
+      if (editingTableId === tableId) {
+        setEditingOriginal({
+          label: draft.label.trim(),
+          shape: draft.shape,
+          capacity: draft.capacity,
+        });
+      }
+      return true;
+      } catch {
+        toast.error('No se pudo actualizar la mesa.');
+        return false;
+      } finally {
+        setSavingTableId(null);
+      }
+    },
+    [editingTableId, eventId, refreshEvent, tables, toast, validateDraft],
+  );
+
+  const persistTableEditRef = useRef(persistTableEdit);
+  persistTableEditRef.current = persistTableEdit;
+
+  const startEditTable = useCallback(
+    (tableId: string) => {
+      if (editingTableId === tableId || editError !== null) {
         return;
       }
-      const table = event?.tables.find((item) => item.id === tableId);
+      const table = tables.find((item) => item.id === tableId);
       if (!table) {
         return;
       }
-
-      const trimmed = editingLabel.trim();
-      if (!trimmed) {
-        toast.error('La etiqueta no puede estar vacía.');
-        return;
-      }
-
-      const duplicate = event?.tables.some(
-        (item) => item.id !== tableId && item.label.trim() === trimmed,
-      );
-      if (duplicate) {
-        toast.error('Ya existe otra mesa con esa etiqueta.');
-        return;
-      }
-
-      setSavingLabelId(tableId);
-      try {
-        await eventsApi.updateTable(eventId, tableId, {
-          label: trimmed,
-          shape: table.shape,
-          estimatedCapacity: table.capacity,
-        });
-        await refreshEvent();
-        cancelEditLabel();
-        toast.success(`Mesa renombrada a «${trimmed}».`);
-      } catch {
-        toast.error('No se pudo actualizar la etiqueta.');
-      } finally {
-        setSavingLabelId(null);
-      }
+      const draft = draftFromTable(table);
+      setEditingTableId(tableId);
+      setEditingDraft(draft);
+      setEditingOriginal(draft);
+      setEditError(null);
     },
-    [cancelEditLabel, editingLabel, event?.tables, eventId, refreshEvent, toast],
+    [editError, editingTableId, tables],
   );
 
-  const removeTable = useCallback(
-    async (tableId: string) => {
-      if (!eventId) {
+  const updateEditingDraft = useCallback(
+    (patch: Partial<TableEditDraft>) => {
+      if (!editingTableId) {
+        return;
+      }
+      setEditingDraft((prev) => {
+        if (!prev) {
+          return prev;
+        }
+        const next = { ...prev, ...patch };
+        setEditError(validateDraft(editingTableId, next));
+        return next;
+      });
+    },
+    [editingTableId, validateDraft],
+  );
+
+  const undoTableEdit = useCallback(() => {
+    if (editingOriginal) {
+      setEditingDraft(editingOriginal);
+    }
+    setEditError(null);
+    exitTableEdit();
+  }, [editingOriginal, exitTableEdit]);
+
+  const tryFinishTableEdit = useCallback(async () => {
+    if (!editingTableId || !editingDraft || !editingOriginal) {
+      return true;
+    }
+    const error = validateDraft(editingTableId, editingDraft);
+    if (error) {
+      setEditError(error);
+      return false;
+    }
+    if (tableDraftEquals(editingDraft, editingOriginal)) {
+      exitTableEdit();
+      return true;
+    }
+    const ok = await persistTableEdit(editingTableId, editingDraft);
+    if (ok) {
+      exitTableEdit();
+    }
+    return ok;
+  }, [
+    editingDraft,
+    editingOriginal,
+    editingTableId,
+    exitTableEdit,
+    persistTableEdit,
+    validateDraft,
+    tables,
+  ]);
+
+  useEffect(() => {
+    if (!editingTableId || !eventId || !editingDraft || editError) {
+      return;
+    }
+    const table = tables.find((item) => item.id === editingTableId);
+    if (!table || tableMatchesDraft(table, editingDraft)) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      void persistTableEditRef.current(editingTableId, editingDraft);
+    }, 500);
+
+    return () => window.clearTimeout(timer);
+  }, [editError, editingDraft, editingTableId, eventId, tables]);
+
+  const toggleTableSelection = useCallback((tableId: string) => {
+    setSelectedTableIds((current) => {
+      const next = new Set(current);
+      if (next.has(tableId)) {
+        next.delete(tableId);
+      } else {
+        next.add(tableId);
+      }
+      return next;
+    });
+  }, []);
+
+  const toggleSelectAllTables = useCallback(() => {
+    setSelectedTableIds((current) => {
+      if (current.size === tables.length) {
+        return new Set();
+      }
+      return new Set(tables.map((table) => table.id));
+    });
+  }, [tables]);
+
+  const clearTableSelection = useCallback(() => {
+    setSelectedTableIds(new Set());
+  }, []);
+
+  const cancelRemoveTables = useCallback(() => {
+    setPendingRemoveTableIds(null);
+  }, []);
+
+  const executeRemoveTables = useCallback(
+    async (tableIds: string[]) => {
+      if (!eventId || tableIds.length === 0) {
         return;
       }
 
-      const table = event?.tables.find((item) => item.id === tableId);
-      const assignedCount =
-        distribution?.placements.filter((placement) => placement.tableId === tableId)
-          .length ?? 0;
-      const hasDraftDistribution =
-        distribution !== null && distribution.status === 'draft';
-
-      if (hasDraftDistribution && assignedCount > 0) {
-        const guestLabel =
-          assignedCount === 1 ? 'invitado asignado' : 'invitados asignados';
-        const accepted = window.confirm(
-          `${table?.label ?? 'Esta mesa'} tiene ${assignedCount} ${guestLabel} en la distribución en borrador. Al eliminarla pasarán a «sin asignar». ¿Continuar?`,
-        );
-        if (!accepted) {
-          return;
-        }
+      const isBulk = tableIds.length > 1;
+      if (isBulk) {
+        setBulkRemoving(true);
+      } else {
+        setRemovingTableId(tableIds[0] ?? null);
       }
 
-      setRemovingTableId(tableId);
       try {
-        await eventsApi.removeTable(eventId, tableId);
+        for (const tableId of tableIds) {
+          await eventsApi.removeTable(eventId, tableId);
+        }
         await refreshEvent();
-        toast.success(`Mesa «${table?.label ?? 'Mesa'}» eliminada.`);
+        setSelectedTableIds((current) => {
+          const next = new Set(current);
+          for (const tableId of tableIds) {
+            next.delete(tableId);
+          }
+          return next;
+        });
+        if (editingTableId && tableIds.includes(editingTableId)) {
+          exitTableEdit();
+        }
+        const count = tableIds.length;
+        if (count === 1) {
+          const table = tables.find((item) => item.id === tableIds[0]);
+          toast.success(`Mesa «${table?.label ?? 'Mesa'}» eliminada.`);
+        } else {
+          toast.success(`${count} mesas eliminadas.`);
+        }
         try {
           const updatedDistribution = await distributionApi.get(eventId);
           setDistribution(updatedDistribution);
@@ -184,13 +347,66 @@ export function useTablesSetup() {
           }
         }
       } catch {
-        toast.error('No se pudo eliminar la mesa.');
+        toast.error(
+          tableIds.length === 1
+            ? 'No se pudo eliminar la mesa.'
+            : 'No se pudieron eliminar las mesas seleccionadas.',
+        );
       } finally {
         setRemovingTableId(null);
+        setBulkRemoving(false);
       }
     },
-    [distribution, event?.tables, eventId, refreshEvent, toast],
+    [editingTableId, eventId, exitTableEdit, refreshEvent, tables, toast],
   );
+
+  const requestRemoveTables = useCallback(
+    (tableIds: string[]) => {
+      if (!eventId || tableIds.length === 0 || editError !== null) {
+        return;
+      }
+
+      const uniqueIds = [...new Set(tableIds)];
+      const hasDraftDistribution =
+        distribution !== null && distribution.status === 'draft';
+      const withAssignments = hasDraftDistribution
+        ? uniqueIds.filter(
+            (tableId) =>
+              (distribution?.placements.filter(
+                (placement) => placement.tableId === tableId,
+              ).length ?? 0) > 0,
+          )
+        : [];
+
+      if (withAssignments.length > 0) {
+        setPendingRemoveTableIds(uniqueIds);
+        return;
+      }
+
+      void executeRemoveTables(uniqueIds);
+    },
+    [distribution, editError, eventId, executeRemoveTables],
+  );
+
+  const removeTable = useCallback(
+    (tableId: string) => {
+      requestRemoveTables([tableId]);
+    },
+    [requestRemoveTables],
+  );
+
+  const removeSelectedTables = useCallback(() => {
+    requestRemoveTables([...selectedTableIds]);
+  }, [requestRemoveTables, selectedTableIds]);
+
+  const confirmRemoveTables = useCallback(async () => {
+    if (!pendingRemoveTableIds?.length) {
+      return;
+    }
+    const ids = pendingRemoveTableIds;
+    setPendingRemoveTableIds(null);
+    await executeRemoveTables(ids);
+  }, [executeRemoveTables, pendingRemoveTableIds]);
 
   return {
     event,
@@ -203,17 +419,28 @@ export function useTablesSetup() {
     quantity,
     setQuantity,
     topology,
+    distribution,
     saving,
     removingTableId,
+    bulkRemoving,
     editingTableId,
-    editingLabel,
-    setEditingLabel,
-    savingLabelId,
+    editingDraft,
+    editError,
+    updateEditingDraft,
+    savingTableId,
+    pendingRemoveTableIds,
+    selectedTableIds,
     previewLabels,
     saveTables,
-    startEditLabel,
-    cancelEditLabel,
-    saveEditedLabel,
+    startEditTable,
+    undoTableEdit,
+    tryFinishTableEdit,
+    toggleTableSelection,
+    toggleSelectAllTables,
+    clearTableSelection,
     removeTable,
+    removeSelectedTables,
+    cancelRemoveTables,
+    confirmRemoveTables,
   };
 }

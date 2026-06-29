@@ -4,10 +4,13 @@ import { useState } from 'react';
 import {
   IconDistribution,
   IconFloorPlan,
+  IconHeart,
+  IconSettings,
   IconTable,
   IconUsers,
 } from '@/components/icons';
 import { UnassignedGuestsListDialog } from '@/components/admin/distribution/unassigned-guests-list-dialog';
+import { SetupNavBar } from '@/components/admin/setup-nav-bar';
 import {
   PageHeader,
   QuickAccessCard,
@@ -15,12 +18,51 @@ import {
   StatCard,
 } from '@/components/ui';
 import { EventCountdown } from '@/components/admin/event-countdown';
-import { SetupChecklist } from '@/components/admin/setup-checklist';
+import { SetupJourney } from '@/components/admin/setup-journey';
 import { useEventDashboard } from '@/hooks/use-event-dashboard';
 import { getCountableSetupSteps } from '@/lib/domain/setup-steps';
 import { useEvent } from '@/lib/event-context';
 import { loadEventUiMeta } from '@/lib/event-ui-meta';
 import { adminRoutes } from '@/lib/routes';
+import { getDashboardSetupNav, getSetupStepHref, type SetupFlowKey } from '@/lib/setup-flow';
+import type { ReactNode } from 'react';
+
+const QUICK_ACCESS_STEPS: {
+  key: SetupFlowKey;
+  label: string;
+  icon: ReactNode;
+}[] = [
+  {
+    key: 'config',
+    label: 'Configuración',
+    icon: <IconSettings width={16} height={16} />,
+  },
+  {
+    key: 'guests',
+    label: 'Invitados',
+    icon: <IconUsers width={16} height={16} />,
+  },
+  {
+    key: 'plano',
+    label: 'Plano',
+    icon: <IconFloorPlan width={16} height={16} />,
+  },
+  {
+    key: 'tables',
+    label: 'Mesas',
+    icon: <IconTable width={16} height={16} />,
+  },
+  {
+    key: 'prefs',
+    label: 'Afinidades',
+    icon: <IconHeart width={16} height={16} />,
+  },
+  {
+    key: 'dist',
+    label: 'Distribución',
+    icon: <IconDistribution width={16} height={16} />,
+  },
+];
 
 export function EventDashboard() {
   const { event, eventId } = useEvent();
@@ -38,7 +80,11 @@ export function EventDashboard() {
     setupPercent,
     setupDone,
     setupStatus,
+    configComplete,
   } = useEventDashboard(event, eventId);
+
+  const dashboardNav =
+    eventId !== null ? getDashboardSetupNav(eventId, configComplete) : null;
 
   const unassignedHintFragment =
     unassigned !== null && unassigned > 0
@@ -89,38 +135,28 @@ export function EventDashboard() {
         />
       </div>
 
-      {routes ? (
+      {eventId ? (
         <section className="mt-6">
-          <SectionLabel>Accesos rápidos</SectionLabel>
-          <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
-            <QuickAccessCard
-              href={routes.floorPlan}
-              label="Editar plano"
-              icon={<IconFloorPlan width={16} height={16} />}
-            />
-            <QuickAccessCard
-              href={routes.guests}
-              label="Ver invitados"
-              icon={<IconUsers width={16} height={16} />}
-            />
-            <QuickAccessCard
-              href={routes.tables}
-              label="Gestionar mesas"
-              icon={<IconTable width={16} height={16} />}
-            />
-            <QuickAccessCard
-              href={routes.distribution}
-              label="Calcular distribución"
-              icon={<IconDistribution width={16} height={16} />}
-            />
-          </div>
+          <SectionLabel>Recorrido del setup</SectionLabel>
+          <SetupJourney eventId={eventId} setupStatus={setupStatus} />
         </section>
       ) : null}
 
-      <section className="mt-6">
-        <SectionLabel>Estado del setup</SectionLabel>
-        <SetupChecklist setupStatus={setupStatus} />
-      </section>
+      {eventId ? (
+        <section className="mt-6">
+          <SectionLabel>Accesos rápidos</SectionLabel>
+          <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+            {QUICK_ACCESS_STEPS.map((step) => (
+              <QuickAccessCard
+                key={step.key}
+                href={getSetupStepHref(eventId, step.key)}
+                label={step.label}
+                icon={step.icon}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <UnassignedGuestsListDialog
         open={unassignedListOpen}
@@ -128,6 +164,15 @@ export function EventDashboard() {
         distributionHref={routes?.distribution}
         onClose={() => setUnassignedListOpen(false)}
       />
+
+      {eventId && dashboardNav ? (
+        <SetupNavBar
+          hidePrimary
+          nextHref={dashboardNav.next.href}
+          nextLabel={dashboardNav.next.nextLabel}
+          nextReady
+        />
+      ) : null}
     </>
   );
 }

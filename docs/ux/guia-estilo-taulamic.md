@@ -209,6 +209,27 @@ Mantener `Alert` en pantalla cuando el mensaje debe **permanecer visible** mient
 - Recomendación tamaño salón (Plano).
 - Error de API no resuelto con un solo toast.
 
+### 7.5 Feedback contextual (subzona)
+
+Mensajes **pegados al control o fila** donde ocurre la acción — no toast ni banner de página.
+
+| Caso | Patrón | Ejemplo |
+|------|--------|---------|
+| Validación de campo inline | Texto `text-xs text-error-500` bajo el input | Etiqueta mesa vacía o duplicada |
+| Resultado de drag/drop o mutación local | Superficie compacta tipo `Alert` (`feedback-surface-*`, `rounded-xl`) en la fila o panel | Distribución: mover invitado, warning acompañantes |
+| Confirmación destructiva con contexto | `ConfirmDialog` modal | Eliminar mesa con invitados asignados en distribución |
+
+**Árbol de decisión:**
+
+1. ¿Afecta a toda la pantalla o bloquea setup? → §7.1 / §7.4  
+2. ¿Acción puntual y el cambio no es obvio? → §7.2 Toast  
+3. ¿Acción en subzona (fila, panel, input)? → **§7.5 contextual**  
+4. ¿El cambio ya es visible sin texto? → Sin mensaje adicional  
+
+**Implementación:** `placement-mutation-feedback.tsx`, validación inline en formularios; reutilizar tokens `feedback-surface-*` de `semantic-ui.ts`.
+
+**Chips de filtro (canónico):** activo = borde `primary-500` + fondo `primary-500/10` + texto `primary-700` (`filterChipClass` en `semantic-ui.ts`). Aplicar en Distribución, Plano e Invitados.
+
 ---
 
 ## 8) Componentes UI obligatorios
@@ -241,7 +262,10 @@ Inventario en `frontend-component-system.md`. Primitivos en `apps/web/src/compon
 - Mesas: count API + plazas + «sobran/faltan X plazas» (sin fracción `2/2`).
 - **Cuenta atrás evento** (`EventCountdown`): días grandes a la izquierda; horas/minutos dot-matrix a la derecha; ventana progreso 120 días.
 - Sin datos demo al crear evento.
-- **Proyecto evento:** el primer paso natural desde el dashboard es **Configuración** (`/config`) — unidad que con persistencia futura será guardable/recuperable. Propuesta de navegación guiada: `MEJ-11-dashboard-navegacion-y-atajos.md`.
+- **Proyecto evento:** el primer paso natural desde el dashboard es **Configuración** (`/config`) — unidad que con persistencia futura será guardable/recuperable.
+- **Recorrido del setup** (`SetupJourney`): línea vertical con nodos por paso; check verde si completado, círculo neutro si pendiente; cada nodo clicable salvo bloqueados (Tarjetas).
+- **Footer setup** (`SetupNavBar`): «Siguiente: Configuración» (o «Definir evento» si falta nombre) hacia `/config` — misma banda fija que el resto de pantallas; flecha en móvil, texto desde `md`.
+- **Accesos rápidos:** orden del flujo setup (Config primero); en desktop (`lg+`) tarjetas compactas en fila; en móvil/tablet tarjetas verticales. Sidebar sigue siendo navegación principal en desktop.
 
 ### Invitados
 

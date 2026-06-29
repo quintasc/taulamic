@@ -395,6 +395,8 @@ export type MarketingCard = {
   illu: ReactNode;
   scene: ReactNode;
   featured: boolean;
+  /** `available`: CTA activo; `coming-soon`: segmento aún no operativo en producto. */
+  availability: 'available' | 'coming-soon';
 };
 
 export const marketingCards: MarketingCard[] = [
@@ -404,6 +406,7 @@ export const marketingCards: MarketingCard[] = [
     illu: <IlluBoda />,
     scene: <SceneBoda />,
     featured: true,
+    availability: 'available',
   },
   {
     title: 'AULAS Y FORMACIÓN',
@@ -411,6 +414,7 @@ export const marketingCards: MarketingCard[] = [
     illu: <IlluAula />,
     scene: <SceneAula />,
     featured: false,
+    availability: 'coming-soon',
   },
   {
     title: 'EVENTOS DE EMPRESA',
@@ -418,5 +422,6 @@ export const marketingCards: MarketingCard[] = [
     illu: <IlluEmpresa />,
     scene: <SceneEmpresa />,
     featured: false,
+    availability: 'coming-soon',
   },
 ];

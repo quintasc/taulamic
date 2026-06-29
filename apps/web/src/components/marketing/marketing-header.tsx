@@ -9,19 +9,20 @@ export function MarketingHeader({ adminHref }: { adminHref: string }) {
       <Link href="/">
         <TaulamicLogo />
       </Link>
-      <nav className="hidden items-center gap-8 text-sm font-medium text-neutral-700 md:flex">
-        {['Sobre nosotros', 'Precios', 'Blog'].map((label) => (
-          <span key={label} className="cursor-default hover:text-neutral-900">
-            {label}
-          </span>
-        ))}
+      <nav className="hidden items-center gap-8 text-sm font-medium md:flex">
+        <Link
+          href="/#segmentos"
+          className="text-neutral-700 hover:text-neutral-900"
+        >
+          Soluciones
+        </Link>
       </nav>
       <div className="flex flex-col items-end gap-1">
         <Link href={adminHref} className="btn-primary px-5 py-2 text-sm">
-          Iniciar sesión
+          Acceder al piloto
         </Link>
         <span className="max-w-[220px] text-right text-[11px] leading-snug text-neutral-500">
-          Piloto julio · acceso directo, sin registro
+          Bodas · acceso directo, sin registro
         </span>
       </div>
     </header>

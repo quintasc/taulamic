@@ -44,9 +44,17 @@ export function MarketingLanding() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 pb-24 md:px-16 md:pb-24">
-        <p className="mb-10 text-center text-[11px] font-bold uppercase tracking-[0.1em] text-neutral-500">
+      <section
+        id="segmentos"
+        className="mx-auto max-w-6xl px-6 pb-24 md:px-16 md:pb-24"
+      >
+        <p className="mb-3 text-center text-[11px] font-bold uppercase tracking-[0.1em] text-neutral-500">
           Para cada tipo de evento
+        </p>
+        <p className="mx-auto mb-10 max-w-[540px] text-center text-sm leading-relaxed text-neutral-500">
+          En el piloto actual el producto está operativo para{' '}
+          <span className="font-medium text-neutral-700">bodas y celebraciones</span>
+          . Aulas y eventos de empresa están en roadmap.
         </p>
         <div className="grid gap-5 md:grid-cols-3">
           {marketingCards.map((card) => (

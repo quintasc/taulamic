@@ -2,13 +2,14 @@
 
 - Ultima actualizacion: **2026-06-21**
 - Sprint activo: **06 cerrado** — MEJ-08 Fase 2 + Fase 2b validadas
-- **Propuestas en validacion:** MEJ-10 · MEJ-11 · MEJ-12 — sin implementar MEJ en código pendiente de PO
+- **Propuestas en validacion:** MEJ-10 · MEJ-11 · MEJ-12 · MEJ-13 — sin implementar MEJ en código pendiente de PO
+- **Cambios locales sin commit:** fix footer setup (fila + flechas `< md`)
 - **Cambios locales sin commit:** fix responsive distribución + setup nav
 
 ## Frase clave
 
 ```text
-Retomo Taulamic. Sprint 06 cerrado. Validar MEJ-10/11/12 con PO antes de codificar. Plano: marcadores compactos, 1 clic panel. Fase C asientos = backlog. SDD manda.
+Retomo Taulamic. Validar MEJ-10/11/12/13 con PO antes de codificar copy. Footer setup: fila + flechas móvil (local). SDD manda.
 ```
 
 ## MEJ-10 — Cohesión UI (pendiente aprobación PO)
@@ -35,7 +36,15 @@ Retomo Taulamic. Sprint 06 cerrado. Validar MEJ-10/11/12 con PO antes de codific
 | `guion-validacion-mej-12-propuesta-ui.md` | **Validar primero** |
 | `guion-validacion-mej-12-ui.md` | Post-implementación (borrador) |
 
-**Gate:** no implementar MEJ-10/11/12 hasta guiones propuesta OK por PO.
+**Gate:** no implementar MEJ-10/11/12/13 hasta guiones propuesta OK por PO.
+
+## MEJ-13 — Microcopy y ayudas (pendiente aprobación PO)
+
+| Documento | Uso |
+|-----------|-----|
+| `MEJ-13-auditoria-microcopy-y-ayudas.md` | Inventario ayudas piloto + botones responsive |
+| `guion-validacion-mej-13-propuesta-microcopy.md` | **Validar primero** |
+| `guion-validacion-mej-13-ui.md` | Post-implementación (borrador) |
 
 ## Sprint 06 (cerrado)
 

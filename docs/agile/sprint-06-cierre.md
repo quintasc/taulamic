@@ -57,6 +57,7 @@ Evidencias: `evidencias-mej-08-fase2-validacion.md`
 - **MEJ-10** — Cohesión UI (feedback, chips, tablas): `MEJ-10-cohesion-ui-feedback-y-tablas.md` — validar propuesta PO antes de implementar
 - **MEJ-11** — Dashboard (Config = proyecto, CTA, checklist, atajos móvil): `MEJ-11-dashboard-navegacion-y-atajos.md`
 - **MEJ-12** — Plano Fase B (marcadores compactos, 1 clic panel): `MEJ-12-plano-marcadores-compactos.md`
+- **MEJ-13** — Auditoría microcopy (ayudas piloto, botones responsive): `MEJ-13-auditoria-microcopy-y-ayudas.md`
 - Push + cierre #51 en GitHub con alcance Fase 2 completo
 - Fase C: asientos numerados en plano
 - #53 Organizador real (pospuesto)

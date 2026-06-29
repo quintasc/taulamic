@@ -28,6 +28,44 @@ export type SetupNavBarProps = {
 const MAIN_SETUP_BAR_REGION_CLASS =
   'fixed left-[var(--admin-sidebar-width)] z-40 w-[calc(100%-var(--admin-sidebar-width))] px-4 md:px-8';
 
+/** En footer fijo (dense), por debajo de md solo flechas; texto completo desde md. */
+const DENSE_PREVIOUS_CLASS =
+  'inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-xl text-xs font-medium text-neutral-600 hover:bg-wf-1 hover:text-primary-600 md:min-h-8 md:min-w-0 md:max-w-[45%] md:justify-start md:rounded-none md:px-0 md:hover:bg-transparent';
+
+const DENSE_NEXT_CLASS =
+  'min-h-11 min-w-11 shrink-0 justify-center px-3 md:min-h-0 md:min-w-0 md:px-3.5';
+
+function SetupNavPreviousContent({ previousLabel }: { previousLabel: string }) {
+  return (
+    <>
+      <span className="md:hidden" aria-hidden>
+        ←
+      </span>
+      <span className="hidden truncate md:inline">← {previousLabel}</span>
+    </>
+  );
+}
+
+function SetupNavNextContent({
+  nextLabel,
+  loading = false,
+}: {
+  nextLabel: string;
+  loading?: boolean;
+}) {
+  if (loading) {
+    return <>Guardando…</>;
+  }
+  return (
+    <>
+      <span className="md:hidden" aria-hidden>
+        →
+      </span>
+      <span className="hidden md:inline">{nextLabel} →</span>
+    </>
+  );
+}
+
 function useSetupNavControlState({
   previousHref,
   previousLabel,
@@ -148,39 +186,45 @@ function SetupNavControlsRow({
   const primaryBtnClass = dense ? 'btn-primary-compact' : 'btn-primary';
   const secondaryBtnClass = dense ? 'btn-secondary-compact' : 'btn-secondary';
   const previousLinkClass = dense
-    ? 'text-xs font-medium text-neutral-600 hover:text-primary-600'
+    ? DENSE_PREVIOUS_CLASS
     : 'text-sm font-medium text-neutral-600 hover:text-primary-600';
 
+  const rowClass = compact
+    ? 'flex w-full min-w-0 flex-wrap items-center gap-2'
+    : dense
+      ? 'flex h-full w-full min-w-0 flex-row items-center justify-between gap-2'
+      : 'flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3';
+
+  const actionsClass = compact
+    ? 'order-2 flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:justify-end'
+    : dense
+      ? 'flex min-w-0 shrink-0 flex-row items-center justify-end gap-2'
+      : 'flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:justify-end';
+
   return (
-    <div
-      className={
-        compact
-          ? 'flex w-full min-w-0 flex-wrap items-center gap-2'
-          : dense
-            ? 'flex w-full min-w-0 flex-col gap-2 lg:flex-row lg:items-center lg:justify-between lg:gap-3'
-            : 'flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3'
-      }
-    >
+    <div className={rowClass}>
       {showPrevious ? (
         <Link
           href={previousHref!}
-          className={`${previousLinkClass} min-w-0 max-w-full truncate ${compact ? 'order-1' : ''}`}
+          className={`${previousLinkClass} ${compact ? 'order-1' : ''}`}
+          aria-label={dense ? previousLabel : undefined}
+          title={dense ? previousLabel : undefined}
         >
-          ← {previousLabel}
+          {dense ? (
+            <SetupNavPreviousContent previousLabel={previousLabel!} />
+          ) : (
+            <>← {previousLabel}</>
+          )}
         </Link>
       ) : (
-        <span className={compact ? 'hidden' : 'hidden sm:block sm:flex-1'} />
+        <span className={compact ? 'hidden' : dense ? 'hidden' : 'hidden sm:block sm:flex-1'} />
       )}
 
-      <div
-        className={`flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:justify-end lg:w-auto ${
-          compact ? 'order-2' : ''
-        }`}
-      >
+      <div className={actionsClass}>
         {showPrimary ? (
           <button
             type="button"
-            className={`${primaryBtnClass} w-full min-w-0 sm:w-auto`}
+            className={`${primaryBtnClass} ${dense ? 'shrink-0' : 'w-full min-w-0 sm:w-auto'}`}
             disabled={primaryDisabled || primarySaving}
             onClick={onPrimaryClick}
           >
@@ -193,28 +237,46 @@ function SetupNavControlsRow({
             onBeforeNext ? (
               <button
                 type="button"
-                className={`${secondaryBtnClass} w-full min-w-0 sm:w-auto`}
+                className={`${secondaryBtnClass} ${dense ? DENSE_NEXT_CLASS : 'w-full min-w-0 sm:w-auto'}`}
                 disabled={nextLoading}
+                aria-label={dense && nextLabel ? nextLabel : undefined}
+                title={dense && nextLabel ? nextLabel : undefined}
                 onClick={() => void onHandleNext()}
               >
-                {nextLoading ? 'Guardando…' : `${nextLabel} →`}
+                {dense && nextLabel ? (
+                  <SetupNavNextContent nextLabel={nextLabel} loading={nextLoading} />
+                ) : (
+                  <>{nextLoading ? 'Guardando…' : `${nextLabel} →`}</>
+                )}
               </button>
             ) : (
               <Link
                 href={nextHref!}
-                className={`${secondaryBtnClass} w-full min-w-0 text-center sm:w-auto`}
+                className={`${secondaryBtnClass} ${dense ? `${DENSE_NEXT_CLASS} whitespace-nowrap` : 'w-full min-w-0 text-center sm:w-auto'}`}
+                aria-label={dense && nextLabel ? nextLabel : undefined}
+                title={dense && nextLabel ? nextLabel : undefined}
               >
-                {nextLabel} →
+                {dense && nextLabel ? (
+                  <SetupNavNextContent nextLabel={nextLabel} />
+                ) : (
+                  <>{nextLabel} →</>
+                )}
               </Link>
             )
           ) : (
             <button
               type="button"
-              className={`${secondaryBtnClass} w-full min-w-0 text-center opacity-50 sm:w-auto`}
+              className={`${secondaryBtnClass} ${dense ? `${DENSE_NEXT_CLASS} whitespace-nowrap` : 'w-full min-w-0 text-center sm:w-auto'}`}
+              aria-label={dense && nextLabel ? nextLabel : undefined}
+              title={dense && nextLabel ? nextLabel : undefined}
               aria-disabled="true"
               onClick={onEmphasizeBlocked}
             >
-              {nextLabel} →
+              {dense && nextLabel ? (
+                <SetupNavNextContent nextLabel={nextLabel} />
+              ) : (
+                <>{nextLabel} →</>
+              )}
             </button>
           )
         ) : null}
@@ -283,7 +345,7 @@ function StickySetupNavBar(props: SetupNavBarProps) {
       <div
         className={`admin-setup-bar-shell ${MAIN_SETUP_BAR_REGION_CLASS} bottom-0`}
       >
-        <div className="admin-setup-bar-inner mx-auto max-w-4xl min-w-0">
+        <div className="admin-setup-bar-inner mx-auto max-w-4xl min-w-0 overflow-hidden">
           <SetupNavControlsRow
             {...props}
             dense

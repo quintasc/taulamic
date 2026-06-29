@@ -152,9 +152,10 @@ Componente: `apps/web/src/components/admin/setup-nav-bar.tsx`
 - **Desktop:** pie de página, borde superior.
 - **Móvil:** **sticky inferior** (`fixed bottom-0`), con espaciador de scroll.
 - Controles: `← Anterior` (link) · acción primaria opcional · `Siguiente →`.
+- **Viewport estrecho / móvil (`dense`, `< md`):** solo flechas `←` / `→` en la banda fija; etiqueta completa en `aria-label` + `title` (p. ej. «Anterior: Afinidades»). Desde `md`: texto completo con `truncate` si hace falta.
 - Props clave: `nextReady`, `nextDisabledHint`, `onBeforeNext`, `hidePrimary`.
 
-**Alineación con sidebar (obligatorio):** la banda inferior del contenido (`admin-setup-bar-shell`) y el bloque «Mapa navegación» del sidebar comparten la misma clase, altura (`--admin-setup-bar-height`) y `border-t` a la misma altura de viewport. El banner de bloqueo setup (`Alert` cuando `nextReady={false}`) va **encima** de esa banda en el área principal, **no dentro**, para no desalinear la línea horizontal.
+**Alineación con sidebar (obligatorio):** la banda inferior del contenido (`admin-setup-bar-shell`) y el bloque «Mapa navegación» del sidebar comparten la misma clase, altura (`--admin-setup-bar-height`) y `border-t` a la misma altura de viewport. El banner de bloqueo setup (`Alert` cuando `nextReady={false}`) va **encima** de esa banda en el área principal, **no dentro**, para no desalinear la línea horizontal. En el footer fijo (`dense`), **Anterior** y **Siguiente** van siempre en **fila** dentro de la banda (sin apilar en `flex-col`); textos largos con `truncate`.
 
 ---
 
@@ -281,7 +282,7 @@ Inventario en `frontend-component-system.md`. Primitivos en `apps/web/src/compon
 | Admin | Desktop-first (≥ 1024 px), degradar con `sm:`/`lg:` |
 | Invitado (futuro) | **Mobile-first 390×844**, touch ≥ 44 px |
 
-Patrones: tablas con fila apilada en móvil; `SetupNavBar` sticky abajo; no depender de `:hover` para acciones críticas.
+Patrones: tablas con fila apilada en móvil; `SetupNavBar` sticky abajo con flechas solas `< md`; no depender de `:hover` para acciones críticas.
 
 ---
 
@@ -294,8 +295,10 @@ Patrones: tablas con fila apilada en móvil; `SetupNavBar` sticky abajo; no depe
 | Piloto no operativo | «Piloto — …» / «Post-piloto» en badge, sin prometer funcionalidad inexistente |
 | Pasos setup | «Paso N del setup: …» en subtítulo |
 | Confirmaciones destructivas | `window.confirm` con nombre de entidad |
+| Etiquetas responsive | Texto corto solo `< md` si el contexto de pantalla desambigua; `aria-label` con texto completo (ver `MEJ-13-auditoria-microcopy-y-ayudas.md`) |
+| Lifecycle piloto | Revisar ayudas «piloto» / «post-piloto» cuando el límite deje de ser cierto — auditoría MEJ-13 antes de podar |
 
-Evitar: «borrador» en UI de organizador salvo copy técnico interno; «Guardar» cuando el guardado es automático.
+Evitar: «borrador» en UI de organizador salvo copy técnico interno; «Guardar» cuando el guardado es automático; acortar botones sin criterio de claridad (§ MEJ-13).
 
 ---
 

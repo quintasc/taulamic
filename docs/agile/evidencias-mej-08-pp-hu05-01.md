@@ -49,7 +49,6 @@ Ejecutada por PO/desarrollo en entorno local (`npm run dev`, web `:3001`, API `:
 
 ## Pendiente MEJ-08 Fase 1
 
-- PP-HU05-02 — Asignar (+)
-- PP-HU05-04 — KPIs dashboard (completo)
-- PP-HU05-05 — Reglas duras en asignacion
-- PP-HU05-07 — Lista sin asignar (KPI)
+- ~~PP-HU05-02 — Asignar (+)~~ ✅
+- ~~PP-HU05-07 — Lista sin asignar (KPI)~~ ✅
+- Cierre consolidado: `evidencias-mej-08-fase1-validacion.md`

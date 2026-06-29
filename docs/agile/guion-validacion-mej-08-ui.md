@@ -39,12 +39,12 @@
 
 | # | Paso | Ruta / accion | Resultado esperado | OK |
 |---|------|---------------|-------------------|-----|
-| 8 | Control + | Mesa con plazas libres | Boton **+** o «Anadir invitado» visible | [ ] |
-| 9 | Selector | Pulsar + | Lista/buscador de invitados en `unassignedGuestIds` | [ ] |
-| 10 | Asignar | Elegir invitado sin asignar | Nuevo pill en mesa; invitado sale de sin asignar | [ ] |
-| 11 | Mesa llena | Mesa al maximo de capacidad | + deshabilitado o rechazo con mensaje claro | [ ] |
+| 8 | Control + | Mesa con plazas libres | Boton **+** o «Anadir invitado» visible | [x] |
+| 9 | Selector | Pulsar + | Lista/buscador de invitados en `unassignedGuestIds` | [x] |
+| 10 | Asignar | Elegir invitado sin asignar | Nuevo pill en mesa; invitado sale de sin asignar | [x] |
+| 11 | Mesa llena | Mesa al maximo de capacidad | + deshabilitado o rechazo con mensaje claro | [x] |
 
-**Estado implementacion:** pendiente (siguiente entrega MEJ-08).
+**Estado implementacion:** validado 2026-06-29 (`5ab009b`).
 
 ---
 
@@ -52,11 +52,11 @@
 
 | # | Paso | Ruta / accion | Resultado esperado | OK |
 |---|------|---------------|-------------------|-----|
-| 12 | Dashboard | Tras desasignar/asignar | Hint invitados «X de Y asignados · Z sin asignar» coherente | [ ] |
-| 13 | Distribucion | Tras cambio manual | `stats.unassignedCount`, chips mesa, barras capacidad actualizados sin recargar | [ ] |
-| 14 | Plano | Panel mesa abierto | Contador `n/cap` y pills sincronizados tras mutacion | [ ] |
+| 12 | Dashboard | Tras desasignar/asignar | Hint invitados «X de Y asignados · Z sin asignar» coherente | [x] |
+| 13 | Distribucion | Tras cambio manual | `stats.unassignedCount`, chips mesa, barras capacidad actualizados sin recargar | [x] |
+| 14 | Plano | Panel mesa abierto | Contador `n/cap` y pills sincronizados tras mutacion | [x] |
 
-**Estado implementacion:** parcial (desasignar actualiza propuesta; revisar dashboard en PP-HU05-04 completo).
+**Estado implementacion:** validado 2026-06-29 (coherencia en distribucion/plano; dashboard al reentrar).
 
 ---
 
@@ -64,10 +64,10 @@
 
 | # | Paso | Ruta / accion | Resultado esperado | OK |
 |---|------|---------------|-------------------|-----|
-| 15 | Capacidad | Asignar sobre mesa llena | Bloqueo con mensaje (409 / Alert) | [ ] |
-| 16 | Acompanantes | (si aplica) Separar pareja manualmente | Advertencia o bloqueo segun SDD §7.1 | [ ] |
+| 15 | Capacidad | Asignar sobre mesa llena | Bloqueo con mensaje (409 / Alert) | [x] |
+| 16 | Acompanantes | (si aplica) Separar pareja manualmente | Advertencia o bloqueo segun SDD §7.1 | [x] |
 
-**Estado implementacion:** pendiente.
+**Estado implementacion:** validado en API assign (`5ab009b`).
 
 ---
 
@@ -75,9 +75,10 @@
 
 | # | Paso | Ruta / accion | Resultado esperado | OK |
 |---|------|---------------|-------------------|-----|
-| 17 | Clic KPI | Dashboard → KPI sin asignar | Lista o drawer con invitados no asignados | [ ] |
+| 17 | Clic KPI | Dashboard o Distribucion → KPI sin asignar | Lista o drawer con invitados no asignados | [x] |
+| 18 | Enlace distribucion | Desde lista en Dashboard | «Asignar en distribucion» navega a Distribucion | [x] |
 
-**Estado implementacion:** pendiente.
+**Estado implementacion:** validado 2026-06-29.
 
 ---
 
@@ -102,7 +103,7 @@ npm run test:e2e -- --testPathPatterns=distribution.e2e-spec
 
 ## Evidencias
 
-Documentar resultados en `docs/agile/evidencias-mej-08-pp-hu05-01.md` (y sucesivos por sub-entrega).
+Documentar resultados en `docs/agile/evidencias-mej-08-fase1-validacion.md`.
 
 ---
 

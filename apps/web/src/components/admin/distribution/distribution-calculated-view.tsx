@@ -1,7 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import { useState } from 'react';
 import { DistributionTableList } from '@/components/admin/distribution/distribution-table-list';
+import { UnassignedGuestsListDialog } from '@/components/admin/distribution/unassigned-guests-list-dialog';
 import { IconMap } from '@/components/icons';
 import { StatCard } from '@/components/ui';
 import type { DistributionProposal } from '@/lib/api';
@@ -37,6 +39,7 @@ export function DistributionCalculatedView({
   onAssignGuest?: (tableId: string, guestId: string) => void | Promise<void>;
 }) {
   const editable = proposal.status === 'draft';
+  const [unassignedListOpen, setUnassignedListOpen] = useState(false);
   const freeSeats = Math.max(
     0,
     proposal.stats.totalCapacity - proposal.stats.assignedCount,
@@ -56,6 +59,17 @@ export function DistributionCalculatedView({
           label="Sin asignar"
           value={String(unassigned)}
           valueHighlight={unassigned === 0}
+          hint={
+            unassigned > 0
+              ? 'Pulsa para ver la lista'
+              : 'Todos con mesa asignada'
+          }
+          onClick={
+            unassigned > 0 && (unassignedGuests?.length ?? 0) > 0
+              ? () => setUnassignedListOpen(true)
+              : undefined
+          }
+          ariaLabel="Ver invitados sin asignar"
         />
         <StatCard label="Plazas libres" value={String(freeSeats)} />
       </div>
@@ -95,6 +109,12 @@ export function DistributionCalculatedView({
           )}
         </div>
       </div>
+
+      <UnassignedGuestsListDialog
+        open={unassignedListOpen}
+        guests={unassignedGuests ?? []}
+        onClose={() => setUnassignedListOpen(false)}
+      />
     </>
   );
 }

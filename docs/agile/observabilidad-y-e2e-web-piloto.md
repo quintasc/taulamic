@@ -101,7 +101,7 @@ Sigue el procedimiento en `docs/agile/guion-validacion-piloto-ui.md` y documenta
 
 `docs/agile/evidencias-piloto/sesion-YYYY-MM-DD.md`
 
-**MEJ-08 (distribucion manual post-piloto):** `docs/agile/guion-validacion-mej-08-ui.md` · evidencias en `docs/agile/evidencias-mej-08-pp-hu05-01.md` (y sucesivos).
+**MEJ-08 (distribucion manual post-piloto):** `docs/agile/guion-validacion-mej-08-ui.md` · evidencias en `docs/agile/evidencias-mej-08-fase1-validacion.md`.
 
 La sesión `sesion-2026-06-21.md` queda como referencia histórica (guion pre auto-save).
 

@@ -7,7 +7,7 @@ import {
   isEventConfigComplete,
   loadEventUiMeta,
 } from '@/lib/event-ui-meta';
-import { PILOT_AFFINITY_LABEL } from '@/lib/distribution-view';
+import { PILOT_AFFINITY_LABEL, buildUnassignedGuestOptions, type UnassignedGuestOption } from '@/lib/distribution-view';
 import { hasFloorPlanSetupSaved } from '@/lib/floor-plan-setup';
 import { getCountableSetupSteps, setupSteps } from '@/lib/domain/setup-steps';
 import type { EventDetail } from '@/lib/api';
@@ -74,6 +74,9 @@ function getTablesDashboardMeta(
 export function useEventDashboard(event: EventDetail | null, eventId: string | null) {
   const [guestTotal, setGuestTotal] = useState(0);
   const [unassigned, setUnassigned] = useState<number | null>(null);
+  const [unassignedGuests, setUnassignedGuests] = useState<UnassignedGuestOption[]>(
+    [],
+  );
   const [hasDistribution, setHasDistribution] = useState(false);
   const [affinitiesConfigured, setAffinitiesConfigured] = useState(false);
   const [configComplete, setConfigComplete] = useState(false);
@@ -95,22 +98,37 @@ export function useEventDashboard(event: EventDetail | null, eventId: string | n
       Boolean(meta.floorPlanUploaded) || hasFloorPlanSetupSaved(eventId),
     );
 
-    void guestsApi
-      .list(eventId)
-      .then((response) => setGuestTotal(response.total))
-      .catch(() => setGuestTotal(0));
-
-    void distributionApi
-      .get(eventId)
-      .then((proposal) => {
-        setHasDistribution(true);
-        setUnassigned(proposal.stats.unassignedCount);
-      })
-      .catch((err: unknown) => {
+    void Promise.all([
+      guestsApi.list(eventId),
+      distributionApi.get(eventId).catch((err: unknown) => {
         if (err instanceof ApiError && err.status === 404) {
+          return null;
+        }
+        throw err;
+      }),
+    ])
+      .then(([guestsResponse, proposal]) => {
+        setGuestTotal(guestsResponse.total);
+        if (!proposal) {
           setHasDistribution(false);
           setUnassigned(null);
+          setUnassignedGuests([]);
+          return;
         }
+        setHasDistribution(true);
+        setUnassigned(proposal.stats.unassignedCount);
+        setUnassignedGuests(
+          buildUnassignedGuestOptions(
+            proposal.unassignedGuestIds,
+            guestsResponse.guests,
+          ),
+        );
+      })
+      .catch(() => {
+        setGuestTotal(0);
+        setHasDistribution(false);
+        setUnassigned(null);
+        setUnassignedGuests([]);
       });
   }, [event?.name, eventId]);
 
@@ -167,6 +185,7 @@ export function useEventDashboard(event: EventDetail | null, eventId: string | n
     subtitle,
     guestTotal,
     unassigned,
+    unassignedGuests,
     tablesConfigured,
     totalCapacity,
     guestMeta,

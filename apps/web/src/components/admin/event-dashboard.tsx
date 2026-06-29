@@ -1,11 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import {
   IconDistribution,
   IconFloorPlan,
   IconTable,
   IconUsers,
 } from '@/components/icons';
+import { UnassignedGuestsListDialog } from '@/components/admin/distribution/unassigned-guests-list-dialog';
 import {
   PageHeader,
   QuickAccessCard,
@@ -23,9 +25,12 @@ import { adminRoutes } from '@/lib/routes';
 export function EventDashboard() {
   const { event, eventId } = useEvent();
   const routes = eventId ? adminRoutes(eventId) : null;
+  const [unassignedListOpen, setUnassignedListOpen] = useState(false);
   const {
     subtitle,
     guestTotal,
+    unassigned,
+    unassignedGuests,
     tablesConfigured,
     guestMeta,
     tablesMeta,
@@ -34,6 +39,13 @@ export function EventDashboard() {
     setupDone,
     setupStatus,
   } = useEventDashboard(event, eventId);
+
+  const unassignedHintFragment =
+    unassigned !== null && unassigned > 0
+      ? `${unassigned} sin asignar`
+      : undefined;
+  const canOpenUnassignedList =
+    unassigned !== null && unassigned > 0 && unassignedGuests.length > 0;
 
   const eventDate = eventId ? loadEventUiMeta(eventId).date : undefined;
 
@@ -51,6 +63,13 @@ export function EventDashboard() {
           progress={guestMeta.progress}
           progressColor={guestMeta.progressColor}
           valueHighlight={guestMeta.valueHighlight}
+          clickableHint={unassignedHintFragment}
+          onClick={
+            canOpenUnassignedList
+              ? () => setUnassignedListOpen(true)
+              : undefined
+          }
+          ariaLabel="Ver invitados sin asignar"
         />
         <StatCard
           label="Mesas"
@@ -102,6 +121,13 @@ export function EventDashboard() {
         <SectionLabel>Estado del setup</SectionLabel>
         <SetupChecklist setupStatus={setupStatus} />
       </section>
+
+      <UnassignedGuestsListDialog
+        open={unassignedListOpen}
+        guests={unassignedGuests}
+        distributionHref={routes?.distribution}
+        onClose={() => setUnassignedListOpen(false)}
+      />
     </>
   );
 }

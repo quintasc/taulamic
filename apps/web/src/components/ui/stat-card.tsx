@@ -5,6 +5,9 @@ export function StatCard({
   progress,
   progressColor = 'primary',
   valueHighlight = false,
+  onClick,
+  clickableHint,
+  ariaLabel,
 }: {
   label: string;
   value: string;
@@ -12,9 +15,24 @@ export function StatCard({
   progress?: number;
   progressColor?: 'primary' | 'success' | 'warning';
   valueHighlight?: boolean;
+  onClick?: () => void;
+  clickableHint?: string;
+  ariaLabel?: string;
 }) {
+  const interactive = Boolean(onClick);
+  const Wrapper = interactive ? 'button' : 'div';
+
   return (
-    <div className="card-admin flex min-h-[120px] flex-col">
+    <Wrapper
+      type={interactive ? 'button' : undefined}
+      aria-label={interactive ? (ariaLabel ?? label) : undefined}
+      className={`card-admin flex min-h-[120px] w-full flex-col text-left transition ${
+        interactive
+          ? 'cursor-pointer hover:border-primary-500/30 hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500'
+          : ''
+      }`}
+      onClick={onClick}
+    >
       <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-wf-5">
         {label}
       </p>
@@ -26,7 +44,19 @@ export function StatCard({
         {value}
       </p>
       {hint ? (
-        <p className="mt-1 text-[11px] text-neutral-500">{hint}</p>
+        <p className="mt-1 text-[11px] text-neutral-500">
+          {clickableHint && hint.includes(clickableHint) ? (
+            <>
+              {hint.slice(0, hint.indexOf(clickableHint))}
+              <span className="font-semibold text-primary-600 underline decoration-primary-500/40">
+                {clickableHint}
+              </span>
+              {hint.slice(hint.indexOf(clickableHint) + clickableHint.length)}
+            </>
+          ) : (
+            hint
+          )}
+        </p>
       ) : (
         <span className="mt-1 flex-1" />
       )}
@@ -44,6 +74,6 @@ export function StatCard({
           />
         </div>
       ) : null}
-    </div>
+    </Wrapper>
   );
 }

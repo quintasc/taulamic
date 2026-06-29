@@ -138,4 +138,39 @@ describe('Distribution motor v0 (e2e #3)', () => {
 
     expect(rerun.body.code).toBe('EVENT_PLAN_APPROVED');
   });
+
+  it('desasigna un invitado en borrador y actualiza estadisticas', async () => {
+    const run = await request(app.getHttpServer())
+      .post(`/api/v1/events/${eventId}/distribution/run`)
+      .set('x-taulamic-actor-role', 'admin')
+      .expect(201);
+
+    const ana = run.body.placements.find(
+      (item: { guestName: string }) => item.guestName === 'Ana Garcia',
+    );
+
+    expect(ana).toBeTruthy();
+
+    const unassigned = await request(app.getHttpServer())
+      .post(
+        `/api/v1/events/${eventId}/distribution/placements/${ana.guestId}/unassign`,
+      )
+      .set('x-taulamic-actor-role', 'admin')
+      .expect(200);
+
+    expect(unassigned.body).toMatchObject({
+      status: 'draft',
+      stats: {
+        assignedCount: 1,
+        unassignedCount: 1,
+      },
+    });
+    expect(unassigned.body.placements).toHaveLength(1);
+    expect(unassigned.body.unassignedGuestIds).toEqual([ana.guestId]);
+    expect(
+      unassigned.body.placements.some(
+        (item: { guestId: string }) => item.guestId === ana.guestId,
+      ),
+    ).toBe(false);
+  });
 });

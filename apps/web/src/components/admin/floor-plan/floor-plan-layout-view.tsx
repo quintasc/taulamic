@@ -68,10 +68,16 @@ function TableGuestsPanel({
   group,
   onClose,
   compact = false,
+  editable = false,
+  unassigningGuestId = null,
+  onUnassignGuest,
 }: {
   group: DistributionTableGroup;
   onClose: () => void;
   compact?: boolean;
+  editable?: boolean;
+  unassigningGuestId?: string | null;
+  onUnassignGuest?: (guestId: string) => void;
 }) {
   return (
     <div
@@ -100,11 +106,17 @@ function TableGuestsPanel({
       </div>
 
       <div className="mt-4 max-h-40 overflow-y-auto">
-        {group.guestNames.length > 0 ? (
+        {group.guests.length > 0 ? (
           <ul className="flex flex-wrap gap-2">
-            {group.guestNames.map((name) => (
-              <li key={`${group.tableId}-${name}`}>
-                <GuestPill name={name} />
+            {group.guests.map((guest) => (
+              <li key={`${group.tableId}-${guest.guestId || guest.guestName}`}>
+                <GuestPill
+                  name={guest.guestName}
+                  guestId={guest.guestId}
+                  removable={editable}
+                  removing={unassigningGuestId === guest.guestId}
+                  onRemove={onUnassignGuest}
+                />
               </li>
             ))}
           </ul>
@@ -146,11 +158,17 @@ export function FloorPlanLayoutView({
   roomSetup,
   distributionHref,
   setupHref,
+  editable = false,
+  unassigningGuestId = null,
+  onUnassignGuest,
 }: {
   tableGroups: DistributionTableGroup[];
   roomSetup: FloorPlanSetup;
   distributionHref: string;
   setupHref: string;
+  editable?: boolean;
+  unassigningGuestId?: string | null;
+  onUnassignGuest?: (guestId: string) => void;
 }) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] =
@@ -321,6 +339,9 @@ export function FloorPlanLayoutView({
               <TableGuestsPanel
                 group={selectedGroup}
                 compact
+                editable={editable}
+                unassigningGuestId={unassigningGuestId}
+                onUnassignGuest={onUnassignGuest}
                 onClose={() => setSelectedGroup(null)}
               />
             </div>

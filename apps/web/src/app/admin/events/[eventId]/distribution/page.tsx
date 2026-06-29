@@ -27,6 +27,9 @@ export default function DistributionPage() {
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  const [unassigningGuestId, setUnassigningGuestId] = useState<string | null>(
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -100,6 +103,26 @@ export default function DistributionPage() {
     }
   }
 
+  async function unassignGuest(guestId: string) {
+    if (!eventId) {
+      return;
+    }
+    setUnassigningGuestId(guestId);
+    setError(null);
+    try {
+      const result = await distributionApi.unassignGuest(eventId, guestId);
+      setProposal(result);
+    } catch (err) {
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : 'No se pudo quitar el invitado de la mesa.',
+      );
+    } finally {
+      setUnassigningGuestId(null);
+    }
+  }
+
   const hasCalculatedView = proposal !== null;
 
   return (
@@ -147,7 +170,9 @@ export default function DistributionPage() {
           guestTotal={guestTotal}
           floorPlanHref={routes.floorPlanLayout}
           confirming={confirming}
+          unassigningGuestId={unassigningGuestId}
           onConfirm={() => void confirm()}
+          onUnassignGuest={(guestId) => void unassignGuest(guestId)}
         />
       ) : (
         <EmptyState

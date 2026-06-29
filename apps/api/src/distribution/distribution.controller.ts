@@ -24,6 +24,7 @@ import {
   GetDistributionUseCase,
   RunDistributionUseCase,
 } from './application/manage-distribution.use-case';
+import { UnassignGuestFromDistributionUseCase } from './application/unassign-guest-from-distribution.use-case';
 import { DistributionProposalDto } from './dto/distribution.dto';
 
 @ApiTags('distribution')
@@ -33,6 +34,7 @@ export class DistributionController {
     private readonly runDistributionUseCase: RunDistributionUseCase,
     private readonly getDistributionUseCase: GetDistributionUseCase,
     private readonly confirmDistributionUseCase: ConfirmDistributionUseCase,
+    private readonly unassignGuestFromDistributionUseCase: UnassignGuestFromDistributionUseCase,
   ) {}
 
   @Post('run')
@@ -92,5 +94,35 @@ export class DistributionController {
     @ActorRoleHeader() actorRole: ActorRole,
   ): Promise<DistributionProposalDto> {
     return this.confirmDistributionUseCase.execute(eventId, actorRole);
+  }
+
+  @Post('placements/:guestId/unassign')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Desasignar invitado de su mesa (propuesta en borrador)',
+  })
+  @ApiParam({ name: 'eventId', example: 'evt_550e8400' })
+  @ApiParam({ name: 'guestId', example: 'guest-1' })
+  @ApiHeader({
+    name: 'x-taulamic-actor-role',
+    required: true,
+    description: 'Debe ser admin.',
+  })
+  @ApiOkResponse({ type: DistributionProposalDto })
+  @ApiForbiddenResponse({ description: 'Solo admin puede desasignar.' })
+  @ApiConflictResponse({
+    description: 'Propuesta confirmada o invitado no asignado.',
+  })
+  @ApiNotFoundResponse({ description: 'Sin propuesta o evento inexistente.' })
+  async unassignGuest(
+    @Param('eventId') eventId: string,
+    @Param('guestId') guestId: string,
+    @ActorRoleHeader() actorRole: ActorRole,
+  ): Promise<DistributionProposalDto> {
+    return this.unassignGuestFromDistributionUseCase.execute(
+      eventId,
+      guestId,
+      actorRole,
+    );
   }
 }

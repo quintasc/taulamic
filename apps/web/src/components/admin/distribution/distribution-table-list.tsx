@@ -106,10 +106,16 @@ function DistributionTableRow({
   group,
   open,
   onToggle,
+  editable,
+  unassigningGuestId,
+  onUnassignGuest,
 }: {
   group: DistributionTableGroup;
   open: boolean;
   onToggle: () => void;
+  editable: boolean;
+  unassigningGuestId: string | null;
+  onUnassignGuest?: (guestId: string) => void;
 }) {
   return (
     <div className="border-b border-neutral-200 last:border-b-0">
@@ -152,10 +158,17 @@ function DistributionTableRow({
 
       {open ? (
         <div className="border-t border-neutral-200 bg-wf-1 px-5 py-4">
-          {group.guestNames.length > 0 ? (
+          {group.guests.length > 0 ? (
             <div className="flex flex-wrap gap-2">
-              {group.guestNames.map((name) => (
-                <GuestPill key={`${group.tableId}-${name}`} name={name} />
+              {group.guests.map((guest) => (
+                <GuestPill
+                  key={`${group.tableId}-${guest.guestId || guest.guestName}`}
+                  name={guest.guestName}
+                  guestId={guest.guestId}
+                  removable={editable}
+                  removing={unassigningGuestId === guest.guestId}
+                  onRemove={onUnassignGuest}
+                />
               ))}
             </div>
           ) : (
@@ -169,8 +182,14 @@ function DistributionTableRow({
 
 export function DistributionTableList({
   tableGroups,
+  editable = false,
+  unassigningGuestId = null,
+  onUnassignGuest,
 }: {
   tableGroups: DistributionTableGroup[];
+  editable?: boolean;
+  unassigningGuestId?: string | null;
+  onUnassignGuest?: (guestId: string) => void;
 }) {
   const [filter, setFilter] = useState<DistributionTableFilter>('all');
   const [search, setSearch] = useState('');
@@ -240,6 +259,9 @@ export function DistributionTableList({
               key={group.tableId}
               group={group}
               open={openTableId === group.tableId}
+              editable={editable}
+              unassigningGuestId={unassigningGuestId}
+              onUnassignGuest={onUnassignGuest}
               onToggle={() =>
                 setOpenTableId((current) =>
                   current === group.tableId ? null : group.tableId,

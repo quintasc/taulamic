@@ -27,6 +27,9 @@ export default function FloorPlanLayoutPage() {
   const [missingDistribution, setMissingDistribution] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [proposal, setProposal] = useState<DistributionProposal | null>(null);
+  const [unassigningGuestId, setUnassigningGuestId] = useState<string | null>(
+    null,
+  );
   const [roomSetup, setRoomSetup] = useState<FloorPlanSetup>(
     DEFAULT_FLOOR_PLAN_SETUP,
   );
@@ -85,6 +88,23 @@ export default function FloorPlanLayoutPage() {
       .finally(() => setLoading(false));
   }, [params.eventId]);
 
+  async function unassignGuest(guestId: string) {
+    setUnassigningGuestId(guestId);
+    setError(null);
+    try {
+      const result = await distributionApi.unassignGuest(params.eventId, guestId);
+      setProposal(result);
+    } catch (err) {
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : 'No se pudo quitar el invitado de la mesa.',
+      );
+    } finally {
+      setUnassigningGuestId(null);
+    }
+  }
+
   if (loading) {
     return <p className="text-sm text-neutral-500">Cargando plano…</p>;
   }
@@ -107,6 +127,9 @@ export default function FloorPlanLayoutPage() {
       roomSetup={roomSetup}
       distributionHref={routes.distribution}
       setupHref={routes.floorPlan}
+      editable={proposal?.status === 'draft'}
+      unassigningGuestId={unassigningGuestId}
+      onUnassignGuest={(guestId) => void unassignGuest(guestId)}
     />
   );
 }

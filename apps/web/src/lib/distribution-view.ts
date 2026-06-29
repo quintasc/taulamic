@@ -16,6 +16,11 @@ export type TableOccupancyStatus = 'full' | 'in-use' | 'empty';
 
 export type DistributionTableFilter = 'all' | 'full' | 'in-use' | 'empty';
 
+export type DistributionTableGuest = {
+  guestId: string;
+  guestName: string;
+};
+
 export type DistributionTableGroup = {
   tableId: string;
   tableLabel: string;
@@ -24,6 +29,7 @@ export type DistributionTableGroup = {
   capacity: number;
   freeSeats: number;
   status: TableOccupancyStatus;
+  guests: DistributionTableGuest[];
   guestNames: string[];
 };
 
@@ -122,16 +128,19 @@ export function buildDistributionTableGroups(
 ): DistributionTableGroup[] {
   const placementByTable = new Map<
     string,
-    { tableLabel: string; guestNames: string[] }
+    { tableLabel: string; guests: DistributionTableGuest[] }
   >();
   const guestNamesByTableLabel = new Map<string, string[]>();
 
   for (const placement of proposal.placements) {
     const current = placementByTable.get(placement.tableId) ?? {
       tableLabel: placement.tableLabel,
-      guestNames: [],
+      guests: [],
     };
-    current.guestNames.push(placement.guestName);
+    current.guests.push({
+      guestId: placement.guestId,
+      guestName: placement.guestName,
+    });
     placementByTable.set(placement.tableId, current);
 
     const labelKey = placement.tableLabel.trim().toLowerCase();
@@ -153,18 +162,23 @@ export function buildDistributionTableGroups(
           id,
           label: group.tableLabel,
           shape: 'redonda',
-          capacity: Math.max(group.guestNames.length, 1),
+          capacity: Math.max(group.guests.length, 1),
         }));
 
   return tableEntries
     .map((table, index) => {
       const placement = placementByTable.get(table.id);
-      let guestNames = placement?.guestNames ?? [];
-      if (guestNames.length === 0 && table.label.trim()) {
-        guestNames =
+      let guests = placement?.guests ?? [];
+      if (guests.length === 0 && table.label.trim()) {
+        const fallbackNames =
           guestNamesByTableLabel.get(table.label.trim().toLowerCase()) ?? [];
+        guests = fallbackNames.map((guestName) => ({
+          guestId: '',
+          guestName,
+        }));
       }
-      const assignedCount = guestNames.length;
+      const guestNames = guests.map((guest) => guest.guestName);
+      const assignedCount = guests.length;
       const capacity = table.capacity;
       const status = getTableOccupancyStatus(assignedCount, capacity);
 
@@ -176,6 +190,7 @@ export function buildDistributionTableGroups(
         capacity,
         freeSeats: Math.max(0, capacity - assignedCount),
         status,
+        guests,
         guestNames,
       };
     })

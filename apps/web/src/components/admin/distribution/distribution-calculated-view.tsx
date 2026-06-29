@@ -16,15 +16,20 @@ export function DistributionCalculatedView({
   guestTotal,
   floorPlanHref,
   confirming,
+  unassigningGuestId,
   onConfirm,
+  onUnassignGuest,
 }: {
   proposal: DistributionProposal;
   tableGroups: DistributionTableGroup[];
   guestTotal: number;
   floorPlanHref: string;
   confirming: boolean;
+  unassigningGuestId?: string | null;
   onConfirm: () => void;
+  onUnassignGuest?: (guestId: string) => void;
 }) {
+  const editable = proposal.status === 'draft';
   const freeSeats = Math.max(
     0,
     proposal.stats.totalCapacity - proposal.stats.assignedCount,
@@ -48,7 +53,12 @@ export function DistributionCalculatedView({
         <StatCard label="Plazas libres" value={String(freeSeats)} />
       </div>
 
-      <DistributionTableList tableGroups={tableGroups} />
+      <DistributionTableList
+        tableGroups={tableGroups}
+        editable={editable}
+        unassigningGuestId={unassigningGuestId}
+        onUnassignGuest={onUnassignGuest}
+      />
 
       <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs text-neutral-500">

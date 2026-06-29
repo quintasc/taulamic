@@ -306,6 +306,11 @@ export const distributionApi = {
     apiFetch<DistributionProposal>(`/events/${eventId}/distribution/confirm`, {
       method: 'POST',
     }),
+  unassignGuest: (eventId: string, guestId: string) =>
+    apiFetch<DistributionProposal>(
+      `/events/${eventId}/distribution/placements/${guestId}/unassign`,
+      { method: 'POST' },
+    ),
 };
 
 export const tableShapesApi = {

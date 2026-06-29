@@ -93,7 +93,7 @@ export function AdminSidebar({
       <div className="admin-setup-bar-shell px-1.5">
         <Link
           href={routes.navMap}
-          className={`admin-setup-bar-inner w-full gap-2 rounded-[7px] px-2.5 text-[11px] transition ${
+          className={`admin-setup-bar-inner inline-flex w-full gap-2 rounded-[7px] px-2.5 text-[11px] transition ${
             navMapActive
               ? 'nav-item-active font-semibold'
               : 'text-wf-5 hover:bg-wf-1'

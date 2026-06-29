@@ -9,6 +9,8 @@ import {
   useState,
 } from 'react';
 
+import { feedbackSurfaceClass } from '@/lib/feedback-surface';
+
 type ToastVariant = 'success' | 'error' | 'info';
 
 type ToastItem = {
@@ -24,12 +26,6 @@ type ToastContextValue = {
 const ToastContext = createContext<ToastContextValue | null>(null);
 
 const TOAST_DURATION_MS = 4000;
-
-const toastStyles: Record<ToastVariant, string> = {
-  success: 'border-success-500/30 bg-success-500/10 text-neutral-900',
-  error: 'border-error-500/30 bg-error-500/10 text-neutral-900',
-  info: 'border-info-500/30 bg-info-500/10 text-neutral-900',
-};
 
 function ToastViewport({
   toasts,
@@ -70,7 +66,7 @@ function ToastCard({
   return (
     <div
       role="status"
-      className={`pointer-events-auto w-full max-w-md rounded-xl border px-4 py-3 text-sm shadow-lg ${toastStyles[toast.variant]}`}
+      className={`pointer-events-auto w-full max-w-md rounded-xl px-4 py-3 text-sm shadow-lg ${feedbackSurfaceClass[toast.variant]}`}
     >
       <div className="flex items-start justify-between gap-3">
         <p>{toast.message}</p>

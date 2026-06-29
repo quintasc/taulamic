@@ -19,6 +19,10 @@
   --admin-setup-bar-offset: calc(
     var(--admin-setup-bar-height) + max(0.5rem, env(safe-area-inset-bottom))
   );
+  --feedback-success-bg: #e9f6f0;
+  --feedback-warning-bg: #fef8e7;
+  --feedback-error-bg: #fbeeee;
+  --feedback-info-bg: #eef4fe;
 }
 
 body {
@@ -78,7 +82,32 @@ body {
   }
 
   .admin-setup-bar-inner {
-    @apply flex w-full min-h-[var(--admin-setup-bar-height)] items-center;
+    @apply flex h-[var(--admin-setup-bar-height)] w-full items-center;
+  }
+
+  /** Superficies opacas para avisos (evita solapamiento visual con contenido detrás). */
+  .feedback-surface {
+    @apply text-neutral-900;
+  }
+
+  .feedback-surface-success {
+    @apply feedback-surface border border-success-500/35;
+    background-color: var(--feedback-success-bg);
+  }
+
+  .feedback-surface-warning {
+    @apply feedback-surface border border-warning-500/35;
+    background-color: var(--feedback-warning-bg);
+  }
+
+  .feedback-surface-error {
+    @apply feedback-surface border border-error-500/35;
+    background-color: var(--feedback-error-bg);
+  }
+
+  .feedback-surface-info {
+    @apply feedback-surface border border-info-500/35;
+    background-color: var(--feedback-info-bg);
   }
 
   /* Accesorios de plano (marca) */

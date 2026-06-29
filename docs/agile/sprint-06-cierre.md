@@ -54,6 +54,8 @@ Evidencias: `evidencias-mej-08-fase2-validacion.md`
 
 ## 7) Backlog siguiente
 
+- **MEJ-10** — Cohesión UI (feedback, chips, tablas): `MEJ-10-cohesion-ui-feedback-y-tablas.md` — validar propuesta PO antes de implementar
+- **MEJ-11** — Dashboard (Config = proyecto, CTA, checklist, atajos móvil): `MEJ-11-dashboard-navegacion-y-atajos.md`
 - Push + cierre #51 en GitHub con alcance Fase 2 completo
 - Fase C: asientos numerados en plano
 - #53 Organizador real (pospuesto)

@@ -1,3 +1,5 @@
+import { feedbackSurfaceClass } from '@/lib/feedback-surface';
+
 export function PlacementMutationFeedback({
   warning,
   error,
@@ -24,7 +26,7 @@ export function PlacementMutationFeedback({
       {warning ? (
         <p
           role="status"
-          className="rounded-lg border border-warning-500/50 bg-warning-500/20 px-3 py-2.5 text-sm font-medium leading-snug text-neutral-900 shadow-md backdrop-blur-sm"
+          className={`rounded-xl px-3 py-2.5 text-sm font-medium leading-snug ${feedbackSurfaceClass.warning}`}
         >
           {warning}
         </p>
@@ -32,7 +34,7 @@ export function PlacementMutationFeedback({
       {error ? (
         <p
           role="alert"
-          className="rounded-lg border border-error-500/50 bg-error-500/15 px-3 py-2.5 text-sm font-medium leading-snug text-neutral-900 shadow-md backdrop-blur-sm"
+          className={`rounded-xl px-3 py-2.5 text-sm font-medium leading-snug ${feedbackSurfaceClass.error}`}
         >
           {error}
         </p>

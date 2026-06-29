@@ -1,22 +1,15 @@
-type AlertVariant = 'success' | 'warning' | 'error' | 'info';
-
-const alertStyles: Record<AlertVariant, string> = {
-  success: 'border-success-500/30 bg-success-500/10 text-neutral-900',
-  warning: 'border-warning-500/30 bg-warning-500/10 text-neutral-900',
-  error: 'border-error-500/30 bg-error-500/10 text-neutral-900',
-  info: 'border-info-500/30 bg-info-500/10 text-neutral-900',
-};
+import { feedbackSurfaceClass, type FeedbackSurfaceVariant } from '@/lib/feedback-surface';
 
 export function Alert({
   variant,
   children,
 }: {
-  variant: AlertVariant;
+  variant: FeedbackSurfaceVariant;
   children: React.ReactNode;
 }) {
   return (
     <div
-      className={`rounded-xl border px-4 py-3 text-sm ${alertStyles[variant]}`}
+      className={`rounded-xl px-4 py-3 text-sm ${feedbackSurfaceClass[variant]}`}
       role="alert"
     >
       {children}

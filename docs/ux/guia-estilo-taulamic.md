@@ -154,6 +154,8 @@ Componente: `apps/web/src/components/admin/setup-nav-bar.tsx`
 - Controles: `← Anterior` (link) · acción primaria opcional · `Siguiente →`.
 - Props clave: `nextReady`, `nextDisabledHint`, `onBeforeNext`, `hidePrimary`.
 
+**Alineación con sidebar (obligatorio):** la banda inferior del contenido (`admin-setup-bar-shell`) y el bloque «Mapa navegación» del sidebar comparten la misma clase, altura (`--admin-setup-bar-height`) y `border-t` a la misma altura de viewport. El banner de bloqueo setup (`Alert` cuando `nextReady={false}`) va **encima** de esa banda en el área principal, **no dentro**, para no desalinear la línea horizontal.
+
 ---
 
 ## 7) Patrones de feedback (obligatorios)
@@ -179,7 +181,7 @@ Cuando `nextReady={false}`:
 - **Componente:** `useToast()` · `components/ui/toast.tsx` · provider en `app/providers.tsx`.
 - **Posición:** arriba centro, `z-[100]`.
 - **Duración:** ~4 s, cierre manual con ✕.
-- **Variantes:** `success` | `error` | `info` (mismos tokens que `Alert`).
+- **Variantes:** `success` | `error` | `info` (superficies opacas `feedback-surface-*`; no fondos `/10` sobre contenido).
 
 **Usar toast para:** alta/edición/eliminación, import Excel, añadir mesas, descargas.
 
@@ -238,6 +240,7 @@ Inventario en `frontend-component-system.md`. Primitivos en `apps/web/src/compon
 - Mesas: count API + plazas + «sobran/faltan X plazas» (sin fracción `2/2`).
 - **Cuenta atrás evento** (`EventCountdown`): días grandes a la izquierda; horas/minutos dot-matrix a la derecha; ventana progreso 120 días.
 - Sin datos demo al crear evento.
+- **Proyecto evento:** el primer paso natural desde el dashboard es **Configuración** (`/config`) — unidad que con persistencia futura será guardable/recuperable. Propuesta de navegación guiada: `MEJ-11-dashboard-navegacion-y-atajos.md`.
 
 ### Invitados
 

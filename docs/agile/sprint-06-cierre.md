@@ -2,7 +2,7 @@
 
 - **Inicio:** 2026-06-21
 - **Cierre documental:** 2026-06-21
-- **Rama:** `main` @ **`56aa104`**
+- **Rama:** `main` @ **`3eb4740`**
 - **Origen:** `sprint-05-cierre.md` · MEJ-08 Fase 2 + Fase 2b
 - **Plan:** `sprint-06-plan.md`
 
@@ -23,7 +23,7 @@ Sprint 06 completó MEJ-08 Fase 2 (drag entre mesas, auditoría API, KPIs Dashbo
 
 | Issue | MEJ | Estado |
 |-------|-----|--------|
-| [#51](https://github.com/quintasc/taulamic/issues/51) | MEJ-08 | Fase 2 + 2b validadas — pendiente cierre issue en GitHub |
+| [#51](https://github.com/quintasc/taulamic/issues/51) | MEJ-08 | Fase 2 + 2b validadas — cerrada en GitHub (`3eb4740`) |
 
 ## 3) SDD y ADR
 

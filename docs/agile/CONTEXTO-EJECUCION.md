@@ -1,57 +1,40 @@
 ﻿# Contexto de ejecucion — punto de reanudacion
 
 - Ultima actualizacion: **2026-06-21**
-- Sprint activo: **06 cerrado** — MEJ-08 Fase 2 + Fase 2b validadas
-- **Propuestas en validacion:** MEJ-10 · MEJ-11 · MEJ-12 · MEJ-13 — sin implementar MEJ en código pendiente de PO
-- **Cambios locales sin commit:** fix footer setup (fila + flechas `< md`)
-- **Cambios locales sin commit:** fix responsive distribución + setup nav
+- Sprint activo: **07 — Cohesión UX piloto (MEJ-10 → MEJ-13)**
+- **Gate Día 0:** aprobar guiones propuesta MEJ-10/11/12/13 con PO antes de codificar
+- **`main` @ `36e889d`**
 
 ## Frase clave
 
 ```text
-Retomo Taulamic. Validar MEJ-10/11/12/13 con PO antes de codificar copy. Footer setup: fila + flechas móvil (local). SDD manda.
+Retomo Taulamic. Sprint 07: gate PO MEJ-10…13, luego MEJ-10 C+D → MEJ-11 B+C → MEJ-12 B → MEJ-13 A+B. SDD manda.
 ```
 
-## MEJ-10 — Cohesión UI (pendiente aprobación PO)
+## Sprint 07
 
 | Documento | Uso |
 |-----------|-----|
-| `MEJ-10-cohesion-ui-feedback-y-tablas.md` | Spec fases A–F |
-| `guion-validacion-mej-10-propuesta-ui.md` | Validar primero |
-| `guion-validacion-mej-10-ui.md` | Post-implementación |
+| `sprint-07-plan.md` | Plan activo |
+| `sprint-06-cierre.md` | Sprint anterior |
 
-## MEJ-11 — Dashboard navegación (pendiente aprobación PO)
+## MEJ — validación PO pendiente
 
-| Documento | Uso |
-|-----------|-----|
-| `MEJ-11-dashboard-navegacion-y-atajos.md` | Spec: Config = proyecto, CTA, checklist, atajos móvil |
-| `guion-validacion-mej-11-propuesta-ui.md` | **Validar primero** |
-| `guion-validacion-mej-11-ui.md` | Post-implementación (borrador) |
+| MEJ | Spec | Guion propuesta |
+|-----|------|-----------------|
+| MEJ-10 | `MEJ-10-cohesion-ui-feedback-y-tablas.md` | `guion-validacion-mej-10-propuesta-ui.md` |
+| MEJ-11 | `MEJ-11-dashboard-navegacion-y-atajos.md` | `guion-validacion-mej-11-propuesta-ui.md` |
+| MEJ-12 | `MEJ-12-plano-marcadores-compactos.md` | `guion-validacion-mej-12-propuesta-ui.md` |
+| MEJ-13 | `MEJ-13-auditoria-microcopy-y-ayudas.md` | `guion-validacion-mej-13-propuesta-microcopy.md` |
 
-## MEJ-12 — Plano marcadores compactos (pendiente aprobación PO)
-
-| Documento | Uso |
-|-----------|-----|
-| `MEJ-12-plano-marcadores-compactos.md` | Spec: chips compactos; 1 clic panel; no doble clic |
-| `guion-validacion-mej-12-propuesta-ui.md` | **Validar primero** |
-| `guion-validacion-mej-12-ui.md` | Post-implementación (borrador) |
-
-**Gate:** no implementar MEJ-10/11/12/13 hasta guiones propuesta OK por PO.
-
-## MEJ-13 — Microcopy y ayudas (pendiente aprobación PO)
-
-| Documento | Uso |
-|-----------|-----|
-| `MEJ-13-auditoria-microcopy-y-ayudas.md` | Inventario ayudas piloto + botones responsive |
-| `guion-validacion-mej-13-propuesta-microcopy.md` | **Validar primero** |
-| `guion-validacion-mej-13-ui.md` | Post-implementación (borrador) |
+**Pre-trabajo ya en main:** feedback opaco, responsive distribución, footer setup, landing segmentos (`bab758c`…`36e889d`).
 
 ## Sprint 06 (cerrado)
 
 - Evidencias: `evidencias-mej-08-fase2-validacion.md`
-- Cierre: `sprint-06-cierre.md` · `main` @ `bab758c`
+- Cierre: `sprint-06-cierre.md`
 
 ## Referencias
 
-- `sprint-06-plan.md` · `sprint-06-cierre.md`
-- `guia-estilo-taulamic.md` §7 feedback · §9 Dashboard · § Plano
+- `guia-estilo-taulamic.md`
+- `guion-validacion-piloto-ui.md`

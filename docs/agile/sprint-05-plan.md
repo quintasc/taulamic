@@ -3,7 +3,7 @@
 > **Inicio:** 2026-06-28  
 > **Contexto:** Sprint 04 cerrado (`sprint-04-cierre.md`).  
 > **SDD manda** — feedback PO en `evidencias-piloto/sesion-2026-06-24.md`.  
-> **Referencia `main`:** `6bfbe1a` (MEJ-08 Fase 1 validada manualmente).
+> **Cierre:** 2026-06-29 — `sprint-05-cierre.md` · `main` @ `18e2615`
 
 ## 1) Objetivo
 
@@ -14,7 +14,7 @@ Entregar MEJ-02 (Excel ampliado) y MEJ-08 Fase 1 (ajuste manual HU-05: desasigna
 | Prioridad | Issue | MEJ | Descripcion | Estado |
 |-----------|-------|-----|-------------|--------|
 | P2 | [#45](https://github.com/quintasc/taulamic/issues/45) | MEJ-02 | Columnas menú/movilidad; notas internas; import → alertas UI | ✅ Cerrado — `evidencias-mej-02-cierre.md` |
-| P2 | [#51](https://github.com/quintasc/taulamic/issues/51) | MEJ-08 | Fase 1 validada · cierre issue pendiente | ⏭️ En curso |
+| P2 | [#51](https://github.com/quintasc/taulamic/issues/51) | MEJ-08 | Fase 1 HU-05 (✕/+ / lista sin asignar) | ✅ Cerrado — `evidencias-mej-08-fase1-validacion.md` |
 | Pospuesto | [#53](https://github.com/quintasc/taulamic/issues/53) | — | Organizador real julio 2026 | ⏭️ |
 
 ## 3) Fuera de alcance Sprint 05

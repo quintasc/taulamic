@@ -52,8 +52,9 @@ npm run test:e2e -- --testPathPatterns=distribution.e2e-spec
 
 ## Pendiente para cierre #51
 
-- PP-HU05-04: refresco dashboard en la misma sesión sin navegar (opcional; hoy coherente al volver)
-- Cierre issue + `sprint-05-cierre.md`
+- ~~Cierre issue + `sprint-05-cierre.md`~~ ✅ 2026-06-29
+
+**Issue #51 cerrada.** Evidencia consolidada en este documento y `sprint-05-cierre.md`.
 
 ## Fuera de alcance Sprint 05
 

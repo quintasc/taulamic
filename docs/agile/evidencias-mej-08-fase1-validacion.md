@@ -12,7 +12,7 @@
 | `b79789d` | PP-HU05-01 — ✕ desasignar |
 | `5ab009b` | PP-HU05-02 — + asignar |
 | `15adca6` | Docs PP-HU05-01 |
-| *(este commit)* | PP-HU05-07 — lista sin asignar (KPI) + docs |
+| `6bfbe1a` | PP-HU05-07 — lista sin asignar (KPI) + docs Fase 1 |
 
 ## Resumen por criterio
 

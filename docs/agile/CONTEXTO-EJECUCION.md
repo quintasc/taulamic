@@ -1,7 +1,7 @@
 ﻿# Contexto de ejecucion — punto de reanudacion
 
 - Ultima actualizacion: **2026-06-29**
-- Commit referencia: **`5ab009b`** (`main`) — MEJ-08 Fase 1 validada manualmente
+- Commit referencia: **`6bfbe1a`** (`main`) — MEJ-08 Fase 1 validada manualmente
 - Hito activo: **MVP julio (piloto)** — **DoD cerrado**
 - Naming: producto **Taulamic**, dominio **taulamic.com**, repo `quintasc/taulamic`
 - **Modo actual:** **Sprint 05 en curso** — MEJ-02 ✅ · MEJ-08 (#51) · #53 pospuesto
@@ -9,7 +9,7 @@
 ## Frase clave (pegar al agente)
 
 ```text
-Retomo Taulamic. main @ 5ab009b. Sprint 05: MEJ-02 cerrado (#45); MEJ-08 Fase 1 validada (#51); pendiente cierre issue. Lee sprint-05-plan.md y evidencias-mej-08-fase1-validacion.md. SDD manda.
+Retomo Taulamic. main @ 6bfbe1a. Sprint 05: MEJ-02 cerrado (#45); MEJ-08 Fase 1 validada (#51); pendiente cierre issue. Lee sprint-05-plan.md y evidencias-mej-08-fase1-validacion.md. SDD manda.
 ```
 
 ---
@@ -60,7 +60,7 @@ Evidencia: **`docs/agile/evidencias-mej-02-cierre.md`**.
 | **`b79789d`** | PP-HU05-01: ✕ desasignar |
 | **`5ab009b`** | PP-HU05-02: + asignar; reglas duras en API |
 | **`15adca6`** | Docs PP-HU05-01 |
-| *(siguiente)* | PP-HU05-07: lista sin asignar (KPI) |
+| **`6bfbe1a`** | PP-HU05-07: lista sin asignar (KPI Dashboard + Distribución) |
 
 Evidencia: **`docs/agile/evidencias-mej-08-fase1-validacion.md`** · guion **`docs/agile/guion-validacion-mej-08-ui.md`**.
 

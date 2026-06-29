@@ -3,7 +3,7 @@
 > **Inicio:** 2026-06-28  
 > **Contexto:** Sprint 04 cerrado (`sprint-04-cierre.md`).  
 > **SDD manda** — feedback PO en `evidencias-piloto/sesion-2026-06-24.md`.  
-> **Referencia `main`:** `5ab009b` (MEJ-08 Fase 1 validada manualmente).
+> **Referencia `main`:** `6bfbe1a` (MEJ-08 Fase 1 validada manualmente).
 
 ## 1) Objetivo
 

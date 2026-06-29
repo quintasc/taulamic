@@ -74,6 +74,12 @@ export type GuestListResponse = {
   guests: GuestView[];
 };
 
+export type ManualPlacementWarning = {
+  code: 'COMPANION_SEPARATED';
+  message: string;
+  guestIds: string[];
+};
+
 export type DistributionProposal = {
   id: string;
   motorVersion: string;
@@ -92,6 +98,7 @@ export type DistributionProposal = {
     totalCapacity: number;
   };
   confirmedAt: string | null;
+  manualWarnings?: ManualPlacementWarning[];
 };
 
 export type PreferenceMode = {
@@ -316,6 +323,14 @@ export const distributionApi = {
       `/events/${eventId}/distribution/placements/${guestId}`,
       {
         method: 'PUT',
+        body: JSON.stringify({ tableId }),
+      },
+    ),
+  moveGuest: (eventId: string, guestId: string, tableId: string) =>
+    apiFetch<DistributionProposal>(
+      `/events/${eventId}/distribution/placements/${guestId}/move`,
+      {
+        method: 'POST',
         body: JSON.stringify({ tableId }),
       },
     ),

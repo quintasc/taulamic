@@ -52,9 +52,10 @@ npm run test:e2e -- --testPathPatterns=distribution.e2e-spec
 
 ## Pendiente para cierre #51
 
-- ~~Cierre issue + `sprint-05-cierre.md`~~ ✅ 2026-06-29
+- ~~Cierre issue + `sprint-05-cierre.md`~~ ✅ 2026-06-29 (Fase 1)
+- Fase 2 + 2b: `evidencias-mej-08-fase2-validacion.md` · `sprint-06-cierre.md` ✅ 2026-06-21
 
-**Issue #51 cerrada.** Evidencia consolidada en este documento y `sprint-05-cierre.md`.
+**Issue #51:** Fase 1 cerrada 2026-06-29. Fase 2 validada — pendiente cierre issue tras commit Sprint 06.
 
 ## Fuera de alcance Sprint 05
 

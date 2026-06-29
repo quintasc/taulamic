@@ -1,9 +1,15 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type DragEvent } from 'react';
 import { IconChevronDown } from '@/components/icons';
 import { GuestPill } from '@/components/admin/distribution/guest-pill';
 import { AssignGuestDialog } from '@/components/admin/distribution/assign-guest-dialog';
+import { PlacementMutationFeedback } from '@/components/admin/distribution/placement-mutation-feedback';
+import {
+  acceptGuestDragOver,
+  clearGuestDrag,
+  getActiveGuestDrag,
+} from '@/lib/distribution-dnd';
 import {
   countTablesByStatus,
   filterDistributionTableGroups,
@@ -110,21 +116,78 @@ function DistributionTableRow({
   onToggle,
   editable,
   unassigningGuestId,
+  movingGuestId,
+  draggingGuestId,
+  onDragStartGuest,
+  onDragEndGuest,
   onUnassignGuest,
   canAssignGuest,
   onOpenAssignGuest,
+  onMoveGuest,
+  mutationWarning = null,
+  mutationError = null,
 }: {
   group: DistributionTableGroup;
   open: boolean;
   onToggle: () => void;
   editable: boolean;
   unassigningGuestId: string | null;
+  movingGuestId: string | null;
+  draggingGuestId: string | null;
+  onDragStartGuest: (guestId: string) => void;
+  onDragEndGuest: () => void;
   onUnassignGuest?: (guestId: string) => void;
   canAssignGuest: boolean;
   onOpenAssignGuest?: () => void;
+  onMoveGuest?: (guestId: string, targetTableId: string) => void;
+  mutationWarning?: string | null;
+  mutationError?: string | null;
 }) {
+  const [dropActive, setDropActive] = useState(false);
+
+  function handleDragOver(event: DragEvent) {
+    if (!editable || !onMoveGuest) {
+      return;
+    }
+
+    if (acceptGuestDragOver(event, group.tableId, group.freeSeats)) {
+      setDropActive(true);
+    } else {
+      setDropActive(false);
+    }
+  }
+
+  function handleDragLeave() {
+    setDropActive(false);
+  }
+
+  function handleDrop(event: DragEvent) {
+    event.preventDefault();
+    setDropActive(false);
+
+    if (!editable || !onMoveGuest) {
+      clearGuestDrag();
+      return;
+    }
+
+    const payload = getActiveGuestDrag();
+    clearGuestDrag();
+    if (!payload) {
+      return;
+    }
+
+    onMoveGuest(payload.guestId, group.tableId);
+  }
+
   return (
-    <div className="border-b border-neutral-200 last:border-b-0">
+    <div
+      className={`border-b border-neutral-200 last:border-b-0 ${
+        dropActive ? 'bg-primary-500/5 ring-2 ring-inset ring-primary-500/40' : ''
+      }`}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
       <button
         type="button"
         className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-start gap-3 px-5 py-4 text-left transition hover:bg-neutral-50 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)_minmax(0,1fr)_minmax(0,0.6fr)_auto] sm:items-center"
@@ -164,7 +227,16 @@ function DistributionTableRow({
 
       {open ? (
         <div className="border-t border-neutral-200 bg-wf-1 px-5 py-4">
-          <div className="flex flex-wrap items-center gap-2">
+          <PlacementMutationFeedback
+            warning={mutationWarning}
+            error={mutationError}
+            compact
+          />
+          <div
+            className={`flex flex-wrap items-center gap-2 ${
+              mutationWarning || mutationError ? 'mt-3' : ''
+            }`}
+          >
             {group.guests.length > 0 ? (
               group.guests.map((guest) => (
                 <GuestPill
@@ -172,7 +244,15 @@ function DistributionTableRow({
                   name={guest.guestName}
                   guestId={guest.guestId}
                   removable={editable}
-                  removing={unassigningGuestId === guest.guestId}
+                  removing={
+                    unassigningGuestId === guest.guestId ||
+                    movingGuestId === guest.guestId
+                  }
+                  draggable={editable}
+                  dragging={draggingGuestId === guest.guestId}
+                  sourceTableId={group.tableId}
+                  onDragStart={() => onDragStartGuest(guest.guestId)}
+                  onDragEnd={onDragEndGuest}
                   onRemove={onUnassignGuest}
                 />
               ))
@@ -204,22 +284,46 @@ export function DistributionTableList({
   editable = false,
   unassigningGuestId = null,
   assigningGuestId = null,
+  movingGuestId = null,
   unassignedGuests = [],
   onUnassignGuest,
   onAssignGuest,
+  onMoveGuest,
+  mutationWarning = null,
+  mutationError = null,
 }: {
   tableGroups: DistributionTableGroup[];
   editable?: boolean;
   unassigningGuestId?: string | null;
   assigningGuestId?: string | null;
+  movingGuestId?: string | null;
   unassignedGuests?: UnassignedGuestOption[];
   onUnassignGuest?: (guestId: string) => void;
   onAssignGuest?: (tableId: string, guestId: string) => void | Promise<void>;
+  onMoveGuest?: (guestId: string, targetTableId: string) => void | Promise<void>;
+  mutationWarning?: string | null;
+  mutationError?: string | null;
 }) {
   const [filter, setFilter] = useState<DistributionTableFilter>('all');
   const [search, setSearch] = useState('');
   const [openTableId, setOpenTableId] = useState<string | null>(null);
   const [assignTableId, setAssignTableId] = useState<string | null>(null);
+  const [draggingGuestId, setDraggingGuestId] = useState<string | null>(null);
+  const [mutationFocusTableId, setMutationFocusTableId] = useState<
+    string | null
+  >(null);
+
+  function focusMutationTable(tableId: string) {
+    setMutationFocusTableId(tableId);
+    setOpenTableId(tableId);
+  }
+
+  function findGuestTableId(guestId: string): string | null {
+    const group = tableGroups.find((item) =>
+      item.guests.some((guest) => guest.guestId === guestId),
+    );
+    return group?.tableId ?? null;
+  }
 
   const assignGroup = useMemo(
     () =>
@@ -295,13 +399,35 @@ export function DistributionTableList({
               open={openTableId === group.tableId}
               editable={editable}
               unassigningGuestId={unassigningGuestId}
-              onUnassignGuest={onUnassignGuest}
+              movingGuestId={movingGuestId}
+              draggingGuestId={draggingGuestId}
+              onDragStartGuest={setDraggingGuestId}
+              onDragEndGuest={() => setDraggingGuestId(null)}
+              onUnassignGuest={(guestId) => {
+                const sourceTableId = findGuestTableId(guestId);
+                if (sourceTableId) {
+                  focusMutationTable(sourceTableId);
+                }
+                onUnassignGuest?.(guestId);
+              }}
+              mutationWarning={
+                mutationFocusTableId === group.tableId ? mutationWarning : null
+              }
+              mutationError={
+                mutationFocusTableId === group.tableId ? mutationError : null
+              }
               canAssignGuest={
                 editable &&
                 group.freeSeats > 0 &&
                 unassignedGuests.length > 0
               }
               onOpenAssignGuest={() => setAssignTableId(group.tableId)}
+              onMoveGuest={(guestId, targetTableId) => {
+                focusMutationTable(targetTableId);
+                void Promise.resolve(
+                  onMoveGuest?.(guestId, targetTableId),
+                ).finally(() => setDraggingGuestId(null));
+              }}
               onToggle={() =>
                 setOpenTableId((current) =>
                   current === group.tableId ? null : group.tableId,
@@ -326,6 +452,7 @@ export function DistributionTableList({
           if (!assignGroup || !onAssignGuest) {
             return;
           }
+          focusMutationTable(assignGroup.tableId);
           void Promise.resolve(
             onAssignGuest(assignGroup.tableId, guestId),
           ).finally(() => setAssignTableId(null));

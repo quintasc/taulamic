@@ -218,4 +218,71 @@ describe('Distribution motor v0 (e2e #3)', () => {
       ),
     ).toBe(true);
   });
+
+  it('mueve un invitado asignado a otra mesa en borrador', async () => {
+    await request(app.getHttpServer())
+      .post(`/api/v1/events/${eventId}/tables`)
+      .set('Content-Type', 'application/json')
+      .send({
+        label: 'Mesa 2',
+        shape: 'redonda',
+        estimatedCapacity: 4,
+      })
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .post(`/api/v1/events/${eventId}/guests`)
+      .set('Content-Type', 'application/json')
+      .set('x-taulamic-actor-role', 'admin')
+      .send({
+        nombre: 'Pepe Ruiz',
+        correo: 'pepe@ejemplo.com',
+        telefono: '+34600555666',
+      })
+      .expect(201);
+
+    const run = await request(app.getHttpServer())
+      .post(`/api/v1/events/${eventId}/distribution/run`)
+      .set('x-taulamic-actor-role', 'admin')
+      .expect(201);
+
+    const pepe = run.body.placements.find(
+      (item: { guestName: string }) => item.guestName === 'Pepe Ruiz',
+    );
+
+    expect(pepe).toBeTruthy();
+
+    const event = await request(app.getHttpServer())
+      .get(`/api/v1/events/${eventId}`)
+      .expect(200);
+
+    const targetTable = event.body.tables.find(
+      (table: { id: string }) => table.id !== pepe.tableId,
+    );
+
+    expect(targetTable).toBeTruthy();
+
+    const moved = await request(app.getHttpServer())
+      .post(
+        `/api/v1/events/${eventId}/distribution/placements/${pepe.guestId}/move`,
+      )
+      .set('Content-Type', 'application/json')
+      .set('x-taulamic-actor-role', 'admin')
+      .send({ tableId: targetTable.id })
+      .expect(200);
+
+    expect(moved.body).toMatchObject({
+      status: 'draft',
+      stats: {
+        assignedCount: 3,
+        unassignedCount: 0,
+      },
+    });
+    expect(
+      moved.body.placements.some(
+        (item: { guestId: string; tableId: string }) =>
+          item.guestId === pepe.guestId && item.tableId === targetTable.id,
+      ),
+    ).toBe(true);
+  });
 });

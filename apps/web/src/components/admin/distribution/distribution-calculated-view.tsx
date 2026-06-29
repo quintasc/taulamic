@@ -21,10 +21,14 @@ export function DistributionCalculatedView({
   confirming,
   unassigningGuestId,
   assigningGuestId,
+  movingGuestId = null,
   unassignedGuests,
   onConfirm,
   onUnassignGuest,
   onAssignGuest,
+  onMoveGuest,
+  mutationWarning = null,
+  mutationError = null,
 }: {
   proposal: DistributionProposal;
   tableGroups: DistributionTableGroup[];
@@ -33,10 +37,14 @@ export function DistributionCalculatedView({
   confirming: boolean;
   unassigningGuestId?: string | null;
   assigningGuestId?: string | null;
+  movingGuestId?: string | null;
   unassignedGuests?: UnassignedGuestOption[];
   onConfirm: () => void;
   onUnassignGuest?: (guestId: string) => void;
   onAssignGuest?: (tableId: string, guestId: string) => void | Promise<void>;
+  onMoveGuest?: (guestId: string, targetTableId: string) => void | Promise<void>;
+  mutationWarning?: string | null;
+  mutationError?: string | null;
 }) {
   const editable = proposal.status === 'draft';
   const [unassignedListOpen, setUnassignedListOpen] = useState(false);
@@ -79,9 +87,13 @@ export function DistributionCalculatedView({
         editable={editable}
         unassigningGuestId={unassigningGuestId}
         assigningGuestId={assigningGuestId}
+        movingGuestId={movingGuestId}
         unassignedGuests={unassignedGuests}
         onUnassignGuest={onUnassignGuest}
         onAssignGuest={onAssignGuest}
+        onMoveGuest={onMoveGuest}
+        mutationWarning={mutationWarning}
+        mutationError={mutationError}
       />
 
       <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

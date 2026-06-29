@@ -101,8 +101,9 @@ Tras **cualquier** cambio manual exitoso, sin recargar página:
 
 - **RF-HU05-05.1** Antes de persistir, validar capacidad de mesa destino.
 - **RF-HU05-05.2** Validar reglas duras SDD §7.1 aplicables en MVP (acompañantes, restricciones cuando existan en API).
-- **RF-HU05-05.3** Si el cambio rompe regla dura: **bloquear** con mensaje claro (HU-05: «el sistema alerta»).
-- **RF-HU05-05.4** Cambios que solo degradan afinidad (reglas blandas): permitir con advertencia no bloqueante (post-MVP si motor no puntúa afinidad en piloto extendido).
+- **RF-HU05-05.3** Si el cambio rompe regla dura (capacidad, incompatibilidad): **bloquear** con mensaje claro.
+- **RF-HU05-05.4** Cambios que solo degradan afinidad: permitir con advertencia no bloqueante.
+- **RF-HU05-05.5** Separación de acompañantes en manual HU-05: ver `SDD-PILOTO-enmienda-HU05-fase2b-overrides-y-plano-asientos.md` (advertencia + allow; motor sin cambio).
 
 ### RF-HU05-06 — Auditoría (HU-05)
 

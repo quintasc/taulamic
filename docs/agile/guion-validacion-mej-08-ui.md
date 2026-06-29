@@ -1,7 +1,7 @@
 # Guion de validacion manual — MEJ-08 distribucion manual (HU-05)
 
-- **Estado:** Vigente (Sprint 05)
-- **Fecha:** 2026-06-29
+- **Estado:** Vigente (Sprint 06 — Fase 2 cerrada 2026-06-21)
+- **Fecha:** 2026-06-29 (Fase 1) · actualizado 2026-06-21 (Fase 2)
 - **Issue:** [#51](https://github.com/quintasc/taulamic/issues/51)
 - **SDD:** `docs/sdd/SDD-PILOTO-enmienda-HU05-ajuste-manual-postpiloto.md`
 - **Entorno:** API `:3000`, Web `:3001` (`npm run dev` desde raiz)
@@ -67,7 +67,33 @@
 | 15 | Capacidad | Asignar sobre mesa llena | Bloqueo con mensaje (409 / Alert) | [x] |
 | 16 | Acompanantes | (si aplica) Separar pareja manualmente | Advertencia o bloqueo segun SDD §7.1 | [x] |
 
-**Estado implementacion:** validado en API assign (`5ab009b`).
+**Estado implementacion:** validado en API assign (`5ab009b`). Fase 2b: override con warning — ver pasos 22–24.
+
+---
+
+## PP-HU05-03 — Drag invitado (Fase 2)
+
+| # | Paso | Ruta / accion | Resultado esperado | OK |
+|---|------|---------------|-------------------|-----|
+| 19 | Drag lista | `/distribution` → expandir mesa → arrastrar pill | Invitado en mesa destino; KPIs actualizados | [x] |
+| 20 | Drag plano | `/floor-plan/layout` → panel mesa → arrastrar a otra mesa canvas | Mismo efecto; panel lateral no tapa centro | [x] |
+| 21 | Mesa llena | Soltar en mesa sin plazas | Sin drop / sin cambio | [x] |
+
+**Estado implementación:** validado 2026-06-21 (PO). Fix DnD `dragover` + feedback junto a pills.
+
+---
+
+## RF-HU05-05.5 — Override acompañantes (Fase 2b)
+
+| # | Paso | Ruta / accion | Resultado esperado | OK |
+|---|------|---------------|-------------------|-----|
+| 22 | Separar pareja | Drag un miembro de pareja (sin `separar_acompanante`) | Cambio **persiste**; banner **warning**; plano sigue visible | [x] |
+| 23 | Excel excepción | Grupo con `separar_acompanante` | Sin warning al separar | [x] |
+| 24 | Incompatibilidad | (si aplica) drag a mesa incompatible | Sigue **bloqueando** (error rojo) | [x] |
+
+**Estado implementación:** validado 2026-06-21 (PO). Warning inline en fila expandida / panel plano (ADR-022).
+
+SDD: `SDD-PILOTO-enmienda-HU05-fase2b-overrides-y-plano-asientos.md` · ADR-022.
 
 ---
 
@@ -82,12 +108,14 @@
 
 ---
 
-## Fuera de alcance Sprint 05
+## Fuera de alcance Sprint 05 / Fase 2 actual
 
-| ID | Comportamiento | Esperado |
-|----|----------------|----------|
-| PP-HU05-03 | Drag invitado entre mesas | No operativo (Fase 2) |
-| PP-HU05-06 | Auditoria cambios manuales | No operativo (Fase 2) |
+| ID | Comportamiento | Estado |
+|----|----------------|--------|
+| PP-HU05-03 | Drag invitado entre mesas | ✅ Sprint 06 |
+| PP-HU05-06 | Auditoría cambios manuales | ✅ Sprint 06 |
+| PP-HU05-05.5 | Override acompañantes (warning) | ✅ Fase 2b — ver enmienda fase2b |
+| RF-HU05-03.6 | Asientos S1…Sn en plano | ⏭️ Fase C backlog |
 
 ---
 
@@ -103,12 +131,14 @@ npm run test:e2e -- --testPathPatterns=distribution.e2e-spec
 
 ## Evidencias
 
-Documentar resultados en `docs/agile/evidencias-mej-08-fase1-validacion.md`.
+- Fase 1: `docs/agile/evidencias-mej-08-fase1-validacion.md`
+- Fase 2: `docs/agile/evidencias-mej-08-fase2-validacion.md`
 
 ---
 
 ## Referencias
 
-- `docs/agile/sprint-05-plan.md`
+- `docs/agile/sprint-06-plan.md`
+- `docs/agile/sprint-06-cierre.md`
 - `docs/agile/guion-validacion-piloto-ui.md` (piloto julio — sin ✕/+)
 - `docs/sdd/SDD-PILOTO-enmienda-HU05-ajuste-manual-postpiloto.md`

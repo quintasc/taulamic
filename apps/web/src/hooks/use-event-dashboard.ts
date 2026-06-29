@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { ApiError, distributionApi, guestsApi } from '@/lib/api';
+import { DISTRIBUTION_CHANGED_EVENT } from '@/lib/distribution-events';
 import {
   formatEventSubtitle,
   isEventConfigComplete,
@@ -86,17 +87,10 @@ export function useEventDashboard(event: EventDetail | null, eventId: string | n
   const tablesConfigured = event?.capacitySummary.tableCount ?? 0;
   const totalCapacity = event?.capacitySummary.totalCapacity ?? 0;
 
-  useEffect(() => {
+  function loadDistributionStats() {
     if (!eventId) {
       return;
     }
-
-    const meta = loadEventUiMeta(eventId);
-    setConfigComplete(isEventConfigComplete(eventId, event?.name));
-    setAffinitiesConfigured(Boolean(meta.affinitiesDraftSaved));
-    setFloorPlanUploaded(
-      Boolean(meta.floorPlanUploaded) || hasFloorPlanSetupSaved(eventId),
-    );
 
     void Promise.all([
       guestsApi.list(eventId),
@@ -130,7 +124,46 @@ export function useEventDashboard(event: EventDetail | null, eventId: string | n
         setUnassigned(null);
         setUnassignedGuests([]);
       });
+  }
+
+  useEffect(() => {
+    if (!eventId) {
+      return;
+    }
+
+    const meta = loadEventUiMeta(eventId);
+    setConfigComplete(isEventConfigComplete(eventId, event?.name));
+    setAffinitiesConfigured(Boolean(meta.affinitiesDraftSaved));
+    setFloorPlanUploaded(
+      Boolean(meta.floorPlanUploaded) || hasFloorPlanSetupSaved(eventId),
+    );
+
+    loadDistributionStats();
   }, [event?.name, eventId]);
+
+  useEffect(() => {
+    if (!eventId || typeof window === 'undefined') {
+      return;
+    }
+
+    function handleDistributionChanged(event: Event) {
+      const detail = (event as CustomEvent<{ eventId: string }>).detail;
+      if (detail?.eventId === eventId) {
+        loadDistributionStats();
+      }
+    }
+
+    window.addEventListener(
+      DISTRIBUTION_CHANGED_EVENT,
+      handleDistributionChanged,
+    );
+    return () => {
+      window.removeEventListener(
+        DISTRIBUTION_CHANGED_EVENT,
+        handleDistributionChanged,
+      );
+    };
+  }, [eventId]);
 
   useEffect(() => {
     if (!eventId) {

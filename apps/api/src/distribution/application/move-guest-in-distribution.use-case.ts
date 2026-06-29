@@ -12,34 +12,35 @@ import {
   EVENT_CONFIG_REPOSITORY,
   type EventConfigRepositoryPort,
 } from '../../events/infrastructure/persistence/event-config.repository.port';
-import type { DistributionProposal } from '../domain/distribution.types';
-import {
-  UnassignGuestError,
-  unassignGuestFromProposal,
-} from '../domain/unassign-guest-from-proposal';
-import { finalizeManualPlacementMutation } from '../domain/finalize-manual-placement-mutation';
 import {
   GUEST_REPOSITORY,
   type GuestRepositoryPort,
 } from '../../guest-import/infrastructure/persistence/guest.repository.port';
+import {
+  MoveGuestError,
+  moveGuestInProposal,
+} from '../domain/move-guest-in-proposal';
+import { finalizeManualPlacementMutation } from '../domain/finalize-manual-placement-mutation';
+import type { DistributionProposal } from '../domain/distribution.types';
 import {
   DISTRIBUTION_REPOSITORY,
   type DistributionRepositoryPort,
 } from '../infrastructure/persistence/distribution.repository.port';
 import {
   findGuestPlacement,
+  findTableRef,
   recordDistributionPlacementAudit,
 } from './record-distribution-placement-audit';
 
 @Injectable()
-export class UnassignGuestFromDistributionUseCase {
+export class MoveGuestInDistributionUseCase {
   constructor(
     @Inject(EVENT_CONFIG_REPOSITORY)
     private readonly eventRepository: EventConfigRepositoryPort,
-    @Inject(DISTRIBUTION_REPOSITORY)
-    private readonly distributionRepository: DistributionRepositoryPort,
     @Inject(GUEST_REPOSITORY)
     private readonly guestRepository: GuestRepositoryPort,
+    @Inject(DISTRIBUTION_REPOSITORY)
+    private readonly distributionRepository: DistributionRepositoryPort,
     private readonly assertAdminActorUseCase: AssertAdminActorUseCase,
     private readonly recordDistributionPlacementAuditUseCase: RecordDistributionPlacementAuditUseCase,
   ) {}
@@ -47,10 +48,11 @@ export class UnassignGuestFromDistributionUseCase {
   async execute(
     eventId: string,
     guestId: string,
+    tableId: string,
     actorRole: ActorRole,
   ): Promise<DistributionProposal> {
     this.assertAdminActorUseCase.execute(actorRole);
-    await this.requireEvent(eventId);
+    const event = await this.requireEvent(eventId);
 
     const proposal =
       await this.distributionRepository.findLatestByEventId(eventId);
@@ -63,26 +65,33 @@ export class UnassignGuestFromDistributionUseCase {
       });
     }
 
+    const guests = await this.guestRepository.listGuests(eventId);
+
     try {
       const from = findGuestPlacement(proposal, guestId);
-      const updated = unassignGuestFromProposal(proposal, guestId);
+      const updated = moveGuestInProposal(proposal, {
+        guestId,
+        tableId,
+        guests,
+        tables: event.tables,
+      });
       const saved = await this.distributionRepository.save(updated);
-      const guests = await this.guestRepository.listGuests(eventId);
       const withWarnings = finalizeManualPlacementMutation(
         saved,
         guests,
         guestId,
       );
-      if (from) {
+      const to = findTableRef(event.tables, tableId);
+      if (from && to) {
         await recordDistributionPlacementAudit(
           this.recordDistributionPlacementAuditUseCase,
           {
             eventId,
             actorRole,
             guestId,
-            action: 'unassign',
+            action: 'move',
             from,
-            to: null,
+            to,
             companionSeparationWarning: Boolean(
               withWarnings.manualWarnings?.length,
             ),
@@ -91,11 +100,11 @@ export class UnassignGuestFromDistributionUseCase {
       }
       return withWarnings;
     } catch (error) {
-      if (error instanceof UnassignGuestError) {
+      if (error instanceof MoveGuestError) {
         throw new ConflictException({
           code: error.code,
           message: error.message,
-          details: { guestId },
+          details: { guestId, tableId },
         });
       }
       throw error;

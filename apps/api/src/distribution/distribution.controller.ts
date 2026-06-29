@@ -27,6 +27,7 @@ import {
   RunDistributionUseCase,
 } from './application/manage-distribution.use-case';
 import { AssignGuestToDistributionUseCase } from './application/assign-guest-to-distribution.use-case';
+import { MoveGuestInDistributionUseCase } from './application/move-guest-in-distribution.use-case';
 import { UnassignGuestFromDistributionUseCase } from './application/unassign-guest-from-distribution.use-case';
 import { AssignGuestDto } from './dto/assign-guest.dto';
 import { DistributionProposalDto } from './dto/distribution.dto';
@@ -40,6 +41,7 @@ export class DistributionController {
     private readonly confirmDistributionUseCase: ConfirmDistributionUseCase,
     private readonly unassignGuestFromDistributionUseCase: UnassignGuestFromDistributionUseCase,
     private readonly assignGuestToDistributionUseCase: AssignGuestToDistributionUseCase,
+    private readonly moveGuestInDistributionUseCase: MoveGuestInDistributionUseCase,
   ) {}
 
   @Post('run')
@@ -156,6 +158,38 @@ export class DistributionController {
     @ActorRoleHeader() actorRole: ActorRole,
   ): Promise<DistributionProposalDto> {
     return this.assignGuestToDistributionUseCase.execute(
+      eventId,
+      guestId,
+      body.tableId,
+      actorRole,
+    );
+  }
+
+  @Post('placements/:guestId/move')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Mover invitado asignado a otra mesa (propuesta en borrador)',
+  })
+  @ApiParam({ name: 'eventId', example: 'evt_550e8400' })
+  @ApiParam({ name: 'guestId', example: 'guest-1' })
+  @ApiHeader({
+    name: 'x-taulamic-actor-role',
+    required: true,
+    description: 'Debe ser admin.',
+  })
+  @ApiOkResponse({ type: DistributionProposalDto })
+  @ApiForbiddenResponse({ description: 'Solo admin puede mover.' })
+  @ApiConflictResponse({
+    description: 'Propuesta confirmada, mesa llena o regla dura.',
+  })
+  @ApiNotFoundResponse({ description: 'Sin propuesta o evento inexistente.' })
+  async moveGuest(
+    @Param('eventId') eventId: string,
+    @Param('guestId') guestId: string,
+    @Body() body: AssignGuestDto,
+    @ActorRoleHeader() actorRole: ActorRole,
+  ): Promise<DistributionProposalDto> {
+    return this.moveGuestInDistributionUseCase.execute(
       eventId,
       guestId,
       body.tableId,

@@ -7,6 +7,8 @@ import { DistributionCalculatedView } from '@/components/admin/distribution';
 import { IconRefresh } from '@/components/icons';
 import { Alert, EmptyState, PageHeader } from '@/components/ui';
 import { buildDistributionTableGroups, buildUnassignedGuestOptions } from '@/lib/distribution-view';
+import { notifyDistributionChanged } from '@/lib/distribution-events';
+import { applyDistributionMutationResult } from '@/lib/distribution-mutation-feedback';
 import {
   ApiError,
   distributionApi,
@@ -33,7 +35,10 @@ export default function DistributionPage() {
     null,
   );
   const [assigningGuestId, setAssigningGuestId] = useState<string | null>(null);
+  const [movingGuestId, setMovingGuestId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [warning, setWarning] = useState<string | null>(null);
+  const [mutationError, setMutationError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!eventId) {
@@ -126,12 +131,19 @@ export default function DistributionPage() {
       return;
     }
     setUnassigningGuestId(guestId);
-    setError(null);
+    setMutationError(null);
     try {
       const result = await distributionApi.unassignGuest(eventId, guestId);
-      setProposal(result);
+      applyDistributionMutationResult(
+        setProposal,
+        setWarning,
+        setMutationError,
+        result,
+      );
+      notifyDistributionChanged(eventId);
     } catch (err) {
-      setError(
+      setWarning(null);
+      setMutationError(
         err instanceof ApiError
           ? err.message
           : 'No se pudo quitar el invitado de la mesa.',
@@ -146,22 +158,56 @@ export default function DistributionPage() {
       return;
     }
     setAssigningGuestId(guestId);
-    setError(null);
+    setMutationError(null);
     try {
       const result = await distributionApi.assignGuest(
         eventId,
         guestId,
         tableId,
       );
-      setProposal(result);
+      applyDistributionMutationResult(
+        setProposal,
+        setWarning,
+        setMutationError,
+        result,
+      );
+      notifyDistributionChanged(eventId);
     } catch (err) {
-      setError(
+      setWarning(null);
+      setMutationError(
         err instanceof ApiError
           ? err.message
           : 'No se pudo asignar el invitado a la mesa.',
       );
     } finally {
       setAssigningGuestId(null);
+    }
+  }
+
+  async function moveGuest(guestId: string, tableId: string) {
+    if (!eventId) {
+      return;
+    }
+    setMovingGuestId(guestId);
+    setMutationError(null);
+    try {
+      const result = await distributionApi.moveGuest(eventId, guestId, tableId);
+      applyDistributionMutationResult(
+        setProposal,
+        setWarning,
+        setMutationError,
+        result,
+      );
+      notifyDistributionChanged(eventId);
+    } catch (err) {
+      setWarning(null);
+      setMutationError(
+        err instanceof ApiError
+          ? err.message
+          : 'No se pudo mover el invitado a la mesa.',
+      );
+    } finally {
+      setMovingGuestId(null);
     }
   }
 
@@ -214,10 +260,14 @@ export default function DistributionPage() {
           confirming={confirming}
           unassigningGuestId={unassigningGuestId}
           assigningGuestId={assigningGuestId}
+          movingGuestId={movingGuestId}
           unassignedGuests={unassignedGuests}
           onConfirm={() => void confirm()}
           onUnassignGuest={(guestId) => void unassignGuest(guestId)}
           onAssignGuest={(tableId, guestId) => assignGuest(tableId, guestId)}
+          onMoveGuest={(guestId, tableId) => moveGuest(guestId, tableId)}
+          mutationWarning={warning}
+          mutationError={mutationError}
         />
       ) : (
         <EmptyState

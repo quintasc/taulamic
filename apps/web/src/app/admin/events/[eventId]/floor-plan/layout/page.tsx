@@ -9,6 +9,8 @@ import {
 import { Alert } from '@/components/ui';
 import { ApiError, distributionApi, eventsApi, guestsApi, type DistributionProposal, type GuestView } from '@/lib/api';
 import { buildDistributionTableGroups, buildUnassignedGuestOptions } from '@/lib/distribution-view';
+import { notifyDistributionChanged } from '@/lib/distribution-events';
+import { applyDistributionMutationResult } from '@/lib/distribution-mutation-feedback';
 import {
   DEFAULT_FLOOR_PLAN_SETUP,
   loadFloorPlanSetup,
@@ -25,12 +27,15 @@ export default function FloorPlanLayoutPage() {
   const { event } = useEvent();
   const [loading, setLoading] = useState(true);
   const [missingDistribution, setMissingDistribution] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [mutationError, setMutationError] = useState<string | null>(null);
+  const [mutationWarning, setMutationWarning] = useState<string | null>(null);
   const [proposal, setProposal] = useState<DistributionProposal | null>(null);
   const [unassigningGuestId, setUnassigningGuestId] = useState<string | null>(
     null,
   );
   const [assigningGuestId, setAssigningGuestId] = useState<string | null>(null);
+  const [movingGuestId, setMovingGuestId] = useState<string | null>(null);
   const [guests, setGuests] = useState<GuestView[]>([]);
   const [roomSetup, setRoomSetup] = useState<FloorPlanSetup>(
     DEFAULT_FLOOR_PLAN_SETUP,
@@ -100,19 +105,26 @@ export default function FloorPlanLayoutPage() {
           setProposal(null);
           return;
         }
-        setError('No se pudo cargar la distribución.');
+        setLoadError('No se pudo cargar la distribución.');
       })
       .finally(() => setLoading(false));
   }, [params.eventId]);
 
   async function unassignGuest(guestId: string) {
     setUnassigningGuestId(guestId);
-    setError(null);
+    setMutationError(null);
     try {
       const result = await distributionApi.unassignGuest(params.eventId, guestId);
-      setProposal(result);
+      applyDistributionMutationResult(
+        setProposal,
+        setMutationWarning,
+        setMutationError,
+        result,
+      );
+      notifyDistributionChanged(params.eventId);
     } catch (err) {
-      setError(
+      setMutationWarning(null);
+      setMutationError(
         err instanceof ApiError
           ? err.message
           : 'No se pudo quitar el invitado de la mesa.',
@@ -124,16 +136,23 @@ export default function FloorPlanLayoutPage() {
 
   async function assignGuest(tableId: string, guestId: string) {
     setAssigningGuestId(guestId);
-    setError(null);
+    setMutationError(null);
     try {
       const result = await distributionApi.assignGuest(
         params.eventId,
         guestId,
         tableId,
       );
-      setProposal(result);
+      applyDistributionMutationResult(
+        setProposal,
+        setMutationWarning,
+        setMutationError,
+        result,
+      );
+      notifyDistributionChanged(params.eventId);
     } catch (err) {
-      setError(
+      setMutationWarning(null);
+      setMutationError(
         err instanceof ApiError
           ? err.message
           : 'No se pudo asignar el invitado a la mesa.',
@@ -143,14 +162,42 @@ export default function FloorPlanLayoutPage() {
     }
   }
 
+  async function moveGuest(guestId: string, tableId: string) {
+    setMovingGuestId(guestId);
+    setMutationError(null);
+    try {
+      const result = await distributionApi.moveGuest(
+        params.eventId,
+        guestId,
+        tableId,
+      );
+      applyDistributionMutationResult(
+        setProposal,
+        setMutationWarning,
+        setMutationError,
+        result,
+      );
+      notifyDistributionChanged(params.eventId);
+    } catch (err) {
+      setMutationWarning(null);
+      setMutationError(
+        err instanceof ApiError
+          ? err.message
+          : 'No se pudo mover el invitado a la mesa.',
+      );
+    } finally {
+      setMovingGuestId(null);
+    }
+  }
+
   if (loading) {
     return <p className="text-sm text-neutral-500">Cargando plano…</p>;
   }
 
-  if (error) {
+  if (loadError) {
     return (
       <div className="mb-6">
-        <Alert variant="error">{error}</Alert>
+        <Alert variant="error">{loadError}</Alert>
       </div>
     );
   }
@@ -168,9 +215,13 @@ export default function FloorPlanLayoutPage() {
       editable={proposal?.status === 'draft'}
       unassigningGuestId={unassigningGuestId}
       assigningGuestId={assigningGuestId}
+      movingGuestId={movingGuestId}
       unassignedGuests={unassignedGuests}
       onUnassignGuest={(guestId) => void unassignGuest(guestId)}
       onAssignGuest={(tableId, guestId) => assignGuest(tableId, guestId)}
+      onMoveGuest={(guestId, tableId) => moveGuest(guestId, tableId)}
+      mutationError={mutationError}
+      mutationWarning={mutationWarning}
     />
   );
 }

@@ -3,6 +3,7 @@ import { ACTOR_ROLES } from '../../common/domain/actor-role';
 import {
   GOVERNANCE_AUDIT_EVENT_TYPES,
   type CompanionSeparationAuditSnapshot,
+  type DistributionPlacementAuditSnapshot,
   type GovernanceAuditEntry,
   type PreferenceModeAuditSnapshot,
 } from '../domain/governance-audit-entry';
@@ -29,6 +30,29 @@ export class CompanionSeparationAuditSnapshotDto {
   origin!: CompanionSeparationAuditSnapshot['origin'];
 }
 
+export class DistributionPlacementAuditSnapshotDto {
+  @ApiProperty({ enum: ['assign', 'unassign', 'move'] })
+  action!: DistributionPlacementAuditSnapshot['action'];
+
+  @ApiProperty()
+  guestId!: string;
+
+  @ApiProperty({ nullable: true })
+  fromTableId!: string | null;
+
+  @ApiProperty({ nullable: true })
+  fromTableLabel!: string | null;
+
+  @ApiProperty({ nullable: true })
+  toTableId!: string | null;
+
+  @ApiProperty({ nullable: true })
+  toTableLabel!: string | null;
+
+  @ApiProperty({ example: false })
+  companionSeparationWarning!: boolean;
+}
+
 export class GovernanceAuditEntryDto {
   @ApiProperty()
   id!: string;
@@ -52,12 +76,14 @@ export class GovernanceAuditEntryDto {
   before!:
     | PreferenceModeAuditSnapshotDto
     | CompanionSeparationAuditSnapshotDto
+    | DistributionPlacementAuditSnapshotDto
     | null;
 
   @ApiProperty()
   after!:
     | PreferenceModeAuditSnapshotDto
-    | CompanionSeparationAuditSnapshotDto;
+    | CompanionSeparationAuditSnapshotDto
+    | DistributionPlacementAuditSnapshotDto;
 }
 
 export class GovernanceAuditListResponseDto {

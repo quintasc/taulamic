@@ -6,6 +6,7 @@ import { dirname, isAbsolute, join } from 'node:path';
 import type {
   GovernanceAuditEntry,
   RecordCompanionSeparationAuditInput,
+  RecordDistributionPlacementAuditInput,
   RecordPreferenceModeAuditInput,
 } from '../../domain/governance-audit-entry';
 import type { EventGovernanceAuditRepositoryPort } from './event-governance-audit.repository.port';
@@ -53,6 +54,19 @@ export class FileEventGovernanceAuditRepository
     return this.appendEntry({
       eventId: input.eventId,
       type: 'companion_separation_changed',
+      actorRole: input.actorRole,
+      changedAt: new Date().toISOString(),
+      before: input.before,
+      after: input.after,
+    });
+  }
+
+  appendDistributionPlacementChange(
+    input: RecordDistributionPlacementAuditInput,
+  ): Promise<GovernanceAuditEntry> {
+    return this.appendEntry({
+      eventId: input.eventId,
+      type: 'distribution_placement_changed',
       actorRole: input.actorRole,
       changedAt: new Date().toISOString(),
       before: input.before,

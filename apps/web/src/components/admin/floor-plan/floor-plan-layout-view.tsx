@@ -1,12 +1,18 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type DragEvent } from 'react';
 import { GuestPill } from '@/components/admin/distribution/guest-pill';
 import { AssignGuestDialog } from '@/components/admin/distribution/assign-guest-dialog';
+import { PlacementMutationFeedback } from '@/components/admin/distribution/placement-mutation-feedback';
 import { FloorPlanAccessoriesOverlay } from '@/components/admin/floor-plan/floor-plan-accessories-overlay';
 import { RoomShapeDisplay } from '@/components/admin/floor-plan/room-shape-display';
 import { Alert, EmptyState, PageHeader } from '@/components/ui';
+import {
+  acceptGuestDragOver,
+  clearGuestDrag,
+  getActiveGuestDrag,
+} from '@/lib/distribution-dnd';
 import {
   filterChipClass,
   filterChipCountClass,
@@ -39,11 +45,19 @@ const STATUS_FILTER_OPTIONS: Array<{
 function TablePreviewCard({
   group,
   selected,
+  dropActive = false,
   onSelect,
+  onDragOver,
+  onDragLeave,
+  onDrop,
 }: {
   group: DistributionTableGroup;
   selected: boolean;
+  dropActive?: boolean;
   onSelect: () => void;
+  onDragOver?: (event: DragEvent) => void;
+  onDragLeave?: () => void;
+  onDrop?: (event: DragEvent) => void;
 }) {
   const isRound =
     group.shapeLabel === 'Redonda' || group.shapeLabel === 'Ovalada';
@@ -54,9 +68,14 @@ function TablePreviewCard({
       aria-pressed={selected}
       aria-label={`Mesa ${group.tableLabel}, ${group.assignedCount} de ${group.capacity} asientos`}
       onClick={onSelect}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
       className={`flex flex-col items-center justify-center border-2 px-3 py-4 transition hover:brightness-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500 ${tableStatusCardClass(group.status)} ${
         isRound ? 'aspect-square min-w-[88px] rounded-full' : 'min-w-[100px] rounded-xl'
-      } ${selected ? 'ring-2 ring-primary-500 ring-offset-2' : ''}`}
+      } ${selected ? 'ring-2 ring-primary-500 ring-offset-2' : ''} ${
+        dropActive ? 'ring-2 ring-primary-500 ring-offset-1 brightness-105' : ''
+      }`}
     >
       <span className="text-sm font-bold">{group.tableLabel}</span>
       <span className="mt-1 text-xs font-medium">
@@ -72,18 +91,30 @@ function TableGuestsPanel({
   compact = false,
   editable = false,
   unassigningGuestId = null,
+  movingGuestId = null,
+  draggingGuestId = null,
+  onDragStartGuest,
+  onDragEndGuest,
   onUnassignGuest,
   canAssignGuest = false,
   onOpenAssignGuest,
+  mutationWarning = null,
+  mutationError = null,
 }: {
   group: DistributionTableGroup;
   onClose: () => void;
   compact?: boolean;
   editable?: boolean;
   unassigningGuestId?: string | null;
+  movingGuestId?: string | null;
+  draggingGuestId?: string | null;
+  onDragStartGuest?: (guestId: string) => void;
+  onDragEndGuest?: () => void;
   onUnassignGuest?: (guestId: string) => void;
   canAssignGuest?: boolean;
   onOpenAssignGuest?: () => void;
+  mutationWarning?: string | null;
+  mutationError?: string | null;
 }) {
   return (
     <div
@@ -111,6 +142,12 @@ function TableGuestsPanel({
         </button>
       </div>
 
+      <PlacementMutationFeedback
+        warning={mutationWarning}
+        error={mutationError}
+        compact
+      />
+
       <div className="mt-4 max-h-40 overflow-y-auto">
         <div className="flex flex-wrap gap-2">
           {group.guests.length > 0 ? (
@@ -120,7 +157,15 @@ function TableGuestsPanel({
                 name={guest.guestName}
                 guestId={guest.guestId}
                 removable={editable}
-                removing={unassigningGuestId === guest.guestId}
+                removing={
+                  unassigningGuestId === guest.guestId ||
+                  movingGuestId === guest.guestId
+                }
+                draggable={editable}
+                dragging={draggingGuestId === guest.guestId}
+                sourceTableId={group.tableId}
+                onDragStart={() => onDragStartGuest?.(guest.guestId)}
+                onDragEnd={onDragEndGuest}
                 onRemove={onUnassignGuest}
               />
             ))
@@ -176,9 +221,13 @@ export function FloorPlanLayoutView({
   editable = false,
   unassigningGuestId = null,
   assigningGuestId = null,
+  movingGuestId = null,
   unassignedGuests = [],
   onUnassignGuest,
   onAssignGuest,
+  onMoveGuest,
+  mutationError = null,
+  mutationWarning = null,
 }: {
   tableGroups: DistributionTableGroup[];
   roomSetup: FloorPlanSetup;
@@ -187,9 +236,13 @@ export function FloorPlanLayoutView({
   editable?: boolean;
   unassigningGuestId?: string | null;
   assigningGuestId?: string | null;
+  movingGuestId?: string | null;
   unassignedGuests?: UnassignedGuestOption[];
   onUnassignGuest?: (guestId: string) => void;
   onAssignGuest?: (tableId: string, guestId: string) => void | Promise<void>;
+  onMoveGuest?: (guestId: string, targetTableId: string) => void | Promise<void>;
+  mutationError?: string | null;
+  mutationWarning?: string | null;
 }) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] =
@@ -198,6 +251,10 @@ export function FloorPlanLayoutView({
   const [selectedGroup, setSelectedGroup] =
     useState<DistributionTableGroup | null>(null);
   const [assignOpen, setAssignOpen] = useState(false);
+  const [draggingGuestId, setDraggingGuestId] = useState<string | null>(null);
+  const [dropTargetTableId, setDropTargetTableId] = useState<string | null>(
+    null,
+  );
 
   const statusCounts = useMemo(
     () => countTablesByStatus(tableGroups),
@@ -261,8 +318,9 @@ export function FloorPlanLayoutView({
 
       <div className="mb-6">
         <Alert variant="info">
-          Pulsa una mesa en el plano para ver sus invitados. Arrastrar y guardar
-          posiciones — disponible post-MVP.
+          {editable
+            ? 'Pulsa una mesa para ver invitados. Arrastra un pill a otra mesa para moverlo. Guardar posiciones de mesas — post-MVP.'
+            : 'Pulsa una mesa en el plano para ver sus invitados. Arrastrar y guardar posiciones — disponible post-MVP.'}
         </Alert>
       </div>
 
@@ -340,11 +398,52 @@ export function FloorPlanLayoutView({
                     key={group.tableId}
                     group={group}
                     selected={selectedGroup?.tableId === group.tableId}
+                    dropActive={dropTargetTableId === group.tableId}
                     onSelect={() =>
                       setSelectedGroup((current) =>
                         current?.tableId === group.tableId ? null : group,
                       )
                     }
+                    onDragOver={(event) => {
+                      if (!editable || !onMoveGuest) {
+                        return;
+                      }
+                      if (
+                        acceptGuestDragOver(
+                          event,
+                          group.tableId,
+                          group.freeSeats,
+                        )
+                      ) {
+                        setDropTargetTableId(group.tableId);
+                      } else {
+                        setDropTargetTableId((current) =>
+                          current === group.tableId ? null : current,
+                        );
+                      }
+                    }}
+                    onDragLeave={() => {
+                      setDropTargetTableId((current) =>
+                        current === group.tableId ? null : current,
+                      );
+                    }}
+                    onDrop={(event) => {
+                      event.preventDefault();
+                      setDropTargetTableId(null);
+                      if (!editable || !onMoveGuest) {
+                        clearGuestDrag();
+                        return;
+                      }
+                      const payload = getActiveGuestDrag();
+                      clearGuestDrag();
+                      if (!payload) {
+                        return;
+                      }
+                      setSelectedGroup(group);
+                      void Promise.resolve(
+                        onMoveGuest(payload.guestId, group.tableId),
+                      ).finally(() => setDraggingGuestId(null));
+                    }}
                   />
                 ))}
               </div>
@@ -357,13 +456,19 @@ export function FloorPlanLayoutView({
           </div>
 
           {selectedGroup ? (
-            <div className="absolute inset-x-4 bottom-4 z-30 max-w-md sm:inset-x-auto sm:right-4 sm:left-auto sm:w-80">
+            <div className="absolute right-4 top-4 z-30 w-72 max-w-[calc(100%-2rem)] sm:max-w-xs">
               <TableGuestsPanel
                 group={selectedGroup}
                 compact
                 editable={editable}
                 unassigningGuestId={unassigningGuestId}
+                movingGuestId={movingGuestId}
+                draggingGuestId={draggingGuestId}
+                onDragStartGuest={setDraggingGuestId}
+                onDragEndGuest={() => setDraggingGuestId(null)}
                 onUnassignGuest={onUnassignGuest}
+                mutationWarning={mutationWarning}
+                mutationError={mutationError}
                 canAssignGuest={
                   editable &&
                   selectedGroup.freeSeats > 0 &&

@@ -132,22 +132,25 @@ describe('assignGuestToProposal', () => {
     ).toThrow(AssignGuestError);
   });
 
-  it('rechaza separar acompanantes en mesas distintas', () => {
-    expect(() =>
-      assignGuestToProposal(baseProposal(), {
-        guestId: 'g1',
-        tableId: 't2',
-        guests,
-        tables: [
-          ...tables,
-          {
-            id: 't2',
-            label: 'Mesa 2',
-            shape: 'redonda',
-            capacity: 4,
-          },
-        ],
-      }),
-    ).toThrow(AssignGuestError);
+  it('permite asignar acompanantes en mesas distintas para override manual', () => {
+    const updated = assignGuestToProposal(baseProposal(), {
+      guestId: 'g1',
+      tableId: 't2',
+      guests,
+      tables: [
+        ...tables,
+        {
+          id: 't2',
+          label: 'Mesa 2',
+          shape: 'redonda',
+          capacity: 4,
+        },
+      ],
+    });
+
+    expect(updated.placements).toHaveLength(2);
+    expect(
+      updated.placements.find((placement) => placement.guestId === 'g1')?.tableId,
+    ).toBe('t2');
   });
 });

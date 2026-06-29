@@ -21,6 +21,17 @@ export class GuestPlacementDto {
   tableLabel!: string;
 }
 
+export class ManualPlacementWarningDto {
+  @ApiProperty({ example: 'COMPANION_SEPARATED' })
+  code!: 'COMPANION_SEPARATED';
+
+  @ApiProperty()
+  message!: string;
+
+  @ApiProperty({ type: [String] })
+  guestIds!: string[];
+}
+
 export class HardRuleViolationDto {
   @ApiProperty({ example: 'NO_VALID_TABLE' })
   code!: string;
@@ -78,4 +89,7 @@ export class DistributionProposalDto {
 
   @ApiProperty({ example: null, nullable: true })
   confirmedAt!: string | null;
+
+  @ApiProperty({ type: [ManualPlacementWarningDto], required: false })
+  manualWarnings?: ManualPlacementWarningDto[];
 }

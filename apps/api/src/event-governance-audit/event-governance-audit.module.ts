@@ -3,6 +3,7 @@ import { EventsModule } from '../events/events.module';
 import {
   ListEventGovernanceAuditUseCase,
   RecordCompanionSeparationAuditUseCase,
+  RecordDistributionPlacementAuditUseCase,
   RecordPreferenceModeAuditUseCase,
 } from './application/governance-audit.use-case';
 import { EventGovernanceAuditController } from './event-governance-audit.controller';
@@ -15,6 +16,7 @@ import { EVENT_GOVERNANCE_AUDIT_REPOSITORY } from './infrastructure/persistence/
   providers: [
     RecordPreferenceModeAuditUseCase,
     RecordCompanionSeparationAuditUseCase,
+    RecordDistributionPlacementAuditUseCase,
     ListEventGovernanceAuditUseCase,
     FileEventGovernanceAuditRepository,
     {
@@ -25,6 +27,7 @@ import { EVENT_GOVERNANCE_AUDIT_REPOSITORY } from './infrastructure/persistence/
   exports: [
     RecordPreferenceModeAuditUseCase,
     RecordCompanionSeparationAuditUseCase,
+    RecordDistributionPlacementAuditUseCase,
   ],
 })
 export class EventGovernanceAuditModule {}

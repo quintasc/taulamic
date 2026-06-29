@@ -19,6 +19,12 @@ export type HardRuleViolation = {
   guestIds: string[];
 };
 
+export type ManualPlacementWarning = {
+  code: 'COMPANION_SEPARATED';
+  message: string;
+  guestIds: string[];
+};
+
 export type DistributionStats = {
   assignedCount: number;
   unassignedCount: number;
@@ -37,4 +43,6 @@ export type DistributionProposal = {
   stats: DistributionStats;
   createdAt: string;
   confirmedAt: string | null;
+  /** Solo en respuestas de mutacion manual HU-05; no persistido. */
+  manualWarnings?: ManualPlacementWarning[];
 };

@@ -2,107 +2,104 @@ import type { EventTable } from '../../events/domain/event-config';
 import type { Guest } from '../../guest-import/domain/guest';
 import type { DistributionProposal } from './distribution.types';
 
-export class AssignGuestError extends Error {
+export class MoveGuestError extends Error {
   constructor(
     readonly code:
       | 'DISTRIBUTION_NOT_EDITABLE'
-      | 'GUEST_NOT_UNASSIGNED'
-      | 'GUEST_ALREADY_ASSIGNED'
+      | 'GUEST_NOT_ASSIGNED'
+      | 'SAME_TABLE'
       | 'TABLE_NOT_FOUND'
       | 'TABLE_FULL'
       | 'INCOMPATIBLE_TABLEMATE',
     message: string,
   ) {
     super(message);
-    this.name = 'AssignGuestError';
+    this.name = 'MoveGuestError';
   }
 }
 
-export type AssignGuestToProposalInput = {
+export type MoveGuestInProposalInput = {
   guestId: string;
   tableId: string;
   guests: Guest[];
   tables: EventTable[];
 };
 
-export function assignGuestToProposal(
+export function moveGuestInProposal(
   proposal: DistributionProposal,
-  input: AssignGuestToProposalInput,
+  input: MoveGuestInProposalInput,
 ): DistributionProposal {
   if (proposal.status !== 'draft') {
-    throw new AssignGuestError(
+    throw new MoveGuestError(
       'DISTRIBUTION_NOT_EDITABLE',
-      'Solo se puede asignar en una propuesta en borrador.',
+      'Solo se puede mover en una propuesta en borrador.',
     );
   }
 
-  const guest = input.guests.find((item) => item.id === input.guestId);
+  const placementIndex = proposal.placements.findIndex(
+    (placement) => placement.guestId === input.guestId,
+  );
 
-  if (!guest) {
-    throw new AssignGuestError(
-      'GUEST_NOT_UNASSIGNED',
-      'El invitado no esta disponible para asignar.',
+  if (placementIndex < 0) {
+    throw new MoveGuestError(
+      'GUEST_NOT_ASSIGNED',
+      'El invitado no esta asignado a ninguna mesa.',
     );
   }
 
-  if (proposal.placements.some((placement) => placement.guestId === input.guestId)) {
-    throw new AssignGuestError(
-      'GUEST_ALREADY_ASSIGNED',
-      'El invitado ya esta asignado a una mesa.',
-    );
-  }
+  const currentPlacement = proposal.placements[placementIndex];
 
-  if (!proposal.unassignedGuestIds.includes(input.guestId)) {
-    throw new AssignGuestError(
-      'GUEST_NOT_UNASSIGNED',
-      'El invitado no esta en la bolsa de sin asignar.',
+  if (currentPlacement.tableId === input.tableId) {
+    throw new MoveGuestError(
+      'SAME_TABLE',
+      'El invitado ya esta en esa mesa.',
     );
   }
 
   const table = input.tables.find((item) => item.id === input.tableId);
 
   if (!table) {
-    throw new AssignGuestError(
+    throw new MoveGuestError(
       'TABLE_NOT_FOUND',
       'No se encontro la mesa indicada.',
     );
   }
 
-  const assignedOnTable = proposal.placements.filter(
+  const assignedOnTarget = proposal.placements.filter(
     (placement) => placement.tableId === input.tableId,
   ).length;
 
-  if (assignedOnTable >= table.capacity) {
-    throw new AssignGuestError(
+  if (assignedOnTarget >= table.capacity) {
+    throw new MoveGuestError(
       'TABLE_FULL',
       'La mesa no tiene plazas libres.',
     );
   }
 
+  const guest = input.guests.find((item) => item.id === input.guestId);
+
+  if (!guest) {
+    throw new MoveGuestError(
+      'GUEST_NOT_ASSIGNED',
+      'El invitado no esta disponible para mover.',
+    );
+  }
+
   assertIncompatibilityRule(proposal, guest, input.guests, input.tableId);
 
-  const placements = [
-    ...proposal.placements,
-    {
-      guestId: guest.id,
-      guestName: guest.nombre,
-      tableId: table.id,
-      tableLabel: table.label,
-    },
-  ];
-  const unassignedGuestIds = proposal.unassignedGuestIds.filter(
-    (guestId) => guestId !== input.guestId,
+  const placements = proposal.placements.map((placement, index) =>
+    index === placementIndex
+      ? {
+          ...placement,
+          tableId: table.id,
+          tableLabel: table.label,
+        }
+      : placement,
   );
 
   return {
     ...proposal,
     placements,
-    unassignedGuestIds,
-    stats: {
-      ...proposal.stats,
-      assignedCount: placements.length,
-      unassignedCount: unassignedGuestIds.length,
-    },
   };
 }
 
@@ -113,13 +110,16 @@ function assertIncompatibilityRule(
   tableId: string,
 ): void {
   const tablemates = proposal.placements
-    .filter((placement) => placement.tableId === tableId)
+    .filter(
+      (placement) =>
+        placement.tableId === tableId && placement.guestId !== guest.id,
+    )
     .map((placement) => guests.find((item) => item.id === placement.guestId))
     .filter((item): item is Guest => item !== undefined);
 
   for (const tablemate of tablemates) {
     if (areIncompatible(guest, tablemate)) {
-      throw new AssignGuestError(
+      throw new MoveGuestError(
         'INCOMPATIBLE_TABLEMATE',
         'El invitado no puede sentarse con alguien incompatible en esa mesa.',
       );

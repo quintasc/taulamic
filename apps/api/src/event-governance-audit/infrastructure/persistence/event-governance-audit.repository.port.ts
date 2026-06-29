@@ -1,6 +1,7 @@
 import type {
   GovernanceAuditEntry,
   RecordCompanionSeparationAuditInput,
+  RecordDistributionPlacementAuditInput,
   RecordPreferenceModeAuditInput,
 } from '../../domain/governance-audit-entry';
 
@@ -10,6 +11,9 @@ export type EventGovernanceAuditRepositoryPort = {
   ): Promise<GovernanceAuditEntry>;
   appendCompanionSeparationChange(
     input: RecordCompanionSeparationAuditInput,
+  ): Promise<GovernanceAuditEntry>;
+  appendDistributionPlacementChange(
+    input: RecordDistributionPlacementAuditInput,
   ): Promise<GovernanceAuditEntry>;
   listEntries(eventId: string): Promise<GovernanceAuditEntry[]>;
 };

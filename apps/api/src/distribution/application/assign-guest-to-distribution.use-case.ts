@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { RecordDistributionPlacementAuditUseCase } from '../../event-governance-audit/application/governance-audit.use-case';
 import { AssertAdminActorUseCase } from '../../events/application/preference-permissions.use-case';
 import type { ActorRole } from '../../common/domain/actor-role';
 import type { EventConfig } from '../../events/domain/event-config';
@@ -19,11 +20,16 @@ import {
   AssignGuestError,
   assignGuestToProposal,
 } from '../domain/assign-guest-to-proposal';
+import { finalizeManualPlacementMutation } from '../domain/finalize-manual-placement-mutation';
 import type { DistributionProposal } from '../domain/distribution.types';
 import {
   DISTRIBUTION_REPOSITORY,
   type DistributionRepositoryPort,
 } from '../infrastructure/persistence/distribution.repository.port';
+import {
+  findTableRef,
+  recordDistributionPlacementAudit,
+} from './record-distribution-placement-audit';
 
 @Injectable()
 export class AssignGuestToDistributionUseCase {
@@ -35,6 +41,7 @@ export class AssignGuestToDistributionUseCase {
     @Inject(DISTRIBUTION_REPOSITORY)
     private readonly distributionRepository: DistributionRepositoryPort,
     private readonly assertAdminActorUseCase: AssertAdminActorUseCase,
+    private readonly recordDistributionPlacementAuditUseCase: RecordDistributionPlacementAuditUseCase,
   ) {}
 
   async execute(
@@ -66,7 +73,30 @@ export class AssignGuestToDistributionUseCase {
         guests,
         tables: event.tables,
       });
-      return this.distributionRepository.save(updated);
+      const saved = await this.distributionRepository.save(updated);
+      const withWarnings = finalizeManualPlacementMutation(
+        saved,
+        guests,
+        guestId,
+      );
+      const target = findTableRef(event.tables, tableId);
+      if (target) {
+        await recordDistributionPlacementAudit(
+          this.recordDistributionPlacementAuditUseCase,
+          {
+            eventId,
+            actorRole,
+            guestId,
+            action: 'assign',
+            from: null,
+            to: target,
+            companionSeparationWarning: Boolean(
+              withWarnings.manualWarnings?.length,
+            ),
+          },
+        );
+      }
+      return withWarnings;
     } catch (error) {
       if (error instanceof AssignGuestError) {
         throw new ConflictException({

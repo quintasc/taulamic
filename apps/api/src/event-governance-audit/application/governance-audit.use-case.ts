@@ -4,6 +4,7 @@ import { AssertAdminActorUseCase } from '../../events/application/preference-per
 import type {
   GovernanceAuditEntry,
   RecordCompanionSeparationAuditInput,
+  RecordDistributionPlacementAuditInput,
   RecordPreferenceModeAuditInput,
 } from '../domain/governance-audit-entry';
 import {
@@ -36,6 +37,20 @@ export class RecordCompanionSeparationAuditUseCase {
     input: RecordCompanionSeparationAuditInput,
   ): Promise<GovernanceAuditEntry> {
     return this.repository.appendCompanionSeparationChange(input);
+  }
+}
+
+@Injectable()
+export class RecordDistributionPlacementAuditUseCase {
+  constructor(
+    @Inject(EVENT_GOVERNANCE_AUDIT_REPOSITORY)
+    private readonly repository: EventGovernanceAuditRepositoryPort,
+  ) {}
+
+  execute(
+    input: RecordDistributionPlacementAuditInput,
+  ): Promise<GovernanceAuditEntry> {
+    return this.repository.appendDistributionPlacementChange(input);
   }
 }
 

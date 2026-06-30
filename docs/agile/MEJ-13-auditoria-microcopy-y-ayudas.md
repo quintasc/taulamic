@@ -1,6 +1,7 @@
 # MEJ-13 — Auditoría de microcopy y textos de ayuda
 
-- **Estado:** Propuesta — **pendiente validación PO** (sin implementar)
+- **Estado:** Fases A–C implementadas Sprint 07 — **pendiente validación manual PO** (`guion-validacion-mej-13-ui.md`)
+- **Inventario:** `inventario-microcopy-ui.md`
 - **Tipo:** Mejora UX copy (sin cambio de alcance funcional salvo acuerdo PO)
 - **Origen:** Revisión responsive — simplificar ayudas y botones en espacio reducido; retirar referencias «piloto» obsoletas cuando corresponda
 - **Guion validación previa:** `guion-validacion-mej-13-propuesta-microcopy.md`
@@ -160,3 +161,4 @@ Para cada string, marcar una de:
 | Fecha | Evento |
 |-------|--------|
 | 2026-06-21 | Propuesta documentada (feedback PO microcopy + claridad) |
+| 2026-06-21 | Inventario PO (`inventario-microcopy-ui.md`); B+C en `1d3db89` |

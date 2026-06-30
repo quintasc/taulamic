@@ -43,19 +43,20 @@ Documentación MEJ-10…13 ya en repo; specs son la base del sprint.
 
 | Prioridad | MEJ | Fase | Descripción | Estado |
 |-----------|-----|------|-------------|--------|
-| **P0** | — | Gate PO | Aprobar guiones propuesta MEJ-10…13 | ⏳ Pendiente |
-| **P1** | MEJ-10 | A | §7.5 feedback contextual + árbol decisión en guía | ⏳ |
-| **P1** | MEJ-10 | C | Mesas: error inline rename + `ConfirmDialog` eliminar | ⏳ |
-| **P1** | MEJ-10 | D | Chips filtro: variante canónica única | ⏳ |
-| **P1** | MEJ-11 | B | Dashboard CTA contextual (Config / siguiente paso) | ⏳ |
-| **P1** | MEJ-11 | C | Checklist setup clicable | ⏳ |
-| **P2** | MEJ-11 | D | Accesos rápidos responsive (`lg:hidden` u opción PO) | ⏳ |
-| **P2** | MEJ-12 | B | Marcadores compactos plano Fase B (~44 px) | ⏳ |
-| **P2** | MEJ-13 | A | Inventario microcopy (`inventario-microcopy-ui.md`) + decisiones PO | ⏳ |
-| **P2** | MEJ-13 | B | Poda ayudas acordadas (piloto / post-MVP redundantes) | ⏳ |
-| **P3** | MEJ-13 | C | Etiquetas botón cortas `< md` (p. ej. Confirmar) | ⏳ |
+| **P0** | — | Gate PO | Aprobar guiones propuesta MEJ-10…13 | ✅ 2026-06-21 |
+| **P1** | MEJ-10 | A | §7.5 feedback contextual + árbol decisión en guía | ✅ |
+| **P1** | MEJ-10 | C | Mesas: error inline rename + `ConfirmDialog` eliminar | ✅ `4890625` |
+| **P1** | MEJ-10 | D | Chips filtro: variante canónica única | ✅ `4890625` |
+| **P1** | MEJ-11 | B | Dashboard CTA contextual (Config / siguiente paso) | ✅ `8a79138` |
+| **P1** | MEJ-11 | C | Checklist setup clicable | ✅ `4890625` |
+| **P2** | MEJ-11 | D | Accesos rápidos responsive (`lg:hidden` u opción PO) | ✅ Eliminados (decisión PO) |
+| **P2** | MEJ-12 | B | Marcadores compactos plano Fase B (~44 px) | ✅ `fdc8373` |
+| **P2** | MEJ-13 | A | Inventario microcopy (`inventario-microcopy-ui.md`) + decisiones PO | ✅ |
+| **P2** | MEJ-13 | B | Poda ayudas acordadas (piloto / post-MVP redundantes) | ✅ `1d3db89` |
+| **P3** | MEJ-13 | C | Etiquetas botón cortas `< md` (p. ej. Confirmar) | ✅ `1d3db89` |
 | Stretch | MEJ-10 | E–F | Tablas thead unificado; targets táctiles pills | ⏭️ Si sobra tiempo |
 | Stretch | MEJ-12 | C | Grid auto / zoom canvas | ⏭️ Post-piloto preferible |
+| — | — | Validación | Guiones post-implementación + cierre sprint | ⏳ Pendiente |
 
 ---
 

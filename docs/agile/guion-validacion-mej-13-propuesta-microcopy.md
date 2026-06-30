@@ -1,6 +1,6 @@
 # Guion — Validación previa propuesta MEJ-13 (Microcopy)
 
-- **Estado:** Pendiente validación PO
+- **Estado:** Aprobado PO — 2026-06-21
 - **Spec:** `MEJ-13-auditoria-microcopy-y-ayudas.md`
 - **Implementación:** **bloqueada** hasta aprobar este guion
 
@@ -10,8 +10,8 @@
 
 | # | Pregunta | OK PO |
 |---|----------|-------|
-| A1 | ¿Ningún acortamiento puede ir en contra de la claridad? | [ ] |
-| A2 | ¿Avisos de límites reales (post-piloto, bloqueado) se mantienen de alguna forma? | [ ] |
+| A1 | ¿Ningún acortamiento puede ir en contra de la claridad? | [x] |
+| A2 | ¿Avisos de límites reales (post-piloto, bloqueado) se mantienen de alguna forma? | [x] |
 
 ---
 
@@ -19,10 +19,10 @@
 
 | # | Propuesta | Decisión PO |
 |---|-----------|-------------|
-| B1 | ¿Auditar y eliminar textos «piloto julio» ya obsoletos? | [ ] Sí · [ ] Parcial · [ ] No |
-| B2 | «Comparador Top-K — post-piloto» en Distribución | [ ] Eliminar · [ ] Acortar · [ ] Mantener |
-| B3 | Subtítulos «Paso N del setup» en todas las pantallas | [ ] Mantener · [ ] Solo dashboard · [ ] Eliminar |
-| B4 | Párrafos «post-MVP» en plano | [ ] Tooltip · [ ] Eliminar · [ ] Mantener |
+| B1 | ¿Auditar y eliminar textos «piloto julio» ya obsoletos? | [x] Sí · [ ] Parcial · [ ] No |
+| B2 | «Comparador Top-K — post-piloto» en Distribución | [ ] Eliminar · [x] Acortar · [ ] Mantener |
+| B3 | Subtítulos «Paso N del setup» en todas las pantallas | [x] Mantener · [ ] Solo dashboard · [ ] Eliminar |
+| B4 | Párrafos «post-MVP» en plano | [ ] Tooltip · [x] Eliminar · [ ] Mantener |
 
 ---
 
@@ -30,9 +30,9 @@
 
 | # | Etiqueta | ¿Variante corta `< md`? | Corto propuesto |
 |---|----------|-------------------------|-----------------|
-| C1 | Confirmar distribución | [ ] Sí · [ ] No | Confirmar |
-| C2 | Calcular distribución | [ ] Sí · [ ] No | Calcular |
-| C3 | Ver mesas en plano | [ ] Sí · [ ] No | Ver plano |
+| C1 | Confirmar distribución | [x] Sí · [ ] No | Confirmar |
+| C2 | Calcular distribución | [x] Sí · [ ] No | Calcular |
+| C3 | Ver mesas en plano | [x] Sí · [ ] No | Ver plano |
 | C4 | Otros (anotar) | | |
 
 ---
@@ -41,8 +41,8 @@
 
 | # | Fases aprobadas | OK PO |
 |---|-----------------|-------|
-| D1 | [ ] A · [ ] B · [ ] C · [ ] D | |
-| D2 | ¿Tras cierre piloto julio o antes? | [ ] Antes · [ ] Tras cierre |
+| D1 | [x] A · [x] B · [x] C · [x] D | |
+| D2 | ¿Tras cierre piloto julio o antes? | [x] Antes · [ ] Tras cierre |
 
 ---
 

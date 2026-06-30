@@ -1,6 +1,6 @@
 # Guion — Validación previa propuesta MEJ-10 (cohesión UI)
 
-- **Estado:** Pendiente validación PO
+- **Estado:** Aprobado PO — 2026-06-21
 - **Tipo:** Aprobación de **propuesta** — **no** requiere `npm run dev` ni build
 - **Spec:** `MEJ-10-cohesion-ui-feedback-y-tablas.md`
 - **Implementación:** **bloqueada** hasta marcar este guion como aprobado
@@ -20,9 +20,9 @@
 
 | # | Pregunta | Respuesta esperada | OK PO |
 |---|----------|-------------------|-------|
-| A1 | ¿Aceptamos que **no** se muevan los warnings de acompañantes fuera de la zona de pills? | Sí — visibilidad validada Sprint 06 | [ ] |
-| A2 | ¿Aceptamos **no** convertir Mesas en pantalla tipo Invitados v2? | Sí — formulario + inventario | [ ] |
-| A3 | ¿Aceptamos documentar la **capa 4** (feedback contextual) en la guía de estilo? | Sí | [ ] |
+| A1 | ¿Aceptamos que **no** se muevan los warnings de acompañantes fuera de la zona de pills? | Sí — visibilidad validada Sprint 06 | [x] |
+| A2 | ¿Aceptamos **no** convertir Mesas en pantalla tipo Invitados v2? | Sí — formulario + inventario | [x] |
+| A3 | ¿Aceptamos documentar la **capa 4** (feedback contextual) en la guía de estilo? | Sí | [x] |
 
 **Si algún NO:** detener; ajustar spec antes de Fase B.
 
@@ -32,8 +32,8 @@
 
 | # | Decisión | Opciones | Elección PO |
 |---|----------|----------|-------------|
-| B1 | Apariencia contextual = misma que `Alert` (sin sombra/blur extra) | Sí / No / Ajustar | [ ] |
-| B2 | Radio banners mensaje | `rounded-xl` (como Alert) / `rounded-lg` (más compacto) | [ ] |
+| B1 | Apariencia contextual = misma que `Alert` (sin sombra/blur extra) | Sí / No / Ajustar | [Sí] |
+| B2 | Radio banners mensaje | `rounded-xl` (como Alert) / `rounded-lg` (más compacto) | [ como Alert] |
 
 **Notas PO:** _[opcional]_
 
@@ -43,9 +43,9 @@
 
 | # | Propuesta | ¿Aprobar? | OK PO |
 |---|-----------|-----------|-------|
-| C1 | Error etiqueta vacía/duplicada → texto bajo el input (no toast) | | [ ] |
-| C2 | Eliminar mesa con asignados → `ConfirmDialog` (no `window.confirm`) | | [ ] |
-| C3 | Mantener toast de éxito al añadir/renombrar/eliminar mesa | | [ ] |
+| C1 | Error etiqueta vacía/duplicada → texto bajo el input (no toast) | | [x] |
+| C2 | Eliminar mesa con asignados → `ConfirmDialog` (no `window.confirm`) | | [x] |
+| C3 | Mantener toast de éxito al añadir/renombrar/eliminar mesa | | [x] |
 
 ---
 
@@ -58,8 +58,8 @@ Comparar en UI:
 
 | # | Decisión | OK PO |
 |---|----------|-------|
-| D1 | Variante canónica para toda la app | [ ] Outline (Invitados) · [ ] Sólida (Distribución) · [ ] Otra: ___ |
-| D2 | Aplicar en Distribución + Plano en el mismo sprint | [ ] Sí · [ ] No · [ ] Más adelante |
+| D1 | Variante canónica para toda la app | [x] Outline (Invitados) · [ ] Sólida (Distribución) · [ ] Otra: ___ |
+| D2 | Aplicar en Distribución + Plano en el mismo sprint | [x] Sí · [ ] No · [ ] Más adelante |
 
 ---
 
@@ -68,7 +68,7 @@ Comparar en UI:
 | # | Propuesta | ¿Incluir en MEJ-10? | OK PO |
 |---|-----------|---------------------|-------|
 | E1 | Unificar cabecera tabla (Mesas ↔ Invitados) | | [ ] |
-| E2 | Hover suave en filas de Mesas | | [ ] |
+| E2 | Hover suave en filas de Mesas | | [x] |
 
 ---
 
@@ -76,8 +76,8 @@ Comparar en UI:
 
 | # | Pregunta | OK PO |
 |---|----------|-------|
-| F1 | Fases aprobadas para **primer entregable** | [ ] A · [ ] B · [ ] C · [ ] D · [ ] E · [ ] F |
-| F2 | ¿Sprint dedicado MEJ-10 o mezclar con otra feature? | Sprint ___ / Mezclar con ___ |
+| F1 | Fases aprobadas para **primer entregable** | [x] A · [x] B · [x] C · [x] D · [x] E · [x] F |
+| F2 | ¿Sprint dedicado MEJ-10 o mezclar con otra feature? | Sprint x / Mezclar con ___ |
 
 ---
 

@@ -1,7 +1,7 @@
 # Guion de validación manual — MEJ-10 cohesión UI (post-implementación)
 
-- **Estado:** Borrador — **no usar** hasta completar implementación MEJ-10
-- **Precondición:** `guion-validacion-mej-10-propuesta-ui.md` aprobado por PO
+- **Estado:** Listo para validación manual PO
+- **Precondición:** Implementación MEJ-10 en `main` @ `6645bef`
 - **Spec:** `MEJ-10-cohesion-ui-feedback-y-tablas.md`
 - **Entorno:** API `:3000`, Web `:3001`
 

@@ -167,8 +167,8 @@ Tres capas complementarias — usar la adecuada, no mezclar redundante:
 
 Cuando `nextReady={false}`:
 
-- Banner **`Alert` variant `error`** encima de la barra de navegación con `nextDisabledHint`.
-- Botón «Siguiente» atenuado pero **clicable**: scroll al banner + pulso visual.
+- Hint compacto (`setup-nav-blocked-hint`) **encima** de la barra fija, alineado a la derecha con el botón «Siguiente»; tokens `feedback-surface-error`.
+- Botón «Siguiente» atenuado pero **clicable**: scroll al hint + pulso visual (`ring`).
 
 | Paso | Mensaje |
 |------|---------|
@@ -264,8 +264,9 @@ Inventario en `frontend-component-system.md`. Primitivos en `apps/web/src/compon
 - Sin datos demo al crear evento.
 - **Proyecto evento:** el primer paso natural desde el dashboard es **Configuración** (`/config`) — unidad que con persistencia futura será guardable/recuperable.
 - **Recorrido del setup** (`SetupJourney`): línea vertical con nodos por paso; check verde si completado, círculo neutro si pendiente; cada nodo clicable salvo bloqueados (Tarjetas).
-- **Footer setup** (`SetupNavBar`): «Siguiente: Configuración» (o «Definir evento» si falta nombre) hacia `/config` — misma banda fija que el resto de pantallas; flecha en móvil, texto desde `md`.
-- **Accesos rápidos:** orden del flujo setup (Config primero); en desktop (`lg+`) tarjetas compactas en fila; en móvil/tablet tarjetas verticales. Sidebar sigue siendo navegación principal en desktop.
+- **CTA contextual** (`SetupNavBar` variant `inline`): entre KPIs y checklist; navega al **siguiente paso incompleto** del setup (`getDashboardSetupNav`).
+- **Footer setup** (`SetupNavBar` sticky): «Siguiente: …» hacia el paso siguiente; flecha en móvil, texto desde `md`.
+- **Accesos rápidos:** eliminados Sprint 07 (decisión PO); sidebar + CTA + checklist cubren navegación.
 
 ### Invitados
 
@@ -277,13 +278,16 @@ Inventario en `frontend-component-system.md`. Primitivos en `apps/web/src/compon
 
 - **Fase A (setup):** forma, medidas, accesorios; sin detección IA de mesas como camino principal (ADR-016).
 - **Fase B (layout):** tras distribución; «Ver mesas en plano» solo si hay distribución calculada.
-- **Marcadores mesa (propuesta MEJ-12):** chips compactos (~44 px) con label + color ocupación; detalle e invitados en panel lateral al **un clic**; `n/cap` en tooltip. Validar PO antes de implementar.
+- **Marcadores mesa (MEJ-12):** rejilla fija + escala dinámica; chips compactos con borde visible; detalle en panel lateral al **un clic**; tooltip con `n/cap`.
 - Auto-guardado + indicador en header; sin «Guardar» en header Fase A.
 
 ### Mesas
 
+- Patrón **formulario + inventario** (no clonar Invitados v2).
 - Acción principal: **«Añadir mesa»** (no «Guardar mesa»).
-- Toast al añadir, renombrar o eliminar.
+- Renombrar etiqueta: edición **inline** en fila; error vacío/duplicado **bajo el input** (§7.5).
+- Eliminar mesa con invitados: **`ConfirmDialog`** (no `window.confirm`).
+- Toast al añadir, renombrar o eliminar con éxito.
 
 ### Afinidades
 
@@ -318,7 +322,7 @@ Patrones: tablas con fila apilada en móvil; `SetupNavBar` sticky abajo con flec
 | Error | Qué falló + qué puede hacer el usuario |
 | Piloto no operativo | «Piloto — …» / «Post-piloto» en badge, sin prometer funcionalidad inexistente |
 | Pasos setup | «Paso N del setup: …» en subtítulo |
-| Confirmaciones destructivas | `window.confirm` con nombre de entidad |
+| Confirmaciones destructivas | `ConfirmDialog` con nombre de entidad |
 | Etiquetas responsive | Texto corto solo `< md` si el contexto de pantalla desambigua; `aria-label` con texto completo (ver `MEJ-13-auditoria-microcopy-y-ayudas.md`) |
 | Lifecycle piloto | Revisar ayudas «piloto» / «post-piloto» cuando el límite deje de ser cierto — auditoría MEJ-13 antes de podar |
 
@@ -374,6 +378,7 @@ Evitar: «borrador» en UI de organizador salvo copy técnico interno; «Guardar
 | 2026-06 | Barra setup, guardado implícito, cuenta atrás dashboard | #40 |
 | 2026-06 | Invitados v2 como pantalla principal | #40 |
 | 2026-06 | Validación visible + toast + indicador auto-guardado | #41 |
-| 2026-06 | Auto-guardado visible en Afinidades | #41 (ext.) |
+| 2026-06 | MEJ-10: §7.5 contextual, chips outline, mesas inline + ConfirmDialog | `4890625` |
+| 2026-06 | MEJ-11/12/13 + aviso setup compacto | `8a79138`…`a4fee82` |
 
 Actualizar esta tabla cuando se aprueben nuevos patrones globales.

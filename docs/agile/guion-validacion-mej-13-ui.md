@@ -1,7 +1,7 @@
 # Guion de validación manual — MEJ-13 Microcopy (post-implementación)
 
-- **Estado:** Borrador
-- **Precondición:** `guion-validacion-mej-13-propuesta-microcopy.md` aprobado
+- **Estado:** Listo para validación manual PO
+- **Precondición:** Inventario `inventario-microcopy-ui.md` · implementación `1d3db89`
 - **Spec:** `MEJ-13-auditoria-microcopy-y-ayudas.md`
 
 ---

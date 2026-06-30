@@ -1,6 +1,6 @@
 # Guion — Validación previa propuesta MEJ-12 (Plano Fase B)
 
-- **Estado:** Pendiente validación PO
+- **Estado:** Aprobado PO — 2026-06-21
 - **Tipo:** Aprobación de **propuesta** — no requiere implementación
 - **Spec:** `MEJ-12-plano-marcadores-compactos.md`
 - **Implementación:** **bloqueada** hasta marcar este guion como aprobado
@@ -9,9 +9,9 @@
 
 ## Preparación
 
-- [ ] Leer `MEJ-12-plano-marcadores-compactos.md`
-- [ ] Abrir «Ver mesas en plano» con distribución calculada (2+ mesas)
-- [ ] Comparar tamaño mesa vs accesorios en Fase A del mismo evento
+- [x] Leer `MEJ-12-plano-marcadores-compactos.md`
+- [x] Abrir «Ver mesas en plano» con distribución calculada (2+ mesas)
+- [x] Comparar tamaño mesa vs accesorios en Fase A del mismo evento
 
 ---
 
@@ -19,9 +19,9 @@
 
 | # | Pregunta | Respuesta esperada | OK PO |
 |---|----------|-------------------|-------|
-| A1 | ¿El plano debe mostrar mesas **compactas** (solo M1 + color) en reposo? | Sí | [ ] |
-| A2 | ¿El detalle (`n/cap`, invitados) va en **panel lateral al clic** (como ahora)? | Sí | [ ] |
-| A3 | ¿Rechazamos doble clic (ampliar → invitados)? | Sí (recomendado) | [ ] |
+| A1 | ¿El plano debe mostrar mesas **compactas** (solo M1 + color) en reposo? | Sí | [x] |
+| A2 | ¿El detalle (`n/cap`, invitados) va en **panel lateral al clic** (como ahora)? | Sí | [x] |
+| A3 | ¿Rechazamos doble clic (ampliar → invitados)? | Sí (recomendado) | [x] |
 
 ---
 
@@ -29,9 +29,9 @@
 
 | # | Propuesta | ¿Aprobar? | OK PO |
 |---|-----------|-----------|-------|
-| B1 | Chip ~44 px; solo etiqueta mesa + color ocupación | | [ ] |
-| B2 | `n/cap` visible en tooltip / hover, no en chip | | [ ] |
-| B3 | Leyenda de colores bajo el plano | [ ] Sí · [ ] No | |
+| B1 | Chip ~44 px; solo etiqueta mesa + color ocupación | | [x] |
+| B2 | `n/cap` visible en tooltip / hover, no en chip | | [x] |
+| B3 | Leyenda de colores bajo el plano | [x] Sí · [ ] No | |
 
 **Notas PO:** _[opcional]_
 
@@ -41,8 +41,8 @@
 
 | # | Comportamiento | OK PO |
 |---|----------------|-------|
-| C1 | 1 clic mesa → panel invitados (toggle cerrar) | [ ] |
-| C2 | Drag pill entre mesas en plano sigue igual | [ ] |
+| C1 | 1 clic mesa → panel invitados (toggle cerrar) | [x] |
+| C2 | Drag pill entre mesas en plano sigue igual | [x] |
 
 ---
 
@@ -50,8 +50,8 @@
 
 | # | Decisión | Elección PO |
 |---|----------|-------------|
-| D1 | ¿Priorizar zoom/pan para 20+ mesas en piloto? | [ ] Sí · [ ] Post-piloto |
-| D2 | ¿Priorizar posiciones guardadas por mesa? | [ ] Post-piloto (ADR-016) |
+| D1 | ¿Priorizar zoom/pan para 20+ mesas en piloto? | [x] Sí · [ ] Post-piloto |
+| D2 | ¿Priorizar posiciones guardadas por mesa? | [x] Post-piloto (ADR-016) |
 
 ---
 
@@ -59,7 +59,7 @@
 
 | # | Fases aprobadas | OK PO |
 |---|-----------------|-------|
-| E1 | [ ] A · [ ] B · [ ] C | |
+| E1 | [x] A · [x] B · [x] C | |
 | E2 | ¿Combinar con MEJ-10/11 en sprint UX? | [ ] Sí · [ ] No · [ ] MEJ-12 aparte |
 
 ---

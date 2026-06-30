@@ -1,7 +1,7 @@
 # Guion de validación manual — MEJ-11 Dashboard (post-implementación)
 
-- **Estado:** Borrador — **no usar** hasta completar implementación MEJ-11
-- **Precondición:** `guion-validacion-mej-11-propuesta-ui.md` aprobado por PO
+- **Estado:** Listo para validación manual PO
+- **Precondición:** Implementación MEJ-11 en `main` @ `6645bef`
 - **Spec:** `MEJ-11-dashboard-navegacion-y-atajos.md`
 
 ---

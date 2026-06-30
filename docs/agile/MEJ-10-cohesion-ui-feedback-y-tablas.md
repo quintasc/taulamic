@@ -1,6 +1,6 @@
 # MEJ-10 — Cohesión UI: feedback, chips y tablas admin
 
-- **Estado:** Propuesta — **pendiente validación PO** (sin implementar)
+- **Estado:** Implementado Sprint 07 — **pendiente validación manual PO** (`guion-validacion-mej-10-ui.md`)
 - **Tipo:** Mejora UX / design system (sin cambio de alcance funcional SDD)
 - **Origen:** Revisión de coherencia visual post Sprint 06 (distribución, plano Fase B, mesas)
 - **Guion validación previa:** `guion-validacion-mej-10-propuesta-ui.md`
@@ -152,3 +152,4 @@ Unificar **criterios y aspecto** de mensajes, chips y tablas en el admin, **sin 
 | Fecha | Evento |
 |-------|--------|
 | 2026-06-21 | Propuesta documentada tras revisión PO post Sprint 06 |
+| 2026-06-21 | Fases A (guía §7.5), C, D implementadas (`4890625`); B parcial en pre-trabajo `bab758c` |

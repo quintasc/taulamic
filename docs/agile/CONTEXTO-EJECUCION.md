@@ -2,78 +2,64 @@
 
 - Ultima actualizacion: **2026-06-21**
 - Sprint activo: **07 — Cohesión UX piloto (MEJ-10 → MEJ-13)**
-- **`main` @ `a4fee82`** (5 commits por delante de `origin/main`, **sin push**)
+- **`main` @ `6645bef`** (sincronizado con `origin/main`)
 
 ## Frase clave
 
 ```text
-Retomo Taulamic. Sprint 07: validar manualmente MEJ-10/11/12/13, cerrar sprint y push. Pendiente MEJ-10 A y MEJ-13 A (inventario PO). SDD manda.
+Retomo Taulamic. Sprint 07: validación manual PO (guiones -10/-11/-12/-13-ui), evidencias y sprint-07-cierre. Código MEJ-10…13 en main. SDD manda.
 ```
 
-## Estado Sprint 07 (implementación)
+## Estado Sprint 07
 
-| MEJ | Fase | Estado código | Commit(s) |
-|-----|------|---------------|-----------|
-| MEJ-10 | C | Mesas inline rename + `ConfirmDialog` eliminar | `4890625` |
-| MEJ-10 | D | Chips forma mesa (`SelectableChip` / inline select) | `4890625` |
-| MEJ-10 | — | Setup journey (checklist visual clicable) | `4890625` |
-| MEJ-10 | A | §7.5 feedback contextual + guía | ⏳ Pendiente |
-| MEJ-11 | B | CTA dashboard → siguiente paso incompleto | `8a79138` |
-| MEJ-11 | C | Checklist setup clicable (`SetupJourney`) | `4890625` |
-| MEJ-11 | D | Accesos rápidos **eliminados** (decisión PO sesión; no `lg:hidden`) | `8a79138` |
-| MEJ-12 | B | Rejilla fija, escala dinámica, marcadores compactos, accesorios distribuidos, responsive | `fdc8373` |
-| MEJ-13 | B+C | Poda microcopy piloto/post-MVP + `ResponsiveButtonLabel` `< md` | `1d3db89` |
-| MEJ-13 | A | Inventario microcopy con decisiones PO documentadas | ⏳ Pendiente |
-| — | UX | Aviso bloqueo setup compacto encima footer; sync nombre evento al borrar; «Soluciones» visible en móvil (landing) | `a4fee82` |
+| Ámbito | Estado |
+|--------|--------|
+| Implementación código | ✅ En `main` (commits `4890625`…`a4fee82`) |
+| Documentación A (MEJ-10 guía §7.5, MEJ-13 inventario) | ✅ `inventario-microcopy-ui.md` + guía actualizada |
+| Guiones propuesta PO | ✅ Aprobados 2026-06-21 |
+| Guiones validación post-impl. | ⏳ Listos — **ejecutar manualmente** |
+| `sprint-07-cierre.md` + evidencias | ⏳ Pendiente tras validación |
 
-**Pre-trabajo previo al sprint (ya en historial):** feedback opaco, responsive distribución, footer setup, landing segmentos (`bab758c`…`36e889d`).
+## Entregas por MEJ (código)
 
-## Próximos pasos
+| MEJ | Fases | Commit |
+|-----|-------|--------|
+| MEJ-10 | A (guía), C (mesas inline), D (chips outline) | `4890625` |
+| MEJ-11 | B (CTA dashboard), C (`SetupJourney`), D (sin accesos rápidos) | `4890625`, `8a79138` |
+| MEJ-12 | B (rejilla, escala, marcadores, accesorios) | `fdc8373` |
+| MEJ-13 | A (inventario), B+C (microcopy + botones responsive) | docs + `1d3db89` |
+| UX extra | Aviso setup compacto, sync nombre, Soluciones móvil | `a4fee82` |
 
-1. **Validación manual** con guiones post-implementación (`guion-validacion-mej-10-ui.md` … `-13-ui.md`).
-2. **`git push`** de los 5 commits locales.
-3. **MEJ-13 A** — completar inventario + decisiones PO en spec si falta cobertura.
-4. **MEJ-10 A** — feedback contextual (§7.5) si sigue en alcance P1.
-5. **`sprint-07-cierre.md`** + evidencias `evidencias-mej-10-validacion.md` (y 11/12/13).
+## Próximo paso (prioridad)
 
-## Gate PO
+1. **Validación manual** — `guion-validacion-mej-10-ui.md` … `-13-ui.md` (API `:3000`, Web `:3001`).
+2. **`evidencias-mej-10-validacion.md`** (y 11/12/13) con capturas / OK por paso.
+3. **`sprint-07-cierre.md`** cuando P1+P2 validados o diferidos anotados.
+4. Opcional stretch: MEJ-10 E (thead tablas), F (targets táctiles pills).
 
-Guiones propuesta MEJ-10…13 usados como base de la sesión de implementación. Formalizar aprobación / diferidos en specs al cerrar sprint.
-
-## Commits locales (sin push)
-
-```
-a4fee82 fix(web): aviso setup compacto, sync nombre evento y Soluciones en movil
-8a79138 feat(web): MEJ-11 CTA en dashboard al siguiente paso incompleto del setup
-1d3db89 fix(web): MEJ-13 microcopy piloto y etiquetas responsive en acciones
-fdc8373 fix(web): MEJ-12 plano con rejilla fija, escala dinamica y accesorios distribuidos
-4890625 Sprint 07 UX: mesas inline, setup journey y chips de forma
-```
-
-## Sprint 07 — documentos
+## Documentos clave
 
 | Documento | Uso |
 |-----------|-----|
-| `sprint-07-plan.md` | Plan activo |
-| `sprint-07-guia-revertir-cambios.md` | Flags reversibles setup nav (`SETUP_NAV_*`) |
-| `sprint-06-cierre.md` | Sprint anterior |
+| `sprint-07-plan.md` | Plan sprint |
+| `inventario-microcopy-ui.md` | MEJ-13 decisiones PO |
+| `sprint-07-guia-revertir-cambios.md` | Flags `SETUP_NAV_*` |
+| `guia-estilo-taulamic.md` | §7 feedback · §9 Dashboard/Mesas/Plano |
 
-## MEJ — specs y guiones
+## MEJ — validación
 
-| MEJ | Spec | Guion propuesta | Guion validación |
-|-----|------|-----------------|------------------|
-| MEJ-10 | `MEJ-10-cohesion-ui-feedback-y-tablas.md` | `guion-validacion-mej-10-propuesta-ui.md` | `guion-validacion-mej-10-ui.md` |
-| MEJ-11 | `MEJ-11-dashboard-navegacion-y-atajos.md` | `guion-validacion-mej-11-propuesta-ui.md` | `guion-validacion-mej-11-ui.md` |
-| MEJ-12 | `MEJ-12-plano-marcadores-compactos.md` | `guion-validacion-mej-12-propuesta-ui.md` | `guion-validacion-mej-12-ui.md` |
-| MEJ-13 | `MEJ-13-auditoria-microcopy-y-ayudas.md` | `guion-validacion-mej-13-propuesta-microcopy.md` | `guion-validacion-mej-13-ui.md` |
+| MEJ | Guion validación |
+|-----|------------------|
+| MEJ-10 | `guion-validacion-mej-10-ui.md` |
+| MEJ-11 | `guion-validacion-mej-11-ui.md` |
+| MEJ-12 | `guion-validacion-mej-12-ui.md` |
+| MEJ-13 | `guion-validacion-mej-13-ui.md` |
 
 ## Sprint 06 (cerrado)
 
-- Evidencias: `evidencias-mej-08-fase2-validacion.md`
-- Cierre: `sprint-06-cierre.md`
+- Cierre: `sprint-06-cierre.md` · Evidencias MEJ-08 Fase 2
 
 ## Referencias
 
-- `guia-estilo-taulamic.md`
-- `guion-validacion-piloto-ui.md`
 - `docs/sdd/SDD-GOVERNANZA-PROTECCION-SDD.md`
+- `guion-validacion-piloto-ui.md` (smoke flujo bodas completo)

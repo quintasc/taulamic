@@ -1,7 +1,7 @@
 # Guion de validación manual — MEJ-12 Plano Fase B (post-implementación)
 
-- **Estado:** Borrador — **no usar** hasta completar implementación MEJ-12
-- **Precondición:** `guion-validacion-mej-12-propuesta-ui.md` aprobado por PO
+- **Estado:** Listo para validación manual PO
+- **Precondición:** Implementación MEJ-12 en `main` @ `6645bef`
 - **Spec:** `MEJ-12-plano-marcadores-compactos.md`
 
 ---

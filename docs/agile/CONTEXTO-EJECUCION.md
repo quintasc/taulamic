@@ -2,7 +2,7 @@
 
 - Ultima actualizacion: **2026-06-21**
 - Sprint activo: **09** — `sprint-09-plan.md` (estabilización + E2E)
-- **`main` @ `2c8362a`**
+- **`main` @ `7182ade`**
 
 ## Frase clave
 

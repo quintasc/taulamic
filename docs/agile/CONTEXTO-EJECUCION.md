@@ -2,12 +2,12 @@
 
 - Ultima actualizacion: **2026-06-21**
 - Sprint activo: **07 cerrado** → siguiente según `sprint-07-cierre.md` §8
-- **`main` @ `45baee7`**
+- **`main` @ `b65f828`**
 
 ## Frase clave
 
 ```text
-Retomo Taulamic. Sprint 07 cerrado (MEJ-10…13 validados PO). Backlog: fix E2E pilot-flow plano→mesas. SDD manda.
+Retomo Taulamic. Sprint 07 cerrado (MEJ-10…13 validados PO). E2E pilot-flow A–G OK. SDD manda.
 ```
 
 ## Sprint 07 — cerrado
@@ -24,9 +24,8 @@ Todos **APROBADOS** PO 2026-06-21. Specs y guiones en `docs/agile/`.
 
 ## Backlog inmediato
 
-1. Fix E2E `pilot-flow.spec.ts` (timeout plano → mesas)
-2. Opcional: repaso `guion-validacion-piloto-ui.md`
-3. Push si hay commits locales pendientes
+1. Opcional: repaso `guion-validacion-piloto-ui.md`
+2. Opcional: copy `nav-map` «piloto julio», MEJ-10 F stretch, MEJ-13 D `lib/ui-copy.ts`
 
 ## Sprint 06 (cerrado)
 

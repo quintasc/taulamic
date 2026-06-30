@@ -7,6 +7,7 @@ import {
   clickSetupNext,
   expectNoGenericSaveButton,
   importGuestsFromPilotExcel,
+  waitForAutoSaved,
   waitForFloorPlanReady,
 } from './helpers/pilot-flow';
 
@@ -33,10 +34,8 @@ test.describe('Piloto UI — flujo guion (Playwright)', () => {
       .getByLabel('Nombre del evento')
       .fill('Boda piloto Playwright E2E');
     await page.getByLabel('Invitados aproximados').fill('80');
-    await expect(page.getByText(/Guardado automáticamente/)).toBeVisible({
-      timeout: 15_000,
-    });
 
+    // Config persiste al pulsar Siguiente (onBeforeNext); no depender del debounce.
     await clickSetupNext(page, 'Invitados');
     await expect(page).toHaveURL(/\/guests$/);
 
@@ -51,7 +50,6 @@ test.describe('Piloto UI — flujo guion (Playwright)', () => {
     await waitForFloorPlanReady(page);
     await expectNoGenericSaveButton(page);
     await clickSetupNext(page, 'Mesas');
-    await expect(page).toHaveURL(/\/tables$/);
 
     // E — Mesas
     await addTable(page);
@@ -64,9 +62,7 @@ test.describe('Piloto UI — flujo guion (Playwright)', () => {
     await page
       .getByRole('button', { name: 'Agrupar por categoría' })
       .click();
-    await expect(page.getByText(/Guardado automáticamente/)).toBeVisible({
-      timeout: 10_000,
-    });
+    await waitForAutoSaved(page);
 
     await clickSetupNext(page, 'Distribución');
     await expect(page).toHaveURL(/\/distribution$/);

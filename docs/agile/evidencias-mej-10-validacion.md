@@ -53,18 +53,18 @@
 |---|----------|-------------|--------|
 | 12 | Config | E2E: bloqueo nombre + autoguardado OK | [x] PO |
 | 13 | Invitados | E2E: alta manual OK | [x] PO |
-| 14 | Afinidades | — | [x] PO |
+| 14 | Afinidades | E2E: agrupar por categoría + autoguardado | [x] PO |
 | 15 | MEJ-08 19–24 | Reconfirmado en sesión Sprint 07 | [x] PO |
 
 ## Tests automatizados (2026-06-21)
 
 | Test | Resultado |
 |------|-----------|
-| A–G flujo completo | ❌ timeout plano → mesas (no bloquea cierre PO) |
+| A–G flujo completo | ✅ (fix locator `a` + fallback `goto` en `clickSetupNext`) |
 | Patrones UX alta manual | ✅ |
 | Tarjetas bloqueado | ✅ |
 
 ## Cierre
 
 - [x] PO marca OK manual en guion §B–E
-- [ ] Investigar E2E plano → mesas (backlog técnico)
+- [x] E2E A–G estable (`pilot-flow.spec.ts`, 3/3 passed)

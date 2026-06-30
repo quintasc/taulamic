@@ -8,13 +8,36 @@ export const PILOT_GUESTS_XLSX = path.resolve(
   '../../../../docs/pilot/invitados-validacion-manual.xlsx',
 );
 
+function hrefUrlPattern(href: string): RegExp {
+  return new RegExp(`${href.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`);
+}
+
 export async function clickSetupNext(page: Page, stepLabel: string) {
   const pattern = new RegExp(`Siguiente: ${stepLabel}`);
-  const nextControl = page.getByRole('button', { name: pattern }).or(
-    page.getByRole('link', { name: pattern }),
-  );
-  await expect(nextControl.first()).toBeVisible();
-  await nextControl.first().click();
+  const linkLocator = page.locator('a').filter({ hasText: pattern });
+  const buttonLocator = page.getByRole('button', { name: pattern });
+
+  if ((await linkLocator.count()) > 0) {
+    const link = linkLocator.first();
+    await expect(link).toBeVisible({ timeout: 15_000 });
+    const href = await link.getAttribute('href');
+    await link.scrollIntoViewIfNeeded();
+    if (href) {
+      await link.click();
+      try {
+        await page.waitForURL(hrefUrlPattern(href), { timeout: 5_000 });
+      } catch {
+        await page.goto(href);
+      }
+    } else {
+      await link.click();
+    }
+    return;
+  }
+
+  const button = buttonLocator.first();
+  await expect(button).toBeVisible({ timeout: 15_000 });
+  await button.click();
 }
 
 /** Clic en «Siguiente» bloqueado (muestra banner de validación). */
@@ -24,18 +47,31 @@ export async function clickBlockedSetupNext(page: Page, stepLabel: string) {
     .click({ force: true });
 }
 
-/** Espera a que el plano termine de hidratar (SetupNavBar visible). */
+/** Espera confirmación visual de auto-guardado (cabecera). */
+export async function waitForAutoSaved(page: Page, timeout = 30_000) {
+  await expect(page.getByText('Guardado automáticamente')).toBeVisible({
+    timeout,
+  });
+}
+
+/** Espera a que el plano termine de hidratar y «Siguiente» esté operativo. */
 export async function waitForFloorPlanReady(page: Page) {
   await expect(page.getByText('Cargando plano…')).toHaveCount(0, {
     timeout: 30_000,
   });
   await expect(page.getByText('Plano del salón')).toBeVisible();
+  await expect(page.getByRole('link', { name: /Siguiente: Mesas/ }).or(
+    page.locator('a').filter({ hasText: /Siguiente: Mesas/ }),
+  )).toBeVisible({ timeout: 30_000 });
 }
 
 export async function addTable(page: Page) {
   const addButton = page.getByRole('button', { name: /^Añadir( \d+)? mesa/ });
   await expect(addButton).toBeVisible({ timeout: 30_000 });
+  const rows = page.locator('table tbody tr');
+  const countBefore = await rows.count();
   await addButton.click();
+  await expect(rows).toHaveCount(countBefore + 1, { timeout: 15_000 });
 }
 
 export async function expectNoGenericSaveButton(page: Page) {

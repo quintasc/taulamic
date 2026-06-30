@@ -10,6 +10,42 @@ export const PILOT_GUESTS_XLSX = path.resolve(
   '../../../../docs/pilot/invitados-validacion-manual.xlsx',
 );
 
+const CONFIG_URL = /\/admin\/events\/[^/]+\/config$/;
+
+/**
+ * Arranque piloto: /admin crea evento y abre Config.
+ * Falla con mensaje accionable si API caída o web inconsistente (.next tras build).
+ */
+export async function startPilotAdminFlow(page: Page) {
+  const response = await page.goto('/admin');
+  if (response && response.status() >= 500) {
+    throw new Error(
+      `GET /admin respondió ${response.status()}. Reinicia web (parar dev, borrar apps/web/.next si hace falta) o ejecuta con CI=1.`,
+    );
+  }
+
+  const apiError = page.getByText(/No se pudo crear el evento/i);
+  try {
+    await Promise.race([
+      expect(page).toHaveURL(CONFIG_URL, { timeout: 60_000 }),
+      apiError.waitFor({ state: 'visible', timeout: 60_000 }).then(() => {
+        throw new Error(
+          'La API no creó el evento (puerto 3000). Arranca npm run dev desde la raíz del monorepo.',
+        );
+      }),
+    ]);
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('puerto 3000')) {
+      throw error;
+    }
+    throw new Error(
+      `Tras /admin no se llegó a Config (URL: ${page.url()}). Comprueba API :3000 y reinicia web si hubo npm run build con dev activo.`,
+    );
+  }
+
+  await expect(page.getByLabel('Nombre del evento')).toBeVisible();
+}
+
 function hrefUrlPattern(href: string): RegExp {
   return new RegExp(`${href.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`);
 }

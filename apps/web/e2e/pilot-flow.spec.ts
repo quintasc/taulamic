@@ -7,6 +7,7 @@ import {
   clickSetupNext,
   expectNoGenericSaveButton,
   importGuestsFromPilotExcel,
+  startPilotAdminFlow,
   waitForAutoSaved,
   waitForFloorPlanReady,
 } from './helpers/pilot-flow';
@@ -20,8 +21,7 @@ import { DISTRIBUTION_COPY, SETUP_NAV_COPY } from '../src/lib/ui-copy';
 test.describe('Piloto UI — flujo guion (Playwright)', () => {
   test('A–G: setup admin de punta a punta', async ({ page }) => {
     // A — Arranque: /admin crea evento y abre config
-    await page.goto('/admin');
-    await expect(page).toHaveURL(/\/admin\/events\/[^/]+\/config$/);
+    await startPilotAdminFlow(page);
     await expect(page.getByLabel('Nombre del evento')).toHaveValue('');
     await expectNoGenericSaveButton(page);
 
@@ -84,8 +84,7 @@ test.describe('Piloto UI — flujo guion (Playwright)', () => {
   });
 
   test('patrones UX: alta manual', async ({ page }) => {
-    await page.goto('/admin');
-    await expect(page).toHaveURL(/\/config$/);
+    await startPilotAdminFlow(page);
 
     await page.getByLabel('Nombre del evento').fill('Evento patrones UX');
     await clickSetupNext(page, 'Invitados');
@@ -101,7 +100,7 @@ test.describe('Piloto UI — flujo guion (Playwright)', () => {
   });
 
   test('C: paso Tarjetas bloqueado', async ({ page }) => {
-    await page.goto('/admin');
+    await startPilotAdminFlow(page);
     await page.getByLabel('Nombre del evento').fill('Evento tarjetas');
     await clickSetupNext(page, 'Invitados');
     await importGuestsFromPilotExcel(page);

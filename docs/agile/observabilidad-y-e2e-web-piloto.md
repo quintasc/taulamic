@@ -1,7 +1,7 @@
 # Observabilidad y E2E web — Piloto julio
 
 - **Estado:** Vigente (jun 2026)
-- **Relacionado:** `guion-validacion-piloto-ui.md`, `pilot-flow.e2e-spec.ts` (API), `CONTEXTO-EJECUCION.md`
+- **Relacionado:** `guion-validacion-piloto-ui.md`, `pilot-flow.spec.ts` (web), API E2E, `CONTEXTO-EJECUCION.md`
 
 ## Modelo en dos capas (obligatorio para cierre piloto)
 
@@ -34,6 +34,17 @@ npm run test:e2e
 ```
 
 Playwright puede arrancar API + web automáticamente si los puertos están libres (`webServer` en config).
+
+### Troubleshooting (dev local)
+
+| Síntoma | Causa habitual | Acción |
+|---------|----------------|--------|
+| `/admin` no redirige a `/config` | API caída (`:3000`) | `npm run dev` desde raíz del repo |
+| `GET /admin` → 500 | `.next` inconsistente tras `npm run build` con dev activo | Parar dev, borrar `apps/web/.next`, reiniciar |
+| Playwright reutiliza web rota | `reuseExistingServer: true` fuera de CI | Parar dev y relanzar tests, o `CI=1 npm run test:e2e` (puertos libres) |
+| Timeout en Config | API lenta o evento no creado | Ver consola API; helper `startPilotAdminFlow` muestra mensaje accionable |
+
+**Regla:** no ejecutar `npm run build` en `apps/web` mientras `npm run dev` está activo en el mismo directorio.
 
 Modo interactivo:
 

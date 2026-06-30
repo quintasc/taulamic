@@ -325,6 +325,7 @@ Patrones: tablas con fila apilada en móvil; `SetupNavBar` sticky abajo con flec
 | Confirmaciones destructivas | `ConfirmDialog` con nombre de entidad |
 | Etiquetas responsive | Texto corto solo `< md` si el contexto de pantalla desambigua; `aria-label` con texto completo (ver `MEJ-13-auditoria-microcopy-y-ayudas.md`) |
 | Lifecycle piloto | Revisar ayudas «piloto» / «post-piloto» cuando el límite deje de ser cierto — auditoría MEJ-13 antes de podar |
+| Copy canónico admin | Strings acordados en `apps/web/src/lib/ui-copy.ts` (MEJ-13 D); no duplicar en componentes |
 
 Evitar: «borrador» en UI de organizador salvo copy técnico interno; «Guardar» cuando el guardado es automático; acortar botones sin criterio de claridad (§ MEJ-13).
 

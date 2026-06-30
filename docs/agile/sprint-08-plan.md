@@ -14,9 +14,9 @@ Consolidar el piloto bodas antes del hito **31 jul 2026**: centralizar microcopy
 
 | Prioridad | ID | Descripción | Estado |
 |-----------|-----|-------------|--------|
-| **P1** | MEJ-13-D | `lib/ui-copy.ts` + cableado strings inventario | ✅ Implementado (pendiente cierre) |
+| **P1** | MEJ-13-D | `lib/ui-copy.ts` + cableado strings inventario | ✅ `fa6603e` |
 | **P2** | — | Repaso manual `guion-validacion-piloto-ui.md` (evidencias) | ⏳ Opcional |
-| **P2** | — | Roadmap W3: revisión huecos plano (`SDD-PILOTO-alineacion-y-huecos.md` §107) | ⏳ Spike |
+| **P2** | — | Spike plano room-setup | ✅ `spike-plano-room-setup-2026-06.md` |
 | **P3** | — | API persistencia layout salón Fase A | ⏳ Diferido — requiere diseño API |
 | **P3** | — | Fondo canvas + accesorios drag (ADR-016 post-piloto) | ⏳ Fuera julio |
 | — | #53 | Organizador real | ⏳ Pospuesto post-piloto |
@@ -72,10 +72,10 @@ Política: `docs/agile/politica-validacion-tests-y-cobertura.md`
 
 ## 7) Criterio de cierre Sprint 08
 
-- [ ] MEJ-13 D entregado y documentado
-- [ ] E2E `pilot-flow.spec.ts` 3/3 verde
-- [ ] `sprint-08-cierre.md` + `CONTEXTO-EJECUCION.md` actualizados
-- [ ] Spike plano API anotado (sí/no para Sprint 09)
+- [x] MEJ-13 D entregado y documentado
+- [x] E2E `pilot-flow.spec.ts` 3/3 verde (entorno limpio; ver `sprint-08-cierre.md` §4)
+- [x] `sprint-08-cierre.md` + spike plano
+- [x] Spike plano → room-setup OK; posiciones/fondo diferidos
 - [ ] Opcional: sesión manual piloto con evidencias
 
 ---
@@ -97,3 +97,4 @@ Política: `docs/agile/politica-validacion-tests-y-cobertura.md`
 | Fecha | Evento |
 |-------|--------|
 | 2026-06-21 | Plan Sprint 08 creado (post cierre S07 + E2E A–G) |
+| 2026-06-21 | MEJ-13 D + spike plano; cierre parcial `sprint-08-cierre.md` |

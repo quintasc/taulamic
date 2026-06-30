@@ -1,34 +1,28 @@
 ﻿# Contexto de ejecucion — punto de reanudacion
 
 - Ultima actualizacion: **2026-06-21**
-- Sprint activo: **08** — `sprint-08-plan.md` (MEJ-13 D en curso)
-- **`main` @ `fa6603e`**
+- Sprint activo: **08 cerrado (P1)** → opcional manual / Sprint 09
+- **`main` @ `6f587c6`**
 
 ## Frase clave
 
 ```text
-Retomo Taulamic. Sprint 08: MEJ-13 D ui-copy + estabilización piloto. SDD manda.
+Retomo Taulamic. Sprint 08 P1 cerrado (MEJ-13 D ui-copy). Spike: room-setup OK. SDD manda.
 ```
 
-## Sprint 08 — en curso
+## Sprint 08 — P1 cerrado
 
 | Documento | Uso |
 |-----------|-----|
-| `sprint-08-plan.md` | Plan activo |
-| `sprint-07-cierre.md` | Sprint anterior |
-
-## Sprint 07 — cerrado
-
-| Documento | Uso |
-|-----------|-----|
-| `sprint-07-cierre.md` | Cierre y entregas |
-| `evidencias-mej-10-validacion.md` … `-13` | Validación PO |
+| `sprint-08-cierre.md` | Cierre MEJ-13 D |
+| `sprint-08-plan.md` | Plan |
+| `spike-plano-room-setup-2026-06.md` | Spike plano |
 
 ## Backlog inmediato
 
-1. Cerrar MEJ-13 D (cableado + E2E + evidencias)
-2. Spike plano API persistencia (§ SDD-PILOTO huecos)
-3. Opcional: repaso manual `guion-validacion-piloto-ui.md`
+1. Smoke PO MEJ-13 D (Config + Distribución `< md`)
+2. Repaso manual opcional `guion-validacion-piloto-ui.md`
+3. Decidir Sprint 09: estabilización vs accesorios posición
 
 ## Sprint 06 (cerrado)
 

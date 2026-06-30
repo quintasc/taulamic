@@ -26,6 +26,15 @@
 
 ---
 
+## Fase D — Centralización (post `fa6603e`)
+
+| # | Comprobación | OK |
+|---|--------------|-----|
+| 6 | Copy en pantalla coincide con `ui-copy.ts` (Config hint, Distribución botones) | [ ] |
+| 7 | Sin strings duplicados en archivos cableados (smoke grep) | [ ] |
+
+---
+
 ## Evidencias
 
 `evidencias-mej-13-validacion.md`

@@ -104,7 +104,7 @@ Este documento **no sustituye** el SDD-01; resume cumplimiento del **piloto juli
 
 ## Prioridad siguiente (sugerida)
 
-1. API persistencia layout salon (Fase A).
+1. API persistencia layout salon (Fase A) — **parcial:** `GET/PUT room-setup` OK; posiciones accesorios y fondo pendientes (ver `spike-plano-room-setup-2026-06.md`).
 2. Fondo opcional + accesorios en canvas.
 3. Dashboard KPIs v2 si aun incompletos.
 4. Fase B: drag-drop **posiciones de mesas** en canvas — post-MVP (ADR-016).

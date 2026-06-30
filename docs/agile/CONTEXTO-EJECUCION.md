@@ -1,32 +1,34 @@
 ﻿# Contexto de ejecucion — punto de reanudacion
 
 - Ultima actualizacion: **2026-06-21**
-- Sprint activo: **07 cerrado** → siguiente según `sprint-07-cierre.md` §8
-- **`main` @ `809690a`**
+- Sprint activo: **08** — `sprint-08-plan.md` (MEJ-13 D en curso)
+- **`main` @ `a35a86d`**
 
 ## Frase clave
 
 ```text
-Retomo Taulamic. Sprint 07 cerrado (MEJ-10…13 + E2E A–G). Backlog: Sprint 08 o MEJ-13 D. SDD manda.
+Retomo Taulamic. Sprint 08: MEJ-13 D ui-copy + estabilización piloto. SDD manda.
 ```
+
+## Sprint 08 — en curso
+
+| Documento | Uso |
+|-----------|-----|
+| `sprint-08-plan.md` | Plan activo |
+| `sprint-07-cierre.md` | Sprint anterior |
 
 ## Sprint 07 — cerrado
 
 | Documento | Uso |
 |-----------|-----|
 | `sprint-07-cierre.md` | Cierre y entregas |
-| `sprint-07-plan.md` | Plan (histórico) |
 | `evidencias-mej-10-validacion.md` … `-13` | Validación PO |
-
-## MEJ-10…13
-
-Todos **APROBADOS** PO 2026-06-21. Specs y guiones en `docs/agile/`.
 
 ## Backlog inmediato
 
-1. Sprint 08 / roadmap post-piloto (ver `sprint-07-cierre.md` §8)
-2. Opcional: MEJ-13 D centralización `lib/ui-copy.ts`
-3. Opcional: repaso manual completo `guion-validacion-piloto-ui.md`
+1. Cerrar MEJ-13 D (cableado + E2E + evidencias)
+2. Spike plano API persistencia (§ SDD-PILOTO huecos)
+3. Opcional: repaso manual `guion-validacion-piloto-ui.md`
 
 ## Sprint 06 (cerrado)
 

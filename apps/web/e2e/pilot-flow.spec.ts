@@ -10,6 +10,7 @@ import {
   waitForAutoSaved,
   waitForFloorPlanReady,
 } from './helpers/pilot-flow';
+import { DISTRIBUTION_COPY, SETUP_NAV_COPY } from '../src/lib/ui-copy';
 
 /**
  * Flujo feliz del guion `docs/agile/guion-validacion-piloto-ui.md`.
@@ -27,7 +28,7 @@ test.describe('Piloto UI — flujo guion (Playwright)', () => {
     // Bloqueo sin nombre
     await clickBlockedSetupNext(page, 'Invitados');
     await expect(
-      page.getByText('Indica el nombre del evento para continuar'),
+      page.getByText(SETUP_NAV_COPY.configNameRequired),
     ).toBeVisible();
 
     await page
@@ -69,14 +70,14 @@ test.describe('Piloto UI — flujo guion (Playwright)', () => {
 
     // G — Distribución
     await page
-      .getByRole('button', { name: 'Calcular distribución' })
+      .getByRole('button', { name: DISTRIBUTION_COPY.calculate.full })
       .first()
       .click();
     await expect(
-      page.getByRole('button', { name: 'Confirmar distribución' }),
+      page.getByRole('button', { name: DISTRIBUTION_COPY.confirm.full }),
     ).toBeVisible({ timeout: 30_000 });
 
-    await page.getByRole('button', { name: 'Confirmar distribución' }).click();
+    await page.getByRole('button', { name: DISTRIBUTION_COPY.confirm.full }).click();
     await expect(page.getByText('Distribución confirmada')).toBeVisible({
       timeout: 20_000,
     });

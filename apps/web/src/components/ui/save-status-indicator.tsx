@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { IconCheck } from '@/components/icons';
+import { SAVE_STATUS_COPY } from '@/lib/ui-copy';
 
 export type AutoSaveStatus = 'idle' | 'pending' | 'saving' | 'saved';
 
@@ -53,7 +54,7 @@ export function SaveStatusIndicator({ status }: { status: AutoSaveStatus }) {
   if (status === 'pending' || status === 'saving') {
     return (
       <p className="text-xs font-medium text-neutral-500" aria-live="polite">
-        Guardando…
+        {SAVE_STATUS_COPY.saving}
       </p>
     );
   }
@@ -64,7 +65,7 @@ export function SaveStatusIndicator({ status }: { status: AutoSaveStatus }) {
       aria-live="polite"
     >
       <IconCheck className="h-3.5 w-3.5 shrink-0" aria-hidden />
-      Guardado automáticamente
+      {SAVE_STATUS_COPY.saved}
     </p>
   );
 }

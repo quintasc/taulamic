@@ -8,6 +8,7 @@ import { IconMap } from '@/components/icons';
 import { StatCard } from '@/components/ui';
 import { ResponsiveButtonLabel } from '@/components/ui/responsive-button-label';
 import type { DistributionProposal } from '@/lib/api';
+import { DISTRIBUTION_COPY } from '@/lib/ui-copy';
 import {
   PILOT_AFFINITY_LABEL,
   type DistributionTableGroup,
@@ -99,16 +100,19 @@ export function DistributionCalculatedView({
 
       <div className="mt-8 flex min-w-0 flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <p className="text-xs text-neutral-500">
-          Comparador Top-K — próximamente
+          {DISTRIBUTION_COPY.comparadorTopK}
         </p>
         <div className="flex w-full min-w-0 flex-col gap-2 lg:w-auto lg:flex-row lg:items-center">
           <Link
             href={floorPlanHref}
             className="btn-secondary w-full gap-2 lg:w-auto"
-            aria-label="Ver mesas en plano"
+            aria-label={DISTRIBUTION_COPY.viewFloorPlan.full}
           >
             <IconMap width={16} height={16} />
-            <ResponsiveButtonLabel short="Ver plano" full="Ver mesas en plano" />
+            <ResponsiveButtonLabel
+              short={DISTRIBUTION_COPY.viewFloorPlan.short}
+              full={DISTRIBUTION_COPY.viewFloorPlan.full}
+            />
           </Link>
           {proposal.status !== 'confirmed' ? (
             <button
@@ -116,14 +120,14 @@ export function DistributionCalculatedView({
               className="btn-primary w-full min-w-0 lg:w-auto"
               disabled={confirming || proposal.unassignedGuestIds.length > 0}
               onClick={onConfirm}
-              aria-label="Confirmar distribución"
+              aria-label={DISTRIBUTION_COPY.confirm.full}
             >
               {confirming ? (
-                'Confirmando…'
+                DISTRIBUTION_COPY.confirming
               ) : (
                 <ResponsiveButtonLabel
-                  short="Confirmar"
-                  full="Confirmar distribución"
+                  short={DISTRIBUTION_COPY.confirm.short}
+                  full={DISTRIBUTION_COPY.confirm.full}
                 />
               )}
             </button>

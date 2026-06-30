@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 
 import { feedbackSurfaceClass } from '@/lib/feedback-surface';
+import { SETUP_NAV_COPY } from '@/lib/ui-copy';
 
 export type SetupNavBarProps = {
   variant?: 'sticky-bottom' | 'header' | 'inline';
@@ -84,7 +85,7 @@ function useSetupNavControlState({
   nextHref,
   nextLabel,
   nextReady = false,
-  nextDisabledHint = 'Completa este paso para continuar',
+  nextDisabledHint = SETUP_NAV_COPY.defaultBlockedHint,
   onBeforeNext,
   hidePrimary = false,
   primaryLabel,

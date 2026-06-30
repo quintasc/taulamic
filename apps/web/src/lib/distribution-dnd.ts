@@ -79,6 +79,8 @@ export function acceptGuestDragOver(
   }
 
   event.preventDefault();
-  event.dataTransfer.dropEffect = 'move';
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = 'move';
+  }
   return true;
 }

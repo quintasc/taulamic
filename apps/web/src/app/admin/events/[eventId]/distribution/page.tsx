@@ -19,6 +19,7 @@ import {
 import { useEvent } from '@/lib/event-context';
 import { getSetupNav } from '@/lib/setup-flow';
 import { adminRoutes } from '@/lib/routes';
+import { DISTRIBUTION_COPY } from '@/lib/ui-copy';
 
 export default function DistributionPage() {
   const params = useParams<{ eventId: string }>();
@@ -235,14 +236,14 @@ export default function DistributionPage() {
               className="btn-primary"
               disabled={running}
               onClick={() => void calculate()}
-              aria-label="Calcular distribución"
+              aria-label={DISTRIBUTION_COPY.calculate.full}
             >
               {running ? (
-                'Calculando…'
+                DISTRIBUTION_COPY.calculating
               ) : (
                 <ResponsiveButtonLabel
-                  short="Calcular"
-                  full="Calcular distribución"
+                  short={DISTRIBUTION_COPY.calculate.short}
+                  full={DISTRIBUTION_COPY.calculate.full}
                 />
               )}
             </button>
@@ -280,21 +281,21 @@ export default function DistributionPage() {
       ) : (
         <EmptyState
           title="Sin distribución calculada"
-          description="Pulsa «Calcular distribución» para asignar invitados a las mesas según afinidad."
+          description={DISTRIBUTION_COPY.emptyStateDescription}
           action={
             <button
               type="button"
               className="btn-primary"
               disabled={running}
               onClick={() => void calculate()}
-              aria-label="Calcular distribución"
+              aria-label={DISTRIBUTION_COPY.calculate.full}
             >
               {running ? (
-                'Calculando…'
+                DISTRIBUTION_COPY.calculating
               ) : (
                 <ResponsiveButtonLabel
-                  short="Calcular"
-                  full="Calcular distribución"
+                  short={DISTRIBUTION_COPY.calculate.short}
+                  full={DISTRIBUTION_COPY.calculate.full}
                 />
               )}
             </button>

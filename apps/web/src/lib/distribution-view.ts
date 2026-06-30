@@ -1,9 +1,10 @@
 import type { DistributionProposal, EventDetail } from '@/lib/api';
+import { DISTRIBUTION_COPY } from '@/lib/ui-copy';
 
-export const PILOT_AFFINITY_LABEL = 'No calculado en piloto';
+export const PILOT_AFFINITY_LABEL = DISTRIBUTION_COPY.pilotAffinityLabel;
 
 /** Texto corto en tablas (tooltip con `PILOT_AFFINITY_LABEL`). */
-export const PILOT_AFFINITY_SHORT = 'N/D piloto';
+export const PILOT_AFFINITY_SHORT = DISTRIBUTION_COPY.pilotAffinityShort;
 
 const SHAPE_LABELS: Record<string, string> = {
   redonda: 'Redonda',

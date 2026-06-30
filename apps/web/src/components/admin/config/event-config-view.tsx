@@ -14,6 +14,7 @@ import {
   getMinEventDateIso,
 } from '@/lib/event-ui-meta';
 import { PILOT_COLLABORATIVE_MODE_ENABLED } from '@/lib/pilot-features';
+import { PILOT_COPY, SETUP_NAV_COPY } from '@/lib/ui-copy';
 
 export function EventConfigView() {
   const {
@@ -125,8 +126,7 @@ export function EventConfigView() {
             paso de Afinidades.
             {!PILOT_COLLABORATIVE_MODE_ENABLED ? (
               <span className="mt-1 block text-neutral-600">
-                En el piloto actual: solo anfitrión exclusivo. El modo colaborativo
-                estará disponible más adelante.
+                {PILOT_COPY.collaborativeConfigNote}
               </span>
             ) : null}
           </p>
@@ -153,7 +153,7 @@ export function EventConfigView() {
           nextHref={setupNav?.next?.href}
           nextLabel={setupNav?.next?.nextLabel}
           nextReady={canAdvance}
-          nextDisabledHint="Indica el nombre del evento para continuar"
+          nextDisabledHint={SETUP_NAV_COPY.configNameRequired}
           onBeforeNext={handleBeforeNext}
         />
       ) : null}

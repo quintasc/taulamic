@@ -2,6 +2,8 @@ import path from 'node:path';
 
 import { type Page, expect } from '@playwright/test';
 
+import { SAVE_STATUS_COPY } from '../../src/lib/ui-copy';
+
 /** Excel de referencia del piloto (4 invitados, 2 parejas). */
 export const PILOT_GUESTS_XLSX = path.resolve(
   __dirname,
@@ -49,7 +51,7 @@ export async function clickBlockedSetupNext(page: Page, stepLabel: string) {
 
 /** Espera confirmación visual de auto-guardado (cabecera). */
 export async function waitForAutoSaved(page: Page, timeout = 30_000) {
-  await expect(page.getByText('Guardado automáticamente')).toBeVisible({
+  await expect(page.getByText(SAVE_STATUS_COPY.saved)).toBeVisible({
     timeout,
   });
 }

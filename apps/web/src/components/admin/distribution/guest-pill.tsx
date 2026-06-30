@@ -1,4 +1,5 @@
 import { setGuestDragData, clearGuestDrag } from '@/lib/distribution-dnd';
+import { GUEST_PILL_COPY } from '@/lib/ui-copy';
 
 export function GuestPill({
   name,
@@ -43,7 +44,7 @@ export function GuestPill({
     <span
       className={`group/pill ${pillClass}`}
       draggable={canDrag}
-      title={canDrag ? 'Arrastra para mover a otra mesa' : undefined}
+      title={canDrag ? GUEST_PILL_COPY.dragTitle : undefined}
       onDragStart={(event) => {
         if (!canDrag || !guestId || !sourceTableId) {
           return;
@@ -67,7 +68,7 @@ export function GuestPill({
           type="button"
           className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-neutral-400 transition hover:bg-neutral-200 hover:text-neutral-700 disabled:opacity-50"
           aria-label={`Quitar a ${name} de la mesa`}
-          title="Quitar de la mesa"
+          title={GUEST_PILL_COPY.removeTitle}
           disabled={removing}
           onClick={(event) => {
             event.stopPropagation();

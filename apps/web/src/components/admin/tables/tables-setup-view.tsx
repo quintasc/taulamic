@@ -28,6 +28,7 @@ import {
   uiTableShape,
   splitTableEditErrors,
 } from '@/lib/table-form';
+import { SETUP_NAV_COPY } from '@/lib/ui-copy';
 
 const shapeIcons = {
   redonda: IconShapeRound,
@@ -465,7 +466,7 @@ export function TablesSetupView() {
           nextHref={setupNav?.next?.href}
           nextLabel={setupNav?.next?.nextLabel}
           nextReady={tables.length > 0}
-          nextDisabledHint="Añade al menos una mesa para continuar"
+          nextDisabledHint={SETUP_NAV_COPY.tablesRequired}
         />
       ) : null}
     </>

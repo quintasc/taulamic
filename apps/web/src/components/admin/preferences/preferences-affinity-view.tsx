@@ -18,6 +18,7 @@ import {
   PILOT_PREFERENCE_MODE,
   resolvePreferenceModeForPilot,
 } from '@/lib/pilot-features';
+import { PILOT_COPY } from '@/lib/ui-copy';
 import { getSetupNav } from '@/lib/setup-flow';
 
 const GENERIC_RULES: Array<{
@@ -172,8 +173,7 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
           Como organizador, marcarás quién debe sentarse junto a quién y quién no.
           {!PILOT_COLLABORATIVE_MODE_ENABLED ? (
             <span className="mt-1 block text-xs text-neutral-500">
-              El modo colaborativo (invitados editan sus restricciones) no está
-              disponible en el piloto actual.
+              {PILOT_COPY.collaborativePrefsNote}
             </span>
           ) : null}
         </p>

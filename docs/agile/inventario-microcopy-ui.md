@@ -70,7 +70,7 @@ Matriz de decisiones por string. Criterios: **Mantener** · **Acortar** · **Eli
 |------|--------|
 | `nav-map/page.tsx` copy «piloto julio» | ✅ post-S07 — mapa dev interno |
 | `PILOT_AFFINITY_LABEL` | Diferir — depende motor afinidad |
-| Fase D centralización `lib/ui-copy.ts` | Opcional P3 — no iniciado |
+| Fase D centralización `lib/ui-copy.ts` | ✅ Sprint 08 — `ui-copy.ts` |
 | §11 guía lifecycle piloto → producto | Actualizar al cerrar piloto bodas |
 
 ---

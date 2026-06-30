@@ -34,6 +34,7 @@ import {
   compareRoomToRecommendation,
   recommendRoomSize,
 } from '@/lib/room-size-recommendation';
+import { SETUP_NAV_COPY, DISTRIBUTION_COPY } from '@/lib/ui-copy';
 
 function AccessoryCard({
   accessoryId,
@@ -211,11 +212,11 @@ export function FloorPlanSetupView({
             <Link
               href={routes.floorPlanLayout}
               className="btn-secondary"
-              aria-label="Ver mesas en plano"
+              aria-label={DISTRIBUTION_COPY.viewFloorPlan.full}
             >
               <ResponsiveButtonLabel
-                short="Ver plano"
-                full="Ver mesas en plano"
+                short={DISTRIBUTION_COPY.viewFloorPlan.short}
+                full={DISTRIBUTION_COPY.viewFloorPlan.full}
               />
             </Link>
           ) : undefined
@@ -439,7 +440,7 @@ export function FloorPlanSetupView({
         nextHref={setupNav.next?.href}
         nextLabel={setupNav.next?.nextLabel}
         nextReady={hydrated}
-        nextDisabledHint="Espera a que cargue el plano del salón"
+        nextDisabledHint={SETUP_NAV_COPY.floorPlanLoading}
       />
     </>
   );

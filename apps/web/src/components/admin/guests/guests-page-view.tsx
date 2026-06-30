@@ -8,6 +8,7 @@ import { GuestDrawerV2 } from '@/components/admin/guests/v2/guest-drawer-v2';
 import { GuestsPanelV2 } from '@/components/admin/guests/v2/guests-panel-v2';
 import { ConfirmDialog, EmptyState, PageHeader } from '@/components/ui';
 import { useGuestsPage } from '@/hooks/use-guests-page';
+import { SETUP_NAV_COPY } from '@/lib/ui-copy';
 
 export function GuestsPageView() {
   const {
@@ -137,7 +138,7 @@ export function GuestsPageView() {
           nextHref={setupNav?.next?.href}
           nextLabel={setupNav?.next?.nextLabel}
           nextReady={!loading && guests.length > 0}
-          nextDisabledHint="Añade al menos un invitado para continuar"
+          nextDisabledHint={SETUP_NAV_COPY.guestsRequired}
         />
       ) : null}
     </>

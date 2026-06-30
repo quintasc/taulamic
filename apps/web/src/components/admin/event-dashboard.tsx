@@ -1,22 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  IconDistribution,
-  IconFloorPlan,
-  IconHeart,
-  IconSettings,
-  IconTable,
-  IconUsers,
-} from '@/components/icons';
 import { UnassignedGuestsListDialog } from '@/components/admin/distribution/unassigned-guests-list-dialog';
 import { SetupNavBar } from '@/components/admin/setup-nav-bar';
-import {
-  PageHeader,
-  QuickAccessCard,
-  SectionLabel,
-  StatCard,
-} from '@/components/ui';
+import { PageHeader, SectionLabel, StatCard } from '@/components/ui';
 import { EventCountdown } from '@/components/admin/event-countdown';
 import { SetupJourney } from '@/components/admin/setup-journey';
 import { useEventDashboard } from '@/hooks/use-event-dashboard';
@@ -24,45 +11,7 @@ import { getCountableSetupSteps } from '@/lib/domain/setup-steps';
 import { useEvent } from '@/lib/event-context';
 import { loadEventUiMeta } from '@/lib/event-ui-meta';
 import { adminRoutes } from '@/lib/routes';
-import { getDashboardSetupNav, getSetupStepHref, type SetupFlowKey } from '@/lib/setup-flow';
-import type { ReactNode } from 'react';
-
-const QUICK_ACCESS_STEPS: {
-  key: SetupFlowKey;
-  label: string;
-  icon: ReactNode;
-}[] = [
-  {
-    key: 'config',
-    label: 'Configuración',
-    icon: <IconSettings width={16} height={16} />,
-  },
-  {
-    key: 'guests',
-    label: 'Invitados',
-    icon: <IconUsers width={16} height={16} />,
-  },
-  {
-    key: 'plano',
-    label: 'Plano',
-    icon: <IconFloorPlan width={16} height={16} />,
-  },
-  {
-    key: 'tables',
-    label: 'Mesas',
-    icon: <IconTable width={16} height={16} />,
-  },
-  {
-    key: 'prefs',
-    label: 'Afinidades',
-    icon: <IconHeart width={16} height={16} />,
-  },
-  {
-    key: 'dist',
-    label: 'Distribución',
-    icon: <IconDistribution width={16} height={16} />,
-  },
-];
+import { getDashboardSetupNav } from '@/lib/setup-flow';
 
 export function EventDashboard() {
   const { event, eventId } = useEvent();
@@ -80,11 +29,10 @@ export function EventDashboard() {
     setupPercent,
     setupDone,
     setupStatus,
-    configComplete,
   } = useEventDashboard(event, eventId);
 
   const dashboardNav =
-    eventId !== null ? getDashboardSetupNav(eventId, configComplete) : null;
+    eventId !== null ? getDashboardSetupNav(eventId, setupStatus) : null;
 
   const unassignedHintFragment =
     unassigned !== null && unassigned > 0
@@ -135,26 +83,20 @@ export function EventDashboard() {
         />
       </div>
 
-      {eventId ? (
-        <section className="mt-6">
-          <SectionLabel>Recorrido del setup</SectionLabel>
-          <SetupJourney eventId={eventId} setupStatus={setupStatus} />
-        </section>
+      {eventId && dashboardNav ? (
+        <SetupNavBar
+          variant="inline"
+          hidePrimary
+          nextHref={dashboardNav.next.href}
+          nextLabel={dashboardNav.next.nextLabel}
+          nextReady
+        />
       ) : null}
 
       {eventId ? (
         <section className="mt-6">
-          <SectionLabel>Accesos rápidos</SectionLabel>
-          <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-            {QUICK_ACCESS_STEPS.map((step) => (
-              <QuickAccessCard
-                key={step.key}
-                href={getSetupStepHref(eventId, step.key)}
-                label={step.label}
-                icon={step.icon}
-              />
-            ))}
-          </div>
+          <SectionLabel>Recorrido del setup</SectionLabel>
+          <SetupJourney eventId={eventId} setupStatus={setupStatus} />
         </section>
       ) : null}
 
@@ -164,15 +106,6 @@ export function EventDashboard() {
         distributionHref={routes?.distribution}
         onClose={() => setUnassignedListOpen(false)}
       />
-
-      {eventId && dashboardNav ? (
-        <SetupNavBar
-          hidePrimary
-          nextHref={dashboardNav.next.href}
-          nextLabel={dashboardNav.next.nextLabel}
-          nextReady
-        />
-      ) : null}
     </>
   );
 }

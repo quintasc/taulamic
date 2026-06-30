@@ -138,14 +138,22 @@ export type SetupNavTarget = {
 
 export function getDashboardSetupNav(
   eventId: string,
-  configComplete: boolean,
-): { next: { href: string; nextLabel: string } } {
+  setupStatus: boolean[],
+): { next: { href: string; nextLabel: string } } | null {
+  const nextStep = getNextIncompleteSetupStep(eventId, setupStatus);
+  if (!nextStep) {
+    return null;
+  }
+
+  const nextLabel =
+    nextStep.key === 'config'
+      ? 'Siguiente: Definir evento'
+      : `Siguiente: ${nextStep.stepLabel}`;
+
   return {
     next: {
-      href: adminRoutes(eventId).config,
-      nextLabel: configComplete
-        ? 'Siguiente: Configuración'
-        : 'Siguiente: Definir evento',
+      href: nextStep.href,
+      nextLabel,
     },
   };
 }

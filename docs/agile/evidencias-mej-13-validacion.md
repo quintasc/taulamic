@@ -12,15 +12,15 @@
 |--------|---------------|-----------|
 | Claridad | ✅ | ✅ pasos 1–3 |
 | Responsive | ✅ | ✅ pasos 4–5 |
-| Fase D centralización | ✅ `ui-copy.ts` | ⏳ smoke PO opcional |
+| Fase D centralización | ✅ `ui-copy.ts` + E2E smoke móvil | ⏳ smoke PO visual opcional |
 
 ## Fase D — Centralización copy
 
 | # | Comprobación | Evidencia estática | Manual |
 |---|--------------|-------------------|--------|
-| 6 | `ui-copy.ts` con strings inventario §1–§3 | `apps/web/src/lib/ui-copy.ts` | [ ] PO smoke |
-| 7 | Componentes cableados (save, setup nav, distribución) | grep imports `@/lib/ui-copy` | [ ] PO smoke |
-| 8 | E2E importa copy crítico | `pilot-flow.spec.ts`, `pilot-flow.ts` | ✅ CI/local limpio |
+| 6 | `ui-copy.ts` con strings inventario §1–§3 | `apps/web/src/lib/ui-copy.ts` | ✅ E2E smoke |
+| 7 | Componentes cableados (save, setup nav, distribución) | 12 archivos importan `@/lib/ui-copy` | ✅ E2E smoke |
+| 8 | E2E importa copy crítico | `pilot-flow.spec.ts`, `mej-13-ui-copy.spec.ts` | ✅ |
 
 ## Claridad
 
@@ -52,4 +52,5 @@
 - [x] PO revisa Distribución y Plano en viewport estrecho
 - [x] Copy `nav-map` actualizado post-S07
 - [x] Fase D `ui-copy.ts` (`fa6603e`)
-- [ ] Smoke PO Fase D (Config + Distribución `< md`)
+- [x] E2E smoke Fase D móvil (`mej-13-ui-copy.spec.ts`)
+- [ ] Smoke PO visual Fase D (opcional)

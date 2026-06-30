@@ -18,7 +18,7 @@ Mar 2026          Jun 2026                              Jul 2026              Ag
 | Indicador | Valor |
 |-----------|-------|
 | **Posicion temporal** | Semana 2 de 6 (23–29 jun) — **nucleo + validacion manual HECHOS** |
-| **Foco actual** | Estabilización menor; backlog post-piloto (#44–#52); MVP SDD agosto+ |
+| **Foco actual** | Sprint 10: pulido PO móvil/iPad; validación manual pendiente |
 | **EP-11 / EP-12 / EP-13** | **Cerrados** (#22–#36) |
 | **EP-01 / EP-02 / motor v0 / E2E / UI / validacion manual** | **Cerrados** |
 | **Progreso piloto (DoD)** | **100 % cerrado** — sin usuario real (pospuesto #53) |

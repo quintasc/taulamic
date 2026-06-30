@@ -391,6 +391,10 @@ export function SceneEmpresa() {
 
 export type MarketingCard = {
   title: string;
+  /** Etiqueta corta para navegación (header / anclas). */
+  navLabel: string;
+  /** Id de ancla en la landing (`/#${anchorId}`). */
+  anchorId: string;
   desc: string;
   illu: ReactNode;
   scene: ReactNode;
@@ -402,6 +406,8 @@ export type MarketingCard = {
 export const marketingCards: MarketingCard[] = [
   {
     title: 'BODAS Y CELEBRACIONES',
+    navLabel: 'Bodas',
+    anchorId: 'segmento-bodas',
     desc: 'Organiza la distribución perfecta para el gran día. Sientas a familias y amigos donde estarán más cómodos.',
     illu: <IlluBoda />,
     scene: <SceneBoda />,
@@ -410,6 +416,8 @@ export const marketingCards: MarketingCard[] = [
   },
   {
     title: 'AULAS Y FORMACIÓN',
+    navLabel: 'Aulas',
+    anchorId: 'segmento-aulas',
     desc: 'Optimiza la disposición en cursos y talleres para favorecer la colaboración entre participantes.',
     illu: <IlluAula />,
     scene: <SceneAula />,
@@ -418,6 +426,8 @@ export const marketingCards: MarketingCard[] = [
   },
   {
     title: 'EVENTOS DE EMPRESA',
+    navLabel: 'Empresa',
+    anchorId: 'segmento-empresa',
     desc: 'Conecta empleados de distintos equipos y favorece la integración en cenas y team buildings.',
     illu: <IlluEmpresa />,
     scene: <SceneEmpresa />,

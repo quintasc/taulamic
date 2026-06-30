@@ -63,6 +63,7 @@ npm run test:e2e:report
 - Flujo feliz A→G del guion (config → invitados → plano → mesas → afinidades → distribución)
 - Patrones UX: auto-save, sin «Guardar», bloqueo «Siguiente»
 - Paso Tarjetas bloqueado (HU-10)
+- MEJ-13 D: copy canónico Config + botón Calcular en móvil (`mej-13-ui-copy.spec.ts`)
 
 ### Qué no cubre (sigue en guion manual)
 

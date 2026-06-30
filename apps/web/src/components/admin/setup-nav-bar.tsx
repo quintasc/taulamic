@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 
 import { feedbackSurfaceClass } from '@/lib/feedback-surface';
 import { SETUP_NAV_COPY } from '@/lib/ui-copy';
@@ -27,7 +28,21 @@ export type SetupNavBarProps = {
 };
 
 const MAIN_SETUP_BAR_REGION_CLASS =
-  'fixed left-[var(--admin-sidebar-width)] z-40 w-[calc(100%-var(--admin-sidebar-width))] px-4 md:px-8';
+  'fixed left-0 z-50 w-full px-4 md:px-8 lg:left-[var(--admin-sidebar-width)] lg:w-[calc(100%-var(--admin-sidebar-width))]';
+
+function SetupNavStickyPortal({ children }: { children: ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
+  return createPortal(children, document.body);
+}
 
 /**
  * Aviso de bloqueo dentro del mismo footer sticky (sin franja doble).
@@ -41,9 +56,9 @@ export const SETUP_NAV_UNIFIED_BLOCKED_SHELL = false;
  */
 export const SETUP_NAV_HINT_FLUSH_ABOVE_FOOTER = true;
 
-/** En footer fijo (dense), por debajo de md solo flechas; texto completo desde md. */
+/** En footer fijo (dense), por debajo de md: misma píldora que «Siguiente»; desde md: enlace texto. */
 const DENSE_PREVIOUS_CLASS =
-  'inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-xl text-xs font-medium text-neutral-600 hover:bg-wf-1 hover:text-primary-600 md:min-h-8 md:min-w-0 md:max-w-[45%] md:justify-start md:rounded-none md:px-0 md:hover:bg-transparent';
+  'btn-secondary-compact inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center px-3 md:min-h-8 md:min-w-0 md:max-w-[45%] md:justify-start md:rounded-none md:border-0 md:bg-transparent md:px-0 md:py-0 md:text-xs md:font-medium md:text-neutral-600 md:hover:bg-transparent md:hover:text-primary-600';
 
 const DENSE_NEXT_CLASS =
   'min-h-11 min-w-11 shrink-0 justify-center px-3 md:min-h-0 md:min-w-0 md:px-3.5';
@@ -367,52 +382,9 @@ function StickySetupNavBarSplitBands(props: SetupNavBarProps) {
   return (
     <>
       <div className={spacerClass} aria-hidden />
-      {state.showBlockedBanner ? (
-        <div className={hintBandClass}>
-          <div className={SETUP_NAV_HINT_INNER_CLASS}>
-            <SetupNavBlockedBanner
-              bannerRef={state.blockedBannerRef}
-              pulse={state.blockedPulse}
-              hint={state.nextDisabledHint}
-            />
-          </div>
-        </div>
-      ) : null}
-      <div
-        className={`admin-setup-bar-shell ${MAIN_SETUP_BAR_REGION_CLASS} bottom-0`}
-      >
-        <div className="admin-setup-bar-inner mx-auto max-w-4xl min-w-0 overflow-hidden">
-          <SetupNavControlsRow
-            {...props}
-            dense
-            showPrevious={state.showPrevious}
-            showNext={state.showNext}
-            showPrimary={state.showPrimary}
-            nextLoading={state.nextLoading}
-            onBeforeNext={props.onBeforeNext}
-            onEmphasizeBlocked={state.emphasizeBlockedMessage}
-            onHandleNext={state.handleNext}
-          />
-        </div>
-      </div>
-    </>
-  );
-}
-
-function StickySetupNavBarUnified(props: SetupNavBarProps) {
-  const state = useSetupNavControlState(props);
-  const spacerClass = state.showBlockedBanner
-    ? 'h-[var(--admin-setup-bar-offset-with-hint)]'
-    : 'h-[var(--admin-setup-bar-offset)]';
-
-  return (
-    <>
-      <div className={spacerClass} aria-hidden />
-      <div
-        className={`admin-setup-bar-shell ${MAIN_SETUP_BAR_REGION_CLASS} bottom-0`}
-      >
-        <div className="mx-auto flex max-w-4xl min-w-0 flex-col gap-[var(--admin-setup-bar-hint-gap)] px-0 pt-[var(--admin-setup-bar-hint-gap)]">
-          {state.showBlockedBanner ? (
+      <SetupNavStickyPortal>
+        {state.showBlockedBanner ? (
+          <div className={hintBandClass}>
             <div className={SETUP_NAV_HINT_INNER_CLASS}>
               <SetupNavBlockedBanner
                 bannerRef={state.blockedBannerRef}
@@ -420,8 +392,12 @@ function StickySetupNavBarUnified(props: SetupNavBarProps) {
                 hint={state.nextDisabledHint}
               />
             </div>
-          ) : null}
-          <div className="admin-setup-bar-inner !h-auto min-h-[var(--admin-setup-bar-height)] overflow-hidden">
+          </div>
+        ) : null}
+        <div
+          className={`admin-setup-bar-shell ${MAIN_SETUP_BAR_REGION_CLASS} bottom-0`}
+        >
+          <div className="admin-setup-bar-inner mx-auto max-w-4xl min-w-0">
             <SetupNavControlsRow
               {...props}
               dense
@@ -435,7 +411,50 @@ function StickySetupNavBarUnified(props: SetupNavBarProps) {
             />
           </div>
         </div>
-      </div>
+      </SetupNavStickyPortal>
+    </>
+  );
+}
+
+function StickySetupNavBarUnified(props: SetupNavBarProps) {
+  const state = useSetupNavControlState(props);
+  const spacerClass = state.showBlockedBanner
+    ? 'h-[var(--admin-setup-bar-offset-with-hint)]'
+    : 'h-[var(--admin-setup-bar-offset)]';
+
+  return (
+    <>
+      <div className={spacerClass} aria-hidden />
+      <SetupNavStickyPortal>
+        <div
+          className={`admin-setup-bar-shell ${MAIN_SETUP_BAR_REGION_CLASS} bottom-0`}
+        >
+          <div className="mx-auto flex max-w-4xl min-w-0 flex-col gap-[var(--admin-setup-bar-hint-gap)] px-0 pt-[var(--admin-setup-bar-hint-gap)]">
+            {state.showBlockedBanner ? (
+              <div className={SETUP_NAV_HINT_INNER_CLASS}>
+                <SetupNavBlockedBanner
+                  bannerRef={state.blockedBannerRef}
+                  pulse={state.blockedPulse}
+                  hint={state.nextDisabledHint}
+                />
+              </div>
+            ) : null}
+            <div className="admin-setup-bar-inner !h-auto min-h-[var(--admin-setup-bar-height)]">
+              <SetupNavControlsRow
+                {...props}
+                dense
+                showPrevious={state.showPrevious}
+                showNext={state.showNext}
+                showPrimary={state.showPrimary}
+                nextLoading={state.nextLoading}
+                onBeforeNext={props.onBeforeNext}
+                onEmphasizeBlocked={state.emphasizeBlockedMessage}
+                onHandleNext={state.handleNext}
+              />
+            </div>
+          </div>
+        </div>
+      </SetupNavStickyPortal>
     </>
   );
 }

@@ -1,11 +1,21 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { SetupNavBar } from '@/components/admin/setup-nav-bar';
 import { FloorAccessoryIcon, getFloorAccessoryDisplaySize } from '@/components/admin/floor-plan/floor-accessory-icon';
+import {
+  FloorPlanMobileControls,
+  FloorPlanRecommendationStrip,
+} from '@/components/admin/floor-plan/floor-plan-mobile-controls';
 import { IconChevronDown } from '@/components/icons';
 import { ResizableRoomCanvas } from '@/components/admin/floor-plan/resizable-room-canvas';
+import { RoomDimensionFields } from '@/components/admin/floor-plan/room-dimension-fields';
+import {
+  canvasTierEdgePaddingPx,
+  useLayoutCanvasTier,
+  useRoomCanvasBounds,
+} from '@/components/admin/floor-plan/use-room-canvas-max-px';
 import { Alert, PageHeader, ResponsiveButtonLabel, SaveStatusIndicator, useAutoSaveIndicator } from '@/components/ui';
 import { ApiError, eventsApi } from '@/lib/api';
 import {
@@ -16,15 +26,20 @@ import {
 import {
   DEFAULT_FLOOR_PLAN_SETUP,
   FLOOR_PLAN_ACCESSORIES,
+  ROOM_CANVAS_COMPACT_PADDING_PX,
   ROOM_SHAPE_OPTIONS,
   applyShapeChange,
+  clampSetupToFitLimits,
+  computeRoomFitMeterLimits,
   formatDimensionLimitsLabel,
   formatRoomDimensions,
+  hasFloorPlanSetupSaved,
   isRoomAtMaxLength,
   isRoomAtMaxWidth,
   loadFloorPlanSetup,
   normalizeSetupForShape,
   saveFloorPlanSetup,
+  setupFromRecommendation,
   type FloorPlanSetup,
   type RoomShape,
 } from '@/lib/floor-plan-setup';
@@ -95,39 +110,85 @@ export function FloorPlanSetupView({
   const [hydrated, setHydrated] = useState(false);
   const [guestCountHint, setGuestCountHint] = useState(0);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const mobileCanvasCardRef = useRef<HTMLDivElement>(null);
+  const desktopCanvasCardRef = useRef<HTMLDivElement>(null);
+  const canvasTier = useLayoutCanvasTier();
+  const portraitLayout = canvasTier !== 'desktop';
+  const mobileBounds = useRoomCanvasBounds(
+    mobileCanvasCardRef,
+    'phone',
+    setup,
+    true,
+    mobileCanvasCardRef,
+  );
+  const desktopBounds = useRoomCanvasBounds(
+    desktopCanvasCardRef,
+    'desktop',
+    setup,
+    false,
+    desktopCanvasCardRef,
+  );
+  const fitOptions = useMemo(
+    () => ({
+      portraitLayout,
+      edgePaddingPx:
+        canvasTier === 'desktop'
+          ? canvasTierEdgePaddingPx('desktop')
+          : ROOM_CANVAS_COMPACT_PADDING_PX,
+    }),
+    [canvasTier, portraitLayout],
+  );
+  const activeBounds = canvasTier === 'desktop' ? desktopBounds : mobileBounds;
+  const fitLimits = useMemo(
+    () => computeRoomFitMeterLimits(setup, activeBounds, fitOptions),
+    [activeBounds, fitOptions, setup],
+  );
 
   useEffect(() => {
     let cancelled = false;
 
     async function hydrate() {
       const local = loadFloorPlanSetup(eventId);
-      if (!cancelled) {
-        setSetup(local);
-      }
+      let nextSetup = local;
+      let remoteMissing = false;
 
       try {
         const remote = await eventsApi.getRoomSetup(eventId);
         if (cancelled) {
           return;
         }
-        const fromApi = normalizeSetupForShape({
+        nextSetup = normalizeSetupForShape({
           shape: remote.shape,
           widthM: remote.widthM,
           lengthM: remote.lengthM,
           radiusM: remote.radiusM,
           placedAccessories: remote.placedAccessories,
         });
-        setSetup(fromApi);
-        saveFloorPlanSetup(eventId, fromApi);
       } catch (err) {
-        if (!(err instanceof ApiError && err.status === 404)) {
-          // Mantener copia local si la API falla.
+        if (err instanceof ApiError && err.status === 404) {
+          remoteMissing = true;
         }
       }
 
       const meta = loadEventUiMeta(eventId);
+      const guestCount = parseApproximateGuestCount(meta);
+      if (guestCount > 0 && remoteMissing && !hasFloorPlanSetupSaved(eventId)) {
+        const rec = recommendRoomSize(guestCount, nextSetup.shape);
+        if (rec) {
+          nextSetup = setupFromRecommendation(
+            nextSetup.shape,
+            rec,
+            nextSetup.placedAccessories,
+          );
+        }
+      }
+
       if (!cancelled) {
-        setGuestCountHint(parseApproximateGuestCount(meta));
+        setGuestCountHint(guestCount);
+        setSetup(nextSetup);
+        if (!remoteMissing) {
+          saveFloorPlanSetup(eventId, nextSetup);
+        }
         setHydrated(true);
       }
     }
@@ -138,6 +199,13 @@ export function FloorPlanSetupView({
       cancelled = true;
     };
   }, [eventId]);
+
+  useEffect(() => {
+    if (!hydrated) {
+      return;
+    }
+    setSetup((current) => clampSetupToFitLimits(current, activeBounds, fitOptions));
+  }, [activeBounds, fitOptions, fitLimits, hydrated]);
 
   useEffect(() => {
     if (!hydrated) {
@@ -177,12 +245,29 @@ export function FloorPlanSetupView({
     markIdle,
   ]);
 
-  const updateSetup = useCallback((patch: Partial<FloorPlanSetup>) => {
-    setSetup((current) => normalizeSetupForShape({ ...current, ...patch }));
-  }, []);
+  const updateSetup = useCallback(
+    (patch: Partial<FloorPlanSetup>) => {
+      setSetup((current) =>
+        clampSetupToFitLimits({ ...current, ...patch }, activeBounds, fitOptions),
+      );
+    },
+    [activeBounds, fitOptions],
+  );
 
   function handleShapeChange(shape: RoomShape) {
-    setSetup((current) => applyShapeChange(current, shape));
+    setSetup((current) => {
+      const rec = recommendRoomSize(guestCountHint, shape);
+      const base = rec
+        ? setupFromRecommendation(shape, rec, current.placedAccessories)
+        : applyShapeChange(current, shape);
+      return clampSetupToFitLimits(base, activeBounds, {
+        ...fitOptions,
+        portraitLayout:
+          canvasTier !== 'desktop' &&
+          shape !== 'oval' &&
+          base.widthM > base.lengthM,
+      });
+    });
   }
 
   function toggleAccessory(id: string) {
@@ -194,6 +279,10 @@ export function FloorPlanSetupView({
     });
   }
 
+  function clearAccessories() {
+    updateSetup({ placedAccessories: [] });
+  }
+
   if (!hydrated) {
     return <p className="text-sm text-neutral-500">Cargando plano…</p>;
   }
@@ -201,11 +290,23 @@ export function FloorPlanSetupView({
   const roomRecommendation = recommendRoomSize(guestCountHint, setup.shape);
   const roomComparison = compareRoomToRecommendation(setup, guestCountHint);
 
+  function applyRecommendedSize() {
+    if (!roomRecommendation) {
+      return;
+    }
+    const next = setupFromRecommendation(
+      setup.shape,
+      roomRecommendation,
+      setup.placedAccessories,
+    );
+    updateSetup(next);
+  }
+
   return (
     <>
       <PageHeader
         title="Plano del salón"
-        subtitle="Paso 4 del setup: define la forma y el tamaño del espacio. Si no cambias nada, se usa la configuración por defecto."
+        subtitle="Paso 4: Define la forma, tamaño y accesorios."
         saveStatus={<SaveStatusIndicator status={saveStatus} />}
         action={
           hasDistribution ? (
@@ -229,8 +330,25 @@ export function FloorPlanSetupView({
         </div>
       ) : null}
 
+      {roomRecommendation && roomComparison ? (
+        <div className="mb-4 lg:hidden">
+          <FloorPlanRecommendationStrip
+            recommendedAreaM2={roomComparison.recommendation.minAreaM2}
+            currentAreaM2={roomComparison.currentAreaM2}
+            adequate={roomComparison.adequate}
+          />
+        </div>
+      ) : (
+        <div className="mb-4 lg:hidden">
+          <Alert variant="warning">
+            Indica los invitados aproximados en Configuración para ver el tamaño
+            mínimo recomendado del salón.
+          </Alert>
+        </div>
+      )}
+
       {roomRecommendation ? (
-        <div className="mb-6">
+        <div className="mb-6 hidden lg:block">
           <Alert variant={roomComparison?.adequate ? 'success' : 'warning'}>
             <p className="font-medium">{roomRecommendation.summary}</p>
             <p className="mt-1 text-sm opacity-90">{roomRecommendation.detail}</p>
@@ -245,7 +363,7 @@ export function FloorPlanSetupView({
           </Alert>
         </div>
       ) : (
-        <div className="mb-6">
+        <div className="mb-6 hidden lg:block">
           <Alert variant="warning">
             Indica los invitados aproximados en Configuración para ver el tamaño
             mínimo recomendado del salón.
@@ -253,12 +371,41 @@ export function FloorPlanSetupView({
         </div>
       )}
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
-        <div className="flex min-h-[520px] flex-col">
-          <div className="card-admin flex min-h-[460px] flex-1 flex-col overflow-visible border-2 border-dashed border-neutral-200 bg-neutral-50/40 p-6">
-            <div className="flex flex-1 items-center justify-center">
-              <ResizableRoomCanvas setup={setup} onChange={updateSetup} />
-            </div>
+      <div className="mb-6 space-y-4 lg:hidden">
+        <FloorPlanMobileControls
+          setup={setup}
+          limits={fitLimits}
+          recommendation={roomRecommendation}
+          onShapeChange={handleShapeChange}
+          onUpdateSetup={updateSetup}
+          onToggleAccessory={toggleAccessory}
+          onApplyRecommendedSize={applyRecommendedSize}
+          onClearAccessories={clearAccessories}
+        />
+        <div
+          ref={mobileCanvasCardRef}
+          className="card-admin overflow-visible border border-neutral-200 bg-neutral-50/50 p-1"
+        >
+          <ResizableRoomCanvas
+            setup={setup}
+            onChange={updateSetup}
+            compact
+            areaRef={mobileCanvasCardRef}
+          />
+        </div>
+      </div>
+
+      <div className="hidden gap-6 lg:grid xl:grid-cols-[minmax(0,1fr)_300px]">
+        <div className="flex flex-col">
+          <div
+            ref={desktopCanvasCardRef}
+            className="card-admin flex min-h-0 flex-1 flex-col overflow-visible border-2 border-dashed border-neutral-200 bg-neutral-50/40 p-4 md:p-6"
+          >
+            <ResizableRoomCanvas
+              setup={setup}
+              onChange={updateSetup}
+              areaRef={desktopCanvasCardRef}
+            />
           </div>
 
           <p className="mt-3 text-center text-sm font-medium text-neutral-600">
@@ -310,70 +457,12 @@ export function FloorPlanSetupView({
                   </div>
                 </div>
 
-                {setup.shape === 'round' ? (
-                  <div>
-                    <label
-                      htmlFor="room-radius"
-                      className="mb-1.5 block text-xs font-medium text-neutral-700"
-                    >
-                      Radio (m)
-                    </label>
-                    <input
-                      id="room-radius"
-                      type="number"
-                      min={3}
-                      max={200}
-                      className="input-field py-2"
-                      value={setup.radiusM}
-                      onChange={(event) =>
-                        updateSetup({ radiusM: Number(event.target.value) })
-                      }
-                    />
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label
-                        htmlFor="room-width"
-                        className="mb-1.5 block text-xs font-medium text-neutral-700"
-                      >
-                        {setup.shape === 'oval' ? 'Ancho eje (m)' : 'Ancho (m)'}
-                      </label>
-                      <input
-                        id="room-width"
-                        type="number"
-                        min={3}
-                        max={200}
-                        className="input-field py-2"
-                        value={setup.widthM}
-                        onChange={(event) =>
-                          updateSetup({ widthM: Number(event.target.value) })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="room-length"
-                        className="mb-1.5 block text-xs font-medium text-neutral-700"
-                      >
-                        {setup.shape === 'oval'
-                          ? 'Largo eje (m)'
-                          : 'Largo (m)'}
-                      </label>
-                      <input
-                        id="room-length"
-                        type="number"
-                        min={3}
-                        max={200}
-                        className="input-field py-2"
-                        value={setup.lengthM}
-                        onChange={(event) =>
-                          updateSetup({ lengthM: Number(event.target.value) })
-                        }
-                      />
-                    </div>
-                  </div>
-                )}
+                <RoomDimensionFields
+                  setup={setup}
+                  limits={fitLimits}
+                  onUpdate={updateSetup}
+                  labelClassName="mb-1.5 block text-xs font-medium text-neutral-700"
+                />
 
                 {setup.shape === 'oval' ? (
                   <p className="text-xs text-neutral-500">
@@ -383,9 +472,8 @@ export function FloorPlanSetupView({
                 ) : null}
 
                 <p className="text-xs text-neutral-500">
-                  {formatDimensionLimitsLabel()} Arrastra el marcador del plano:
-                  horizontal (ancho), vertical (largo) o en diagonal (ancho y largo
-                  a la vez).
+                  {formatDimensionLimitsLabel()} Puedes afinar con +/− o arrastrando el
+                  marcador del plano. El tamaño visible no supera el lienzo.
                 </p>
 
                 {setup.shape !== 'round' && isRoomAtMaxWidth(setup) ? (

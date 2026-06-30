@@ -137,7 +137,10 @@ export async function addGuestManually(
     .getByRole('button', { name: 'Añadir', exact: true })
     .click();
   await expect(
-    page.locator('table tbody').getByText(guest.nombre, { exact: true }),
+    page
+      .locator('table tbody')
+      .getByText(guest.nombre, { exact: true })
+      .or(page.getByRole('article', { name: guest.nombre })),
   ).toBeVisible({ timeout: 15_000 });
 }
 
@@ -149,4 +152,22 @@ export async function importGuestsFromPilotExcel(page: Page) {
   await expect(page.getByText('Importación completada')).toBeVisible({
     timeout: 30_000,
   });
+}
+
+/** Setup hasta Distribución (empty state, sin calcular). */
+export async function reachDistributionStep(page: Page) {
+  await startPilotAdminFlow(page);
+  await page.getByLabel('Nombre del evento').fill('E2E MEJ-13 copy');
+  await page.getByLabel('Invitados aproximados').fill('40');
+  await clickSetupNext(page, 'Invitados');
+  await importGuestsFromPilotExcel(page);
+  await clickSetupNext(page, 'Plano');
+  await waitForFloorPlanReady(page);
+  await clickSetupNext(page, 'Mesas');
+  await addTable(page);
+  await clickSetupNext(page, 'Afinidades');
+  await page.getByRole('button', { name: 'Agrupar por categoría' }).click();
+  await waitForAutoSaved(page);
+  await clickSetupNext(page, 'Distribución');
+  await expect(page).toHaveURL(/\/distribution$/);
 }

@@ -3,17 +3,25 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState, type DragEvent } from 'react';
 import { GuestPill } from '@/components/admin/distribution/guest-pill';
+import { GuestPointerDragLayer } from '@/components/admin/distribution/guest-pointer-drag-layer';
+import { useGuestPointerDropHighlight } from '@/components/admin/distribution/use-guest-pointer-drop-highlight';
 import { AssignGuestDialog } from '@/components/admin/distribution/assign-guest-dialog';
 import { PlacementMutationFeedback } from '@/components/admin/distribution/placement-mutation-feedback';
 import { FloorPlanAccessoriesOverlay } from '@/components/admin/floor-plan/floor-plan-accessories-overlay';
 import { RoomShapeDisplay } from '@/components/admin/floor-plan/room-shape-display';
-import { useRoomCanvasMaxPx } from '@/components/admin/floor-plan/use-room-canvas-max-px';
+import {
+  useRoomCanvasBounds,
+  useLayoutCanvasTier,
+  canvasTierUsesPortraitLayout,
+  canvasTierEdgePaddingPx,
+} from '@/components/admin/floor-plan/use-room-canvas-max-px';
 import { Alert, EmptyState, PageHeader } from '@/components/ui';
 import {
   acceptGuestDragOver,
   clearGuestDrag,
   getActiveGuestDrag,
 } from '@/lib/distribution-dnd';
+import { wasGuestPointerDragRecent } from '@/lib/guest-pointer-drag';
 import {
   filterChipClass,
   filterChipCountClass,
@@ -23,8 +31,7 @@ import {
   formatRoomDimensions,
   computeTableGridLayout,
   computeTableLayoutInsets,
-  roomPixelSize,
-  ROOM_CANVAS_CEILING_PX,
+  roomPixelSizeFit,
   type FloorPlanSetup,
 } from '@/lib/floor-plan-setup';
 import {
@@ -164,10 +171,17 @@ function TablePreviewCard({
         aria-pressed={selected}
         aria-label={tooltip}
         title={tooltip}
-        onClick={onSelect}
+        onClick={() => {
+          if (wasGuestPointerDragRecent()) {
+            return;
+          }
+          onSelect();
+        }}
         onDragOver={onDragOver}
         onDragLeave={onDragLeave}
         onDrop={onDrop}
+        data-guest-drop-table={group.tableId}
+        data-guest-drop-free-seats={group.freeSeats}
         className={`flex items-center justify-center px-0.5 transition hover:brightness-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500 ${shapeClass} ${tableMarkerAppearanceClass(group.status, compact)} ${ringClass}`}
       >
         <span
@@ -243,7 +257,7 @@ function TableGuestsPanel({
         compact
       />
 
-      <div className="mt-4 max-h-40 overflow-y-auto">
+      <div className="mt-4 max-h-48 overflow-y-auto lg:max-h-40">
         <div className="flex flex-wrap gap-2">
           {group.guests.length > 0 ? (
             group.guests.map((guest) => (
@@ -279,6 +293,33 @@ function TableGuestsPanel({
           ) : null}
         </div>
       </div>
+    </div>
+  );
+}
+
+function TableGuestsPanelSlot({
+  group,
+  className,
+  ...panelProps
+}: {
+  group: DistributionTableGroup;
+  className?: string;
+  editable?: boolean;
+  unassigningGuestId?: string | null;
+  movingGuestId?: string | null;
+  draggingGuestId?: string | null;
+  onDragStartGuest?: (guestId: string) => void;
+  onDragEndGuest?: () => void;
+  onUnassignGuest?: (guestId: string) => void;
+  canAssignGuest?: boolean;
+  onOpenAssignGuest?: () => void;
+  mutationWarning?: string | null;
+  mutationError?: string | null;
+  onClose: () => void;
+}) {
+  return (
+    <div className={className}>
+      <TableGuestsPanel group={group} compact {...panelProps} />
     </div>
   );
 }
@@ -347,15 +388,33 @@ export function FloorPlanLayoutView({
     useState<DistributionTableGroup | null>(null);
   const [assignOpen, setAssignOpen] = useState(false);
   const [draggingGuestId, setDraggingGuestId] = useState<string | null>(null);
+  const canvasCardRef = useRef<HTMLDivElement>(null);
   const canvasHostRef = useRef<HTMLDivElement>(null);
-  const canvasMaxPx = useRoomCanvasMaxPx(
+  const canvasTier = useLayoutCanvasTier();
+  const portraitLayout = canvasTierUsesPortraitLayout(canvasTier);
+  const canvasBounds = useRoomCanvasBounds(
     canvasHostRef,
+    canvasTier,
     roomSetup,
-    ROOM_CANVAS_CEILING_PX,
+    portraitLayout,
+    canvasCardRef,
   );
+  const isPhoneCanvas = canvasTier === 'phone';
+
+  const canvasSize = useMemo(
+    () =>
+      roomPixelSizeFit(roomSetup, canvasBounds, {
+        portraitLayout,
+        edgePaddingPx: canvasTierEdgePaddingPx(canvasTier),
+      }),
+    [canvasBounds, portraitLayout, canvasTier, roomSetup],
+  );
+
+  const layoutRefPx = Math.max(canvasSize.widthPx, canvasSize.heightPx);
   const [dropTargetTableId, setDropTargetTableId] = useState<string | null>(
     null,
   );
+  useGuestPointerDropHighlight(setDropTargetTableId);
 
   const statusCounts = useMemo(
     () => countTablesByStatus(tableGroups),
@@ -389,11 +448,11 @@ export function FloorPlanLayoutView({
   );
 
   const tableLayout = useMemo(
-    () => computeTableLayoutInsets(filteredGroups.length, canvasMaxPx),
-    [filteredGroups.length, canvasMaxPx],
+    () => computeTableLayoutInsets(filteredGroups.length, layoutRefPx),
+    [filteredGroups.length, layoutRefPx],
   );
   const tableGridLayout = useMemo(() => {
-    const { widthPx, heightPx } = roomPixelSize(roomSetup, canvasMaxPx);
+    const { widthPx, heightPx } = canvasSize;
     const zoneWidthPx = ((100 - tableLayout.insetX * 2) / 100) * widthPx;
     const zoneHeightPx = ((100 - tableLayout.insetY * 2) / 100) * heightPx;
     return computeTableGridLayout(
@@ -401,7 +460,7 @@ export function FloorPlanLayoutView({
       zoneWidthPx,
       zoneHeightPx,
     );
-  }, [filteredGroups.length, canvasMaxPx, roomSetup, tableLayout]);
+  }, [canvasSize, filteredGroups.length, tableLayout]);
   const compactTableMarkers = tableGridLayout.compact;
 
   useEffect(() => {
@@ -416,8 +475,51 @@ export function FloorPlanLayoutView({
     }
   }, [tableGroups, selectedGroup?.tableId]);
 
+  const guestPanelProps = selectedGroup
+    ? {
+        group: selectedGroup,
+        editable,
+        unassigningGuestId,
+        movingGuestId,
+        draggingGuestId,
+        onDragStartGuest: setDraggingGuestId,
+        onDragEndGuest: () => setDraggingGuestId(null),
+        onUnassignGuest,
+        mutationWarning,
+        mutationError,
+        canAssignGuest:
+          editable &&
+          selectedGroup.freeSeats > 0 &&
+          unassignedGuests.length > 0,
+        onOpenAssignGuest: () => setAssignOpen(true),
+        onClose: () => setSelectedGroup(null),
+      }
+    : null;
+
   return (
-    <>
+    <GuestPointerDragLayer
+      onDrop={(guestId, targetTableId) => {
+        if (!editable || !onMoveGuest) {
+          return;
+        }
+        const targetGroup = tableGroups.find(
+          (group) => group.tableId === targetTableId,
+        );
+        if (targetGroup) {
+          setSelectedGroup(targetGroup);
+        }
+        void Promise.resolve(onMoveGuest(guestId, targetTableId)).finally(
+          () => setDraggingGuestId(null),
+        );
+      }}
+      onDragStart={() => {
+        const payload = getActiveGuestDrag();
+        if (payload) {
+          setDraggingGuestId(payload.guestId);
+        }
+      }}
+      onDragEnd={() => setDraggingGuestId(null)}
+    >
       <PageHeader
         title="Plano del salón"
         subtitle="Pulsa una mesa para ver los invitados asignados."
@@ -503,12 +605,21 @@ export function FloorPlanLayoutView({
       </div>
 
       <div className="flex min-h-0 flex-col">
-        <div className="card-admin relative flex min-h-[320px] flex-1 flex-col overflow-hidden border-2 border-dashed border-neutral-200 bg-neutral-50/50 p-3 sm:min-h-[480px] sm:p-6">
+        <div
+          ref={canvasCardRef}
+          className="card-admin relative flex flex-col overflow-visible border-2 border-dashed border-neutral-200 bg-neutral-50/50 !p-3 sm:!p-4"
+        >
           <div
             ref={canvasHostRef}
-            className="flex w-full min-w-0 flex-1 flex-col items-center justify-center gap-4"
+            className="w-full"
+            style={{ minHeight: canvasSize.heightPx }}
           >
-            <RoomShapeDisplay setup={roomSetup} maxPx={canvasMaxPx}>
+            <RoomShapeDisplay
+              setup={roomSetup}
+              widthPx={canvasSize.widthPx}
+              heightPx={canvasSize.heightPx}
+              className="max-w-none"
+            >
               <div
                 className="absolute z-[2] flex items-center justify-center"
                 style={{
@@ -594,40 +705,31 @@ export function FloorPlanLayoutView({
               <FloorPlanAccessoriesOverlay
                 accessoryIds={roomSetup.placedAccessories}
                 tableCount={filteredGroups.length}
-                canvasRefPx={canvasMaxPx}
+                canvasRefPx={layoutRefPx}
+                portraitFixedSlots={isPhoneCanvas}
+                roomShape={roomSetup.shape}
+                portraitCanvas={canvasSize.heightPx > canvasSize.widthPx}
               />
             </RoomShapeDisplay>
-            {filteredGroups.length === 0 ? (
-              <p className="text-sm text-neutral-500">
-                Ninguna mesa coincide con los filtros
-              </p>
-            ) : null}
           </div>
+
+          {guestPanelProps ? (
+            <TableGuestsPanelSlot
+              {...guestPanelProps}
+              className="mt-4 w-full lg:hidden"
+            />
+          ) : null}
+          {filteredGroups.length === 0 ? (
+            <p className="mt-4 text-center text-sm text-neutral-500">
+              Ninguna mesa coincide con los filtros
+            </p>
+          ) : null}
 
           <FloorPlanOccupancyLegend />
 
-          {selectedGroup ? (
-            <div className="absolute right-4 top-4 z-30 w-72 max-w-[calc(100%-2rem)] sm:max-w-xs">
-              <TableGuestsPanel
-                group={selectedGroup}
-                compact
-                editable={editable}
-                unassigningGuestId={unassigningGuestId}
-                movingGuestId={movingGuestId}
-                draggingGuestId={draggingGuestId}
-                onDragStartGuest={setDraggingGuestId}
-                onDragEndGuest={() => setDraggingGuestId(null)}
-                onUnassignGuest={onUnassignGuest}
-                mutationWarning={mutationWarning}
-                mutationError={mutationError}
-                canAssignGuest={
-                  editable &&
-                  selectedGroup.freeSeats > 0 &&
-                  unassignedGuests.length > 0
-                }
-                onOpenAssignGuest={() => setAssignOpen(true)}
-                onClose={() => setSelectedGroup(null)}
-              />
+          {guestPanelProps ? (
+            <div className="absolute right-4 top-4 z-30 hidden w-72 max-w-xs lg:block">
+              <TableGuestsPanelSlot {...guestPanelProps} />
             </div>
           ) : null}
         </div>
@@ -663,7 +765,7 @@ export function FloorPlanLayoutView({
           ).finally(() => setAssignOpen(false));
         }}
       />
-    </>
+    </GuestPointerDragLayer>
   );
 }
 

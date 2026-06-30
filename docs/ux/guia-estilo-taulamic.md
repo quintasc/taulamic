@@ -96,7 +96,7 @@ Helpers semánticos: `apps/web/src/lib/semantic-ui.ts` — no duplicar clases su
 
 ### Shell
 
-- **Sidebar fija** (`AdminShell`): logo + «taulamic»; bloque «Evento en curso» solo lectura (sin selector de eventos en piloto).
+- **Sidebar:** fija en `lg+` (`AdminShell`); en `< lg` menú **hamburguesa** + drawer con las mismas secciones (ADR-019).
 - **Contenido:** `PageHeader` + cuerpo + navegación setup al pie cuando aplique.
 
 ### PageHeader
@@ -307,10 +307,18 @@ Inventario en `frontend-component-system.md`. Primitivos en `apps/web/src/compon
 | Superficie | Enfoque |
 |------------|---------|
 | Marketing | Dual desktop/móvil |
-| Admin | Desktop-first (≥ 1024 px), degradar con `sm:`/`lg:` |
+| Admin | Desktop-first (**≥ 1024 px** / `lg`), degradar en tablet y móvil |
 | Invitado (futuro) | **Mobile-first 390×844**, touch ≥ 44 px |
 
-Patrones: tablas con fila apilada en móvil; `SetupNavBar` sticky abajo con flechas solas `< md`; no depender de `:hover` para acciones críticas.
+Patrones admin móvil (`< lg`):
+
+- Listas densas: **cards apiladas** (invitados, mesas); tabla/grid desde `lg`.
+- Drawer navegación (`AdminShell`); sidebar fija `lg+`.
+- Plano Fase A: controles `FloorPlanMobileControls` + `RoomDimensionFields`; vista previa sin tirador resize.
+- Componentes compartidos: `guests/shared/` (RSVP, alertas), `floor-plan/room-dimension-fields.tsx`.
+- Plan de refactor: `docs/agile/refactor-ui-mobile-admin.md`.
+
+Patrones generales: `SetupNavBar` sticky abajo con flechas solas `< md`; no depender de `:hover` para acciones críticas.
 
 ---
 

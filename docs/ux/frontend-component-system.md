@@ -34,13 +34,16 @@ apps/web/src/
 
 | Modulo | Componentes clave | Reutilizable en |
 |--------|-------------------|-----------------|
-| `ui/` | Alert, **Button**, EmptyState, **FormField**, PageHeader, **Stepper**, **SelectableChip**, **TextLink**, StatCard, Toast, SaveStatusIndicator, UploadZone, PreferenceOption, SectionLabel | Cualquier pagina |
+| `ui/` | Alert, **Button**, EmptyState, **FormField**, PageHeader, **Stepper**, **SelectableChip**, **TextLink**, StatCard, Toast, SaveStatusIndicator, UploadZone, PreferenceOption, SectionLabel, **MobileHorizontalScroll**, **ResponsiveButtonLabel** | Cualquier pagina |
 | `marketing/` | MarketingLanding, MarketingHeader, MarketingCard, HeroFloorplan, marketing-illustrations | Landing, futuras landings verticales |
 | `admin/` | AdminShell, AdminSidebar, EventDashboard, SetupChecklist, SetupNavBar, **EventConfigView**, **TablesSetupView**, **GuestsPageView** | Todo el panel admin |
+| `admin/guests/shared/` | **GuestRsvpIcon**, **GuestAlertsIcons**, **GuestAlertsInline** | Panel v2, portal invitado futuro |
+| `admin/guests/v2/` | GuestsPanelV2, GuestMobileCard, GuestDrawerV2, filtros, bulk toolbar | Invitados piloto |
+| `admin/tables/` | TablesSetupView, **TableMobileCard** | Mesas setup |
 | `hooks/` | `use-event-config`, `use-tables-setup`, `use-guests-page`, `use-event-dashboard` | Logica de pantalla |
 | `lib/domain/` | `setup-steps` | Flujo setup sin dependencias UI |
 | `admin/distribution/` | DistributionCalculatedView, GuestPill, DistributionTableList | Distribucion, plano Fase B |
-| `admin/floor-plan/` | FloorPlanSetupView, FloorPlanLayoutView, ResizableRoomCanvas, RoomShapeDisplay | Plano |
+| `admin/floor-plan/` | FloorPlanSetupView, FloorPlanLayoutView, **FloorPlanMobileControls**, **RoomDimensionFields**, ResizableRoomCanvas, RoomShapeDisplay | Plano |
 | `brand/` | TaulamicLogo, LogoIcon | Header admin, marketing, emails futuros |
 | `tables/` | TableShapePreview, utilidades forma mesa | Mesas, plano |
 
@@ -123,7 +126,7 @@ Detalle completo: **`guia-estilo-taulamic.md` §7**.
 | Superficie | Enfoque | Notas implementación |
 |------------|---------|----------------------|
 | `marketing/` | Dual | Grids `md:grid-cols-*`; nav oculta en móvil hasta hamburger (post-piloto) |
-| `admin/` | Desktop-first | Sidebar fija `w-sidebar`; contenido con `p-8` y grids `sm:`/`lg:` |
+| `admin/` | Desktop-first | Sidebar fija `lg+`; drawer hamburguesa `< lg`; listas densas en cards `< lg` |
 | Portal invitado (futuro) | **Mobile-first** | Nuevos componentes en `components/guest/` reutilizando `ui/` |
 
 ### Breakpoints (Tailwind)
@@ -132,10 +135,10 @@ Usar utilidades estándar del proyecto: `sm` 640, `md` 768, `lg` 1024, `xl` 1280
 
 ### Patrones obligatorios
 
-1. **Tablas:** cabecera `hidden sm:grid`; fila apilada `sm:hidden` (ver `distribution-table-list.tsx`).
+1. **Tablas y listas admin:** cabecera `hidden lg:grid`; fila apilada o card `lg:hidden` (ver `distribution-table-list.tsx`, `guest-mobile-card.tsx`). Breakpoint canónico admin: **`lg` (1024 px)**.
 2. **Botones e iconos accionables en móvil:** `min-h-11 min-w-11` (44 px) o `p-3` equivalente.
 3. **Formularios:** `grid-cols-1` por defecto; `sm:grid-cols-2` solo admin en pantallas amplias.
-4. **Plano / canvas:** puede requerir scroll horizontal en móvil; no bloquear el resto del flujo.
+4. **Plano / canvas:** vista previa escalada; en `< lg` medidas vía `RoomDimensionFields` (sin tirador resize). Puede requerir scroll horizontal en viewports muy estrechos.
 5. **Componentes invitado (RSVP, afinidad):** implementar en `ui/` o exportables desde admin mock → guest portal.
 6. **Colores semánticos:** usar helpers de `lib/semantic-ui.ts` (mesas, RSVP, filtros) — no duplicar clases Tailwind sueltas.
 
@@ -188,3 +191,5 @@ Placeholder en piloto. Objetivo post-MVP:
 - `docs/ux/guia-estilo-taulamic.md`
 - `docs/ux/design-tokens-mvp.md`
 - `docs/ux/handoff-figma-a-frontend.md`
+- `docs/agile/refactor-ui-mobile-admin.md`
+- `docs/agile/backlog-mejoras-post-piloto.md`

@@ -1,7 +1,36 @@
 'use client';
 
-import { IconFile } from '@/components/icons';
+import { GuestTemplateFileRow } from '@/components/admin/guests/guest-template-file-row';
 import { SectionLabel, UploadZone } from '@/components/ui';
+
+function GuestImportActionButton({
+  variant,
+  importing,
+  disabled,
+  onClick,
+}: {
+  variant: 'empty' | 'more';
+  importing: boolean;
+  disabled: boolean;
+  onClick: () => void;
+}) {
+  const btnClass =
+    variant === 'empty' ? 'btn-primary py-2.5' : 'btn-secondary';
+  return (
+    <button
+      type="button"
+      className={`${btnClass} w-full whitespace-nowrap`}
+      disabled={disabled}
+      onClick={onClick}
+    >
+      {importing
+        ? 'Importando…'
+        : variant === 'empty'
+          ? 'Importar invitados'
+          : 'Importar'}
+    </button>
+  );
+}
 
 export function GuestsImportSection({
   variant,
@@ -15,60 +44,61 @@ export function GuestsImportSection({
   variant: 'empty' | 'more';
   selectedFile: File | null;
   importing: boolean;
-  onSelectFile: (file: File) => void;
+  onSelectFile: (file: File | null) => void;
   onImport: () => void;
   onDownloadTemplate?: () => void;
   /** Lista vacía: alta manual sin Excel (RF-P03.1). */
   onAddManual?: () => void;
 }) {
+  const importDisabled = !selectedFile || importing;
+
+  const uploadBlock = (
+    <UploadZone
+      title={
+        variant === 'empty'
+          ? 'Haz clic o arrastra el archivo'
+          : 'Subir Excel actualizado'
+      }
+      hint="Formato .xlsx"
+      accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      disabled={importing}
+      buttonLabel={
+        selectedFile ? selectedFile.name : 'Seleccionar archivo'
+      }
+      pickButtonSecondary={Boolean(selectedFile)}
+      onClearPick={selectedFile ? () => onSelectFile(null) : undefined}
+      onFile={onSelectFile}
+      actionFooter={
+        <GuestImportActionButton
+          variant={variant}
+          importing={importing}
+          disabled={importDisabled}
+          onClick={onImport}
+        />
+      }
+      footerSizerLabel={
+        variant === 'empty' ? 'Importar invitados' : 'Importar'
+      }
+    />
+  );
+
   if (variant === 'empty') {
     return (
       <div className="max-w-2xl space-y-6">
         <div className="card-admin">
           <SectionLabel>Paso 1 — Descarga la plantilla</SectionLabel>
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-neutral-200 bg-neutral-100/50 p-4">
-            <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-0 text-neutral-600">
-                <IconFile width={20} height={20} />
-              </span>
-              <span className="text-sm font-medium text-neutral-900">
-                plantilla_invitados_taulamic.xlsx
-              </span>
-            </div>
-            {onDownloadTemplate ? (
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={onDownloadTemplate}
-              >
-                Descargar
-              </button>
-            ) : null}
-          </div>
+          {onDownloadTemplate ? (
+            <GuestTemplateFileRow
+              className="mt-4"
+              onDownload={onDownloadTemplate}
+            />
+          ) : null}
         </div>
 
         <div className="card-admin">
           <SectionLabel>Paso 2 — Sube tu Excel completado</SectionLabel>
-          <div className="mt-4">
-            <UploadZone
-              title="Haz clic o arrastra el archivo"
-              hint="Formato .xlsx"
-              accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-              disabled={importing}
-              buttonLabel={selectedFile ? selectedFile.name : 'Seleccionar archivo'}
-              onFile={onSelectFile}
-            />
-          </div>
+          <div className="mt-4">{uploadBlock}</div>
         </div>
-
-        <button
-          type="button"
-          className="btn-primary w-full max-w-2xl py-3 disabled:opacity-40"
-          disabled={!selectedFile || importing}
-          onClick={onImport}
-        >
-          {importing ? 'Importando…' : 'Importar invitados'}
-        </button>
 
         {onAddManual ? (
           <>
@@ -110,38 +140,13 @@ export function GuestsImportSection({
         existentes se actualizan y los nuevos se añaden.
       </p>
       {onDownloadTemplate ? (
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-neutral-100/50 p-3">
-          <div className="flex items-center gap-2 text-sm text-neutral-800">
-            <IconFile width={18} height={18} className="text-neutral-500" />
-            <span className="font-medium">plantilla_invitados_taulamic.xlsx</span>
-          </div>
-          <button
-            type="button"
-            className="btn-secondary shrink-0"
-            onClick={onDownloadTemplate}
-          >
-            Descargar plantilla
-          </button>
-        </div>
-      ) : null}
-      <div className="mt-4">
-        <UploadZone
-          title="Subir Excel actualizado"
-          hint="Formato .xlsx"
-          accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-          disabled={importing}
-          buttonLabel={selectedFile ? selectedFile.name : 'Seleccionar archivo'}
-          onFile={onSelectFile}
+        <GuestTemplateFileRow
+          className="mt-4 hidden lg:flex"
+          buttonLabel="Descargar plantilla"
+          onDownload={onDownloadTemplate}
         />
-      </div>
-      <button
-        type="button"
-        className="btn-secondary mt-4"
-        disabled={!selectedFile || importing}
-        onClick={onImport}
-      >
-        {importing ? 'Importando…' : 'Importar'}
-      </button>
+      ) : null}
+      <div className="mt-4">{uploadBlock}</div>
     </div>
   );
 }

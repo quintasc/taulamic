@@ -1,6 +1,7 @@
 'use client';
 
 import { TableShapeInlineSelect } from '@/components/admin/tables/table-shape-inline-select';
+import { TableMobileCard } from '@/components/admin/tables/table-mobile-card';
 import { SetupNavBar } from '@/components/admin/setup-nav-bar';
 import {
   IconPencil,
@@ -204,7 +205,7 @@ export function TablesSetupView() {
         </div>
       </div>
 
-      <section className="mt-10">
+      <section className="mt-10 pb-[var(--admin-setup-bar-offset)] lg:pb-0">
         <h2 className="section-label mb-4">Mesas del evento</h2>
         {tables.length ? (
           <>
@@ -238,7 +239,71 @@ export function TablesSetupView() {
                 </div>
               </div>
             ) : null}
-            <div className="card-admin overflow-x-auto">
+            <div className="mb-3 flex items-center gap-2 lg:hidden">
+              <input
+                type="checkbox"
+                id="tables-select-all-mobile"
+                className="checkbox-admin"
+                aria-label="Seleccionar todas las mesas"
+                checked={allSelected}
+                disabled={planLocked || editBlocked || deleting}
+                onChange={toggleSelectAllTables}
+              />
+              <label
+                htmlFor="tables-select-all-mobile"
+                className="text-sm text-neutral-700"
+              >
+                Seleccionar todas
+              </label>
+            </div>
+
+            <div className="space-y-3 lg:hidden">
+              {tables.map((table) => {
+                const isEditing = editingTableId === table.id;
+                const isSelected = selectedTableIds.has(table.id);
+                const { labelError, capacityError } =
+                  isEditing && editingDraft
+                    ? splitTableEditErrors(
+                        table.id,
+                        editingDraft,
+                        tables,
+                        editError,
+                      )
+                    : { labelError: null, capacityError: null };
+                const shapeOption = TABLE_SHAPE_OPTIONS.find(
+                  (option) =>
+                    option.id ===
+                    (isEditing && editingDraft
+                      ? editingDraft.shape
+                      : uiTableShape(table.shape)),
+                );
+
+                return (
+                  <TableMobileCard
+                    key={table.id}
+                    table={table}
+                    shapeLabel={shapeOption?.label ?? table.shape}
+                    isEditing={isEditing}
+                    isSelected={isSelected}
+                    editingDraft={isEditing ? editingDraft : null}
+                    labelError={labelError}
+                    capacityError={capacityError}
+                    planLocked={planLocked}
+                    editBlocked={editBlocked}
+                    deleting={deleting}
+                    isRemoving={removingTableId === table.id}
+                    onToggleSelect={() => toggleTableSelection(table.id)}
+                    onStartEdit={() => startEditTable(table.id)}
+                    onRemove={() => removeTable(table.id)}
+                    onUpdateDraft={updateEditingDraft}
+                    onUndoEdit={undoTableEdit}
+                    onFinishEdit={() => void tryFinishTableEdit()}
+                  />
+                );
+              })}
+            </div>
+
+            <div className="card-admin hidden overflow-x-auto lg:block">
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-neutral-200 text-xs uppercase text-neutral-500">
@@ -467,6 +532,18 @@ export function TablesSetupView() {
           nextLabel={setupNav?.next?.nextLabel}
           nextReady={tables.length > 0}
           nextDisabledHint={SETUP_NAV_COPY.tablesRequired}
+          onBeforeNext={async () => {
+            if (!editingTableId) {
+              return true;
+            }
+            const ok = await tryFinishTableEdit();
+            if (!ok) {
+              document
+                .getElementById(`table-mobile-card-${editingTableId}`)
+                ?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+            return ok;
+          }}
         />
       ) : null}
     </>

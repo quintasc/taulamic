@@ -16,7 +16,8 @@ Mantener el piloto bodas **estable y verificable** hasta el hito 31 jul: E2E fia
 |-----------|-----|-------------|--------|
 | **P1** | E2E-robust | Helper `startPilotAdminFlow` + doc troubleshooting | ✅ |
 | **P1** | — | Verificar E2E 3/3 en entorno limpio | ✅ |
-| **P2** | MEJ-13-D-smoke | Validación PO Fase D (Config + Distribución `< md`) | ⏳ PO |
+| **P2** | MEJ-13-D-smoke | Validación PO Fase D (Config + Distribución `< md`) | ✅ E2E · ⏳ PO visual |
+| **P2** | ADR-019-drawer | Menú hamburguesa admin `< lg` (priorizado PO) | ✅ impl + E2E |
 | **P2** | — | Repaso manual opcional `guion-validacion-piloto-ui.md` | ⏳ |
 | **P3** | — | Accesorios `(x,y)` en room-setup | ⏳ Diferido — gate SDD |
 | **P3** | — | Fondo canvas / IA | ⏳ Post-piloto ADR-016 |
@@ -38,8 +39,8 @@ Mantener el piloto bodas **estable y verificable** hasta el hito 31 jul: E2E fia
 
 - [x] E2E `pilot-flow.spec.ts` 3/3 verde (local + documentado)
 - [x] `observabilidad-y-e2e-web-piloto.md` con troubleshooting dev
-- [ ] Smoke PO MEJ-13 D (o evidencia estática anotada)
-- [ ] `sprint-09-cierre.md` + `CONTEXTO-EJECUCION.md`
+- [x] Smoke PO MEJ-13 D (E2E móvil; manual PO opcional)
+- [x] `sprint-09-cierre.md` + `CONTEXTO-EJECUCION.md`
 - [ ] Opcional: sesión manual piloto
 
 ---

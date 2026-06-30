@@ -14,12 +14,13 @@ export function MarketingCard({
 
   return (
     <article
+      id={card.anchorId}
       aria-label={
         comingSoon
           ? `${card.title} — próximamente, aún no disponible en el piloto`
           : card.title
       }
-      className={`relative flex flex-col rounded-[18px] p-7 md:p-8 ${
+      className={`relative scroll-mt-[3.75rem] flex flex-col rounded-[18px] p-7 md:scroll-mt-16 md:p-8 ${
         featured
           ? 'bg-neutral-900 text-neutral-0 shadow-[0_8px_40px_rgba(0,0,0,0.2)]'
           : 'border border-neutral-200 bg-neutral-0 shadow-[0_2px_20px_rgba(0,0,0,0.06)]'

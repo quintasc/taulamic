@@ -22,7 +22,7 @@ Si el admin se diseña solo para desktop y el portal invitado se añade después
 
 | Superficie | Usuario | Prioridad diseño | Piloto julio |
 |------------|---------|------------------|--------------|
-| **Admin** (`/admin`) | Organizador | Desktop-first (≥ 1024 px); **debe degradar** sin romper en tablet/móvil | Funcional en tablet; sidebar completa en desktop |
+| **Admin** (`/admin`) | Organizador | Desktop-first (≥ 1024 px); **debe degradar** sin romper en tablet/móvil | Funcional en tablet/móvil; drawer `< lg`, sidebar fija `lg+` |
 | **Invitado** (futuro `/guest`, `/rsvp`, enlace token) | Invitado | **Mobile-first** (base 390 px); escala a tablet/desktop | No implementado; **criterio obligatorio** al diseñar/implementar |
 | **Marketing** (`/`) | Visitante | Responsive dual (ya en curso) | ✅ |
 
@@ -57,7 +57,7 @@ Cuando `preference-control-mode = colaborativo`:
 
 | Ámbito | Piloto | Post-MVP |
 |--------|--------|----------|
-| Admin responsive | Grids y listas adaptativas; sidebar fija (deuda conocida) | Drawer / bottom nav móvil admin (opcional) |
+| Admin responsive | Grids y listas adaptativas; drawer móvil `< lg` (hamburguesa) | Bottom nav admin (opcional) |
 | Portal invitado | No operativo | Mobile-first obligatorio |
 | RSVP mock en lista admin | Iconos táctiles ≥ 44 px | Misma pieza UI en portal real |
 | Figma | Desktop admin 1280; móvil invitado en backlog | Frames 390 para RSVP + afinidades invitado |
@@ -66,7 +66,7 @@ Cuando `preference-control-mode = colaborativo`:
 
 - **Positivas:** Una sola stack web; componentes RSVP/afinidad reutilizables; alineación con SDD-00 y objetivos de fricción baja.
 - **Negativas:** Admin piloto no optimiza cada pantalla para móvil (plano, mesas); aceptable si el organizador usa principalmente PC.
-- **Deuda piloto:** `AdminSidebar` ancho fijo; valorar drawer en post-piloto solo si hay demanda organizador-móvil.
+- **Deuda piloto:** valorar bottom nav admin solo si hay demanda organizador-móvil intensiva.
 
 ## Referencias
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import type {
   GuestDrawerSubmit,
   GuestFormInput,
@@ -77,38 +78,20 @@ export function GuestDrawerV2({
     return () => document.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
-  if (!open) {
+  if (!open || typeof document === 'undefined') {
     return null;
   }
 
-  function handleSubmit() {
-    const input: GuestFormInput = {
-      nombre: nombre.trim(),
-      correo: correo.trim(),
-      telefono: telefono.trim(),
-      categoryNames: categoria.trim() ? [categoria.trim()] : undefined,
-    };
-    onSubmit({
-      input,
-      detailMeta: {
-        dietaryAlert,
-        mobilityAlert,
-        notes: notes.trim() || undefined,
-        companionGroup: companionGroup.trim() || undefined,
-      },
-    });
-  }
-
-  return (
+  return createPortal(
     <>
       <button
         type="button"
-        className="fixed inset-0 z-40 bg-neutral-900/30"
+        className="fixed inset-0 z-[100] bg-neutral-900/30"
         aria-label="Cerrar panel"
         onClick={onClose}
       />
       <aside
-        className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col border-l border-neutral-200 bg-neutral-0 shadow-xl"
+        className="fixed top-0 right-0 bottom-[var(--admin-setup-bar-offset)] z-[101] flex w-full max-w-sm flex-col border-l border-neutral-200 bg-neutral-0 shadow-xl lg:max-w-md"
         role="dialog"
         aria-modal="true"
         aria-labelledby="guest-drawer-title"
@@ -126,7 +109,7 @@ export function GuestDrawerV2({
           </button>
         </header>
 
-        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
+        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5 space-y-4">
           <div>
             <label className="label-field" htmlFor="v2-nombre">
               Nombre
@@ -222,7 +205,7 @@ export function GuestDrawerV2({
           </div>
         </div>
 
-        <footer className="flex justify-end gap-2 border-t border-neutral-200 px-6 py-4">
+        <footer className="flex shrink-0 justify-end gap-2 border-t border-neutral-200 bg-neutral-0 px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
           <button type="button" className="btn-secondary" onClick={onClose}>
             Cancelar
           </button>
@@ -230,12 +213,29 @@ export function GuestDrawerV2({
             type="button"
             className="btn-primary"
             disabled={saving || !nombre.trim() || !correo.trim() || !telefono.trim()}
-            onClick={handleSubmit}
+            onClick={() => {
+              const input: GuestFormInput = {
+                nombre: nombre.trim(),
+                correo: correo.trim(),
+                telefono: telefono.trim(),
+                categoryNames: categoria.trim() ? [categoria.trim()] : undefined,
+              };
+              onSubmit({
+                input,
+                detailMeta: {
+                  dietaryAlert,
+                  mobilityAlert,
+                  notes: notes.trim() || undefined,
+                  companionGroup: companionGroup.trim() || undefined,
+                },
+              });
+            }}
           >
             {saving ? 'Guardando…' : mode === 'add' ? 'Añadir' : 'Guardar'}
           </button>
         </footer>
       </aside>
-    </>
+    </>,
+    document.body,
   );
 }

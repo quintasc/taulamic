@@ -100,6 +100,9 @@ const TABLE_GRID_GAP_PX = 2;
 
 /** Tamaño de referencia del lienzo (px) para escala de mesas y accesorios. */
 export const ROOM_CANVAS_CEILING_PX = 400;
+export const ROOM_CANVAS_HANDLE_PADDING_PX = 28;
+/** Margen en móvil sin marcador de redimensionar. */
+export const ROOM_CANVAS_COMPACT_PADDING_PX = 8;
 export const TABLE_LAYOUT_CANVAS_REF_PX = ROOM_CANVAS_CEILING_PX;
 
 /** Ajusta el techo de escala del lienzo al ancho disponible del contenedor. */
@@ -250,40 +253,52 @@ export const ACCESSORY_LAYOUT_CANDIDATES: Record<
 > = {
   'mesa-presidencial': [
     { top: '8%', left: '50%' },
-    { top: '8%', left: '44%' },
-    { top: '8%', left: '56%' },
+    { top: '8%', left: '40%' },
+    { top: '8%', left: '60%' },
+    { top: '6%', left: '24%' },
+    { top: '6%', left: '76%' },
   ],
   entrada: [
     { top: '8%', left: '68%' },
     { top: '8%', left: '74%' },
     { top: '8%', left: '62%' },
+    { top: '6%', left: '82%' },
+    { top: '6%', left: '18%' },
   ],
   'pista-baile': [
     { top: '92%', left: '50%' },
-    { top: '92%', left: '44%' },
-    { top: '92%', left: '56%' },
+    { top: '92%', left: '40%' },
+    { top: '92%', left: '60%' },
+    { top: '94%', left: '24%' },
+    { top: '94%', left: '76%' },
   ],
   escenario: [
     { top: '92%', left: '26%' },
     { top: '92%', left: '20%' },
     { top: '92%', left: '32%' },
+    { top: '94%', left: '12%' },
   ],
   'barra-bar': [
     { top: '92%', left: '74%' },
     { top: '92%', left: '80%' },
     { top: '92%', left: '68%' },
+    { top: '94%', left: '88%' },
   ],
   servicio: [
     { top: '50%', left: '6%' },
     { top: '50%', left: '5%' },
     { top: '38%', left: '6%' },
     { top: '62%', left: '6%' },
+    { top: '28%', left: '5%' },
+    { top: '72%', left: '5%' },
   ],
   puerta: [
     { top: '50%', left: '94%' },
     { top: '50%', left: '95%' },
     { top: '38%', left: '94%' },
     { top: '62%', left: '94%' },
+    { top: '28%', left: '95%' },
+    { top: '72%', left: '95%' },
   ],
 };
 
@@ -311,6 +326,69 @@ const ACCESSORY_PLACEMENT_PRIORITY = [
 ] as const;
 
 const ACCESSORY_SLOT_MIN_SEPARATION_PCT = 14;
+const ACCESSORY_SLOT_MIN_SEPARATION_LABELED_PCT = 22;
+
+/** Huecos fijos en lienzo retrato (móvil): un accesorio por ranura, sin solaparse. */
+export const PORTRAIT_FIXED_ACCESSORY_SLOTS: Array<{ top: string; left: string }> = [
+  { top: '7%', left: '50%' },
+  { top: '7%', left: '24%' },
+  { top: '7%', left: '76%' },
+  { top: '93%', left: '50%' },
+  { top: '93%', left: '24%' },
+  { top: '93%', left: '76%' },
+  { top: '50%', left: '9%' },
+  { top: '50%', left: '91%' },
+];
+
+const ELLIPSE_ACCESSORY_SLOT_COUNT = 8;
+/** Radio relativo al centro (%) para iconos dentro de círculo/elipse. */
+const ELLIPSE_ACCESSORY_RADIUS_PCT = 30;
+
+/** Ranuras en el perímetro interior de círculo u óvalo (evita recorte por overflow). */
+export function ellipseAccessorySlots(
+  count = ELLIPSE_ACCESSORY_SLOT_COUNT,
+  radiusPct = ELLIPSE_ACCESSORY_RADIUS_PCT,
+): Array<{ top: string; left: string }> {
+  const slots: Array<{ top: string; left: string }> = [];
+  for (let index = 0; index < count; index += 1) {
+    const angle = (index / count) * 2 * Math.PI - Math.PI / 2;
+    const left = 50 + radiusPct * Math.sin(angle);
+    const top = 50 - radiusPct * Math.cos(angle);
+    slots.push({
+      top: `${top.toFixed(1)}%`,
+      left: `${left.toFixed(1)}%`,
+    });
+  }
+  return slots;
+}
+
+/** Ranuras fijas según forma del salón (móvil). */
+export function fixedAccessorySlotsForShape(shape: RoomShape): Array<{ top: string; left: string }> {
+  if (shape === 'round' || shape === 'oval') {
+    return ellipseAccessorySlots();
+  }
+  return PORTRAIT_FIXED_ACCESSORY_SLOTS;
+}
+
+/** Huecos periféricos extra para lienzo alto (móvil retrato). */
+const PORTRAIT_PERIPHERAL_CANDIDATES: Array<{ top: string; left: string }> = [
+  { top: '6%', left: '18%' },
+  { top: '6%', left: '36%' },
+  { top: '6%', left: '50%' },
+  { top: '6%', left: '64%' },
+  { top: '6%', left: '82%' },
+  { top: '94%', left: '18%' },
+  { top: '94%', left: '36%' },
+  { top: '94%', left: '50%' },
+  { top: '94%', left: '64%' },
+  { top: '94%', left: '82%' },
+  { top: '22%', left: '5%' },
+  { top: '50%', left: '4%' },
+  { top: '78%', left: '5%' },
+  { top: '22%', left: '96%' },
+  { top: '50%', left: '96%' },
+  { top: '78%', left: '96%' },
+];
 
 function parseLayoutPercent(value: string): number {
   return Number.parseFloat(value);
@@ -355,14 +433,15 @@ function layoutTooCloseToTableZone(
 function accessorySlotsOverlap(
   a: { top: string; left: string },
   b: { top: string; left: string },
+  minSeparationPct: number,
 ): boolean {
   const topDelta = Math.abs(parseLayoutPercent(a.top) - parseLayoutPercent(b.top));
   const leftDelta = Math.abs(
     parseLayoutPercent(a.left) - parseLayoutPercent(b.left),
   );
   return (
-    topDelta < ACCESSORY_SLOT_MIN_SEPARATION_PCT &&
-    leftDelta < ACCESSORY_SLOT_MIN_SEPARATION_PCT
+    topDelta < minSeparationPct &&
+    leftDelta < minSeparationPct
   );
 }
 
@@ -370,6 +449,7 @@ function layoutSlotBlocked(
   candidate: { top: string; left: string },
   occupied: Array<{ top: string; left: string }>,
   layoutInsets: TableLayoutInsets,
+  minSeparationPct: number,
 ): boolean {
   if (!isPeripheralSlot(candidate)) {
     return true;
@@ -377,7 +457,9 @@ function layoutSlotBlocked(
   if (layoutTooCloseToTableZone(candidate, layoutInsets)) {
     return true;
   }
-  return occupied.some((taken) => accessorySlotsOverlap(candidate, taken));
+  return occupied.some((taken) =>
+    accessorySlotsOverlap(candidate, taken, minSeparationPct),
+  );
 }
 
 function accessoryLayoutCandidates(id: string): Array<{ top: string; left: string }> {
@@ -398,13 +480,27 @@ function accessoryLayoutCandidates(id: string): Array<{ top: string; left: strin
   return merged;
 }
 
+export function parseDimensionInput(raw: string, fallback: number): number {
+  const normalized = raw.trim().replace(',', '.');
+  if (!normalized) {
+    return fallback;
+  }
+  return clampDimension(Number.parseFloat(normalized), fallback);
+}
+
 /** Asigna posición por accesorio evitando solapamientos con mesas y entre sí. */
 export function resolveAccessoryLayouts(
   placedIds: string[],
   tableCount = 0,
   canvasRefPx = TABLE_LAYOUT_CANVAS_REF_PX,
+  options: {
+    labeled?: boolean;
+    portraitCanvas?: boolean;
+    /** Móvil: ranuras fijas perimetrales (sin solapamiento). */
+    portraitFixedSlots?: boolean;
+    roomShape?: RoomShape;
+  } = {},
 ): Record<string, { top: string; left: string }> {
-  const layoutInsets = computeTableLayoutInsets(tableCount, canvasRefPx);
   const ordered = [...placedIds].sort((a, b) => {
     const rank = (id: string) => {
       const index = ACCESSORY_PLACEMENT_PRIORITY.indexOf(
@@ -415,6 +511,22 @@ export function resolveAccessoryLayouts(
     return rank(a) - rank(b);
   });
 
+  if (options.portraitFixedSlots || options.roomShape === 'round' || options.roomShape === 'oval') {
+    const slotPool = fixedAccessorySlotsForShape(options.roomShape ?? 'rectangular');
+    const layouts: Record<string, { top: string; left: string }> = {};
+    ordered.forEach((id, index) => {
+      layouts[id] = slotPool[index] ?? slotPool[slotPool.length - 1];
+    });
+    return layouts;
+  }
+
+  const minSeparationPct = options.labeled
+    ? ACCESSORY_SLOT_MIN_SEPARATION_LABELED_PCT
+    : ACCESSORY_SLOT_MIN_SEPARATION_PCT;
+  const layoutInsets = computeTableLayoutInsets(tableCount, canvasRefPx);
+  const fallbackPool = options.portraitCanvas
+    ? [...PORTRAIT_PERIPHERAL_CANDIDATES, ...PERIPHERAL_FALLBACK_CANDIDATES]
+    : PERIPHERAL_FALLBACK_CANDIDATES;
   const occupied: Array<{ top: string; left: string }> = [];
   const layouts: Record<string, { top: string; left: string }> = {};
 
@@ -422,16 +534,18 @@ export function resolveAccessoryLayouts(
     const candidates = accessoryLayoutCandidates(id).filter(isPeripheralSlot);
     const slot =
       candidates.find(
-        (candidate) => !layoutSlotBlocked(candidate, occupied, layoutInsets),
+        (candidate) =>
+          !layoutSlotBlocked(candidate, occupied, layoutInsets, minSeparationPct),
       ) ??
-      PERIPHERAL_FALLBACK_CANDIDATES.find(
-        (candidate) => !layoutSlotBlocked(candidate, occupied, layoutInsets),
+      fallbackPool.find(
+        (candidate) =>
+          !layoutSlotBlocked(candidate, occupied, layoutInsets, minSeparationPct),
       ) ??
       candidates.find(
         (candidate) => !layoutTooCloseToTableZone(candidate, layoutInsets),
       ) ??
       candidates[0] ??
-      PERIPHERAL_FALLBACK_CANDIDATES[0];
+      fallbackPool[0];
 
     layouts[id] = slot;
     occupied.push(slot);
@@ -450,6 +564,146 @@ export const DEFAULT_FLOOR_PLAN_SETUP: FloorPlanSetup = {
 
 export const MIN_DIMENSION_M = 3;
 export const MAX_DIMENSION_M = 200;
+export const DIMENSION_STEP_M = 1;
+
+export type RoomFitMeterLimits = {
+  minWidthM: number;
+  maxWidthM: number;
+  minLengthM: number;
+  maxLengthM: number;
+  minRadiusM: number;
+  maxRadiusM: number;
+};
+
+export type RoomCanvasBounds = {
+  maxWidthPx: number;
+  maxHeightPx: number;
+};
+
+function roomFitAvailPx(
+  bounds: RoomCanvasBounds,
+  edgePaddingPx: number,
+): { availW: number; availH: number } {
+  const pad = edgePaddingPx;
+  return {
+    availW: Math.max(96, bounds.maxWidthPx - pad * 2),
+    availH: Math.max(128, bounds.maxHeightPx - pad * 2),
+  };
+}
+
+/** Máximos en metros para que el salón quepa en el lienzo sin reducir escala. */
+export function computeRoomFitMeterLimits(
+  setup: FloorPlanSetup,
+  bounds: RoomCanvasBounds,
+  options: Pick<RoomCanvasFitOptions, 'portraitLayout' | 'edgePaddingPx'> = {},
+): RoomFitMeterLimits {
+  const { availW, availH } = roomFitAvailPx(
+    bounds,
+    options.edgePaddingPx ?? ROOM_CANVAS_HANDLE_PADDING_PX,
+  );
+
+  const base = {
+    minWidthM: MIN_DIMENSION_M,
+    minLengthM: MIN_DIMENSION_M,
+    minRadiusM: MIN_DIMENSION_M,
+    maxRadiusM: MAX_DIMENSION_M,
+  };
+
+  if (setup.shape === 'round') {
+    return {
+      ...base,
+      maxWidthM: MAX_DIMENSION_M,
+      maxLengthM: MAX_DIMENSION_M,
+      maxRadiusM: MAX_DIMENSION_M,
+    };
+  }
+
+  const portraitDisplay = Boolean(
+    options.portraitLayout &&
+      setup.shape !== 'oval' &&
+      setup.widthM > setup.lengthM,
+  );
+
+  const alongX = Math.max(
+    MIN_DIMENSION_M,
+    portraitDisplay ? setup.lengthM : setup.widthM,
+  );
+  const alongY = Math.max(
+    MIN_DIMENSION_M,
+    portraitDisplay ? setup.widthM : setup.lengthM,
+  );
+
+  const maxAlongY = Math.min(
+    MAX_DIMENSION_M,
+    clampDimension((availH * alongX) / availW, MAX_DIMENSION_M),
+  );
+  const maxAlongX = Math.min(
+    MAX_DIMENSION_M,
+    clampDimension((availW * alongY) / availH, MAX_DIMENSION_M),
+  );
+
+  if (portraitDisplay) {
+    return {
+      ...base,
+      maxWidthM: maxAlongY,
+      maxLengthM: maxAlongX,
+    };
+  }
+
+  return {
+    ...base,
+    maxWidthM: maxAlongX,
+    maxLengthM: maxAlongY,
+  };
+}
+
+export function clampSetupToFitLimits(
+  setup: FloorPlanSetup,
+  bounds: RoomCanvasBounds,
+  options: Pick<RoomCanvasFitOptions, 'portraitLayout' | 'edgePaddingPx'> = {},
+): FloorPlanSetup {
+  const normalized = normalizeSetupForShape(setup);
+  const limits = computeRoomFitMeterLimits(normalized, bounds, options);
+  return {
+    ...normalized,
+    widthM: clampDimension(
+      normalized.widthM,
+      normalized.widthM,
+      limits.minWidthM,
+      limits.maxWidthM,
+    ),
+    lengthM: clampDimension(
+      normalized.lengthM,
+      normalized.lengthM,
+      limits.minLengthM,
+      limits.maxLengthM,
+    ),
+    radiusM: clampDimension(
+      normalized.radiusM,
+      normalized.radiusM,
+      limits.minRadiusM,
+      limits.maxRadiusM,
+    ),
+  };
+}
+
+export function setupFromRecommendation(
+  shape: RoomShape,
+  rec: {
+    suggestedWidthM: number;
+    suggestedLengthM: number;
+    suggestedRadiusM?: number;
+  },
+  placedAccessories: string[] = [],
+): FloorPlanSetup {
+  return normalizeSetupForShape({
+    shape,
+    widthM: rec.suggestedWidthM,
+    lengthM: rec.suggestedLengthM,
+    radiusM: rec.suggestedRadiusM ?? DEFAULT_FLOOR_PLAN_SETUP.radiusM,
+    placedAccessories,
+  });
+}
 
 export function formatDimensionLimitsLabel(): string {
   return `Cada medida admite entre ${MIN_DIMENSION_M} m y ${MAX_DIMENSION_M} m.`;
@@ -577,11 +831,16 @@ export function saveFloorPlanSetup(eventId: string, setup: FloorPlanSetup) {
   localStorage.setItem(`${SETUP_KEY}:${eventId}`, JSON.stringify(setup));
 }
 
-export function clampDimension(value: number, fallback: number): number {
+export function clampDimension(
+  value: number,
+  fallback: number,
+  min = MIN_DIMENSION_M,
+  max = MAX_DIMENSION_M,
+): number {
   if (!Number.isFinite(value) || value <= 0) {
     return fallback;
   }
-  const clamped = Math.min(MAX_DIMENSION_M, Math.max(MIN_DIMENSION_M, value));
+  const clamped = Math.min(max, Math.max(min, value));
   return Math.round(clamped * 10) / 10;
 }
 
@@ -662,6 +921,122 @@ export function roomPixelSize(
   return { widthPx, heightPx, metersPerPx };
 }
 
+export type RoomCanvasFitOptions = {
+  /** Eje largo del salón en vertical (móvil). */
+  portraitLayout?: boolean;
+  /** @deprecated Usar `frozenPxPerMeter`. */
+  refSideM?: number;
+  /** Escala fija (px/m) durante arrastre; congela al iniciar el gesto. */
+  frozenPxPerMeter?: number;
+  /** Margen interior al calcular escala (menor en móvil sin marcador). */
+  edgePaddingPx?: number;
+};
+
+function roomCanvasDimAlongAxes(
+  setup: FloorPlanSetup,
+  portraitLayout: boolean,
+): { alongX: number; alongY: number } {
+  if (setup.shape === 'round') {
+    const d = setup.radiusM * 2;
+    return { alongX: d, alongY: d };
+  }
+  if (
+    portraitLayout &&
+    setup.shape !== 'oval' &&
+    setup.widthM > setup.lengthM
+  ) {
+    return { alongX: setup.lengthM, alongY: setup.widthM };
+  }
+  return { alongX: setup.widthM, alongY: setup.lengthM };
+}
+
+/**
+ * Escala el salón para caber en el rectángulo disponible (ancho y alto),
+ * con margen para el marcador de redimensionado.
+ */
+export function roomPixelSizeFit(
+  setup: FloorPlanSetup,
+  bounds: { maxWidthPx: number; maxHeightPx: number },
+  options: RoomCanvasFitOptions = {},
+): {
+  widthPx: number;
+  heightPx: number;
+  metersPerPx: number;
+  portraitDisplay: boolean;
+} {
+  const pad = options.edgePaddingPx ?? ROOM_CANVAS_HANDLE_PADDING_PX;
+  const availW = Math.max(96, bounds.maxWidthPx - pad * 2);
+  const availH = Math.max(128, bounds.maxHeightPx - pad * 2);
+
+  if (setup.shape === 'round') {
+    if (options.frozenPxPerMeter !== undefined) {
+      const diameterPx = Math.max(
+        120,
+        Math.round(setup.radiusM * 2 * options.frozenPxPerMeter),
+      );
+      return {
+        widthPx: diameterPx,
+        heightPx: diameterPx,
+        metersPerPx: (setup.radiusM * 2) / diameterPx,
+        portraitDisplay: false,
+      };
+    }
+    const budget = Math.min(availW, availH);
+    const diameterPx = Math.max(
+      120,
+      Math.min(budget, roundDiameterPx(setup.radiusM, budget)),
+    );
+    return {
+      widthPx: diameterPx,
+      heightPx: diameterPx,
+      metersPerPx: (setup.radiusM * 2) / diameterPx,
+      portraitDisplay: false,
+    };
+  }
+
+  let portraitDisplay = false;
+  let { alongX, alongY } = roomCanvasDimAlongAxes(
+    setup,
+    options.portraitLayout ?? false,
+  );
+  if (
+    options.portraitLayout &&
+    setup.shape !== 'oval' &&
+    setup.widthM > setup.lengthM
+  ) {
+    portraitDisplay = true;
+  }
+
+  if (options.frozenPxPerMeter !== undefined) {
+    const ppm = options.frozenPxPerMeter;
+    const widthPx = Math.max(96, Math.round(alongX * ppm));
+    const heightPx = Math.max(128, Math.round(alongY * ppm));
+    return {
+      widthPx,
+      heightPx,
+      metersPerPx: alongX / widthPx,
+      portraitDisplay,
+    };
+  }
+
+  // Ancho primero: llena el ancho disponible; solo reduce escala si el alto desborda.
+  let pxPerMeter = availW / alongX;
+  let widthPx = Math.max(96, Math.round(alongX * pxPerMeter));
+  let heightPx = Math.max(128, Math.round(alongY * pxPerMeter));
+  if (heightPx > availH) {
+    pxPerMeter = availH / alongY;
+    widthPx = Math.max(96, Math.round(alongX * pxPerMeter));
+    heightPx = Math.max(128, Math.round(alongY * pxPerMeter));
+  }
+
+  return {
+    widthPx,
+    heightPx,
+    metersPerPx: alongX / widthPx,
+    portraitDisplay,
+  };
+}
+
 /** Umbral: por debajo se considera arrastre solo horizontal o solo vertical. */
 const RESIZE_AXIS_RATIO = 0.35;
 export const RESIZE_DRAG_THRESHOLD_PX = 4;
@@ -701,6 +1076,7 @@ export function patchFromDragResize(
   totalDxPx: number,
   totalDyPx: number,
   axis: RoomResizeAxis,
+  portraitDisplay = false,
 ): Partial<FloorPlanSetup> {
   if (startSetup.shape === 'round') {
     const metersPerPx = (startSetup.radiusM * 2) / startWidthPx;
@@ -715,6 +1091,40 @@ export function patchFromDragResize(
 
   if (startWidthPx <= 0 || startHeightPx <= 0) {
     return {};
+  }
+
+  if (portraitDisplay) {
+    const metersPerPxX = startSetup.lengthM / startWidthPx;
+    const metersPerPxY = startSetup.widthM / startHeightPx;
+
+    if (axis === 'horizontal') {
+      return {
+        lengthM: clampDimension(
+          startSetup.lengthM + totalDxPx * metersPerPxX,
+          startSetup.lengthM,
+        ),
+      };
+    }
+
+    if (axis === 'vertical') {
+      return {
+        widthM: clampDimension(
+          startSetup.widthM + totalDyPx * metersPerPxY,
+          startSetup.widthM,
+        ),
+      };
+    }
+
+    return {
+      lengthM: clampDimension(
+        startSetup.lengthM + totalDxPx * metersPerPxX,
+        startSetup.lengthM,
+      ),
+      widthM: clampDimension(
+        startSetup.widthM + totalDyPx * metersPerPxY,
+        startSetup.widthM,
+      ),
+    };
   }
 
   const metersPerPxX = startSetup.widthM / startWidthPx;

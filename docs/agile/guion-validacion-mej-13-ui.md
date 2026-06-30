@@ -30,8 +30,8 @@
 
 | # | Comprobación | OK |
 |---|--------------|-----|
-| 6 | Copy en pantalla coincide con `ui-copy.ts` (Config hint, Distribución botones) | [ ] |
-| 7 | Sin strings duplicados en archivos cableados (smoke grep) | [ ] |
+| 6 | Copy en pantalla coincide con `ui-copy.ts` (Config hint, Distribución botones) | [x] E2E |
+| 7 | Sin strings duplicados en archivos cableados (smoke grep) | [x] E2E |
 
 ---
 

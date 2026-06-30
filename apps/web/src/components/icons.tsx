@@ -142,6 +142,24 @@ export function IconClose(props: IconProps) {
   );
 }
 
+export function IconMenu(props: IconProps) {
+  return (
+    <svg {...defaults} {...props}>
+      <path d="M4 7h16M4 12h16M4 17h16" />
+    </svg>
+  );
+}
+
+export function IconLogIn(props: IconProps) {
+  return (
+    <svg {...defaults} {...props}>
+      <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+      <path d="M10 17 15 12 10 7" />
+      <path d="M15 12H3" />
+    </svg>
+  );
+}
+
 export function IconChevronDown(props: IconProps) {
   return (
     <svg {...defaults} {...props}>
@@ -163,6 +181,14 @@ export function IconChevronRight(props: IconProps) {
   return (
     <svg {...defaults} {...props}>
       <path d="m9 6 6 6-6 6" />
+    </svg>
+  );
+}
+
+export function IconChevronLeft(props: IconProps) {
+  return (
+    <svg {...defaults} {...props}>
+      <path d="m15 6-6 6 6 6" />
     </svg>
   );
 }

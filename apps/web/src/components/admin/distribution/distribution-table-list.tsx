@@ -1,15 +1,21 @@
 'use client';
 
-import { useMemo, useState, type DragEvent } from 'react';
+import { useMemo, useState, useEffect, type DragEvent } from 'react';
 import { IconChevronDown } from '@/components/icons';
 import { GuestPill } from '@/components/admin/distribution/guest-pill';
+import { GuestPointerDragLayer } from '@/components/admin/distribution/guest-pointer-drag-layer';
 import { AssignGuestDialog } from '@/components/admin/distribution/assign-guest-dialog';
 import { PlacementMutationFeedback } from '@/components/admin/distribution/placement-mutation-feedback';
+import { MOBILE_CHEVRON_ICON_BUTTON_CLASS } from '@/components/ui/mobile-horizontal-scroll';
 import {
   acceptGuestDragOver,
   clearGuestDrag,
   getActiveGuestDrag,
 } from '@/lib/distribution-dnd';
+import {
+  getGuestPointerDragHoverTableId,
+  subscribeGuestPointerDrag,
+} from '@/lib/guest-pointer-drag';
 import {
   countTablesByStatus,
   filterDistributionTableGroups,
@@ -114,6 +120,37 @@ function AffinityCell({ group }: { group: DistributionTableGroup }) {
   );
 }
 
+function DistributionExpandAllButton({
+  allExpanded,
+  disabled,
+  onExpandAll,
+  onCollapseAll,
+}: {
+  allExpanded: boolean;
+  disabled: boolean;
+  onExpandAll: () => void;
+  onCollapseAll: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={MOBILE_CHEVRON_ICON_BUTTON_CLASS}
+      aria-label={
+        allExpanded ? 'Contraer todas las mesas' : 'Expandir todas las mesas'
+      }
+      title={allExpanded ? 'Contraer todas' : 'Expandir todas'}
+      disabled={disabled}
+      onClick={allExpanded ? onCollapseAll : onExpandAll}
+    >
+      <IconChevronDown
+        width={18}
+        height={18}
+        className={`transition ${allExpanded ? 'rotate-180' : ''}`}
+      />
+    </button>
+  );
+}
+
 function DistributionTableRow({
   group,
   open,
@@ -148,6 +185,17 @@ function DistributionTableRow({
   mutationError?: string | null;
 }) {
   const [dropActive, setDropActive] = useState(false);
+  const [pointerDropActive, setPointerDropActive] = useState(false);
+
+  useEffect(() => {
+    return subscribeGuestPointerDrag(() => {
+      setPointerDropActive(
+        getGuestPointerDragHoverTableId() === group.tableId,
+      );
+    });
+  }, [group.tableId]);
+
+  const isDropActive = dropActive || pointerDropActive;
 
   function handleDragOver(event: DragEvent) {
     if (!editable || !onMoveGuest) {
@@ -186,8 +234,10 @@ function DistributionTableRow({
   return (
     <div
       className={`border-b border-neutral-200 last:border-b-0 ${
-        dropActive ? 'bg-primary-500/5 ring-2 ring-inset ring-primary-500/40' : ''
+        isDropActive ? 'bg-primary-500/5 ring-2 ring-inset ring-primary-500/40' : ''
       }`}
+      data-guest-drop-table={group.tableId}
+      data-guest-drop-free-seats={group.freeSeats}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
@@ -310,7 +360,7 @@ export function DistributionTableList({
 }) {
   const [filter, setFilter] = useState<DistributionTableFilter>('all');
   const [search, setSearch] = useState('');
-  const [openTableId, setOpenTableId] = useState<string | null>(null);
+  const [openTableIds, setOpenTableIds] = useState<Set<string>>(() => new Set());
   const [assignTableId, setAssignTableId] = useState<string | null>(null);
   const [draggingGuestId, setDraggingGuestId] = useState<string | null>(null);
   const [mutationFocusTableId, setMutationFocusTableId] = useState<
@@ -319,7 +369,23 @@ export function DistributionTableList({
 
   function focusMutationTable(tableId: string) {
     setMutationFocusTableId(tableId);
-    setOpenTableId(tableId);
+    setOpenTableIds((current) => {
+      const next = new Set(current);
+      next.add(tableId);
+      return next;
+    });
+  }
+
+  function toggleTableOpen(tableId: string) {
+    setOpenTableIds((current) => {
+      const next = new Set(current);
+      if (next.has(tableId)) {
+        next.delete(tableId);
+      } else {
+        next.add(tableId);
+      }
+      return next;
+    });
   }
 
   function findGuestTableId(guestId: string): string | null {
@@ -347,7 +413,37 @@ export function DistributionTableList({
     [tableGroups, filter, search],
   );
 
+  function expandAllVisible() {
+    setOpenTableIds(new Set(visibleGroups.map((group) => group.tableId)));
+  }
+
+  function collapseAllVisible() {
+    setOpenTableIds(new Set());
+  }
+
+  const allVisibleExpanded =
+    visibleGroups.length > 0 &&
+    visibleGroups.every((group) => openTableIds.has(group.tableId));
+
   return (
+    <GuestPointerDragLayer
+      onDrop={(guestId, targetTableId) => {
+        if (!editable || !onMoveGuest) {
+          return;
+        }
+        focusMutationTable(targetTableId);
+        void Promise.resolve(onMoveGuest(guestId, targetTableId)).finally(
+          () => setDraggingGuestId(null),
+        );
+      }}
+      onDragStart={() => {
+        const payload = getActiveGuestDrag();
+        if (payload) {
+          setDraggingGuestId(payload.guestId);
+        }
+      }}
+      onDragEnd={() => setDraggingGuestId(null)}
+    >
     <div className="space-y-4">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-wrap gap-2">
@@ -379,10 +475,22 @@ export function DistributionTableList({
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
-          <p className="shrink-0 text-xs font-medium text-neutral-500">
-            {tableGroups.length}{' '}
-            {tableGroups.length === 1 ? 'mesa' : 'mesas'}
-          </p>
+          <div className="flex items-center gap-2">
+            {visibleGroups.length > 0 ? (
+              <span className="lg:hidden">
+                <DistributionExpandAllButton
+                  allExpanded={allVisibleExpanded}
+                  disabled={visibleGroups.length === 0}
+                  onExpandAll={expandAllVisible}
+                  onCollapseAll={collapseAllVisible}
+                />
+              </span>
+            ) : null}
+            <p className="shrink-0 text-xs font-medium text-neutral-500">
+              {tableGroups.length}{' '}
+              {tableGroups.length === 1 ? 'mesa' : 'mesas'}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -394,7 +502,16 @@ export function DistributionTableList({
           <span>Forma</span>
           <span>Capacidad</span>
           <span className="text-right">Afinidad</span>
-          <span className="w-4" aria-hidden />
+          <span className="flex w-10 justify-end">
+            {visibleGroups.length > 0 ? (
+              <DistributionExpandAllButton
+                allExpanded={allVisibleExpanded}
+                disabled={visibleGroups.length === 0}
+                onExpandAll={expandAllVisible}
+                onCollapseAll={collapseAllVisible}
+              />
+            ) : null}
+          </span>
         </div>
 
         {visibleGroups.length > 0 ? (
@@ -402,7 +519,7 @@ export function DistributionTableList({
             <DistributionTableRow
               key={group.tableId}
               group={group}
-              open={openTableId === group.tableId}
+              open={openTableIds.has(group.tableId)}
               editable={editable}
               unassigningGuestId={unassigningGuestId}
               movingGuestId={movingGuestId}
@@ -434,11 +551,7 @@ export function DistributionTableList({
                   onMoveGuest?.(guestId, targetTableId),
                 ).finally(() => setDraggingGuestId(null));
               }}
-              onToggle={() =>
-                setOpenTableId((current) =>
-                  current === group.tableId ? null : group.tableId,
-                )
-              }
+              onToggle={() => toggleTableOpen(group.tableId)}
             />
           ))
         ) : (
@@ -465,5 +578,6 @@ export function DistributionTableList({
         }}
       />
     </div>
+    </GuestPointerDragLayer>
   );
 }

@@ -7,12 +7,12 @@ import {
   IconMail,
   IconMoreVertical,
   IconPencil,
-  IconRsvpConfirmed,
-  IconRsvpDeclined,
-  IconRsvpPending,
   IconTrash,
   IconUserPlus,
 } from '@/components/icons';
+import { GuestTemplateFileRow } from '@/components/admin/guests/guest-template-file-row';
+import { GuestAlertsIcons } from '@/components/admin/guests/shared/guest-alerts';
+import { GuestRsvpIcon } from '@/components/admin/guests/shared/guest-rsvp-icon';
 import type { GuestDrawerSubmit } from '@/components/admin/guests/guest-form.types';
 import type { GuestView } from '@/lib/api';
 import { getGuestV2DetailMeta } from '@/lib/guest-v2-detail-meta';
@@ -25,39 +25,21 @@ import {
 } from '@/lib/guest-ui-meta';
 import {
   invitationSentBadgeClass,
-  rsvpIconClass,
 } from '@/lib/semantic-ui';
+import { GuestMobileCard, defaultMobileExpandedIds } from './guest-mobile-card';
 import { GuestDrawerV2 } from './guest-drawer-v2';
 import { GuestsBulkSelectionToolbar } from './guests-bulk-selection-toolbar';
-
-type FilterChip =
-  | 'all'
-  | 'pending-rsvp'
-  | 'confirmed'
-  | 'declined'
-  | 'dietary'
-  | 'mobility'
-  | 'no-category';
+import {
+  GUEST_FILTER_CHIPS,
+  type GuestFilterChip,
+} from './guests-filter-chips';
+import { GuestsFilterDropdown } from './guests-filter-dropdown';
+import { SectionLabel } from '@/components/ui';
 
 const POST_PILOT_ROW_ACTIONS = [
   { id: 'send-invite', label: 'Enviar invitación' },
   { id: 'reminder', label: 'Recordatorio RSVP' },
 ] as const;
-
-function RsvpIcon({ status }: { status: GuestRsvpStatus }) {
-  const props = {
-    width: 18,
-    height: 18,
-    className: `shrink-0 ${rsvpIconClass(status)}`,
-  };
-  if (status === 'confirmed') {
-    return <IconRsvpConfirmed {...props} />;
-  }
-  if (status === 'declined') {
-    return <IconRsvpDeclined {...props} />;
-  }
-  return <IconRsvpPending {...props} />;
-}
 
 const ROW_MENU_EST_HEIGHT = 220;
 
@@ -215,42 +197,6 @@ function RowActionsMenuPortal({
   );
 }
 
-function GuestAlerts({
-  eventId,
-  guestId,
-  refreshToken,
-}: {
-  eventId: string;
-  guestId: string;
-  refreshToken: number;
-}) {
-  const detail = getGuestV2DetailMeta(eventId, guestId);
-  void refreshToken;
-  const items: { icon: string; label: string }[] = [];
-  if (detail.dietaryAlert) {
-    items.push({ icon: '🌾', label: 'Menú Especial' });
-  }
-  if (detail.mobilityAlert) {
-    items.push({ icon: '♿', label: 'Movilidad' });
-  }
-  if (!items.length) {
-    return <span className="text-neutral-400">—</span>;
-  }
-  return (
-    <span className="inline-flex items-center gap-1.5 text-base">
-      {items.map((item) => (
-        <span
-          key={item.label}
-          title={item.label}
-          aria-label={item.label}
-        >
-          {item.icon}
-        </span>
-      ))}
-    </span>
-  );
-}
-
 export function GuestsPanelV2({
   eventId,
   guests,
@@ -277,12 +223,13 @@ export function GuestsPanelV2({
   deleting?: boolean;
 }) {
   const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<FilterChip>('all');
+  const [filter, setFilter] = useState<GuestFilterChip>('all');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [metaVersion, setMetaVersion] = useState(0);
   const [rowMenu, setRowMenu] = useState<RowMenuState | null>(null);
   const [drawerMode, setDrawerMode] = useState<'add' | 'edit' | null>(null);
   const [editingGuest, setEditingGuest] = useState<GuestView | null>(null);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   const closeRowMenu = useCallback(() => setRowMenu(null), []);
 
@@ -357,6 +304,42 @@ export function GuestsPanelV2({
       return haystack.includes(query);
     });
   }, [guests, eventId, search, filter, metaVersion]);
+
+  const filteredGuestIdsKey = useMemo(
+    () => filteredGuests.map((guest) => guest.id).join(','),
+    [filteredGuests],
+  );
+
+  useEffect(() => {
+    const ids = filteredGuestIdsKey
+      ? filteredGuestIdsKey.split(',')
+      : [];
+    setExpandedIds(defaultMobileExpandedIds(ids));
+  }, [filter, search, filteredGuestIdsKey]);
+
+  const allVisibleExpanded =
+    filteredGuests.length > 0 &&
+    filteredGuests.every((guest) => expandedIds.has(guest.id));
+
+  function toggleGuestExpanded(guestId: string) {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(guestId)) {
+        next.delete(guestId);
+      } else {
+        next.add(guestId);
+      }
+      return next;
+    });
+  }
+
+  function expandAllVisible() {
+    setExpandedIds(new Set(filteredGuests.map((guest) => guest.id)));
+  }
+
+  function collapseAllVisible() {
+    setExpandedIds(new Set());
+  }
 
   const allVisibleSelected =
     filteredGuests.length > 0 &&
@@ -442,15 +425,7 @@ export function GuestsPanelV2({
     }
   }
 
-  const filterChips: { id: FilterChip; label: string }[] = [
-    { id: 'all', label: 'Todos' },
-    { id: 'confirmed', label: 'Confirmados' },
-    { id: 'pending-rsvp', label: 'Pendientes de confirmar' },
-    { id: 'declined', label: 'Invitación rechazada' },
-    { id: 'dietary', label: 'Menú especial' },
-    { id: 'mobility', label: 'Movilidad reducida' },
-    { id: 'no-category', label: 'Sin categoría' },
-  ];
+  const filterChips = GUEST_FILTER_CHIPS;
 
   const visibleSelectedCount = filteredGuests.filter((g) =>
     selectedIds.has(g.id),
@@ -458,7 +433,40 @@ export function GuestsPanelV2({
 
   return (
     <>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+      {onDownloadTemplate ? (
+        <div className="card-admin mb-4 lg:hidden">
+          <SectionLabel>Plantilla Excel</SectionLabel>
+          <GuestTemplateFileRow
+            className="mt-4"
+            onDownload={onDownloadTemplate}
+          />
+        </div>
+      ) : null}
+
+      <div className="mb-4 space-y-3 lg:hidden">
+        <input
+          type="search"
+          className="input-field w-full"
+          placeholder="Buscar invitados…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          aria-label="Buscar invitados por nombre, correo, teléfono o categoría"
+        />
+        <div className="flex items-center gap-2">
+          <GuestsFilterDropdown value={filter} onChange={setFilter} />
+          <button
+            type="button"
+            className="btn-primary inline-flex h-11 shrink-0 items-center gap-1.5 px-3"
+            aria-label="Añadir invitado"
+            onClick={openAddDrawer}
+          >
+            <IconUserPlus width={16} height={16} />
+            <span className="sr-only">Añadir invitado</span>
+          </button>
+        </div>
+      </div>
+
+      <div className="mb-4 hidden flex-wrap items-center justify-between gap-3 lg:flex">
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
@@ -491,7 +499,7 @@ export function GuestsPanelV2({
         </div>
       </div>
 
-      <div className="mb-4 flex flex-wrap gap-2">
+      <div className="mb-4 hidden flex-wrap gap-2 lg:flex">
         {filterChips.map((chip) => (
           <button
             key={chip.id}
@@ -525,7 +533,71 @@ export function GuestsPanelV2({
         {filter !== 'all' ? ' (filtro activo)' : ''}
       </p>
 
-      <div className="card-admin overflow-x-auto pb-2">
+      {filteredGuests.length > 0 ? (
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2 lg:hidden">
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="guests-select-all-mobile"
+              aria-label="Seleccionar todos los visibles"
+              checked={allVisibleSelected}
+              onChange={toggleSelectAll}
+            />
+            <label
+              htmlFor="guests-select-all-mobile"
+              className="text-sm text-neutral-700"
+            >
+              Seleccionar todos los visibles
+            </label>
+          </div>
+          {filteredGuests.length > 1 ? (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                className="text-xs font-medium text-primary-600 hover:text-primary-700 disabled:opacity-40"
+                disabled={allVisibleExpanded}
+                onClick={expandAllVisible}
+              >
+                Expandir todos
+              </button>
+              <button
+                type="button"
+                className="text-xs font-medium text-neutral-600 hover:text-neutral-800 disabled:opacity-40"
+                disabled={expandedIds.size === 0}
+                onClick={collapseAllVisible}
+              >
+                Contraer todos
+              </button>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
+      <div className="space-y-3 lg:hidden">
+        {filteredGuests.map((guest) => (
+          <GuestMobileCard
+            key={guest.id}
+            eventId={eventId}
+            guest={guest}
+            metaVersion={metaVersion}
+            expanded={expandedIds.has(guest.id)}
+            selected={selectedIds.has(guest.id)}
+            onToggleExpand={() => toggleGuestExpanded(guest.id)}
+            onToggleSelect={() => toggleSelect(guest.id)}
+            onRsvpClick={() => handleRsvpClick(guest.id)}
+            onToggleInvitation={() => toggleInvitationSent(guest.id)}
+            onEdit={() => openEditDrawer(guest)}
+            onDelete={() => onDeleteGuest(guest.id, guest.nombre)}
+          />
+        ))}
+        {!filteredGuests.length ? (
+          <p className="py-8 text-center text-sm text-neutral-500">
+            Ningún invitado coincide con la búsqueda o el filtro.
+          </p>
+        ) : null}
+      </div>
+
+      <div className="card-admin hidden overflow-x-auto pb-2 lg:block">
         <table className="w-full min-w-[880px] text-left text-sm">
           <thead>
             <tr className="border-b border-neutral-200 text-xs font-semibold uppercase tracking-wide text-neutral-500">
@@ -582,7 +654,7 @@ export function GuestsPanelV2({
                       disabled={!meta.invitationSent}
                       onClick={() => handleRsvpClick(guest.id)}
                     >
-                      <RsvpIcon status={status} />
+                      <GuestRsvpIcon status={status} />
                     </button>
                   </td>
                   <td className="py-3 pr-4 font-medium text-neutral-900">
@@ -600,7 +672,7 @@ export function GuestsPanelV2({
                     )}
                   </td>
                   <td className="py-3 pr-4">
-                    <GuestAlerts
+                    <GuestAlertsIcons
                       eventId={eventId}
                       guestId={guest.id}
                       refreshToken={metaVersion}

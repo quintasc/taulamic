@@ -18,3 +18,4 @@ export { PreferenceOption } from './preference-option';
 export { SectionLabel } from './section-label';
 export { StatCard } from './stat-card';
 export { UploadZone } from './upload-zone';
+export { MobileHorizontalScroll } from './mobile-horizontal-scroll';

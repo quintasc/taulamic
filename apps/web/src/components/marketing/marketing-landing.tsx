@@ -46,7 +46,7 @@ export function MarketingLanding() {
 
       <section
         id="segmentos"
-        className="mx-auto max-w-6xl px-6 pb-24 md:px-16 md:pb-24"
+        className="scroll-mt-[3.75rem] mx-auto max-w-6xl px-6 pb-24 md:scroll-mt-16 md:px-16 md:pb-24"
       >
         <p className="mb-3 text-center text-[11px] font-bold uppercase tracking-[0.1em] text-neutral-500">
           Para cada tipo de evento

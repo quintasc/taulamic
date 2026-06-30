@@ -102,6 +102,14 @@ Traducir SDD-01 en trabajo ejecutable en GitHub Issues, priorizado por valor y r
 - HU-46 Medir calidad, tiempo y diversidad Top-K por algoritmo.
 - HU-47 Decidir adopcion de GA segun umbrales definidos.
 
+### EP-16 - Mejoras post-piloto (ideas registradas, sin compromiso MVP)
+
+> Detalle en `docs/agile/backlog-mejoras-post-piloto.md`. Requieren gate PO/SDD.
+
+- HU-48 Accesorios plano: pared/muro y columna (EP-11 ampliacion).
+- HU-49 Importar contactos desde Outlook, Gmail o export WhatsApp (EP-12 ampliacion).
+- HU-50 Canal WhatsApp para invitaciones / formulario importable (EP-09 ampliacion).
+
 ## 3) Priorizacion sugerida (orden de ejecucion)
 
 1. EP-01

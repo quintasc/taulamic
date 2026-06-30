@@ -17,19 +17,25 @@ export function roomShapeClassName(shape: FloorPlanSetup['shape']): string {
 export function RoomShapeDisplay({
   setup,
   maxPx = 360,
+  widthPx: widthPxOverride,
+  heightPx: heightPxOverride,
   className = '',
   children,
 }: {
   setup: FloorPlanSetup;
   maxPx?: number;
+  widthPx?: number;
+  heightPx?: number;
   className?: string;
   children?: ReactNode;
 }) {
-  const { widthPx, heightPx } = roomPixelSize(setup, maxPx);
+  const classic = roomPixelSize(setup, maxPx);
+  const widthPx = widthPxOverride ?? classic.widthPx;
+  const heightPx = heightPxOverride ?? classic.heightPx;
 
   return (
     <div
-      className={`relative mx-auto max-w-full shrink-0 ${className}`}
+      className={`relative mx-auto shrink-0 ${className}`}
       style={{ width: widthPx, height: heightPx }}
     >
       <div

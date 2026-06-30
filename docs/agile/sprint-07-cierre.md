@@ -2,7 +2,7 @@
 
 - **Inicio:** 2026-06-21
 - **Cierre documental:** 2026-06-21
-- **Rama:** `main` (post-commit cierre)
+- **Rama:** `main` @ **`7f57010`**
 - **Origen:** `sprint-06-cierre.md` · MEJ-10 → MEJ-13
 - **Plan:** `sprint-07-plan.md`
 

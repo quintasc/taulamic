@@ -2,7 +2,7 @@
 
 - Ultima actualizacion: **2026-06-21**
 - Sprint activo: **07 cerrado** → siguiente según `sprint-07-cierre.md` §8
-- **`main` @ post-commit cierre Sprint 07**
+- **`main` @ `45baee7`**
 
 ## Frase clave
 

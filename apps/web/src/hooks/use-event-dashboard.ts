@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ApiError, distributionApi, guestsApi } from '@/lib/api';
 import { DISTRIBUTION_CHANGED_EVENT } from '@/lib/distribution-events';
 import {
+  EVENT_CONFIG_STATUS_CHANGED,
   formatEventSubtitle,
   isEventConfigComplete,
   loadEventUiMeta,
@@ -83,6 +84,7 @@ export function useEventDashboard(event: EventDetail | null, eventId: string | n
   const [configComplete, setConfigComplete] = useState(false);
   const [floorPlanUploaded, setFloorPlanUploaded] = useState(false);
   const [subtitle, setSubtitle] = useState('Resumen del evento');
+  const [configStatusRevision, setConfigStatusRevision] = useState(0);
 
   const tablesConfigured = event?.capacitySummary.tableCount ?? 0;
   const totalCapacity = event?.capacitySummary.totalCapacity ?? 0;
@@ -139,7 +141,31 @@ export function useEventDashboard(event: EventDetail | null, eventId: string | n
     );
 
     loadDistributionStats();
-  }, [event?.name, eventId]);
+  }, [event?.name, eventId, configStatusRevision]);
+
+  useEffect(() => {
+    if (!eventId || typeof window === 'undefined') {
+      return;
+    }
+
+    function handleConfigStatusChanged(changed: Event) {
+      const detail = (changed as CustomEvent<{ eventId: string }>).detail;
+      if (detail?.eventId === eventId) {
+        setConfigStatusRevision((current) => current + 1);
+      }
+    }
+
+    window.addEventListener(
+      EVENT_CONFIG_STATUS_CHANGED,
+      handleConfigStatusChanged,
+    );
+    return () => {
+      window.removeEventListener(
+        EVENT_CONFIG_STATUS_CHANGED,
+        handleConfigStatusChanged,
+      );
+    };
+  }, [eventId]);
 
   useEffect(() => {
     if (!eventId || typeof window === 'undefined') {
@@ -174,7 +200,7 @@ export function useEventDashboard(event: EventDetail | null, eventId: string | n
     setSubtitle(
       formatEventSubtitle(event?.name ?? '', meta, eventId),
     );
-  }, [event?.name, eventId]);
+  }, [event?.name, eventId, configStatusRevision]);
 
   const setupStatus = useMemo(() => {
     const statusByKey: Record<string, boolean> = {

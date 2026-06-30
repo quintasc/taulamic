@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 
-import { Alert } from '@/components/ui';
+import { feedbackSurfaceClass } from '@/lib/feedback-surface';
 
 export type SetupNavBarProps = {
   variant?: 'sticky-bottom' | 'header' | 'inline';
@@ -27,6 +27,18 @@ export type SetupNavBarProps = {
 
 const MAIN_SETUP_BAR_REGION_CLASS =
   'fixed left-[var(--admin-sidebar-width)] z-40 w-[calc(100%-var(--admin-sidebar-width))] px-4 md:px-8';
+
+/**
+ * Aviso de bloqueo dentro del mismo footer sticky (sin franja doble).
+ * Revertir al diseño anterior: poner `false` y commitear.
+ */
+export const SETUP_NAV_UNIFIED_BLOCKED_SHELL = false;
+
+/**
+ * Aviso justo encima del footer, sin franja gris intermedia (split bands).
+ * Revertir: poner `false` y commitear.
+ */
+export const SETUP_NAV_HINT_FLUSH_ABOVE_FOOTER = true;
 
 /** En footer fijo (dense), por debajo de md solo flechas; texto completo desde md. */
 const DENSE_PREVIOUS_CLASS =
@@ -130,6 +142,9 @@ function useSetupNavControlState({
   };
 }
 
+const SETUP_NAV_HINT_INNER_CLASS =
+  'mx-auto flex max-w-4xl min-w-0 justify-end';
+
 function SetupNavBlockedBanner({
   bannerRef,
   pulse,
@@ -144,11 +159,16 @@ function SetupNavBlockedBanner({
       ref={bannerRef}
       className={
         pulse
-          ? 'rounded-xl ring-2 ring-error-500/40 ring-offset-2 transition-shadow'
-          : undefined
+          ? 'rounded-lg ring-2 ring-error-500/40 ring-offset-1 transition-shadow'
+          : 'max-w-full'
       }
     >
-      <Alert variant="error">{hint}</Alert>
+      <div
+        className={`setup-nav-blocked-hint ${feedbackSurfaceClass.error}`}
+        role="alert"
+      >
+        {hint}
+      </div>
     </div>
   );
 }
@@ -305,14 +325,16 @@ function NavControls({
 
   return (
     <div
-      className={`${compact || dense ? 'flex w-full flex-col gap-2' : 'flex w-full flex-col gap-3'}`}
+      className={`${compact || dense ? 'flex w-full flex-col gap-1.5' : 'flex w-full flex-col gap-2'}`}
     >
       {state.showBlockedBanner ? (
-        <SetupNavBlockedBanner
-          bannerRef={state.blockedBannerRef}
-          pulse={state.blockedPulse}
-          hint={state.nextDisabledHint}
-        />
+        <div className={SETUP_NAV_HINT_INNER_CLASS}>
+          <SetupNavBlockedBanner
+            bannerRef={state.blockedBannerRef}
+            pulse={state.blockedPulse}
+            hint={state.nextDisabledHint}
+          />
+        </div>
       ) : null}
 
       <SetupNavControlsRow
@@ -331,20 +353,22 @@ function NavControls({
   );
 }
 
-function StickySetupNavBar(props: SetupNavBarProps) {
+function StickySetupNavBarSplitBands(props: SetupNavBarProps) {
   const state = useSetupNavControlState(props);
+  const spacerClass =
+    SETUP_NAV_HINT_FLUSH_ABOVE_FOOTER && state.showBlockedBanner
+      ? 'h-[var(--admin-setup-bar-offset-with-hint)]'
+      : 'h-[var(--admin-setup-bar-offset)]';
+  const hintBandClass = SETUP_NAV_HINT_FLUSH_ABOVE_FOOTER
+    ? `${MAIN_SETUP_BAR_REGION_CLASS} bottom-[var(--admin-setup-bar-offset)] z-[39] pb-[var(--admin-setup-bar-hint-gap)]`
+    : `${MAIN_SETUP_BAR_REGION_CLASS} bottom-[var(--admin-setup-bar-offset)] z-[39] flex h-[var(--admin-setup-bar-hint-extra)] items-center border-t border-wf-3 bg-wf-1`;
 
   return (
     <>
-      <div
-        className="h-[var(--admin-setup-bar-offset)]"
-        aria-hidden
-      />
+      <div className={spacerClass} aria-hidden />
       {state.showBlockedBanner ? (
-        <div
-          className={`${MAIN_SETUP_BAR_REGION_CLASS} bottom-[var(--admin-setup-bar-offset)] z-[39] border-t border-wf-3 bg-wf-1 pb-2 pt-2`}
-        >
-          <div className="mx-auto max-w-4xl">
+        <div className={hintBandClass}>
+          <div className={SETUP_NAV_HINT_INNER_CLASS}>
             <SetupNavBlockedBanner
               bannerRef={state.blockedBannerRef}
               pulse={state.blockedPulse}
@@ -372,6 +396,54 @@ function StickySetupNavBar(props: SetupNavBarProps) {
       </div>
     </>
   );
+}
+
+function StickySetupNavBarUnified(props: SetupNavBarProps) {
+  const state = useSetupNavControlState(props);
+  const spacerClass = state.showBlockedBanner
+    ? 'h-[var(--admin-setup-bar-offset-with-hint)]'
+    : 'h-[var(--admin-setup-bar-offset)]';
+
+  return (
+    <>
+      <div className={spacerClass} aria-hidden />
+      <div
+        className={`admin-setup-bar-shell ${MAIN_SETUP_BAR_REGION_CLASS} bottom-0`}
+      >
+        <div className="mx-auto flex max-w-4xl min-w-0 flex-col gap-[var(--admin-setup-bar-hint-gap)] px-0 pt-[var(--admin-setup-bar-hint-gap)]">
+          {state.showBlockedBanner ? (
+            <div className={SETUP_NAV_HINT_INNER_CLASS}>
+              <SetupNavBlockedBanner
+                bannerRef={state.blockedBannerRef}
+                pulse={state.blockedPulse}
+                hint={state.nextDisabledHint}
+              />
+            </div>
+          ) : null}
+          <div className="admin-setup-bar-inner !h-auto min-h-[var(--admin-setup-bar-height)] overflow-hidden">
+            <SetupNavControlsRow
+              {...props}
+              dense
+              showPrevious={state.showPrevious}
+              showNext={state.showNext}
+              showPrimary={state.showPrimary}
+              nextLoading={state.nextLoading}
+              onBeforeNext={props.onBeforeNext}
+              onEmphasizeBlocked={state.emphasizeBlockedMessage}
+              onHandleNext={state.handleNext}
+            />
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function StickySetupNavBar(props: SetupNavBarProps) {
+  if (SETUP_NAV_UNIFIED_BLOCKED_SHELL) {
+    return <StickySetupNavBarUnified {...props} />;
+  }
+  return <StickySetupNavBarSplitBands {...props} />;
 }
 
 export function SetupNavBar(props: SetupNavBarProps) {

@@ -9,7 +9,7 @@ export function MarketingHeader({ adminHref }: { adminHref: string }) {
       <Link href="/">
         <TaulamicLogo />
       </Link>
-      <nav className="hidden items-center gap-8 text-sm font-medium md:flex">
+      <nav className="flex items-center gap-4 text-xs font-medium sm:gap-8 sm:text-sm">
         <Link
           href="/#segmentos"
           className="text-neutral-700 hover:text-neutral-900"

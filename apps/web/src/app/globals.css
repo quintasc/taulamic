@@ -16,8 +16,18 @@
   --wf-5: #a0a0a0;
   --admin-sidebar-width: 220px;
   --admin-setup-bar-height: 2.75rem;
+  --admin-setup-bar-hint-height: 2rem;
+  --admin-setup-bar-hint-gap: 0.375rem;
+  --admin-setup-bar-hint-extra: calc(
+    var(--admin-setup-bar-hint-height) + var(--admin-setup-bar-hint-gap)
+  );
   --admin-setup-bar-offset: calc(
     var(--admin-setup-bar-height) + max(0.5rem, env(safe-area-inset-bottom))
+  );
+  --admin-setup-bar-offset-with-hint: calc(
+    var(--admin-setup-bar-height) +
+      var(--admin-setup-bar-hint-extra) +
+      max(0.5rem, env(safe-area-inset-bottom))
   );
   --feedback-success-bg: #e9f6f0;
   --feedback-warning-bg: #fef8e7;
@@ -91,6 +101,11 @@ body {
 
   .admin-setup-bar-inner {
     @apply flex h-[var(--admin-setup-bar-height)] w-full items-center;
+  }
+
+  /** Aviso de bloqueo del setup: densidad alineada con botones compact del footer. */
+  .setup-nav-blocked-hint {
+    @apply block max-w-full rounded-lg px-3 py-1.5 text-right text-xs font-medium leading-snug sm:inline-block sm:w-auto sm:text-left;
   }
 
   /** Superficies opacas para avisos (evita solapamiento visual con contenido detrás). */

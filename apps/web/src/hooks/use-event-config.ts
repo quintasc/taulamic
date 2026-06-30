@@ -7,6 +7,7 @@ import {
   isApiPlaceholderEventName,
   isPastEventDate,
   loadEventUiMeta,
+  notifyEventConfigStatusChanged,
   saveEventUiMeta,
   type EventUiMeta,
   type PreferenceControlMode,
@@ -119,6 +120,7 @@ export function useEventConfig() {
         preferenceMode: modeToSave,
         configSaved: true,
       });
+      notifyEventConfigStatusChanged(eventId);
       await refreshEvent({ silent: true });
       return true;
     } catch (err: unknown) {
@@ -183,13 +185,17 @@ export function useEventConfig() {
   ]);
 
   useEffect(() => {
-    if (!eventId || !hydrated || canAdvance) {
+    if (!eventId || !hydrated) {
+      return;
+    }
+    if (canAdvance) {
       return;
     }
     const meta = loadEventUiMeta(eventId);
     if (meta.configSaved) {
       saveMeta(eventId, { ...meta, configSaved: false });
     }
+    notifyEventConfigStatusChanged(eventId);
   }, [canAdvance, eventId, hydrated]);
 
   const handleBeforeNext = useCallback(async () => {

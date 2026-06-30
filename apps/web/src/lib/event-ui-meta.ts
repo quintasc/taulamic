@@ -52,6 +52,18 @@ export function saveEventUiMeta(eventId: string, meta: EventUiMeta) {
   localStorage.setItem(`${UI_META_KEY}:${eventId}`, JSON.stringify(meta));
 }
 
+export const EVENT_CONFIG_STATUS_CHANGED = 'taulamic:event-config-status-changed';
+
+/** Refresca sidebar, dashboard y checklist cuando cambia el paso Config. */
+export function notifyEventConfigStatusChanged(eventId: string) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  window.dispatchEvent(
+    new CustomEvent(EVENT_CONFIG_STATUS_CHANGED, { detail: { eventId } }),
+  );
+}
+
 export function isApiPlaceholderEventName(name: string | undefined): boolean {
   if (!name?.trim()) {
     return true;

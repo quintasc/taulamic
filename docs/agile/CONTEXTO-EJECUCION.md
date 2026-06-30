@@ -2,7 +2,7 @@
 
 - Ultima actualizacion: **2026-06-21**
 - Sprint activo: **07 cerrado** → siguiente según `sprint-07-cierre.md` §8
-- **`main` @ `d0cbdf6`**
+- **`main` @ `809690a`**
 
 ## Frase clave
 

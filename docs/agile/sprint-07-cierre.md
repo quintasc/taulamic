@@ -2,7 +2,7 @@
 
 - **Inicio:** 2026-06-21
 - **Cierre documental:** 2026-06-21
-- **Rama:** `main` @ **`d0cbdf6`**
+- **Rama:** `main` @ **`809690a`**
 - **Origen:** `sprint-06-cierre.md` · MEJ-10 → MEJ-13
 - **Plan:** `sprint-07-plan.md`
 

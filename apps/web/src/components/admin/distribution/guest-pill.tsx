@@ -43,6 +43,7 @@ export function GuestPill({
     <span
       className={`group/pill ${pillClass}`}
       draggable={canDrag}
+      title={canDrag ? 'Arrastra para mover a otra mesa' : undefined}
       onDragStart={(event) => {
         if (!canDrag || !guestId || !sourceTableId) {
           return;
@@ -64,7 +65,7 @@ export function GuestPill({
       {canRemove ? (
         <button
           type="button"
-          className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-neutral-400 transition hover:bg-neutral-200 hover:text-neutral-700 disabled:opacity-50"
+          className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-neutral-400 transition hover:bg-neutral-200 hover:text-neutral-700 disabled:opacity-50"
           aria-label={`Quitar a ${name} de la mesa`}
           title="Quitar de la mesa"
           disabled={removing}

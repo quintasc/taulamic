@@ -19,7 +19,7 @@
 |---|--------------|-------------------|--------|
 | 1 | Botón Distribución comprensible | `PageHeader` + contexto pantalla; corto «Confirmar» solo `< md` | [x] PO |
 | 2 | Bloqueados explicados | Tarjetas, colaborativo, matriz afinidades mantienen copy | [x] PO |
-| 3 | Sin «piloto julio» obsoleto | grep admin: solo `nav-map` (mapa dev, diferido) | [x] PO |
+| 3 | Sin «piloto julio» obsoleto | grep admin UI operativa: sin «piloto julio»; `nav-map` actualizado post-S07 | [x] PO |
 
 ## Responsive
 
@@ -36,8 +36,9 @@
 | Comparador Top-K — post-piloto | …próximamente | `distribution-calculated-view.tsx` |
 | Posicionar drag post-MVP | (eliminado) | `floor-plan-setup-view.tsx` |
 | Párrafo autoguardado Config | (eliminado) | `event-config-view.tsx` |
+| MVP piloto julio | Mapa interno del flujo setup (piloto actual) | `nav-map/page.tsx` |
 
 ## Cierre
 
 - [x] PO revisa Distribución y Plano en viewport estrecho
-- [ ] Opcional: actualizar copy `nav-map` en sprint futuro
+- [x] Copy `nav-map` actualizado post-S07

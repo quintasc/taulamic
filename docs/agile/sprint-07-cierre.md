@@ -2,7 +2,7 @@
 
 - **Inicio:** 2026-06-21
 - **Cierre documental:** 2026-06-21
-- **Rama:** `main` @ **`7f57010`**
+- **Rama:** `main` @ **`d0cbdf6`**
 - **Origen:** `sprint-06-cierre.md` · MEJ-10 → MEJ-13
 - **Plan:** `sprint-07-plan.md`
 
@@ -28,7 +28,7 @@ Sprint 07 pulió la cohesión UX del piloto bodas: feedback y mesas (MEJ-10), da
 | `8a79138` | MEJ-11 CTA dashboard |
 | `a4fee82` | Aviso setup, sync nombre, marketing móvil |
 
-Documentación: `8d5acd3`, evidencias y cierre (este commit).
+Documentación: `8d5acd3`, evidencias y cierre. E2E: `1cb672f`, `d0cbdf6`.
 
 ## 3) Decisiones PO relevantes
 
@@ -52,7 +52,7 @@ Documentación: `8d5acd3`, evidencias y cierre (este commit).
 | Manual PO MEJ-11 | ✅ `evidencias-mej-11-validacion.md` |
 | Manual PO MEJ-12 | ✅ `evidencias-mej-12-validacion.md` |
 | Manual PO MEJ-13 | ✅ `evidencias-mej-13-validacion.md` |
-| E2E `pilot-flow.spec.ts` | 2/3 OK; flujo A–G timeout plano→mesas (backlog) |
+| E2E `pilot-flow.spec.ts` | ✅ 3/3 (A–G, alta manual, Tarjetas bloqueado) — `1cb672f` |
 
 Guiones: `guion-validacion-mej-10-ui.md` … `-13-ui.md`.
 
@@ -60,11 +60,10 @@ Guiones: `guion-validacion-mej-10-ui.md` … `-13-ui.md`.
 
 | Item | Motivo |
 |------|--------|
-| MEJ-10 F — targets táctiles pills, `title` draggable | Stretch P3 — sin tiempo |
+| MEJ-10 F — targets táctiles pills, `title` draggable | ✅ parcial post-S07 (`guest-pill`: 28px, title drag) |
 | MEJ-12 C — grid auto / zoom canvas | Post-piloto preferible |
 | MEJ-13 D — centralización `lib/ui-copy.ts` | Opcional P3 |
-| Copy `nav-map` «piloto julio» | Mapa dev interno |
-| Fix E2E flujo completo A–G | Backlog técnico |
+| Copy `nav-map` «piloto julio» | ✅ post-S07 («piloto actual») |
 
 ## 7) Fuera de alcance (sin cambio)
 
@@ -75,9 +74,9 @@ Guiones: `guion-validacion-mej-10-ui.md` … `-13-ui.md`.
 
 ## 8) Backlog siguiente
 
-- Fix E2E `pilot-flow` plano → mesas
-- Repaso opcional `guion-validacion-piloto-ui.md` (flujo bodas E2E)
+- Repaso opcional `guion-validacion-piloto-ui.md` (flujo bodas E2E + manual)
 - Sprint 08 / features post-piloto según roadmap
+- Opcional: MEJ-10 F táctil, MEJ-13 D `ui-copy.ts`, copy `nav-map`
 
 ## 9) Criterios de cierre Sprint 07
 
@@ -86,4 +85,5 @@ Guiones: `guion-validacion-mej-10-ui.md` … `-13-ui.md`.
 - [x] P2 entregado o diferido anotado (§6)
 - [x] `sprint-07-cierre.md` + `CONTEXTO-EJECUCION.md` actualizados
 - [x] Evidencias MEJ-10…13
+- [x] E2E `pilot-flow.spec.ts` A–G estable (`1cb672f`)
 - [ ] Opcional: repaso `guion-validacion-piloto-ui.md` completo

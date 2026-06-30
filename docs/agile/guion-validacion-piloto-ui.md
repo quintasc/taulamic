@@ -2,7 +2,7 @@
 
 - **Estado:** Vigente (post-UX #40–#41)
 - **Fecha:** 2026-06-24
-- **Referencias:** `DECISION-002`, `ADR-018`, `guia-estilo-taulamic.md` §6–7, `handoff-figma-a-frontend.md`, `pilot-flow.e2e-spec.ts` (API)
+- **Referencias:** `DECISION-002`, `ADR-018`, `guia-estilo-taulamic.md` §6–7, `handoff-figma-a-frontend.md`, `apps/web/e2e/pilot-flow.spec.ts`
 - **Entorno:** API `:3000`, Web `:3001` (`npm run dev` desde raíz, o `dev:api` + `dev:web`)
 - **Orden setup piloto:** Config → Invitados → Tarjetas (🔒) → Plano → Mesas → Afinidades → Distribución
 
@@ -170,7 +170,9 @@ Marca ✅ si el comportamiento es el esperado (ausente o deshabilitado):
 |------|---------|
 | API E2E | `cd apps/api && npm run test:e2e` |
 | Web build | `cd apps/web && npm run build` |
-| **Web E2E (Playwright)** | `cd apps/web && npm run test:e2e` |
+| **Web E2E (Playwright)** | `cd apps/web && npm run test:e2e` → `pilot-flow.spec.ts` |
+
+**Cobertura Playwright (2026-06-21):** test «A–G setup admin de punta a punta» cubre pasos A, B (Excel), D, E, F (parcial), G; patrones UX alta manual; paso C Tarjetas bloqueado. Ver `evidencias-mej-10-validacion.md` §Smoke.
 
 El E2E API **no sustituye** esta validacion UI; la complementa.
 

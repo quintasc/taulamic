@@ -41,7 +41,7 @@ export default function NavMapPage() {
     <>
       <PageHeader
         title="Mapa de navegación"
-        subtitle="Flujo completo MVP piloto julio"
+        subtitle="Mapa interno del flujo setup (piloto actual)"
       />
 
       <div className="mb-8 flex flex-wrap items-center gap-1">
@@ -96,7 +96,7 @@ export default function NavMapPage() {
                 />
               </span>
               <span className="ml-1.5 rounded bg-primary-500 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-white">
-                Piloto jul
+                Piloto
               </span>
             </div>
           ))}

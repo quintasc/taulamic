@@ -20,7 +20,7 @@ Matriz de decisiones por string. Criterios: **Mantener** · **Acortar** · **Eli
 | `floor-plan-layout-view.tsx` | Avisos post-MVP posiciones | **Eliminar** (si existían) | ✅ MEJ-12 |
 | `invitations/page.tsx` | «disponible tras el piloto» | **Mantener** (paso bloqueado HU-10) | — sin cambio |
 | `distribution-view.ts` | `PILOT_AFFINITY_LABEL` | **Diferir** renombre hasta motor afinidad | — sin cambio |
-| `nav-map/page.tsx` | «MVP piloto julio» | **Diferir** (mapa interno, baja prioridad) | ⏳ |
+| `nav-map/page.tsx` | «MVP piloto julio» | **Diferir** → actualizado «piloto actual» post-S07 | ✅ post-S07 |
 | `marketing-*` | «Acceder al piloto», segmentos | **Mantener** / honesto | — sin cambio |
 | `guests-panel-v2.tsx` | «Próximamente — no operativo en piloto» | **Mantener** (Tarjetas bloqueadas) | — sin cambio |
 | `setup-journey.tsx` | «Próximamente» en Tarjetas | **Mantener** | — sin cambio |
@@ -68,7 +68,7 @@ Matriz de decisiones por string. Criterios: **Mantener** · **Acortar** · **Eli
 
 | Item | Acción |
 |------|--------|
-| `nav-map/page.tsx` copy «piloto julio» | Diferir — mapa dev interno |
+| `nav-map/page.tsx` copy «piloto julio» | ✅ post-S07 — mapa dev interno |
 | `PILOT_AFFINITY_LABEL` | Diferir — depende motor afinidad |
 | Fase D centralización `lib/ui-copy.ts` | Opcional P3 — no iniciado |
 | §11 guía lifecycle piloto → producto | Actualizar al cerrar piloto bodas |

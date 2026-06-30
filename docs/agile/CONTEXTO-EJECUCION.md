@@ -2,7 +2,7 @@
 
 - Ultima actualizacion: **2026-06-21**
 - Sprint activo: **08 cerrado (P1)** → opcional manual / Sprint 09
-- **`main` @ `6f587c6`**
+- **`main` @ `d30417e`**
 
 ## Frase clave
 

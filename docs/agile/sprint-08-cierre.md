@@ -2,7 +2,7 @@
 
 - **Inicio:** 2026-06-21
 - **Cierre documental P1:** 2026-06-21
-- **Rama:** `main` @ **`fa6603e`**
+- **Rama:** `main` @ **`d30417e`**
 - **Plan:** `sprint-08-plan.md`
 
 ## 1) Resumen

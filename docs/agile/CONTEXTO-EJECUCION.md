@@ -2,7 +2,7 @@
 
 - Ultima actualizacion: **2026-06-21**
 - Sprint activo: **08** — `sprint-08-plan.md` (MEJ-13 D en curso)
-- **`main` @ `a35a86d`**
+- **`main` @ `fa6603e`**
 
 ## Frase clave
 

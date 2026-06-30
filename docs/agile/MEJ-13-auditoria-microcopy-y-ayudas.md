@@ -1,6 +1,6 @@
 # MEJ-13 — Auditoría de microcopy y textos de ayuda
 
-- **Estado:** Fases A–C implementadas Sprint 07 — **pendiente validación manual PO** (`guion-validacion-mej-13-ui.md`)
+- **Validación manual:** 2026-06-21 — **APROBADO** (PO) · `evidencias-mej-13-validacion.md`
 - **Inventario:** `inventario-microcopy-ui.md`
 - **Tipo:** Mejora UX copy (sin cambio de alcance funcional salvo acuerdo PO)
 - **Origen:** Revisión responsive — simplificar ayudas y botones en espacio reducido; retirar referencias «piloto» obsoletas cuando corresponda

@@ -1,6 +1,6 @@
 # MEJ-12 — Plano Fase B: marcadores compactos de mesa
 
-- **Estado:** Propuesta — **pendiente validación PO** (sin implementar)
+- **Validación manual:** 2026-06-21 — **APROBADO** (PO) · `evidencias-mej-12-validacion.md`
 - **Tipo:** Mejora UX visual (sin cambio de alcance funcional SDD piloto)
 - **Origen:** Revisión PO — mesas demasiado grandes vs accesorios; riesgo de saturación con muchas mesas
 - **Guion validación previa:** `guion-validacion-mej-12-propuesta-ui.md`

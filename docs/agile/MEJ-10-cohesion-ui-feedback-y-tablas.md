@@ -1,6 +1,6 @@
 # MEJ-10 — Cohesión UI: feedback, chips y tablas admin
 
-- **Estado:** Implementado Sprint 07 — **pendiente validación manual PO** (`guion-validacion-mej-10-ui.md`)
+- **Validación manual:** 2026-06-21 — **APROBADO** (PO)
 - **Tipo:** Mejora UX / design system (sin cambio de alcance funcional SDD)
 - **Origen:** Revisión de coherencia visual post Sprint 06 (distribución, plano Fase B, mesas)
 - **Guion validación previa:** `guion-validacion-mej-10-propuesta-ui.md`

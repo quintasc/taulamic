@@ -56,7 +56,7 @@ Documentación MEJ-10…13 ya en repo; specs son la base del sprint.
 | **P3** | MEJ-13 | C | Etiquetas botón cortas `< md` (p. ej. Confirmar) | ✅ `1d3db89` |
 | Stretch | MEJ-10 | E–F | Tablas thead unificado; targets táctiles pills | ⏭️ Si sobra tiempo |
 | Stretch | MEJ-12 | C | Grid auto / zoom canvas | ⏭️ Post-piloto preferible |
-| — | — | Validación | Guiones post-implementación + cierre sprint | ⏳ Pendiente |
+| — | — | Validación | Guiones post-implementación + cierre sprint | ✅ PO 2026-06-21 |
 
 ---
 
@@ -137,11 +137,11 @@ Política: `docs/agile/politica-validacion-tests-y-cobertura.md`
 
 ## 8) Criterio de cierre Sprint 07
 
-- [ ] Gate PO: guiones propuesta MEJ-10…13 aprobados (total o parcial anotado en specs)
-- [ ] P1 entregado y validado manualmente
-- [ ] P2 entregado **o** explícitamente diferido con motivo en `sprint-07-cierre.md`
-- [ ] `sprint-07-cierre.md` + `CONTEXTO-EJECUCION.md` actualizados
-- [ ] Evidencias en `evidencias-mej-10-validacion.md` (y 11/12/13 según alcance)
+- [x] Gate PO: guiones propuesta MEJ-10…13 aprobados (total o parcial anotado en specs)
+- [x] P1 entregado y validado manualmente
+- [x] P2 entregado **o** explícitamente diferido con motivo en `sprint-07-cierre.md`
+- [x] `sprint-07-cierre.md` + `CONTEXTO-EJECUCION.md` actualizados
+- [x] Evidencias en `evidencias-mej-10-validacion.md` (y 11/12/13 según alcance)
 - [ ] Opcional: repaso `guion-validacion-piloto-ui.md` con flujo bodas completo
 
 ---
@@ -166,3 +166,4 @@ Política: `docs/agile/politica-validacion-tests-y-cobertura.md`
 | Fecha | Evento |
 |-------|--------|
 | 2026-06-21 | Plan Sprint 07 creado |
+| 2026-06-21 | Implementación MEJ-10…13 + validación PO; cierre `sprint-07-cierre.md` |

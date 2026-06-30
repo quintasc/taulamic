@@ -1,8 +1,9 @@
 # Guion de validación manual — MEJ-12 Plano Fase B (post-implementación)
 
-- **Estado:** Listo para validación manual PO
+- **Estado:** Validado PO — 2026-06-21
 - **Precondición:** Implementación MEJ-12 en `main` @ `6645bef`
 - **Spec:** `MEJ-12-plano-marcadores-compactos.md`
+- **Evidencias:** `evidencias-mej-12-validacion.md`
 
 ---
 
@@ -10,10 +11,10 @@
 
 | # | Paso | Resultado esperado | OK |
 |---|------|-------------------|-----|
-| 1 | Abrir plano con 2+ mesas | Chips pequeños; label M1/M2 visible | [ ] |
-| 2 | Comparar con accesorios | Mesas no dominan visualmente el salón | [ ] |
-| 3 | Hover/focus en mesa | Tooltip o aria con `n/cap` y estado | [ ] |
-| 4 | Colores | Llena / en uso / vacía coherentes con Distribución | [ ] |
+| 1 | Abrir plano con 2+ mesas | Chips pequeños; label M1/M2 visible | [x] |
+| 2 | Comparar con accesorios | Mesas no dominan visualmente el salón | [x] |
+| 3 | Hover/focus en mesa | Tooltip o aria con `n/cap` y estado | [x] |
+| 4 | Colores | Llena / en uso / vacía coherentes con Distribución | [x] |
 
 ---
 
@@ -21,9 +22,9 @@
 
 | # | Paso | Resultado esperado | OK |
 |---|------|-------------------|-----|
-| 5 | Clic en mesa | Panel lateral invitados | [ ] |
-| 6 | Segundo clic misma mesa | Panel se cierra (toggle) | [ ] |
-| 7 | Drag pill a otra mesa | Mueve invitado; sin regresión MEJ-08 | [ ] |
+| 5 | Clic en mesa | Panel lateral invitados | [x] |
+| 6 | Segundo clic misma mesa | Panel se cierra (toggle) | [x] |
+| 7 | Drag pill a otra mesa | Mueve invitado; sin regresión MEJ-08 | [x] |
 
 ---
 
@@ -31,7 +32,7 @@
 
 | # | Paso | Resultado esperado | OK |
 |---|------|-------------------|-----|
-| 8 | 12+ mesas en salón estándar | Ninguna mesa cortada fuera del perímetro | [ ] |
+| 8 | 12+ mesas en salón estándar | Ninguna mesa cortada fuera del perímetro | [x] |
 
 ---
 
@@ -39,11 +40,11 @@
 
 | # | Comprobación | OK |
 |---|--------------|-----|
-| 9 | Filtros estado/forma siguen funcionando | [ ] |
-| 10 | «Volver a distribución» sin cambios | [ ] |
+| 9 | Filtros estado/forma siguen funcionando | [x] |
+| 10 | «Volver a distribución» sin cambios | [x] |
 
 ---
 
 ## Evidencias
 
-Documentar en `evidencias-mej-12-validacion.md` (crear al cerrar).
+`evidencias-mej-12-validacion.md`

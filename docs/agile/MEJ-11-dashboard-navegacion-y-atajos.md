@@ -1,6 +1,6 @@
 # MEJ-11 — Dashboard: navegación guiada y accesos rápidos
 
-- **Estado:** Propuesta — **pendiente validación PO** (sin implementar)
+- **Validación manual:** 2026-06-21 — **APROBADO** (PO) · `evidencias-mej-11-validacion.md`
 - **Tipo:** Mejora UX (sin cambio de alcance funcional SDD piloto)
 - **Origen:** Revisión PO post Sprint 06 — rol del dashboard como entrada al «proyecto evento»
 - **Guion validación previa:** `guion-validacion-mej-11-propuesta-ui.md`

@@ -483,10 +483,10 @@ export function GuestsPanelV2({
           <input
             type="search"
             className="input-field"
-            placeholder="Buscar nombre, correo o teléfono…"
+            placeholder="Buscar invitados…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            aria-label="Buscar invitados"
+            aria-label="Buscar invitados por nombre, correo, teléfono o categoría"
           />
         </div>
       </div>

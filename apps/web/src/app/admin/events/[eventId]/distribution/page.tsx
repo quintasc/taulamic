@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { SetupNavBar } from '@/components/admin/setup-nav-bar';
 import { DistributionCalculatedView } from '@/components/admin/distribution';
 import { IconRefresh } from '@/components/icons';
-import { Alert, EmptyState, PageHeader } from '@/components/ui';
+import { Alert, EmptyState, PageHeader, ResponsiveButtonLabel } from '@/components/ui';
 import { buildDistributionTableGroups, buildUnassignedGuestOptions } from '@/lib/distribution-view';
 import { notifyDistributionChanged } from '@/lib/distribution-events';
 import { applyDistributionMutationResult } from '@/lib/distribution-mutation-feedback';
@@ -235,8 +235,16 @@ export default function DistributionPage() {
               className="btn-primary"
               disabled={running}
               onClick={() => void calculate()}
+              aria-label="Calcular distribución"
             >
-              {running ? 'Calculando…' : 'Calcular distribución'}
+              {running ? (
+                'Calculando…'
+              ) : (
+                <ResponsiveButtonLabel
+                  short="Calcular"
+                  full="Calcular distribución"
+                />
+              )}
             </button>
           )
         }
@@ -279,8 +287,16 @@ export default function DistributionPage() {
               className="btn-primary"
               disabled={running}
               onClick={() => void calculate()}
+              aria-label="Calcular distribución"
             >
-              Calcular distribución
+              {running ? (
+                'Calculando…'
+              ) : (
+                <ResponsiveButtonLabel
+                  short="Calcular"
+                  full="Calcular distribución"
+                />
+              )}
             </button>
           }
         />

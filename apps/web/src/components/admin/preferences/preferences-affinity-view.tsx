@@ -91,7 +91,7 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
   const modeLabel =
     effectiveMode === 'colaborativo'
       ? 'Colaborativo — los invitados podrán enviar restricciones'
-      : 'Anfitrión exclusivo — solo tú defines las restricciones (piloto julio)';
+      : 'Anfitrión exclusivo — solo tú defines las restricciones';
 
   return (
     <>
@@ -102,7 +102,7 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
       />
 
       <Alert variant="info">
-        <p className="font-medium">Piloto — vista previa del flujo</p>
+        <p className="font-medium">Vista previa del flujo</p>
         <p className="mt-1 text-sm">
           El motor v0 aún no consume estas reglas. Puedes dejarlas vacías: la
           distribución asignará invitados sin criterios de afinidad. El modo de
@@ -173,7 +173,7 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
           {!PILOT_COLLABORATIVE_MODE_ENABLED ? (
             <span className="mt-1 block text-xs text-neutral-500">
               El modo colaborativo (invitados editan sus restricciones) no está
-              disponible en el piloto julio.
+              disponible en el piloto actual.
             </span>
           ) : null}
         </p>

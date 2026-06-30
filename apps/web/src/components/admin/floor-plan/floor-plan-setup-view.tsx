@@ -6,7 +6,7 @@ import { SetupNavBar } from '@/components/admin/setup-nav-bar';
 import { FloorAccessoryIcon, getFloorAccessoryDisplaySize } from '@/components/admin/floor-plan/floor-accessory-icon';
 import { IconChevronDown } from '@/components/icons';
 import { ResizableRoomCanvas } from '@/components/admin/floor-plan/resizable-room-canvas';
-import { Alert, PageHeader, SaveStatusIndicator, useAutoSaveIndicator } from '@/components/ui';
+import { Alert, PageHeader, ResponsiveButtonLabel, SaveStatusIndicator, useAutoSaveIndicator } from '@/components/ui';
 import { ApiError, eventsApi } from '@/lib/api';
 import {
   loadEventUiMeta,
@@ -208,8 +208,15 @@ export function FloorPlanSetupView({
         saveStatus={<SaveStatusIndicator status={saveStatus} />}
         action={
           hasDistribution ? (
-            <Link href={routes.floorPlanLayout} className="btn-secondary">
-              Ver mesas en plano
+            <Link
+              href={routes.floorPlanLayout}
+              className="btn-secondary"
+              aria-label="Ver mesas en plano"
+            >
+              <ResponsiveButtonLabel
+                short="Ver plano"
+                full="Ver mesas en plano"
+              />
             </Link>
           ) : undefined
         }
@@ -408,7 +415,7 @@ export function FloorPlanSetupView({
               Accesorios
             </h2>
             <p className="mt-2 text-xs text-neutral-500">
-              Pulsa para marcar en el plano. Posicionar con drag — post-MVP.
+              Pulsa para marcar en el plano.
             </p>
             <div className="mt-4 grid max-h-64 grid-cols-2 gap-2 overflow-y-auto">
               {FLOOR_PLAN_ACCESSORIES.map((accessory) => (

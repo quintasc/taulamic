@@ -125,8 +125,8 @@ export function EventConfigView() {
             paso de Afinidades.
             {!PILOT_COLLABORATIVE_MODE_ENABLED ? (
               <span className="mt-1 block text-neutral-600">
-                Piloto julio: solo anfitrión exclusivo. El modo colaborativo
-                estará disponible post-piloto.
+                En el piloto actual: solo anfitrión exclusivo. El modo colaborativo
+                estará disponible más adelante.
               </span>
             ) : null}
           </p>
@@ -145,13 +145,6 @@ export function EventConfigView() {
             onSelect={() => setPreferenceMode('anfitrion_exclusivo')}
           />
         </div>
-
-        <p className="text-xs text-neutral-500">
-          Los cambios se guardan automáticamente al editar. Al pulsar Siguiente
-          se guarda de nuevo antes de continuar. El nombre del evento es
-          obligatorio. Fecha, lugar, invitados aproximados y notas se guardan en
-          este dispositivo (piloto).
-        </p>
       </div>
 
       {eventId ? (

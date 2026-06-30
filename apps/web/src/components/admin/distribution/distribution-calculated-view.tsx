@@ -6,6 +6,7 @@ import { DistributionTableList } from '@/components/admin/distribution/distribut
 import { UnassignedGuestsListDialog } from '@/components/admin/distribution/unassigned-guests-list-dialog';
 import { IconMap } from '@/components/icons';
 import { StatCard } from '@/components/ui';
+import { ResponsiveButtonLabel } from '@/components/ui/responsive-button-label';
 import type { DistributionProposal } from '@/lib/api';
 import {
   PILOT_AFFINITY_LABEL,
@@ -98,12 +99,16 @@ export function DistributionCalculatedView({
 
       <div className="mt-8 flex min-w-0 flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <p className="text-xs text-neutral-500">
-          Comparador Top-K — disponible post-piloto
+          Comparador Top-K — próximamente
         </p>
         <div className="flex w-full min-w-0 flex-col gap-2 lg:w-auto lg:flex-row lg:items-center">
-          <Link href={floorPlanHref} className="btn-secondary w-full gap-2 lg:w-auto">
+          <Link
+            href={floorPlanHref}
+            className="btn-secondary w-full gap-2 lg:w-auto"
+            aria-label="Ver mesas en plano"
+          >
             <IconMap width={16} height={16} />
-            Ver en plano
+            <ResponsiveButtonLabel short="Ver plano" full="Ver mesas en plano" />
           </Link>
           {proposal.status !== 'confirmed' ? (
             <button
@@ -111,8 +116,16 @@ export function DistributionCalculatedView({
               className="btn-primary w-full min-w-0 lg:w-auto"
               disabled={confirming || proposal.unassignedGuestIds.length > 0}
               onClick={onConfirm}
+              aria-label="Confirmar distribución"
             >
-              {confirming ? 'Confirmando…' : 'Confirmar distribución'}
+              {confirming ? (
+                'Confirmando…'
+              ) : (
+                <ResponsiveButtonLabel
+                  short="Confirmar"
+                  full="Confirmar distribución"
+                />
+              )}
             </button>
           ) : (
             <p className="text-sm font-medium text-success-500">

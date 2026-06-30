@@ -1,12 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState, type DragEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type DragEvent } from 'react';
 import { GuestPill } from '@/components/admin/distribution/guest-pill';
 import { AssignGuestDialog } from '@/components/admin/distribution/assign-guest-dialog';
 import { PlacementMutationFeedback } from '@/components/admin/distribution/placement-mutation-feedback';
 import { FloorPlanAccessoriesOverlay } from '@/components/admin/floor-plan/floor-plan-accessories-overlay';
 import { RoomShapeDisplay } from '@/components/admin/floor-plan/room-shape-display';
+import { useRoomCanvasMaxPx } from '@/components/admin/floor-plan/use-room-canvas-max-px';
 import { Alert, EmptyState, PageHeader } from '@/components/ui';
 import {
   acceptGuestDragOver,
@@ -16,10 +17,14 @@ import {
 import {
   filterChipClass,
   filterChipCountClass,
-  tableStatusCardClass,
+  tableStatusDotClass,
 } from '@/lib/semantic-ui';
 import {
   formatRoomDimensions,
+  computeTableGridLayout,
+  computeTableLayoutInsets,
+  roomPixelSize,
+  ROOM_CANVAS_CEILING_PX,
   type FloorPlanSetup,
 } from '@/lib/floor-plan-setup';
 import {
@@ -28,6 +33,7 @@ import {
   getStatusChipLabel,
   type DistributionTableFilter,
   type DistributionTableGroup,
+  type TableOccupancyStatus,
   type UnassignedGuestOption,
 } from '@/lib/distribution-view';
 
@@ -42,9 +48,86 @@ const STATUS_FILTER_OPTIONS: Array<{
   { id: 'empty', label: 'Vacías', countKey: 'empty' },
 ];
 
+const OCCUPANCY_LEGEND: Array<{ status: TableOccupancyStatus; label: string }> =
+  [
+    { status: 'full', label: 'Llena' },
+    { status: 'in-use', label: 'En uso' },
+    { status: 'empty', label: 'Vacía' },
+  ];
+
+function tableMarkerTooltip(group: DistributionTableGroup): string {
+  return `${group.tableLabel} · ${group.shapeLabel} · ${group.assignedCount}/${group.capacity} · ${getStatusChipLabel(group)}`;
+}
+
+const TABLE_MARKER_SLOT_CLASS =
+  'flex h-11 w-12 shrink-0 items-center justify-center';
+const TABLE_MARKER_SLOT_COMPACT_CLASS =
+  'flex h-9 w-10 shrink-0 items-center justify-center';
+
+function tableMarkerShapeClass(shapeLabel: string, compact: boolean): string {
+  if (compact) {
+    switch (shapeLabel) {
+      case 'Redonda':
+        return 'h-9 w-9 rounded-full';
+      case 'Ovalada':
+        return 'h-7 w-10 rounded-full';
+      case 'Rectangular':
+      default:
+        return 'h-8 w-10 rounded-md';
+    }
+  }
+  switch (shapeLabel) {
+    case 'Redonda':
+      return 'h-11 w-11 rounded-full';
+    case 'Ovalada':
+      return 'h-9 w-12 rounded-full';
+    case 'Rectangular':
+    default:
+      return 'h-9 w-11 rounded-md';
+  }
+}
+
+function tableMarkerAppearanceClass(
+  status: TableOccupancyStatus,
+  compact: boolean,
+): string {
+  const border = compact ? 'border-2' : 'border';
+  switch (status) {
+    case 'full':
+      return `${border} border-success-500 bg-success-500/15 text-success-700`;
+    case 'in-use':
+      return `${border} border-warning-500 bg-warning-500/15 text-warning-700`;
+    case 'empty':
+      return `${border} border-neutral-500 bg-white text-neutral-700 shadow-sm`;
+  }
+}
+
+function FloorPlanOccupancyLegend() {
+  return (
+    <div
+      className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5"
+      aria-label="Leyenda de ocupación de mesas"
+    >
+      {OCCUPANCY_LEGEND.map((item) => (
+        <span
+          key={item.status}
+          className="inline-flex items-center gap-1.5 text-xs text-neutral-600"
+        >
+          <span
+            className={`inline-block h-2.5 w-2.5 shrink-0 rounded-full ${tableStatusDotClass(item.status)}`}
+            aria-hidden
+          />
+          {item.label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 function TablePreviewCard({
   group,
   selected,
+  compact = false,
   dropActive = false,
   onSelect,
   onDragOver,
@@ -53,35 +136,47 @@ function TablePreviewCard({
 }: {
   group: DistributionTableGroup;
   selected: boolean;
+  compact?: boolean;
   dropActive?: boolean;
   onSelect: () => void;
   onDragOver?: (event: DragEvent) => void;
   onDragLeave?: () => void;
   onDrop?: (event: DragEvent) => void;
 }) {
-  const isRound =
-    group.shapeLabel === 'Redonda' || group.shapeLabel === 'Ovalada';
+  const tooltip = tableMarkerTooltip(group);
+  const shapeClass = tableMarkerShapeClass(group.shapeLabel, compact);
+  const ringClass = compact
+    ? selected
+      ? 'ring-2 ring-primary-500'
+      : dropActive
+        ? 'ring-2 ring-primary-500 brightness-105'
+        : ''
+    : selected
+      ? 'ring-2 ring-primary-500 ring-offset-2'
+      : dropActive
+        ? 'ring-2 ring-primary-500 ring-offset-1 brightness-105'
+        : '';
 
   return (
-    <button
-      type="button"
-      aria-pressed={selected}
-      aria-label={`Mesa ${group.tableLabel}, ${group.assignedCount} de ${group.capacity} asientos`}
-      onClick={onSelect}
-      onDragOver={onDragOver}
-      onDragLeave={onDragLeave}
-      onDrop={onDrop}
-      className={`flex flex-col items-center justify-center border-2 px-3 py-4 transition hover:brightness-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500 ${tableStatusCardClass(group.status)} ${
-        isRound ? 'aspect-square min-w-[88px] rounded-full' : 'min-w-[100px] rounded-xl'
-      } ${selected ? 'ring-2 ring-primary-500 ring-offset-2' : ''} ${
-        dropActive ? 'ring-2 ring-primary-500 ring-offset-1 brightness-105' : ''
-      }`}
-    >
-      <span className="text-sm font-bold">{group.tableLabel}</span>
-      <span className="mt-1 text-xs font-medium">
-        {group.assignedCount}/{group.capacity}
-      </span>
-    </button>
+    <div className={compact ? TABLE_MARKER_SLOT_COMPACT_CLASS : TABLE_MARKER_SLOT_CLASS}>
+      <button
+        type="button"
+        aria-pressed={selected}
+        aria-label={tooltip}
+        title={tooltip}
+        onClick={onSelect}
+        onDragOver={onDragOver}
+        onDragLeave={onDragLeave}
+        onDrop={onDrop}
+        className={`flex items-center justify-center px-0.5 transition hover:brightness-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500 ${shapeClass} ${tableMarkerAppearanceClass(group.status, compact)} ${ringClass}`}
+      >
+        <span
+          className={`max-w-full truncate font-bold leading-none ${compact ? 'text-[10px]' : 'text-[11px]'}`}
+        >
+          {group.tableLabel}
+        </span>
+      </button>
+    </div>
   );
 }
 
@@ -252,6 +347,12 @@ export function FloorPlanLayoutView({
     useState<DistributionTableGroup | null>(null);
   const [assignOpen, setAssignOpen] = useState(false);
   const [draggingGuestId, setDraggingGuestId] = useState<string | null>(null);
+  const canvasHostRef = useRef<HTMLDivElement>(null);
+  const canvasMaxPx = useRoomCanvasMaxPx(
+    canvasHostRef,
+    roomSetup,
+    ROOM_CANVAS_CEILING_PX,
+  );
   const [dropTargetTableId, setDropTargetTableId] = useState<string | null>(
     null,
   );
@@ -287,6 +388,22 @@ export function FloorPlanLayoutView({
     [tableGroups, statusFilter, search, shapeFilter],
   );
 
+  const tableLayout = useMemo(
+    () => computeTableLayoutInsets(filteredGroups.length, canvasMaxPx),
+    [filteredGroups.length, canvasMaxPx],
+  );
+  const tableGridLayout = useMemo(() => {
+    const { widthPx, heightPx } = roomPixelSize(roomSetup, canvasMaxPx);
+    const zoneWidthPx = ((100 - tableLayout.insetX * 2) / 100) * widthPx;
+    const zoneHeightPx = ((100 - tableLayout.insetY * 2) / 100) * heightPx;
+    return computeTableGridLayout(
+      filteredGroups.length,
+      zoneWidthPx,
+      zoneHeightPx,
+    );
+  }, [filteredGroups.length, canvasMaxPx, roomSetup, tableLayout]);
+  const compactTableMarkers = tableGridLayout.compact;
+
   useEffect(() => {
     if (!selectedGroup) {
       return;
@@ -319,8 +436,8 @@ export function FloorPlanLayoutView({
       <div className="mb-6">
         <Alert variant="info">
           {editable
-            ? 'Pulsa una mesa para ver invitados. Arrastra un pill a otra mesa para moverlo. Guardar posiciones de mesas — post-MVP.'
-            : 'Pulsa una mesa en el plano para ver sus invitados. Arrastrar y guardar posiciones — disponible post-MVP.'}
+            ? 'Pulsa una mesa para ver invitados. Arrastra un pill a otra mesa para moverlo.'
+            : 'Pulsa una mesa en el plano para ver sus invitados.'}
         </Alert>
       </div>
 
@@ -385,18 +502,43 @@ export function FloorPlanLayoutView({
         ) : null}
       </div>
 
-      <div className="flex min-h-[520px] flex-col">
-        <div className="card-admin relative flex min-h-[480px] flex-1 flex-col overflow-visible border-2 border-dashed border-neutral-200 bg-neutral-50/50 p-6">
-          <div className="flex flex-1 flex-col items-center justify-center gap-4">
-            <RoomShapeDisplay setup={roomSetup} maxPx={400}>
-              <FloorPlanAccessoriesOverlay
-                accessoryIds={roomSetup.placedAccessories}
-              />
-              <div className="absolute inset-[10%] z-[2] flex flex-wrap content-center justify-center gap-2">
+      <div className="flex min-h-0 flex-col">
+        <div className="card-admin relative flex min-h-[320px] flex-1 flex-col overflow-hidden border-2 border-dashed border-neutral-200 bg-neutral-50/50 p-3 sm:min-h-[480px] sm:p-6">
+          <div
+            ref={canvasHostRef}
+            className="flex w-full min-w-0 flex-1 flex-col items-center justify-center gap-4"
+          >
+            <RoomShapeDisplay setup={roomSetup} maxPx={canvasMaxPx}>
+              <div
+                className="absolute z-[2] flex items-center justify-center"
+                style={{
+                  left: `${tableLayout.insetX}%`,
+                  right: `${tableLayout.insetX}%`,
+                  top: `${tableLayout.insetY}%`,
+                  bottom: `${tableLayout.insetY}%`,
+                }}
+              >
+                <div
+                  style={{
+                    width: tableGridLayout.scaledWidth,
+                    height: tableGridLayout.scaledHeight,
+                  }}
+                >
+                  <div
+                    className="grid gap-0.5"
+                    style={{
+                      width: tableGridLayout.naturalWidth,
+                      height: tableGridLayout.naturalHeight,
+                      gridTemplateColumns: `repeat(${tableGridLayout.columns}, minmax(0, max-content))`,
+                      transform: `scale(${tableGridLayout.scale})`,
+                      transformOrigin: 'top left',
+                    }}
+                  >
                 {filteredGroups.map((group) => (
                   <TablePreviewCard
                     key={group.tableId}
                     group={group}
+                    compact={compactTableMarkers}
                     selected={selectedGroup?.tableId === group.tableId}
                     dropActive={dropTargetTableId === group.tableId}
                     onSelect={() =>
@@ -446,7 +588,14 @@ export function FloorPlanLayoutView({
                     }}
                   />
                 ))}
+                  </div>
+                </div>
               </div>
+              <FloorPlanAccessoriesOverlay
+                accessoryIds={roomSetup.placedAccessories}
+                tableCount={filteredGroups.length}
+                canvasRefPx={canvasMaxPx}
+              />
             </RoomShapeDisplay>
             {filteredGroups.length === 0 ? (
               <p className="text-sm text-neutral-500">
@@ -454,6 +603,8 @@ export function FloorPlanLayoutView({
               </p>
             ) : null}
           </div>
+
+          <FloorPlanOccupancyLegend />
 
           {selectedGroup ? (
             <div className="absolute right-4 top-4 z-30 w-72 max-w-[calc(100%-2rem)] sm:max-w-xs">

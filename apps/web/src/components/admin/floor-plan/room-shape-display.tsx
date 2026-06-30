@@ -29,7 +29,7 @@ export function RoomShapeDisplay({
 
   return (
     <div
-      className={`relative shrink-0 ${className}`}
+      className={`relative mx-auto max-w-full shrink-0 ${className}`}
       style={{ width: widthPx, height: heightPx }}
     >
       <div

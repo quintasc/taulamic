@@ -29,50 +29,327 @@ export const FLOOR_PLAN_ACCESSORIES = [
   { id: 'entrada', label: 'Entrada principal' },
 ] as const;
 
-/** Posición por defecto dentro del perímetro del salón (%). */
+/** Zona interior reservada a mesas (% del lienzo). Ajustada con `computeTableLayoutInsets`. */
+export const TABLE_LAYOUT_ZONE = {
+  topMin: 30,
+  topMax: 66,
+  leftMin: 26,
+  leftMax: 74,
+} as const;
+
+export type TableLayoutInsets = {
+  insetX: number;
+  insetY: number;
+  zone: {
+    topMin: number;
+    topMax: number;
+    leftMin: number;
+    leftMax: number;
+  };
+  clearance: number;
+};
+
+/** Márgenes del lienzo según densidad de mesas (evita desbordes hacia accesorios). */
+export function computeTableLayoutInsets(
+  tableCount: number,
+  canvasRefPx = TABLE_LAYOUT_CANVAS_REF_PX,
+): TableLayoutInsets {
+  let insetX: number;
+  let insetY: number;
+  let clearance: number;
+
+  if (tableCount <= 6) {
+    insetX = 24;
+    insetY = 26;
+    clearance = 10;
+  } else if (tableCount <= 12) {
+    insetX = 24;
+    insetY = 26;
+    clearance = 11;
+  } else if (tableCount <= 18) {
+    insetX = 22;
+    insetY = 24;
+    clearance = 12;
+  } else {
+    insetX = 20;
+    insetY = 22;
+    clearance = 14;
+  }
+
+  const boost = canvasInsetBoost(canvasRefPx);
+  insetX += boost;
+  insetY += boost;
+  clearance += boost > 0 ? 1 : 0;
+
+  return {
+    insetX,
+    insetY,
+    zone: {
+      topMin: insetY,
+      topMax: 100 - insetY,
+      leftMin: insetX,
+      leftMax: 100 - insetX,
+    },
+    clearance,
+  };
+}
+
+const TABLE_MARKER_CELL_W_PX = { normal: 48, compact: 40 } as const;
+const TABLE_MARKER_CELL_H_PX = { normal: 44, compact: 36 } as const;
+const TABLE_GRID_GAP_PX = 2;
+
+/** Tamaño de referencia del lienzo (px) para escala de mesas y accesorios. */
+export const ROOM_CANVAS_CEILING_PX = 400;
+export const TABLE_LAYOUT_CANVAS_REF_PX = ROOM_CANVAS_CEILING_PX;
+
+/** Ajusta el techo de escala del lienzo al ancho disponible del contenedor. */
+export function resolveRoomCanvasMaxPx(
+  setup: FloorPlanSetup,
+  containerWidthPx: number,
+  ceilingPx = ROOM_CANVAS_CEILING_PX,
+): number {
+  if (containerWidthPx <= 0) {
+    return ceilingPx;
+  }
+  const budgetPx = Math.floor(Math.min(ceilingPx, containerWidthPx));
+  const atCeiling = roomPixelSize(setup, ceilingPx);
+  if (atCeiling.widthPx <= budgetPx) {
+    return ceilingPx;
+  }
+  const scaledMaxPx = Math.floor((ceilingPx * budgetPx) / atCeiling.widthPx);
+  return Math.max(160, scaledMaxPx);
+}
+
+function canvasInsetBoost(canvasRefPx: number): number {
+  if (canvasRefPx < 300) {
+    return 4;
+  }
+  if (canvasRefPx < 360) {
+    return 2;
+  }
+  return 0;
+}
+
+export function computeTableGridColumns(tableCount: number): number {
+  if (tableCount <= 1) {
+    return 1;
+  }
+  if (tableCount <= 4) {
+    return 2;
+  }
+  if (tableCount <= 9) {
+    return 3;
+  }
+  if (tableCount <= 16) {
+    return 4;
+  }
+  if (tableCount <= 25) {
+    return 5;
+  }
+  return 6;
+}
+
+export function isCompactTableMarker(tableCount: number): boolean {
+  return tableCount > 12;
+}
+
+export function computeTableGridNaturalSize(tableCount: number): {
+  columns: number;
+  compact: boolean;
+  width: number;
+  height: number;
+} {
+  const columns = computeTableGridColumns(tableCount);
+  const rows = Math.ceil(Math.max(tableCount, 1) / columns);
+  const compact = isCompactTableMarker(tableCount);
+  const cellW = compact ? TABLE_MARKER_CELL_W_PX.compact : TABLE_MARKER_CELL_W_PX.normal;
+  const cellH = compact ? TABLE_MARKER_CELL_H_PX.compact : TABLE_MARKER_CELL_H_PX.normal;
+  return {
+    columns,
+    compact,
+    width: columns * cellW + (columns - 1) * TABLE_GRID_GAP_PX,
+    height: rows * cellH + (rows - 1) * TABLE_GRID_GAP_PX,
+  };
+}
+
+export type TableGridLayout = {
+  columns: number;
+  compact: boolean;
+  scale: number;
+  naturalWidth: number;
+  naturalHeight: number;
+  scaledWidth: number;
+  scaledHeight: number;
+};
+
+/** Escala la rejilla al hueco disponible (px reales de la zona de mesas). */
+export function computeTableGridLayout(
+  tableCount: number,
+  zoneWidthPx: number,
+  zoneHeightPx: number,
+): TableGridLayout {
+  const natural = computeTableGridNaturalSize(tableCount);
+  if (tableCount <= 0 || zoneWidthPx <= 0 || zoneHeightPx <= 0) {
+    return {
+      columns: natural.columns,
+      compact: natural.compact,
+      scale: 1,
+      naturalWidth: natural.width,
+      naturalHeight: natural.height,
+      scaledWidth: natural.width,
+      scaledHeight: natural.height,
+    };
+  }
+
+  const scale = Math.min(
+    1,
+    zoneWidthPx / natural.width,
+    zoneHeightPx / natural.height,
+  );
+
+  return {
+    columns: natural.columns,
+    compact: natural.compact,
+    scale,
+    naturalWidth: natural.width,
+    naturalHeight: natural.height,
+    scaledWidth: natural.width * scale,
+    scaledHeight: natural.height * scale,
+  };
+}
+
+/** @deprecated Usar `computeTableGridLayout` con dimensiones reales de la zona. */
+export function computeTableGridScale(
+  tableCount: number,
+  canvasRefPx = TABLE_LAYOUT_CANVAS_REF_PX,
+): number {
+  const { insetX, insetY } = computeTableLayoutInsets(tableCount, canvasRefPx);
+  const zoneWidthPx = ((100 - insetX * 2) / 100) * canvasRefPx;
+  const zoneHeightPx = ((100 - insetY * 2) / 100) * canvasRefPx;
+  return computeTableGridLayout(tableCount, zoneWidthPx, zoneHeightPx).scale;
+}
+
+/** Posición por defecto en bandas periféricas (%). */
 export const ACCESSORY_LAYOUT: Record<
   string,
   { top: string; left: string }
 > = {
-  'mesa-presidencial': { top: '14%', left: '50%' },
-  escenario: { top: '28%', left: '82%' },
-  'pista-baile': { top: '52%', left: '50%' },
-  'barra-bar': { top: '28%', left: '18%' },
-  puerta: { top: '82%', left: '22%' },
-  servicio: { top: '72%', left: '78%' },
-  entrada: { top: '86%', left: '50%' },
+  'mesa-presidencial': { top: '8%', left: '50%' },
+  entrada: { top: '8%', left: '68%' },
+  'pista-baile': { top: '92%', left: '50%' },
+  escenario: { top: '92%', left: '26%' },
+  'barra-bar': { top: '92%', left: '74%' },
+  servicio: { top: '50%', left: '6%' },
+  puerta: { top: '50%', left: '94%' },
 };
 
-/** Posiciones alternativas (primera libre respecto a otros accesorios ya colocados). */
+/** Posiciones alternativas (primera libre respecto a mesas y otros accesorios). */
 export const ACCESSORY_LAYOUT_CANDIDATES: Record<
   string,
   Array<{ top: string; left: string }>
 > = {
+  'mesa-presidencial': [
+    { top: '8%', left: '50%' },
+    { top: '8%', left: '44%' },
+    { top: '8%', left: '56%' },
+  ],
+  entrada: [
+    { top: '8%', left: '68%' },
+    { top: '8%', left: '74%' },
+    { top: '8%', left: '62%' },
+  ],
+  'pista-baile': [
+    { top: '92%', left: '50%' },
+    { top: '92%', left: '44%' },
+    { top: '92%', left: '56%' },
+  ],
   escenario: [
-    { top: '28%', left: '82%' },
-    { top: '28%', left: '78%' },
-    { top: '22%', left: '82%' },
-    { top: '34%', left: '82%' },
-    { top: '10%', left: '72%' },
-    { top: '10%', left: '50%' },
+    { top: '92%', left: '26%' },
+    { top: '92%', left: '20%' },
+    { top: '92%', left: '32%' },
+  ],
+  'barra-bar': [
+    { top: '92%', left: '74%' },
+    { top: '92%', left: '80%' },
+    { top: '92%', left: '68%' },
+  ],
+  servicio: [
+    { top: '50%', left: '6%' },
+    { top: '50%', left: '5%' },
+    { top: '38%', left: '6%' },
+    { top: '62%', left: '6%' },
+  ],
+  puerta: [
+    { top: '50%', left: '94%' },
+    { top: '50%', left: '95%' },
+    { top: '38%', left: '94%' },
+    { top: '62%', left: '94%' },
   ],
 };
+
+const PERIPHERAL_FALLBACK_CANDIDATES: Array<{ top: string; left: string }> = [
+  { top: '8%', left: '38%' },
+  { top: '8%', left: '62%' },
+  { top: '8%', left: '76%' },
+  { top: '92%', left: '38%' },
+  { top: '92%', left: '62%' },
+  { top: '50%', left: '5%' },
+  { top: '50%', left: '95%' },
+  { top: '38%', left: '6%' },
+  { top: '62%', left: '94%' },
+];
 
 /** Prioridad al repartir huecos (los primeros reservan su posición preferida). */
 const ACCESSORY_PLACEMENT_PRIORITY = [
   'mesa-presidencial',
   'entrada',
   'pista-baile',
-  'barra-bar',
-  'puerta',
-  'servicio',
   'escenario',
+  'barra-bar',
+  'servicio',
+  'puerta',
 ] as const;
 
 const ACCESSORY_SLOT_MIN_SEPARATION_PCT = 14;
 
 function parseLayoutPercent(value: string): number {
   return Number.parseFloat(value);
+}
+
+export function layoutInTableZone(layout: { top: string; left: string }): boolean {
+  const top = parseLayoutPercent(layout.top);
+  const left = parseLayoutPercent(layout.left);
+  return (
+    top > TABLE_LAYOUT_ZONE.topMin &&
+    top < TABLE_LAYOUT_ZONE.topMax &&
+    left > TABLE_LAYOUT_ZONE.leftMin &&
+    left < TABLE_LAYOUT_ZONE.leftMax
+  );
+}
+
+function isPeripheralSlot(layout: { top: string; left: string }): boolean {
+  const top = parseLayoutPercent(layout.top);
+  const left = parseLayoutPercent(layout.left);
+  return top <= 12 || top >= 88 || left <= 12 || left >= 88;
+}
+
+function layoutTooCloseToTableZone(
+  layout: { top: string; left: string },
+  layoutInsets: TableLayoutInsets,
+): boolean {
+  if (isPeripheralSlot(layout)) {
+    return false;
+  }
+  const top = parseLayoutPercent(layout.top);
+  const left = parseLayoutPercent(layout.left);
+  const pad = layoutInsets.clearance;
+  const { topMin, topMax, leftMin, leftMax } = layoutInsets.zone;
+  return (
+    top >= topMin - pad &&
+    top <= topMax + pad &&
+    left >= leftMin - pad &&
+    left <= leftMax + pad
+  );
 }
 
 function accessorySlotsOverlap(
@@ -89,14 +366,45 @@ function accessorySlotsOverlap(
   );
 }
 
-function accessoryLayoutCandidates(id: string): Array<{ top: string; left: string }> {
-  return ACCESSORY_LAYOUT_CANDIDATES[id] ?? [ACCESSORY_LAYOUT[id] ?? { top: '50%', left: '50%' }];
+function layoutSlotBlocked(
+  candidate: { top: string; left: string },
+  occupied: Array<{ top: string; left: string }>,
+  layoutInsets: TableLayoutInsets,
+): boolean {
+  if (!isPeripheralSlot(candidate)) {
+    return true;
+  }
+  if (layoutTooCloseToTableZone(candidate, layoutInsets)) {
+    return true;
+  }
+  return occupied.some((taken) => accessorySlotsOverlap(candidate, taken));
 }
 
-/** Asigna posición por accesorio evitando solapamientos visuales. */
+function accessoryLayoutCandidates(id: string): Array<{ top: string; left: string }> {
+  const preferred =
+    ACCESSORY_LAYOUT_CANDIDATES[id] ?? [
+      ACCESSORY_LAYOUT[id] ?? { top: '12%', left: '50%' },
+    ];
+  const merged = [...preferred];
+  for (const slot of PERIPHERAL_FALLBACK_CANDIDATES) {
+    if (
+      !merged.some(
+        (item) => item.top === slot.top && item.left === slot.left,
+      )
+    ) {
+      merged.push(slot);
+    }
+  }
+  return merged;
+}
+
+/** Asigna posición por accesorio evitando solapamientos con mesas y entre sí. */
 export function resolveAccessoryLayouts(
   placedIds: string[],
+  tableCount = 0,
+  canvasRefPx = TABLE_LAYOUT_CANVAS_REF_PX,
 ): Record<string, { top: string; left: string }> {
+  const layoutInsets = computeTableLayoutInsets(tableCount, canvasRefPx);
   const ordered = [...placedIds].sort((a, b) => {
     const rank = (id: string) => {
       const index = ACCESSORY_PLACEMENT_PRIORITY.indexOf(
@@ -111,12 +419,19 @@ export function resolveAccessoryLayouts(
   const layouts: Record<string, { top: string; left: string }> = {};
 
   for (const id of ordered) {
-    const candidates = accessoryLayoutCandidates(id);
+    const candidates = accessoryLayoutCandidates(id).filter(isPeripheralSlot);
     const slot =
       candidates.find(
-        (candidate) =>
-          !occupied.some((taken) => accessorySlotsOverlap(candidate, taken)),
-      ) ?? candidates[0];
+        (candidate) => !layoutSlotBlocked(candidate, occupied, layoutInsets),
+      ) ??
+      PERIPHERAL_FALLBACK_CANDIDATES.find(
+        (candidate) => !layoutSlotBlocked(candidate, occupied, layoutInsets),
+      ) ??
+      candidates.find(
+        (candidate) => !layoutTooCloseToTableZone(candidate, layoutInsets),
+      ) ??
+      candidates[0] ??
+      PERIPHERAL_FALLBACK_CANDIDATES[0];
 
     layouts[id] = slot;
     occupied.push(slot);

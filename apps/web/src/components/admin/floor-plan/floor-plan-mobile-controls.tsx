@@ -54,7 +54,7 @@ export function FloorPlanRecommendationStrip({
   );
 }
 
-function AccessoryChip({
+export function AccessoryChip({
   accessoryId,
   label,
   active,
@@ -157,7 +157,8 @@ export function FloorPlanMobileControls({
         <button
           type="button"
           className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-neutral-500 hover:bg-neutral-100 hover:text-neutral-800 disabled:opacity-40"
-          aria-label="Quitar accesorios del plano"
+          aria-label="Limpiar plano"
+          title="Limpiar plano"
           disabled={setup.placedAccessories.length === 0}
           onClick={onClearAccessories}
         >
@@ -166,7 +167,8 @@ export function FloorPlanMobileControls({
         <button
           type="button"
           className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-primary-600 hover:bg-primary-500/10 disabled:opacity-40"
-          aria-label="Aplicar tamaño recomendado"
+          aria-label="Volver al tamaño recomendado"
+          title="Volver al tamaño recomendado"
           disabled={!recommendation}
           onClick={onApplyRecommendedSize}
         >

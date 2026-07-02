@@ -3,12 +3,12 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { SetupNavBar } from '@/components/admin/setup-nav-bar';
-import { FloorAccessoryIcon, getFloorAccessoryDisplaySize } from '@/components/admin/floor-plan/floor-accessory-icon';
 import {
+  AccessoryChip,
   FloorPlanMobileControls,
   FloorPlanRecommendationStrip,
 } from '@/components/admin/floor-plan/floor-plan-mobile-controls';
-import { IconChevronDown } from '@/components/icons';
+import { IconChevronDown, IconClose, IconRefresh } from '@/components/icons';
 import { ResizableRoomCanvas } from '@/components/admin/floor-plan/resizable-room-canvas';
 import { RoomDimensionFields } from '@/components/admin/floor-plan/room-dimension-fields';
 import {
@@ -53,42 +53,6 @@ import {
   recommendRoomSize,
 } from '@/lib/room-size-recommendation';
 import { SETUP_NAV_COPY, DISTRIBUTION_COPY } from '@/lib/ui-copy';
-
-function AccessoryCard({
-  accessoryId,
-  label,
-  active,
-  onClick,
-}: {
-  accessoryId: string;
-  label: string;
-  active: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`flex flex-col items-center justify-center gap-2 rounded-xl border px-3 py-4 text-center transition ${
-        active
-          ? 'border-primary-500 bg-primary-500/10'
-          : 'border-neutral-200 bg-neutral-0 hover:border-primary-500/40 hover:bg-primary-500/5'
-      }`}
-    >
-      <span
-        className={`flex h-14 w-14 items-center justify-center rounded-lg ${
-          active ? 'bg-primary-500/15 text-primary-600' : 'bg-wf-2 text-neutral-600'
-        }`}
-      >
-        <FloorAccessoryIcon
-          id={accessoryId}
-          size={getFloorAccessoryDisplaySize(accessoryId, 'card')}
-        />
-      </span>
-      <span className="text-xs font-medium text-neutral-700">{label}</span>
-    </button>
-  );
-}
 
 function sameFloorPlanSetup(
   current: FloorPlanSetup,
@@ -429,6 +393,34 @@ export function FloorPlanSetupView({
         </div>
       </div>
 
+      {/* Paleta de accesorios horizontal — solo desktop */}
+      <div className="mb-4 hidden lg:flex items-center gap-3 rounded-2xl border border-neutral-200 bg-neutral-0 px-4 py-3">
+        <p className="shrink-0 text-[10px] font-bold uppercase tracking-[0.08em] text-wf-5">
+          Accesorios
+        </p>
+        <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto py-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {FLOOR_PLAN_ACCESSORIES.map((accessory) => (
+            <AccessoryChip
+              key={accessory.id}
+              accessoryId={accessory.id}
+              label={accessory.label}
+              active={setup.placedAccessories.includes(accessory.id)}
+              onClick={() => toggleAccessory(accessory.id)}
+            />
+          ))}
+        </div>
+        <button
+          type="button"
+          title="Limpiar plano"
+          aria-label="Limpiar plano"
+          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 disabled:opacity-40"
+          disabled={setup.placedAccessories.length === 0}
+          onClick={clearAccessories}
+        >
+          <IconClose width={16} height={16} />
+        </button>
+      </div>
+
       <div className="hidden gap-6 lg:grid xl:grid-cols-[minmax(0,1fr)_300px]">
         <div className="flex flex-col">
           <div
@@ -442,9 +434,21 @@ export function FloorPlanSetupView({
             />
           </div>
 
-          <p className="mt-3 text-center text-sm font-medium text-neutral-600">
-            {formatRoomDimensions(setup)}
-          </p>
+          <div className="mt-3 flex items-center justify-center gap-2">
+            <p className="text-sm font-medium text-neutral-600">
+              {formatRoomDimensions(setup)}
+            </p>
+            <button
+              type="button"
+              title="Volver al tamaño recomendado"
+              aria-label="Volver al tamaño recomendado"
+              className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-primary-600 hover:bg-primary-500/10 disabled:opacity-40"
+              disabled={!roomRecommendation}
+              onClick={applyRecommendedSize}
+            >
+              <IconRefresh width={14} height={14} />
+            </button>
+          </div>
           {atVisualMax ? (
             <p className="mt-1 text-center text-xs text-warning-600">
               ⚠ Límite visual de pantalla alcanzado. Las medidas reales se guardarán correctamente.
@@ -542,25 +546,6 @@ export function FloorPlanSetupView({
             ) : null}
           </div>
 
-          <div className="card-admin">
-            <h2 className="text-[10px] font-bold uppercase tracking-[0.08em] text-wf-5">
-              Accesorios
-            </h2>
-            <p className="mt-2 text-xs text-neutral-500">
-              Pulsa para marcar en el plano.
-            </p>
-            <div className="mt-4 grid max-h-64 grid-cols-2 gap-2 overflow-y-auto">
-              {FLOOR_PLAN_ACCESSORIES.map((accessory) => (
-                <AccessoryCard
-                  key={accessory.id}
-                  accessoryId={accessory.id}
-                  label={accessory.label}
-                  active={setup.placedAccessories.includes(accessory.id)}
-                  onClick={() => toggleAccessory(accessory.id)}
-                />
-              ))}
-            </div>
-          </div>
         </aside>
       </div>
 

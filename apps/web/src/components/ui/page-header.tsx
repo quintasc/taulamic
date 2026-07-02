@@ -18,9 +18,9 @@ export function PageHeader({
         ) : null}
       </div>
       {saveStatus || action ? (
-        <div className="flex flex-col items-end gap-2">
-          {saveStatus}
+        <div className="flex shrink-0 flex-row items-center gap-3">
           {action}
+          {saveStatus}
         </div>
       ) : null}
     </div>

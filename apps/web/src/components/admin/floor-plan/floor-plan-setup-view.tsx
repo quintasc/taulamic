@@ -393,92 +393,32 @@ export function FloorPlanSetupView({
         </div>
       </div>
 
-      {/* Paleta de accesorios horizontal — solo desktop */}
-      <div className="mb-4 hidden lg:flex items-center gap-3 rounded-2xl border border-neutral-200 bg-neutral-0 px-4 py-3">
-        <p className="shrink-0 text-[10px] font-bold uppercase tracking-[0.08em] text-wf-5">
-          Accesorios
-        </p>
-        <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto py-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {FLOOR_PLAN_ACCESSORIES.map((accessory) => (
-            <AccessoryChip
-              key={accessory.id}
-              accessoryId={accessory.id}
-              label={accessory.label}
-              active={setup.placedAccessories.includes(accessory.id)}
-              onClick={() => toggleAccessory(accessory.id)}
-            />
-          ))}
-        </div>
-        <button
-          type="button"
-          title="Limpiar plano"
-          aria-label="Limpiar plano"
-          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 disabled:opacity-40"
-          disabled={setup.placedAccessories.length === 0}
-          onClick={clearAccessories}
-        >
-          <IconClose width={16} height={16} />
-        </button>
-      </div>
+      {/* Desktop — layout vertical igual que móvil: Config → Accesorios → Plano */}
+      <div className="hidden lg:block lg:space-y-4">
 
-      <div className="hidden gap-6 lg:grid xl:grid-cols-[minmax(0,1fr)_300px]">
-        <div className="flex flex-col">
-          <div
-            ref={desktopCanvasCardRef}
-            className="card-admin flex min-h-0 flex-1 flex-col overflow-visible border-2 border-dashed border-neutral-200 bg-neutral-50/40 p-4 md:p-6"
+        {/* 1. Configuración del salón */}
+        <div className="card-admin">
+          <button
+            type="button"
+            className="flex w-full items-center justify-between gap-2 text-left"
+            onClick={() => setConfigOpen((open) => !open)}
           >
-            <ResizableRoomCanvas
-              setup={setup}
-              onChange={updateSetup}
-              areaRef={desktopCanvasCardRef}
+            <h2 className="text-[10px] font-bold uppercase tracking-[0.08em] text-wf-5">
+              Configuración del salón
+            </h2>
+            <IconChevronDown
+              width={16}
+              height={16}
+              className={`shrink-0 text-neutral-400 transition ${configOpen ? 'rotate-180' : ''}`}
             />
-          </div>
+          </button>
 
-          <div className="mt-3 flex items-center justify-center gap-2">
-            <p className="text-sm font-medium text-neutral-600">
-              {formatRoomDimensions(setup)}
-            </p>
-            <button
-              type="button"
-              title="Volver al tamaño recomendado"
-              aria-label="Volver al tamaño recomendado"
-              className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-primary-600 hover:bg-primary-500/10 disabled:opacity-40"
-              disabled={!roomRecommendation}
-              onClick={applyRecommendedSize}
-            >
-              <IconRefresh width={14} height={14} />
-            </button>
-          </div>
-          {atVisualMax ? (
-            <p className="mt-1 text-center text-xs text-warning-600">
-              ⚠ Límite visual de pantalla alcanzado. Las medidas reales se guardarán correctamente.
-            </p>
-          ) : null}
-        </div>
-
-        <aside className="space-y-4">
-          <div className="card-admin">
-            <button
-              type="button"
-              className="flex w-full items-center justify-between gap-2 text-left"
-              onClick={() => setConfigOpen((open) => !open)}
-            >
-              <h2 className="text-[10px] font-bold uppercase tracking-[0.08em] text-wf-5">
-                Configuración del salón
-              </h2>
-              <IconChevronDown
-                width={16}
-                height={16}
-                className={`shrink-0 text-neutral-400 transition ${configOpen ? 'rotate-180' : ''}`}
-              />
-            </button>
-
-            {configOpen ? (
-              <div className="mt-4 space-y-4">
-                <div>
-                  <p className="mb-2 text-xs font-medium text-neutral-700">
-                    Forma
-                  </p>
+          {configOpen ? (
+            <div className="mt-4 space-y-4">
+              <div className="flex items-start gap-6">
+                {/* Forma */}
+                <div className="shrink-0">
+                  <p className="mb-2 text-xs font-medium text-neutral-700">Forma</p>
                   <div className="flex flex-wrap gap-2">
                     {ROOM_SHAPE_OPTIONS.map((option) => {
                       const active = setup.shape === option.id;
@@ -499,54 +439,116 @@ export function FloorPlanSetupView({
                     })}
                   </div>
                 </div>
-
-                <RoomDimensionFields
-                  setup={setup}
-                  limits={fieldLimits}
-                  onUpdate={updateSetup}
-                  labelClassName="mb-1.5 block text-xs font-medium text-neutral-700"
-                />
-
-                {setup.shape === 'oval' ? (
-                  <p className="text-xs text-neutral-500">
-                    Ovalada: dos ejes del rectángulo que la contiene (como una
-                    elipse).
-                  </p>
-                ) : null}
-
-                <p className="text-xs text-neutral-500">
-                  {formatDimensionLimitsLabel()} Puedes afinar con +/− o arrastrando el
-                  marcador del plano. El dibujo escala para encajar en pantalla.
-                </p>
-
-                {atVisualMax ? (
-                  <p className="text-xs font-medium text-warning-600">
-                    ⚠ Límite visual alcanzado. Las medidas reales se guardan correctamente.
-                  </p>
-                ) : null}
-
-                {setup.shape !== 'round' && isRoomAtMaxWidth(setup) ? (
-                  <p className="text-xs font-medium text-warning-600">
-                    Ancho máximo absoluto alcanzado ({setup.widthM} m).
-                  </p>
-                ) : null}
-
-                {setup.shape !== 'round' && isRoomAtMaxLength(setup) ? (
-                  <p className="text-xs font-medium text-warning-600">
-                    Largo máximo absoluto alcanzado ({setup.lengthM} m).
-                  </p>
-                ) : null}
-
-                {setup.shape === 'round' && isRoomAtMaxWidth(setup) ? (
-                  <p className="text-xs font-medium text-warning-600">
-                    Radio máximo absoluto alcanzado ({setup.radiusM} m).
-                  </p>
-                ) : null}
+                {/* Medidas */}
+                <div className="flex-1">
+                  <RoomDimensionFields
+                    setup={setup}
+                    limits={fieldLimits}
+                    onUpdate={updateSetup}
+                    labelClassName="mb-1.5 block text-xs font-medium text-neutral-700"
+                  />
+                </div>
               </div>
-            ) : null}
-          </div>
 
-        </aside>
+              {setup.shape === 'oval' ? (
+                <p className="text-xs text-neutral-500">
+                  Ovalada: dos ejes del rectángulo que la contiene (como una elipse).
+                </p>
+              ) : null}
+
+              <p className="text-xs text-neutral-500">
+                {formatDimensionLimitsLabel()} Puedes afinar con +/− o arrastrando el
+                marcador del plano. El dibujo escala para encajar en pantalla.
+              </p>
+
+              {atVisualMax ? (
+                <p className="text-xs font-medium text-warning-600">
+                  ⚠ Límite visual alcanzado. Las medidas reales se guardan correctamente.
+                </p>
+              ) : null}
+
+              {setup.shape !== 'round' && isRoomAtMaxWidth(setup) ? (
+                <p className="text-xs font-medium text-warning-600">
+                  Ancho máximo absoluto alcanzado ({setup.widthM} m).
+                </p>
+              ) : null}
+
+              {setup.shape !== 'round' && isRoomAtMaxLength(setup) ? (
+                <p className="text-xs font-medium text-warning-600">
+                  Largo máximo absoluto alcanzado ({setup.lengthM} m).
+                </p>
+              ) : null}
+
+              {setup.shape === 'round' && isRoomAtMaxWidth(setup) ? (
+                <p className="text-xs font-medium text-warning-600">
+                  Radio máximo absoluto alcanzado ({setup.radiusM} m).
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+
+        {/* 2. Accesorios */}
+        <div className="flex items-center gap-3 rounded-2xl border border-neutral-200 bg-neutral-0 px-4 py-3">
+          <p className="shrink-0 text-[10px] font-bold uppercase tracking-[0.08em] text-wf-5">
+            Accesorios
+          </p>
+          <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto py-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {FLOOR_PLAN_ACCESSORIES.map((accessory) => (
+              <AccessoryChip
+                key={accessory.id}
+                accessoryId={accessory.id}
+                label={accessory.label}
+                active={setup.placedAccessories.includes(accessory.id)}
+                onClick={() => toggleAccessory(accessory.id)}
+              />
+            ))}
+          </div>
+          <button
+            type="button"
+            title="Limpiar plano"
+            aria-label="Limpiar plano"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 disabled:opacity-40"
+            disabled={setup.placedAccessories.length === 0}
+            onClick={clearAccessories}
+          >
+            <IconClose width={16} height={16} />
+          </button>
+        </div>
+
+        {/* 3. Plano */}
+        <div
+          ref={desktopCanvasCardRef}
+          className="card-admin overflow-visible border-2 border-dashed border-neutral-200 bg-neutral-50/40 p-4 md:p-6"
+          style={{ minHeight: 'min(65vh, 520px)' }}
+        >
+          <ResizableRoomCanvas
+            setup={setup}
+            onChange={updateSetup}
+            areaRef={desktopCanvasCardRef}
+          />
+        </div>
+
+        <div className="flex items-center justify-center gap-2">
+          <p className="text-sm font-medium text-neutral-600">
+            {formatRoomDimensions(setup)}
+          </p>
+          <button
+            type="button"
+            title="Volver al tamaño recomendado"
+            aria-label="Volver al tamaño recomendado"
+            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-primary-600 hover:bg-primary-500/10 disabled:opacity-40"
+            disabled={!roomRecommendation}
+            onClick={applyRecommendedSize}
+          >
+            <IconRefresh width={14} height={14} />
+          </button>
+        </div>
+        {atVisualMax ? (
+          <p className="text-center text-xs text-warning-600">
+            ⚠ Límite visual de pantalla alcanzado. Las medidas reales se guardarán correctamente.
+          </p>
+        ) : null}
       </div>
 
       <SetupNavBar

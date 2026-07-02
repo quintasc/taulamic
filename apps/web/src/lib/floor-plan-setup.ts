@@ -252,66 +252,66 @@ export const ACCESSORY_LAYOUT_CANDIDATES: Record<
   Array<{ top: string; left: string }>
 > = {
   'mesa-presidencial': [
-    { top: '8%', left: '50%' },
-    { top: '8%', left: '40%' },
-    { top: '8%', left: '60%' },
-    { top: '6%', left: '24%' },
-    { top: '6%', left: '76%' },
+    { top: '5%', left: '50%' },
+    { top: '5%', left: '40%' },
+    { top: '5%', left: '60%' },
+    { top: '4%', left: '24%' },
+    { top: '4%', left: '76%' },
   ],
   entrada: [
-    { top: '8%', left: '68%' },
-    { top: '8%', left: '74%' },
-    { top: '8%', left: '62%' },
-    { top: '6%', left: '82%' },
-    { top: '6%', left: '18%' },
+    { top: '5%', left: '68%' },
+    { top: '5%', left: '74%' },
+    { top: '5%', left: '62%' },
+    { top: '4%', left: '82%' },
+    { top: '4%', left: '18%' },
   ],
   'pista-baile': [
-    { top: '92%', left: '50%' },
-    { top: '92%', left: '40%' },
-    { top: '92%', left: '60%' },
-    { top: '94%', left: '24%' },
-    { top: '94%', left: '76%' },
+    { top: '95%', left: '50%' },
+    { top: '95%', left: '40%' },
+    { top: '95%', left: '60%' },
+    { top: '96%', left: '24%' },
+    { top: '96%', left: '76%' },
   ],
   escenario: [
-    { top: '92%', left: '26%' },
-    { top: '92%', left: '20%' },
-    { top: '92%', left: '32%' },
-    { top: '94%', left: '12%' },
+    { top: '95%', left: '26%' },
+    { top: '95%', left: '20%' },
+    { top: '95%', left: '32%' },
+    { top: '96%', left: '12%' },
   ],
   'barra-bar': [
-    { top: '92%', left: '74%' },
-    { top: '92%', left: '80%' },
-    { top: '92%', left: '68%' },
-    { top: '94%', left: '88%' },
+    { top: '95%', left: '74%' },
+    { top: '95%', left: '80%' },
+    { top: '95%', left: '68%' },
+    { top: '96%', left: '88%' },
   ],
   servicio: [
-    { top: '50%', left: '6%' },
-    { top: '50%', left: '5%' },
-    { top: '38%', left: '6%' },
-    { top: '62%', left: '6%' },
-    { top: '28%', left: '5%' },
-    { top: '72%', left: '5%' },
+    { top: '50%', left: '4%' },
+    { top: '50%', left: '3%' },
+    { top: '38%', left: '4%' },
+    { top: '62%', left: '4%' },
+    { top: '28%', left: '3%' },
+    { top: '72%', left: '3%' },
   ],
   puerta: [
-    { top: '50%', left: '94%' },
-    { top: '50%', left: '95%' },
-    { top: '38%', left: '94%' },
-    { top: '62%', left: '94%' },
-    { top: '28%', left: '95%' },
-    { top: '72%', left: '95%' },
+    { top: '50%', left: '96%' },
+    { top: '50%', left: '97%' },
+    { top: '38%', left: '96%' },
+    { top: '62%', left: '96%' },
+    { top: '28%', left: '97%' },
+    { top: '72%', left: '97%' },
   ],
 };
 
 const PERIPHERAL_FALLBACK_CANDIDATES: Array<{ top: string; left: string }> = [
-  { top: '8%', left: '38%' },
-  { top: '8%', left: '62%' },
-  { top: '8%', left: '76%' },
-  { top: '92%', left: '38%' },
-  { top: '92%', left: '62%' },
-  { top: '50%', left: '5%' },
-  { top: '50%', left: '95%' },
-  { top: '38%', left: '6%' },
-  { top: '62%', left: '94%' },
+  { top: '5%', left: '38%' },
+  { top: '5%', left: '62%' },
+  { top: '5%', left: '76%' },
+  { top: '95%', left: '38%' },
+  { top: '95%', left: '62%' },
+  { top: '50%', left: '4%' },
+  { top: '50%', left: '96%' },
+  { top: '38%', left: '4%' },
+  { top: '62%', left: '96%' },
 ];
 
 /** Prioridad al repartir huecos (los primeros reservan su posición preferida). */
@@ -330,19 +330,20 @@ const ACCESSORY_SLOT_MIN_SEPARATION_LABELED_PCT = 22;
 
 /** Huecos fijos en lienzo retrato (móvil): un accesorio por ranura, sin solaparse. */
 export const PORTRAIT_FIXED_ACCESSORY_SLOTS: Array<{ top: string; left: string }> = [
-  { top: '7%', left: '50%' },
-  { top: '7%', left: '24%' },
-  { top: '7%', left: '76%' },
-  { top: '93%', left: '50%' },
-  { top: '93%', left: '24%' },
-  { top: '93%', left: '76%' },
-  { top: '50%', left: '9%' },
-  { top: '50%', left: '91%' },
+  { top: '5%', left: '50%' },
+  { top: '5%', left: '24%' },
+  { top: '5%', left: '76%' },
+  { top: '95%', left: '50%' },
+  { top: '95%', left: '24%' },
+  { top: '95%', left: '76%' },
+  { top: '50%', left: '6%' },
+  { top: '50%', left: '94%' },
 ];
 
 const ELLIPSE_ACCESSORY_SLOT_COUNT = 8;
-/** Radio relativo al centro (%) para iconos dentro de círculo/elipse. */
-const ELLIPSE_ACCESSORY_RADIUS_PCT = 30;
+/** Radio relativo al centro (%) para iconos dentro de círculo/elipse.
+ * 42 % sitúa los iconos a ~8 % del borde visual, dejando el interior libre para mesas. */
+const ELLIPSE_ACCESSORY_RADIUS_PCT = 42;
 
 /** Ranuras en el perímetro interior de círculo u óvalo (evita recorte por overflow). */
 export function ellipseAccessorySlots(

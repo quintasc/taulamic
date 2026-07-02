@@ -1,8 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { FloorAccessoryIcon, getFloorAccessoryDisplaySize } from '@/components/admin/floor-plan/floor-accessory-icon';
 import { RoomDimensionFields } from '@/components/admin/floor-plan/room-dimension-fields';
-import { IconClose, IconRefresh } from '@/components/icons';
+import { IconChevronDown, IconClose, IconRefresh } from '@/components/icons';
 import { MobileHorizontalScroll } from '@/components/ui';
 import {
   FLOOR_PLAN_ACCESSORIES,
@@ -65,7 +66,7 @@ export function AccessoryChip({
   active: boolean;
   onClick: () => void;
 }) {
-  const shortLabel = label.split(' ').slice(0, 2).join(' ');
+  const shortLabel = label;
 
   return (
     <button
@@ -113,42 +114,66 @@ export function FloorPlanMobileControls({
   onApplyRecommendedSize: () => void;
   onClearAccessories: () => void;
 }) {
+  const [configOpen, setConfigOpen] = useState(true);
+
   return (
     <div className="space-y-4">
-      <div>
-        <p className="mb-2 text-xs font-semibold text-neutral-700">Forma</p>
-        <div className="flex flex-wrap gap-2">
-          {ROOM_SHAPE_OPTIONS.map((option) => {
-            const active = setup.shape === option.id;
-            return (
-              <button
-                key={option.id}
-                type="button"
-                className={`rounded-full border px-4 py-2 text-xs font-semibold transition ${
-                  active
-                    ? 'border-primary-500 bg-primary-500/10 text-primary-600'
-                    : 'border-neutral-200 bg-neutral-0 text-neutral-700'
-                }`}
-                onClick={() => onShapeChange(option.id)}
-              >
-                {MOBILE_SHAPE_LABELS[option.id]}
-              </button>
-            );
-          })}
-        </div>
+
+      {/* Configuración colapsable */}
+      <div className="card-admin">
+        <button
+          type="button"
+          className="flex w-full items-center justify-between gap-2 text-left"
+          onClick={() => setConfigOpen((open) => !open)}
+        >
+          <h2 className="text-[10px] font-bold uppercase tracking-[0.08em] text-wf-5">
+            Configuración del salón
+          </h2>
+          <IconChevronDown
+            width={16}
+            height={16}
+            className={`shrink-0 text-neutral-400 transition ${configOpen ? 'rotate-180' : ''}`}
+          />
+        </button>
+
+        {configOpen ? (
+          <div className="mt-4 space-y-4">
+            <div>
+              <p className="mb-2 text-xs font-semibold text-neutral-700">Forma</p>
+              <div className="flex flex-wrap gap-2">
+                {ROOM_SHAPE_OPTIONS.map((option) => {
+                  const active = setup.shape === option.id;
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      className={`rounded-full border px-4 py-2 text-xs font-semibold transition ${
+                        active
+                          ? 'border-primary-500 bg-primary-500/10 text-primary-600'
+                          : 'border-neutral-200 bg-neutral-0 text-neutral-700'
+                      }`}
+                      onClick={() => onShapeChange(option.id)}
+                    >
+                      {MOBILE_SHAPE_LABELS[option.id]}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <RoomDimensionFields
+              setup={setup}
+              limits={limits}
+              onUpdate={onUpdateSetup}
+              idPrefix="room-mobile"
+            />
+
+            <p className="text-[11px] leading-snug text-neutral-500">
+              Medidas orientativas según invitados aproximados; puedes afinarlas con +/−.
+            </p>
+          </div>
+        ) : null}
       </div>
-
-      <RoomDimensionFields
-        setup={setup}
-        limits={limits}
-        onUpdate={onUpdateSetup}
-        idPrefix="room-mobile"
-      />
-
-      <p className="text-[11px] leading-snug text-neutral-500">
-        Medidas orientativas según invitados aproximados; puedes afinarlas con +/−.
-        El plano no supera el tamaño visible de la pantalla.
-      </p>
 
       <div className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-neutral-50/80 px-3 py-2">
         <p className="min-w-0 flex-1 truncate text-xs font-medium text-neutral-700">

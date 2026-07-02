@@ -53,7 +53,7 @@ export function SaveStatusIndicator({ status }: { status: AutoSaveStatus }) {
 
   if (status === 'pending' || status === 'saving') {
     return (
-      <p className="text-xs font-medium text-neutral-500" aria-live="polite">
+      <p className="whitespace-nowrap text-xs font-medium text-neutral-500" aria-live="polite">
         {SAVE_STATUS_COPY.saving}
       </p>
     );
@@ -61,7 +61,7 @@ export function SaveStatusIndicator({ status }: { status: AutoSaveStatus }) {
 
   return (
     <p
-      className="flex items-center gap-1.5 text-xs font-medium text-success-600"
+      className="flex items-center gap-1.5 whitespace-nowrap text-xs font-medium text-success-600"
       aria-live="polite"
     >
       <IconCheck className="h-3.5 w-3.5 shrink-0" aria-hidden />

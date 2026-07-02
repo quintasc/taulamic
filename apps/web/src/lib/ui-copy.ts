@@ -5,7 +5,7 @@
 export const UI_COPY = {
   saveStatus: {
     saving: 'Guardando…',
-    saved: 'Guardado automáticamente',
+    saved: 'Guardado',
   },
   setupNav: {
     defaultBlockedHint: 'Completa este paso para continuar',

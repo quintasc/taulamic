@@ -1,13 +1,13 @@
 'use client';
 
+import { GuestAlertsInline } from '@/components/admin/guests/shared/guest-alerts';
+import { GuestRsvpIcon } from '@/components/admin/guests/shared/guest-rsvp-icon';
 import {
   IconChevronDown,
   IconMail,
   IconPencil,
   IconTrash,
 } from '@/components/icons';
-import { GuestAlertsInline } from '@/components/admin/guests/shared/guest-alerts';
-import { GuestRsvpIcon } from '@/components/admin/guests/shared/guest-rsvp-icon';
 import type { GuestView } from '@/lib/api';
 import {
   RSVP_STATUS_LABEL,
@@ -44,17 +44,17 @@ export function GuestMobileCard({
   const status = meta.rsvpStatus ?? 'pending';
   const category = guest.categories[0]?.name;
   const detailsId = `guest-mobile-details-${guest.id}`;
+  const invitationSent = meta.invitationSent ?? false;
+  const invitationStatusLabel = invitationSent
+    ? 'Invitación enviada'
+    : 'Invitación pendiente';
   const rsvpTitle = meta.invitationSent
     ? `${RSVP_STATUS_LABEL[status]} — tocar para cambiar (piloto)`
     : 'Marca la invitación como enviada para registrar RSVP';
 
   return (
-    <article
-      aria-label={guest.nombre}
-      aria-expanded={expanded}
-      className="card-admin overflow-hidden p-0"
-    >
-      <div className="flex items-center gap-2 p-3">
+    <article aria-label={guest.nombre} className="card-admin overflow-hidden p-0">
+      <div className="flex items-center gap-1.5 p-2.5">
         <input
           type="checkbox"
           className="shrink-0"
@@ -65,7 +65,7 @@ export function GuestMobileCard({
 
         <button
           type="button"
-          className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition ${
+          className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition ${
             meta.invitationSent
               ? 'hover:bg-neutral-100'
               : 'cursor-not-allowed opacity-40'
@@ -90,15 +90,21 @@ export function GuestMobileCard({
 
         <button
           type="button"
-          className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-medium leading-tight transition ${invitationSentBadgeClass(meta.invitationSent ?? false)}`}
+          className={`inline-flex h-9 w-9 shrink-0 items-center justify-center transition ${
+            invitationSent
+              ? 'rounded-full border border-primary-500/40 bg-primary-500/10 text-primary-600 hover:bg-primary-500/15'
+              : 'rounded-xl text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700'
+          }`}
+          title={invitationStatusLabel}
+          aria-label={`${invitationStatusLabel} de ${guest.nombre}`}
           onClick={onToggleInvitation}
         >
-          {meta.invitationSent ? 'Enviada' : 'Pendiente'}
+          <IconMail width={17} height={17} />
         </button>
 
         <button
           type="button"
-          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-neutral-500 hover:bg-neutral-100"
+          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-neutral-500 hover:bg-neutral-100"
           aria-label={
             expanded
               ? `Contraer detalle de ${guest.nombre}`
@@ -157,7 +163,8 @@ export function GuestMobileCard({
               <dd className="min-w-0">
                 <button
                   type="button"
-                  className={`inline-flex min-h-8 items-center rounded-full border px-3 py-1 text-xs font-medium transition ${invitationSentBadgeClass(meta.invitationSent ?? false)}`}
+                  className={`inline-flex min-h-8 items-center rounded-full border px-3 py-1 text-xs font-medium transition ${invitationSentBadgeClass(invitationSent)}`}
+                  title={invitationStatusLabel}
                   onClick={onToggleInvitation}
                 >
                   <IconMail
@@ -166,9 +173,7 @@ export function GuestMobileCard({
                     className="mr-1.5 shrink-0 opacity-80"
                     aria-hidden
                   />
-                  {meta.invitationSent
-                    ? 'Invitación enviada'
-                    : 'Invitación pendiente'}
+                  {invitationStatusLabel}
                 </button>
               </dd>
             </div>

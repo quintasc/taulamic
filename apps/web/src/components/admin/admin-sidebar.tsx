@@ -2,23 +2,25 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { IconLock, IconMap } from '@/components/icons';
-import { TaulamicLogo } from '@/components/brand/taulamic-logo';
 import {
   getAdminNavItems,
   isAdminNavActive,
 } from '@/components/admin/admin-nav';
+import { TaulamicLogo } from '@/components/brand/taulamic-logo';
+import { IconLock, IconLogOut, IconMap } from '@/components/icons';
 import { adminRoutes } from '@/lib/routes';
 
 export function AdminSidebarPanel({
   eventId,
   eventName,
   onNavigate,
+  onLogout,
 }: {
   eventId: string;
   eventName?: string;
-  /** Cierra el drawer móvil tras elegir una sección. */
+  /** Cierra el drawer movil tras elegir una seccion. */
   onNavigate?: () => void;
+  onLogout?: () => void;
 }) {
   const pathname = usePathname();
   const routes = adminRoutes(eventId);
@@ -27,13 +29,25 @@ export function AdminSidebarPanel({
 
   return (
     <>
-      <div className="shrink-0 border-b border-wf-3 px-4 py-3.5">
+      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-wf-3 px-4 py-3.5">
         <Link
           href="/"
           className="inline-flex rounded-[7px] outline-offset-2 hover:opacity-90"
           onClick={onNavigate}
         >
           <TaulamicLogo compact />
+        </Link>
+        <Link
+          href="/"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-primary-600 hover:bg-primary-50"
+          aria-label="Salir del piloto"
+          title="Salir del piloto"
+          onClick={() => {
+            onLogout?.();
+            onNavigate?.();
+          }}
+        >
+          <IconLogOut width={19} height={19} />
         </Link>
       </div>
 
@@ -116,17 +130,23 @@ export function AdminSidebarPanel({
   );
 }
 
-/** Sidebar fija en escritorio (`lg+`). En móvil usar drawer vía `AdminShell`. */
+/** Sidebar fija en escritorio (`lg+`). En movil usar drawer via `AdminShell`. */
 export function AdminSidebar({
   eventId,
   eventName,
+  onLogout,
 }: {
   eventId: string;
   eventName?: string;
+  onLogout?: () => void;
 }) {
   return (
     <aside className="hidden h-full w-[var(--admin-sidebar-width)] shrink-0 flex-col border-r border-wf-3 bg-wf-1 lg:flex">
-      <AdminSidebarPanel eventId={eventId} eventName={eventName} />
+      <AdminSidebarPanel
+        eventId={eventId}
+        eventName={eventName}
+        onLogout={onLogout}
+      />
     </aside>
   );
 }

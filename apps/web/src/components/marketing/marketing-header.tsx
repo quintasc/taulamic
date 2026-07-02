@@ -7,9 +7,11 @@ import {
   IconChevronDown,
   IconClose,
   IconLogIn,
+  IconLogOut,
   IconMenu,
 } from '@/components/icons';
 import { marketingCards } from '@/components/marketing/marketing-cards';
+import { useEvent } from '@/lib/event-context';
 
 function MarketingSolutionsMenu({
   open,
@@ -79,13 +81,7 @@ function MarketingSolutionsMenu({
   );
 }
 
-function MobileMenuPanel({
-  adminHref,
-  onClose,
-}: {
-  adminHref: string;
-  onClose: () => void;
-}) {
+function MobileMenuPanel({ onClose }: { onClose: () => void }) {
   return (
     <>
       <button
@@ -119,21 +115,19 @@ function MobileMenuPanel({
           ))}
         </div>
 
-        <Link
-          href={adminHref}
-          className="btn-primary mt-3 flex w-full justify-center rounded-[10px] px-4 py-3 text-sm font-semibold"
-          onClick={onClose}
-        >
-          Acceder al piloto
-        </Link>
       </div>
     </>
   );
 }
 
 export function MarketingHeader({ adminHref }: { adminHref: string }) {
+  const { clearEvent, eventId } = useEvent();
   const [solutionsOpen, setSolutionsOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const pilotActive = Boolean(eventId);
+  const accessHref = pilotActive ? '/' : adminHref;
+  const accessLabel = pilotActive ? 'Salir del piloto' : 'Acceder al piloto';
+  const AccessIcon = pilotActive ? IconLogOut : IconLogIn;
 
   const closeSolutions = useCallback(() => {
     setSolutionsOpen(false);
@@ -230,21 +224,32 @@ export function MarketingHeader({ adminHref }: { adminHref: string }) {
         </button>
 
         <Link
-          href={adminHref}
+          href={accessHref}
           className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-primary-600 hover:bg-primary-50 lg:hidden"
-          aria-label="Acceder al piloto"
-          onClick={closeAllMenus}
+          aria-label={accessLabel}
+          onClick={() => {
+            if (pilotActive) {
+              clearEvent();
+            }
+            closeAllMenus();
+          }}
         >
-          <IconLogIn width={22} height={22} />
+          <AccessIcon width={22} height={22} />
         </Link>
 
         <div className="hidden flex-col items-end gap-1 lg:flex">
           <Link
-            href={adminHref}
+            href={accessHref}
             className="btn-primary inline-flex items-center gap-2 px-5 py-2 text-sm"
+            onClick={() => {
+              if (pilotActive) {
+                clearEvent();
+              }
+              closeAllMenus();
+            }}
           >
-            <IconLogIn width={16} height={16} />
-            Acceder al piloto
+            <AccessIcon width={16} height={16} />
+            {accessLabel}
           </Link>
           <span className="max-w-[220px] text-right text-[11px] leading-snug text-neutral-500">
             Bodas · acceso directo, sin registro
@@ -253,7 +258,7 @@ export function MarketingHeader({ adminHref }: { adminHref: string }) {
       </div>
 
       {mobileMenuOpen ? (
-        <MobileMenuPanel adminHref={adminHref} onClose={closeMobileMenu} />
+        <MobileMenuPanel onClose={closeMobileMenu} />
       ) : null}
     </header>
   );

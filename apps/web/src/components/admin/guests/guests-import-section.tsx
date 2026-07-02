@@ -56,7 +56,7 @@ export function GuestsImportSection({
     <UploadZone
       title={
         variant === 'empty'
-          ? 'Haz clic o arrastra el archivo'
+          ? 'Selecciona el Excel completado'
           : 'Subir Excel actualizado'
       }
       hint="Formato .xlsx"
@@ -65,6 +65,7 @@ export function GuestsImportSection({
       buttonLabel={
         selectedFile ? selectedFile.name : 'Seleccionar archivo'
       }
+      buttonTitle={selectedFile?.name}
       pickButtonSecondary={Boolean(selectedFile)}
       onClearPick={selectedFile ? () => onSelectFile(null) : undefined}
       onFile={onSelectFile}
@@ -79,6 +80,7 @@ export function GuestsImportSection({
       footerSizerLabel={
         variant === 'empty' ? 'Importar invitados' : 'Importar'
       }
+      compact
     />
   );
 

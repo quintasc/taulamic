@@ -3,6 +3,15 @@
 import { useId, useRef, type ReactNode } from 'react';
 import { IconClose, IconUpload } from '@/components/icons';
 
+const MOBILE_FILE_NAME_VISIBLE_CHARS = 20;
+
+function truncateMobileFileName(name: string): string {
+  if (name.length <= MOBILE_FILE_NAME_VISIBLE_CHARS) {
+    return name;
+  }
+  return `${name.slice(0, MOBILE_FILE_NAME_VISIBLE_CHARS)}...`;
+}
+
 export function UploadZone({
   title,
   hint,
@@ -10,6 +19,7 @@ export function UploadZone({
   disabled,
   onFile,
   buttonLabel = 'Subir plano',
+  buttonTitle,
   actionClassName = '',
   actionFooter,
   /** Si true, el botón de fichero pasa a secundario (p. ej. tras elegir Excel). */
@@ -18,6 +28,7 @@ export function UploadZone({
   onClearPick,
   /** Texto del pie para calcular ancho compartido con el botón de fichero. */
   footerSizerLabel,
+  compact = false,
 }: {
   title: string;
   hint: string;
@@ -25,12 +36,14 @@ export function UploadZone({
   disabled?: boolean;
   onFile: (file: File) => void;
   buttonLabel?: string;
+  buttonTitle?: string;
   actionClassName?: string;
   /** Botón debajo de la zona de arrastre, alineado al de selección. */
   actionFooter?: ReactNode;
   pickButtonSecondary?: boolean;
   onClearPick?: () => void;
   footerSizerLabel?: string;
+  compact?: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const inputId = useId();
@@ -64,18 +77,22 @@ export function UploadZone({
 
   const pickBtnClass = pickButtonSecondary ? 'btn-secondary' : 'btn-primary';
   const showClearInPick = pickButtonSecondary && onClearPick;
+  const pickTitle = buttonTitle ?? buttonLabel;
+  const mobileButtonLabel = truncateMobileFileName(buttonLabel);
 
   const pickControl = showClearInPick ? (
     <div
-      className={`${pickBtnClass} inline-flex w-full min-w-0 items-center gap-1.5 px-4 py-2.5 ${
+      className={`${pickBtnClass} inline-flex w-full min-w-0 max-w-full items-center gap-2 overflow-hidden px-3 py-2.5 ${
         disabled ? 'pointer-events-none opacity-60' : ''
       }`}
     >
       <label
         htmlFor={inputId}
-        className="min-w-0 flex-1 cursor-pointer truncate text-center"
+        className="block min-w-0 flex-1 cursor-pointer overflow-hidden truncate text-center"
+        title={pickTitle}
       >
-        {buttonLabel}
+        <span className="sm:hidden">{mobileButtonLabel}</span>
+        <span className="hidden sm:inline">{buttonLabel}</span>
       </label>
       <button
         type="button"
@@ -100,7 +117,9 @@ export function UploadZone({
 
   const dropZone = (
     <div
-      className={`upload-zone w-full ${
+      className={`upload-zone min-w-0 w-full ${
+        compact ? 'px-4 py-6 sm:px-6 sm:py-8' : ''
+      } ${
         disabled ? 'pointer-events-none opacity-60' : ''
       }`}
       onDragOver={(event) => {
@@ -114,13 +133,29 @@ export function UploadZone({
       }}
     >
       <label htmlFor={inputId} className="block cursor-pointer">
-        <span className="mx-auto mb-4 flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary-100 text-primary-500">
-          <IconUpload width={28} height={28} strokeWidth={1.5} />
+        <span
+          className={`mx-auto flex shrink-0 items-center justify-center rounded-full bg-primary-100 text-primary-500 ${
+            compact ? 'mb-3 h-11 w-11' : 'mb-4 h-14 w-14'
+          }`}
+        >
+          <IconUpload
+            width={compact ? 22 : 28}
+            height={compact ? 22 : 28}
+            strokeWidth={1.5}
+          />
         </span>
-        <p className="text-base font-semibold text-neutral-900">{title}</p>
-        <p className="mt-1 text-sm text-neutral-500">{hint}</p>
+        <p className={`${compact ? 'text-sm' : 'text-base'} font-semibold text-neutral-900`}>
+          {title}
+        </p>
+        <p className={`${compact ? 'mt-0.5 text-xs' : 'mt-1 text-sm'} text-neutral-500`}>
+          {hint}
+        </p>
       </label>
-      <div className={`mt-6 ${hasFooter ? '' : actionClassName}`.trim()}>
+      <div
+        className={`${compact ? 'mt-4' : 'mt-6'} ${
+          hasFooter ? '' : actionClassName
+        }`.trim()}
+      >
         {pickControl}
       </div>
     </div>
@@ -150,12 +185,24 @@ export function UploadZone({
     );
   }
 
+  if (compact) {
+    return (
+      <div className="mx-auto w-full max-w-full min-w-0">
+        <div className="flex w-full min-w-0 flex-col gap-3">
+          {dropZone}
+          <div className="mx-auto w-full max-w-[17rem]">{actionFooter}</div>
+        </div>
+        {fileInput}
+      </div>
+    );
+  }
+
   return (
-    <div className="mx-auto w-max max-w-full">
+    <div className="mx-auto w-full max-w-full">
       {/* Ancho = máximo entre etiquetas de ambos botones (apilado invisible). */}
       <div className="grid [grid-template-areas:'stack']">
         <div
-          className="invisible [grid-area:stack] flex flex-col items-stretch gap-3 px-8"
+          className="invisible mx-auto flex w-full max-w-[17rem] flex-col items-stretch gap-3 px-0 [grid-area:stack] sm:px-8"
           aria-hidden
         >
           {pickSizer}
@@ -163,9 +210,11 @@ export function UploadZone({
             {sizerFooterLabel}
           </span>
         </div>
-        <div className="flex flex-col gap-3 [grid-area:stack]">
+        <div className="flex min-w-0 flex-col gap-3 [grid-area:stack]">
           {dropZone}
-          <div className="px-8">{actionFooter}</div>
+          <div className="mx-auto w-full max-w-[17rem] px-0 sm:px-8">
+            {actionFooter}
+          </div>
         </div>
       </div>
       {fileInput}

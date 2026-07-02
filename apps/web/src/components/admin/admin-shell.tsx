@@ -9,7 +9,7 @@ import {
   AdminSidebarPanel,
 } from '@/components/admin/admin-sidebar';
 import { TaulamicLogo } from '@/components/brand/taulamic-logo';
-import { IconClose, IconMenu } from '@/components/icons';
+import { IconClose, IconLogOut, IconMenu } from '@/components/icons';
 import {
   EVENT_CONFIG_STATUS_CHANGED,
   getDisplayEventName,
@@ -24,7 +24,7 @@ export function AdminShell({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const { event } = useEvent();
+  const { clearEvent, event } = useEvent();
   const [configStatusRevision, setConfigStatusRevision] = useState(0);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
@@ -78,7 +78,11 @@ export function AdminShell({
 
   return (
     <div className="flex h-screen overflow-hidden bg-wf-1">
-      <AdminSidebar eventId={eventId} eventName={displayName} />
+      <AdminSidebar
+        eventId={eventId}
+        eventName={displayName}
+        onLogout={clearEvent}
+      />
 
       {mobileNavOpen ? (
         <>
@@ -109,6 +113,7 @@ export function AdminShell({
                 eventId={eventId}
                 eventName={displayName}
                 onNavigate={closeMobileNav}
+                onLogout={clearEvent}
               />
             </div>
           </aside>
@@ -116,10 +121,10 @@ export function AdminShell({
       ) : null}
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <header className="flex shrink-0 items-center gap-2 border-b border-wf-3 bg-wf-1 px-4 py-2 lg:hidden">
+        <header className="flex shrink-0 items-center gap-2 border-b border-wf-3 bg-wf-1 px-4 py-1.5 lg:hidden">
           <button
             type="button"
-            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-neutral-700 hover:bg-wf-2 hover:text-primary-600"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-neutral-700 hover:bg-wf-2 hover:text-primary-600"
             aria-label="Abrir menú de navegación"
             aria-expanded={mobileNavOpen}
             onClick={() => setMobileNavOpen(true)}
@@ -134,13 +139,22 @@ export function AdminShell({
               <TaulamicLogo compact />
             </Link>
           ) : null}
-          <div className="ml-auto flex min-w-0 items-center">
-            <p className="min-w-0 max-w-[50%] truncate text-right text-sm font-medium text-neutral-900">
-              {displayName}
-            </p>
-            <span className="inline-flex h-11 w-11 shrink-0" aria-hidden />
-          </div>
+          <Link
+            href="/"
+            className="ml-auto inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-primary-600 hover:bg-primary-50"
+            aria-label="Salir del piloto"
+            title="Salir del piloto"
+            onClick={clearEvent}
+          >
+            <IconLogOut width={21} height={21} />
+          </Link>
         </header>
+
+        <div className="shrink-0 border-b border-wf-3 bg-primary-500/10 px-4 py-1.5 lg:hidden">
+          <p className="truncate text-center text-xs font-semibold text-primary-700">
+            {displayName}
+          </p>
+        </div>
 
         <main className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto bg-wf-1 p-4 md:p-6 lg:p-8">
           {children}

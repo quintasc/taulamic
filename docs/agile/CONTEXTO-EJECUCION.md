@@ -2,15 +2,14 @@
 
 - Ultima actualizacion: **2026-07-02**
 - Sprint activo: **10 — Pulido PO post-validación piloto (continuación)**
-- **`main` @ `62463d4`** (pusheado)
+- **`main` @ `0289b71`** (pusheado)
 
 ## Frase clave
 
 ```text
-Retomo Taulamic. main @ 62463d4: plano completamente refactorizado —
-bug 3×3 corregido, layout desktop/móvil unificado (vertical), config
-colapsable, accesorios perimetrales, UX botones. Sprint 10 activo.
-Validación PO plano pendiente.
+Retomo Taulamic. main @ 0289b71: plano refactorizado, layout unificado,
+dashboard movil (sin reloj), setup journey sin wrapping. Sprint 10 activo.
+Validacion PO plano pendiente.
 ```
 
 ## Entregado hoy 2026-07-02
@@ -47,6 +46,7 @@ Detalle: `evidencias-piloto/sesion-2026-07-02-plano-escalado-ux.md`
 
 | Commit | Descripción |
 |--------|-------------|
+| `0289b71` | fix: dashboard y setup journey móvil |
 | `62463d4` | Plano: UX pulido y layout desktop/móvil unificado |
 | `bfce6c0` | Docs: contexto y evidencias sesión 2026-07-02 |
 | `c4c55a4` | Plano desktop: paleta accesorios horizontal y UX botones |

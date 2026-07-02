@@ -32,6 +32,8 @@ Cerrar observaciones de **validación manual piloto** en viewport móvil y table
 | **P2** | PLAN-10 | Config colapsable en desktop y móvil | ✅ `62463d4` |
 | **P2** | PLAN-11 | Accesorios perimetrales: rect 5%/95%, oval/redondo radio 42% | ✅ `62463d4` |
 | **P2** | PLAN-12 | "Ver plano" estable (shrink-0); texto guardado corto + nowrap | ✅ `62463d4` |
+| **P2** | PLAN-13 | Dashboard móvil: ocultar reloj horas/minutos (`hidden sm:flex`) | ✅ `0289b71` |
+| **P2** | PLAN-14 | Setup journey: badge "Próximamente" reducido para no romper línea | ✅ `0289b71` |
 | **P2** | E2E-01 | `mej-13-ui-copy.spec.ts` — smoke copy + hamburguesa + distribución | ✅ |
 | **P2** | DEV-01 | Indicador dev Next.js en `bottom-right` | ✅ |
 | **P2** | — | Validación PO manual de los puntos anteriores | ⏳ |

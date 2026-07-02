@@ -19,6 +19,10 @@
 | Plano — paleta accesorios horizontal desktop | `c4c55a4` | |
 | Plano — botón ↻ junto a dimensiones desktop | `c4c55a4` | |
 | Plano — tooltips botones móvil | `c4c55a4` | |
+| Plano — config colapsable desktop y móvil | `62463d4` | |
+| Plano — layout desktop vertical (config→accesorios→plano) | `62463d4` | |
+| Plano — accesorios perimetrales rect/oval/redondo | `62463d4` | |
+| Plano — botón "Ver plano" estable; texto guardado corto | `62463d4` | |
 
 ## Mantener en In progress / To do
 

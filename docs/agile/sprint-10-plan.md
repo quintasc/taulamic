@@ -28,6 +28,10 @@ Cerrar observaciones de **validación manual piloto** en viewport móvil y table
 | **P1** | PLAN-06 | Límites lógicos por invitados (`computeLogicalRoomLimits`); inputs hasta 200 m | ✅ `1e74d45` |
 | **P2** | PLAN-07 | Tope visual + aviso "Límite visual alcanzado" (`isRoomAtVisualMax`) | ✅ `1e74d45` |
 | **P2** | PLAN-08 | Paleta accesorios horizontal desktop; ↻ junto a dimensiones | ✅ `c4c55a4` |
+| **P2** | PLAN-09 | Layout desktop vertical (config→accesorios→plano); grid 2 col eliminado | ✅ `62463d4` |
+| **P2** | PLAN-10 | Config colapsable en desktop y móvil | ✅ `62463d4` |
+| **P2** | PLAN-11 | Accesorios perimetrales: rect 5%/95%, oval/redondo radio 42% | ✅ `62463d4` |
+| **P2** | PLAN-12 | "Ver plano" estable (shrink-0); texto guardado corto + nowrap | ✅ `62463d4` |
 | **P2** | E2E-01 | `mej-13-ui-copy.spec.ts` — smoke copy + hamburguesa + distribución | ✅ |
 | **P2** | DEV-01 | Indicador dev Next.js en `bottom-right` | ✅ |
 | **P2** | — | Validación PO manual de los puntos anteriores | ⏳ |

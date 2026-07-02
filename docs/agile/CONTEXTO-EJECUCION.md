@@ -2,13 +2,14 @@
 
 - Ultima actualizacion: **2026-07-02**
 - Sprint activo: **10 — Pulido PO post-validación piloto (continuación)**
-- **`main` @ `c4c55a4`** (pusheado)
+- **`main` @ `62463d4`** (pusheado)
 
 ## Frase clave
 
 ```text
-Retomo Taulamic. main @ c4c55a4: plano bug 3×3 corregido, escalado round/oval,
-límites lógicos invitados, paleta accesorios desktop. Sprint 10 activo.
+Retomo Taulamic. main @ 62463d4: plano completamente refactorizado —
+bug 3×3 corregido, layout desktop/móvil unificado (vertical), config
+colapsable, accesorios perimetrales, UX botones. Sprint 10 activo.
 Validación PO plano pendiente.
 ```
 
@@ -46,9 +47,10 @@ Detalle: `evidencias-piloto/sesion-2026-07-02-plano-escalado-ux.md`
 
 | Commit | Descripción |
 |--------|-------------|
+| `62463d4` | Plano: UX pulido y layout desktop/móvil unificado |
+| `bfce6c0` | Docs: contexto y evidencias sesión 2026-07-02 |
 | `c4c55a4` | Plano desktop: paleta accesorios horizontal y UX botones |
 | `1e74d45` | Plano: corrige escala, límites lógicos y bug 3×3 |
-| `cadd296` | Pulir UI móvil de acceso e invitados |
 | `4d42bdb` | Admin móvil/iPad: refactor responsive, pulido PO y E2E Sprint 09-10 |
 
 ## Sprint 09 (cerrado)

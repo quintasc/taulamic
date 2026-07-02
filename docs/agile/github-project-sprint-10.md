@@ -1,32 +1,36 @@
-# GitHub Project — actualización Sprint 10 (2026-06-30)
+# GitHub Project — actualización Sprint 10 (última revisión: 2026-07-02)
 
 **Project:** https://github.com/users/quintasc/projects/2
 
 ## Mover a Done (o equivalente «Hecho»)
 
-| Ítem / tema | Notas |
-|-------------|--------|
-| Drawer hamburguesa admin `< lg` | Sprint 09 — ya en main antes de este commit |
-| Pulido PO — cabecera logo móvil | Sprint 10 |
-| Pulido PO — import invitados UX | Sprint 10 |
-| Pulido PO — plano móvil escalado numérico | Sprint 10 |
-| Pulido PO — setup nav Anterior móvil | Sprint 10 |
-| E2E smoke MEJ-13 D móvil | `mej-13-ui-copy.spec.ts` |
+| Ítem / tema | Commit | Notas |
+|-------------|--------|-------|
+| Drawer hamburguesa admin `< lg` | `4d42bdb` | Sprint 09 |
+| Pulido PO — cabecera logo móvil | `4d42bdb` | Sprint 10 |
+| Pulido PO — import invitados UX | `4d42bdb` | Sprint 10 |
+| Pulido PO — setup nav Anterior móvil | `4d42bdb` | Sprint 10 |
+| E2E smoke MEJ-13 D móvil | `4d42bdb` | `mej-13-ui-copy.spec.ts` |
+| Plano — bug 3×3 (bucle clamp) | `1e74d45` | |
+| Plano — escala round/oval consistente | `1e74d45` | |
+| Plano — límites lógicos por invitados | `1e74d45` | `computeLogicalRoomLimits` |
+| Plano — tope visual + aviso UI | `1e74d45` | `isRoomAtVisualMax` |
+| Plano — flechas scroll accesorios móvil | `1e74d45` | `MobileHorizontalScroll` |
+| Plano — paleta accesorios horizontal desktop | `c4c55a4` | |
+| Plano — botón ↻ junto a dimensiones desktop | `c4c55a4` | |
+| Plano — tooltips botones móvil | `c4c55a4` | |
 
 ## Mantener en In progress / To do
 
 | Ítem | Motivo |
 |------|--------|
-| Validación PO manual piloto completa | `guion-validacion-piloto-ui.md` |
+| Validación PO manual plano desktop + móvil | `guion-validacion-piloto-ui.md` |
+| Corregir room-setup 3×3 en eventos de prueba | Desde UI, no código |
 | Refactor UI móvil fases 2–4 | `refactor-ui-mobile-admin.md` |
 | Accesorios room-setup `(x,y)` | Gate SDD |
-| Smoke PO visual MEJ-13 D | Opcional |
 
 ## Comandos útiles (si usas `gh`)
 
 ```powershell
 gh project list --owner quintasc
-# Ajustar número de proyecto según salida; ejemplo histórico: projects/2
 ```
-
-Si los ítems no existen como cards, crear nota en el proyecto enlazando a `sprint-10-plan.md` y `sesion-2026-06-30-implementacion-po.md`.

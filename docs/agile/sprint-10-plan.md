@@ -23,6 +23,11 @@ Cerrar observaciones de **validación manual piloto** en viewport móvil y table
 | **P1** | PLAN-01 | Plano móvil: escalado numérico con límites (`clampSetupToFitLimits`) | ✅ |
 | **P1** | PLAN-02 | Steppers ± en dimensiones sala móvil | ✅ |
 | **P1** | PLAN-03 | Accesorios móvil: chevrones ‹ › en cabecera (`MobileHorizontalScroll`) en lugar de depender solo del scroll | ✅ |
+| **P1** | PLAN-04 | Bug 3×3: eliminar bucle `fitLimits→efecto→setup` que colapsaba dimensiones al mínimo | ✅ `1e74d45` |
+| **P1** | PLAN-05 | Escala redondo/ovalado consistente con rectangular (fill canvas) | ✅ `1e74d45` |
+| **P1** | PLAN-06 | Límites lógicos por invitados (`computeLogicalRoomLimits`); inputs hasta 200 m | ✅ `1e74d45` |
+| **P2** | PLAN-07 | Tope visual + aviso "Límite visual alcanzado" (`isRoomAtVisualMax`) | ✅ `1e74d45` |
+| **P2** | PLAN-08 | Paleta accesorios horizontal desktop; ↻ junto a dimensiones | ✅ `c4c55a4` |
 | **P2** | E2E-01 | `mej-13-ui-copy.spec.ts` — smoke copy + hamburguesa + distribución | ✅ |
 | **P2** | DEV-01 | Indicador dev Next.js en `bottom-right` | ✅ |
 | **P2** | — | Validación PO manual de los puntos anteriores | ⏳ |

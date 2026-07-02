@@ -13,6 +13,7 @@ import { SETUP_NAV_COPY } from '@/lib/ui-copy';
 export function GuestsPageView() {
   const {
     eventId,
+    routeEventId,
     routes,
     setupNav,
     guests,
@@ -130,7 +131,7 @@ export function GuestsPageView() {
         si el Excel tiene filas inválidas.
       </p>
 
-      {eventId ? (
+      {routeEventId ? (
         <SetupNavBar
           hidePrimary
           previousHref={setupNav?.previous?.href}

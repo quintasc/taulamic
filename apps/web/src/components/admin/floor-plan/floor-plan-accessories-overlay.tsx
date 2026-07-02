@@ -54,7 +54,7 @@ export function FloorPlanAccessoriesOverlay({
         }
         const layout = layouts[id] ?? { top: '50%', left: '50%' };
         const iconSize = Math.max(
-          16,
+          20,
           Math.round(getFloorAccessoryDisplaySize(id, 'overlay') * displayScale),
         );
         return (

@@ -26,27 +26,30 @@ import {
 import {
   DEFAULT_FLOOR_PLAN_SETUP,
   FLOOR_PLAN_ACCESSORIES,
+  MAX_DIMENSION_M,
   ROOM_CANVAS_COMPACT_PADDING_PX,
   ROOM_SHAPE_OPTIONS,
   applyShapeChange,
-  clampSetupToFitLimits,
   computeRoomFitMeterLimits,
   formatDimensionLimitsLabel,
   formatRoomDimensions,
   hasFloorPlanSetupSaved,
   isRoomAtMaxLength,
   isRoomAtMaxWidth,
+  isRoomAtVisualMax,
   loadFloorPlanSetup,
   normalizeSetupForShape,
   saveFloorPlanSetup,
   setupFromRecommendation,
   type FloorPlanSetup,
+  type RoomFitMeterLimits,
   type RoomShape,
 } from '@/lib/floor-plan-setup';
 import { adminRoutes } from '@/lib/routes';
 import { getSetupNav } from '@/lib/setup-flow';
 import {
   compareRoomToRecommendation,
+  computeLogicalRoomLimits,
   recommendRoomSize,
 } from '@/lib/room-size-recommendation';
 import { SETUP_NAV_COPY, DISTRIBUTION_COPY } from '@/lib/ui-copy';
@@ -84,6 +87,22 @@ function AccessoryCard({
       </span>
       <span className="text-xs font-medium text-neutral-700">{label}</span>
     </button>
+  );
+}
+
+function sameFloorPlanSetup(
+  current: FloorPlanSetup,
+  next: FloorPlanSetup,
+): boolean {
+  return (
+    current.shape === next.shape &&
+    current.widthM === next.widthM &&
+    current.lengthM === next.lengthM &&
+    current.radiusM === next.radiusM &&
+    current.placedAccessories.length === next.placedAccessories.length &&
+    current.placedAccessories.every(
+      (accessoryId, index) => accessoryId === next.placedAccessories[index],
+    )
   );
 }
 
@@ -139,10 +158,34 @@ export function FloorPlanSetupView({
     [canvasTier, portraitLayout],
   );
   const activeBounds = canvasTier === 'desktop' ? desktopBounds : mobileBounds;
+  // fitLimits: límite visual del lienzo (para detectar tope visual, NO como max de inputs)
   const fitLimits = useMemo(
     () => computeRoomFitMeterLimits(setup, activeBounds, fitOptions),
     [activeBounds, fitOptions, setup],
   );
+
+  // Mínimos lógicos por dimensión basados en invitados (restricción hiperbólica de área)
+  const logicalMinLimits = useMemo(
+    () => computeLogicalRoomLimits(guestCountHint, setup),
+    [guestCountHint, setup],
+  );
+
+  // Límites para los inputs: mínimo lógico + máximo absoluto 200 m.
+  // El canvas escala automáticamente; no limitamos el input al tamaño del lienzo.
+  const fieldLimits = useMemo<RoomFitMeterLimits>(
+    () => ({
+      minWidthM: logicalMinLimits.minWidthM,
+      minLengthM: logicalMinLimits.minLengthM,
+      minRadiusM: logicalMinLimits.minRadiusM,
+      maxWidthM: MAX_DIMENSION_M,
+      maxLengthM: MAX_DIMENSION_M,
+      maxRadiusM: MAX_DIMENSION_M,
+    }),
+    [logicalMinLimits],
+  );
+
+  // True cuando el salón supera el tope visual: el dibujo ya no crece más en pantalla
+  const atVisualMax = isRoomAtVisualMax(setup, fitLimits);
 
   useEffect(() => {
     let cancelled = false;
@@ -200,12 +243,12 @@ export function FloorPlanSetupView({
     };
   }, [eventId]);
 
-  useEffect(() => {
-    if (!hydrated) {
-      return;
-    }
-    setSetup((current) => clampSetupToFitLimits(current, activeBounds, fitOptions));
-  }, [activeBounds, fitOptions, fitLimits, hydrated]);
+  // NOTA: NO hay efecto de auto-clamp sobre activeBounds aquí.
+  // useRoomCanvasBounds depende de 'setup' → si el efecto clampea setup → bounds cambian →
+  // efecto vuelve a dispararse → espiral descendente hasta mínimo (3×3).
+  // Las dimensiones físicas del salón no cambian por el tamaño del lienzo:
+  // roomPixelSizeFit ya escala el salón para que quepa visualmente.
+  // El clamp solo ocurre durante interacción del usuario (updateSetup, handleShapeChange).
 
   useEffect(() => {
     if (!hydrated) {
@@ -245,13 +288,13 @@ export function FloorPlanSetupView({
     markIdle,
   ]);
 
+  // updateSetup: solo normaliza forma/dimensiones. El canvas escala visualmente
+  // sin forzar las medidas físicas a los límites del lienzo.
   const updateSetup = useCallback(
     (patch: Partial<FloorPlanSetup>) => {
-      setSetup((current) =>
-        clampSetupToFitLimits({ ...current, ...patch }, activeBounds, fitOptions),
-      );
+      setSetup((current) => normalizeSetupForShape({ ...current, ...patch }));
     },
-    [activeBounds, fitOptions],
+    [],
   );
 
   function handleShapeChange(shape: RoomShape) {
@@ -260,13 +303,7 @@ export function FloorPlanSetupView({
       const base = rec
         ? setupFromRecommendation(shape, rec, current.placedAccessories)
         : applyShapeChange(current, shape);
-      return clampSetupToFitLimits(base, activeBounds, {
-        ...fitOptions,
-        portraitLayout:
-          canvasTier !== 'desktop' &&
-          shape !== 'oval' &&
-          base.widthM > base.lengthM,
-      });
+      return normalizeSetupForShape(base);
     });
   }
 
@@ -294,12 +331,9 @@ export function FloorPlanSetupView({
     if (!roomRecommendation) {
       return;
     }
-    const next = setupFromRecommendation(
-      setup.shape,
-      roomRecommendation,
-      setup.placedAccessories,
+    setSetup(
+      setupFromRecommendation(setup.shape, roomRecommendation, setup.placedAccessories),
     );
-    updateSetup(next);
   }
 
   return (
@@ -374,7 +408,7 @@ export function FloorPlanSetupView({
       <div className="mb-6 space-y-4 lg:hidden">
         <FloorPlanMobileControls
           setup={setup}
-          limits={fitLimits}
+          limits={fieldLimits}
           recommendation={roomRecommendation}
           onShapeChange={handleShapeChange}
           onUpdateSetup={updateSetup}
@@ -411,6 +445,11 @@ export function FloorPlanSetupView({
           <p className="mt-3 text-center text-sm font-medium text-neutral-600">
             {formatRoomDimensions(setup)}
           </p>
+          {atVisualMax ? (
+            <p className="mt-1 text-center text-xs text-warning-600">
+              ⚠ Límite visual de pantalla alcanzado. Las medidas reales se guardarán correctamente.
+            </p>
+          ) : null}
         </div>
 
         <aside className="space-y-4">
@@ -459,7 +498,7 @@ export function FloorPlanSetupView({
 
                 <RoomDimensionFields
                   setup={setup}
-                  limits={fitLimits}
+                  limits={fieldLimits}
                   onUpdate={updateSetup}
                   labelClassName="mb-1.5 block text-xs font-medium text-neutral-700"
                 />
@@ -473,26 +512,30 @@ export function FloorPlanSetupView({
 
                 <p className="text-xs text-neutral-500">
                   {formatDimensionLimitsLabel()} Puedes afinar con +/− o arrastrando el
-                  marcador del plano. El tamaño visible no supera el lienzo.
+                  marcador del plano. El dibujo escala para encajar en pantalla.
                 </p>
+
+                {atVisualMax ? (
+                  <p className="text-xs font-medium text-warning-600">
+                    ⚠ Límite visual alcanzado. Las medidas reales se guardan correctamente.
+                  </p>
+                ) : null}
 
                 {setup.shape !== 'round' && isRoomAtMaxWidth(setup) ? (
                   <p className="text-xs font-medium text-warning-600">
-                    Ancho máximo alcanzado ({setup.widthM} m). Sigue arrastrando
-                    a la derecha para reducir el largo.
+                    Ancho máximo absoluto alcanzado ({setup.widthM} m).
                   </p>
                 ) : null}
 
                 {setup.shape !== 'round' && isRoomAtMaxLength(setup) ? (
                   <p className="text-xs font-medium text-warning-600">
-                    Largo máximo alcanzado ({setup.lengthM} m). Sigue arrastrando
-                    hacia abajo para reducir el ancho.
+                    Largo máximo absoluto alcanzado ({setup.lengthM} m).
                   </p>
                 ) : null}
 
                 {setup.shape === 'round' && isRoomAtMaxWidth(setup) ? (
                   <p className="text-xs font-medium text-warning-600">
-                    Radio máximo alcanzado ({setup.radiusM} m).
+                    Radio máximo absoluto alcanzado ({setup.radiusM} m).
                   </p>
                 ) : null}
               </div>

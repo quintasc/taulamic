@@ -18,9 +18,10 @@ export function useGuestsPage() {
   const toast = useToast();
   const router = useRouter();
   const params = useParams<{ eventId: string }>();
+  const routeEventId = params.eventId;
   const { eventId } = useEvent();
-  const routes = adminRoutes(params.eventId);
-  const setupNav = eventId ? getSetupNav(eventId, 'guests') : null;
+  const routes = adminRoutes(routeEventId);
+  const setupNav = routeEventId ? getSetupNav(routeEventId, 'guests') : null;
 
   const [guests, setGuests] = useState<GuestView[]>([]);
   const [loading, setLoading] = useState(true);
@@ -216,6 +217,7 @@ export function useGuestsPage() {
 
   return {
     eventId,
+    routeEventId,
     routes,
     setupNav,
     guests,

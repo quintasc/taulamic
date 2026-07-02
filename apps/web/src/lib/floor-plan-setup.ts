@@ -723,6 +723,24 @@ export function isRoomAtMaxLength(setup: FloorPlanSetup): boolean {
   return setup.lengthM >= MAX_DIMENSION_M;
 }
 
+/**
+ * True si el salón supera el tope visual del lienzo: roomPixelSizeFit lo escala
+ * hacia abajo para encajar, por lo que el dibujo no crece aunque suban las medidas.
+ * Las medidas reales se guardan correctamente igualmente.
+ */
+export function isRoomAtVisualMax(
+  setup: FloorPlanSetup,
+  fitLimits: RoomFitMeterLimits,
+): boolean {
+  if (setup.shape === 'round') {
+    return setup.radiusM > fitLimits.maxRadiusM + 0.05;
+  }
+  return (
+    setup.widthM > fitLimits.maxWidthM + 0.05 ||
+    setup.lengthM > fitLimits.maxLengthM + 0.05
+  );
+}
+
 function applyResizeOverflowAtMax(
   widthM: number,
   lengthM: number,
@@ -981,11 +999,12 @@ export function roomPixelSizeFit(
         portraitDisplay: false,
       };
     }
+    // Llenar el presupuesto disponible (igual que rectangular llena availW).
+    // roundDiameterPx usaba interpolación lineal [3 m,200 m]→[120px,budget],
+    // lo que dejaba salones pequeños/medianos en ~120-150 px aunque hubiera
+    // cientos de píxeles disponibles.
     const budget = Math.min(availW, availH);
-    const diameterPx = Math.max(
-      120,
-      Math.min(budget, roundDiameterPx(setup.radiusM, budget)),
-    );
+    const diameterPx = Math.max(120, budget);
     return {
       widthPx: diameterPx,
       heightPx: diameterPx,

@@ -78,6 +78,16 @@ function initialBoundsForTier(tier: CanvasLayoutTier): {
   return { maxWidthPx, maxHeightPx };
 }
 
+function sameBounds(
+  current: { maxWidthPx: number; maxHeightPx: number },
+  next: { maxWidthPx: number; maxHeightPx: number },
+): boolean {
+  return (
+    current.maxWidthPx === next.maxWidthPx &&
+    current.maxHeightPx === next.maxHeightPx
+  );
+}
+
 export function useLayoutCanvasTier(): CanvasLayoutTier {
   const [tier, setTier] = useState<CanvasLayoutTier>(() =>
     typeof window === 'undefined'
@@ -118,7 +128,10 @@ export function useRoomCanvasMaxPx(
 
     const update = () => {
       const width = node.getBoundingClientRect().width;
-      setCanvasMaxPx(resolveRoomCanvasMaxPx(setup, width, ceilingPx));
+      const nextMaxPx = resolveRoomCanvasMaxPx(setup, width, ceilingPx);
+      setCanvasMaxPx((current) =>
+        current === nextMaxPx ? current : nextMaxPx,
+      );
     };
 
     update();
@@ -199,7 +212,15 @@ export function useRoomCanvasBounds(
     const update = () => {
       const areaNode = areaRef?.current ?? host;
       const areaRect = areaNode.getBoundingClientRect();
-      setBounds(resolveRoomCanvasBounds(areaRect, tier, setup, portraitLayout));
+      const nextBounds = resolveRoomCanvasBounds(
+        areaRect,
+        tier,
+        setup,
+        portraitLayout,
+      );
+      setBounds((current) =>
+        sameBounds(current, nextBounds) ? current : nextBounds,
+      );
     };
 
     update();

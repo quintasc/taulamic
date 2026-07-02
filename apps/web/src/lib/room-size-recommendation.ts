@@ -1,4 +1,4 @@
-import type { FloorPlanSetup, RoomShape } from '@/lib/floor-plan-setup';
+import { MIN_DIMENSION_M, type FloorPlanSetup, type RoomShape } from '@/lib/floor-plan-setup';
 
 /** m² por comensal sentado con circulación (orientativo, no normativa). */
 const M2_PER_GUEST = 1.5;
@@ -103,6 +103,44 @@ function roomAreaM2(setup: FloorPlanSetup): number {
     return Math.PI * r * r;
   }
   return (setup.widthM ?? 0) * (setup.lengthM ?? 0);
+}
+
+/**
+ * Límites mínimos por dimensión basados en la capacidad de invitados.
+ * Restricción hiperbólica: widthM × lengthM ≥ guestCount × M2_PER_GUEST.
+ * Si largo sube → ancho mínimo baja, y viceversa. Nunca baja de MIN_DIMENSION_M.
+ */
+export function computeLogicalRoomLimits(
+  guestCount: number,
+  setup: FloorPlanSetup,
+): { minWidthM: number; minLengthM: number; minRadiusM: number } {
+  const minAreaM2 = guestCount > 0 ? Math.ceil(guestCount * M2_PER_GUEST) : 0;
+
+  if (minAreaM2 <= 0) {
+    return {
+      minWidthM: MIN_DIMENSION_M,
+      minLengthM: MIN_DIMENSION_M,
+      minRadiusM: MIN_DIMENSION_M,
+    };
+  }
+
+  if (setup.shape === 'round') {
+    const minRadiusM = Math.max(
+      MIN_DIMENSION_M,
+      Math.ceil(Math.sqrt(minAreaM2 / Math.PI) * 10) / 10,
+    );
+    return { minWidthM: minRadiusM * 2, minLengthM: minRadiusM * 2, minRadiusM };
+  }
+
+  const minWidthM = Math.max(
+    MIN_DIMENSION_M,
+    Math.ceil((minAreaM2 / Math.max(setup.lengthM, MIN_DIMENSION_M)) * 10) / 10,
+  );
+  const minLengthM = Math.max(
+    MIN_DIMENSION_M,
+    Math.ceil((minAreaM2 / Math.max(setup.widthM, MIN_DIMENSION_M)) * 10) / 10,
+  );
+  return { minWidthM, minLengthM, minRadiusM: MIN_DIMENSION_M };
 }
 
 export function compareRoomToRecommendation(

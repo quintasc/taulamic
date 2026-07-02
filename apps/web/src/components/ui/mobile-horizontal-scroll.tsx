@@ -81,31 +81,28 @@ export function MobileHorizontalScroll({
     el.scrollBy({ left: delta, behavior: 'smooth' });
   }
 
-  const scrollHints =
-    label && (showBackHint || showForwardHint) ? (
-      <div className="flex shrink-0 items-center gap-0.5 lg:hidden">
-        {showBackHint ? (
-          <button
-            type="button"
-            className={MOBILE_CHEVRON_ICON_BUTTON_CLASS}
-            aria-label={`Deslizar ${label.toLowerCase()} hacia la izquierda`}
-            onClick={() => scrollByDirection(-1)}
-          >
-            <IconChevronLeft width={18} height={18} />
-          </button>
-        ) : null}
-        {showForwardHint ? (
-          <button
-            type="button"
-            className={MOBILE_CHEVRON_ICON_BUTTON_CLASS}
-            aria-label={`Deslizar ${label.toLowerCase()} hacia la derecha`}
-            onClick={() => scrollByDirection(1)}
-          >
-            <IconChevronRight width={18} height={18} />
-          </button>
-        ) : null}
-      </div>
-    ) : null;
+  const scrollHints = label ? (
+    <div className="flex shrink-0 items-center gap-0.5 lg:hidden">
+      <button
+        type="button"
+        className={MOBILE_CHEVRON_ICON_BUTTON_CLASS}
+        aria-label={`Deslizar ${label.toLowerCase()} hacia la izquierda`}
+        disabled={!showBackHint}
+        onClick={() => scrollByDirection(-1)}
+      >
+        <IconChevronLeft width={18} height={18} />
+      </button>
+      <button
+        type="button"
+        className={MOBILE_CHEVRON_ICON_BUTTON_CLASS}
+        aria-label={`Deslizar ${label.toLowerCase()} hacia la derecha`}
+        disabled={!showForwardHint}
+        onClick={() => scrollByDirection(1)}
+      >
+        <IconChevronRight width={18} height={18} />
+      </button>
+    </div>
+  ) : null;
 
   return (
     <div className={className}>

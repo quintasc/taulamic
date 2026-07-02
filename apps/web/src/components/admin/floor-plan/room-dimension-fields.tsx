@@ -103,9 +103,14 @@ function RoomDimensionInput({
           onClick={() => step(DIMENSION_STEP_M)}
         />
       </div>
+      {atMin && min > 3 ? (
+        <p className="mt-1 text-[10px] leading-snug text-warning-700">
+          Tamaño mínimo para los invitados actuales ({min} m)
+        </p>
+      ) : null}
       {atMax ? (
         <p className="mt-1 text-[10px] leading-snug text-neutral-500">
-          Máximo para este tamaño de pantalla ({max} m)
+          Límite absoluto del plano ({max} m)
         </p>
       ) : null}
     </div>

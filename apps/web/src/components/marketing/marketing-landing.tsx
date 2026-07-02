@@ -31,7 +31,7 @@ export function MarketingLanding() {
             href={adminHref}
             className="btn-primary mt-10 inline-flex items-center gap-2 rounded-[10px] px-8 py-3.5 text-[15px] font-semibold"
           >
-            Crear evento <IconArrowRight width={16} height={16} />
+            Empezar gratis <IconArrowRight width={16} height={16} />
           </Link>
           <p className="mt-3 max-w-[380px] text-xs leading-relaxed text-neutral-500">
             <span className="font-semibold text-neutral-700">Piloto julio:</span>{' '}

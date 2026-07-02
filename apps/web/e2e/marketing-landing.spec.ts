@@ -4,25 +4,30 @@ import { marketingCards } from '../src/components/marketing/marketing-cards';
 
 const MOBILE_VIEWPORT = { width: 390, height: 844 };
 
-test.describe('Landing — header y anclas de segmento', () => {
+test.describe('Landing - header y anclas de segmento', () => {
   test.use({ viewport: MOBILE_VIEWPORT });
 
-  test('móvil: logo con wordmark y acceso piloto por icono', async ({ page }) => {
+  test('movil: logo con wordmark, menu y acceso piloto por icono', async ({
+    page,
+  }) => {
     await page.goto('/');
 
     await expect(page.getByRole('img', { name: 'Taulamic' })).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Abrir menu principal' }),
+    ).toBeVisible();
     await expect(
       page.getByRole('link', { name: 'Acceder al piloto' }),
     ).toBeVisible();
   });
 
-  test('móvil: menú Soluciones navega a cada tipo de evento', async ({
+  test('movil: menu Soluciones navega a cada tipo de evento', async ({
     page,
   }) => {
     await page.goto('/');
 
     for (const card of marketingCards) {
-      await page.getByRole('button', { name: 'Soluciones' }).click();
+      await page.getByRole('button', { name: 'Abrir menu principal' }).click();
       await page
         .getByRole('link', { name: new RegExp(`^${card.navLabel}`) })
         .click();
@@ -46,14 +51,19 @@ test.describe('Landing — header y anclas de segmento', () => {
     }
   });
 
-  test('escritorio: enlaces directos a segmentos', async ({ page }) => {
+  test('escritorio: menu Soluciones navega a cada tipo de evento', async ({
+    page,
+  }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/');
 
     for (const card of marketingCards) {
       await page
-        .getByRole('navigation', { name: 'Tipos de evento' })
-        .getByRole('link', { name: card.navLabel, exact: true })
+        .getByRole('navigation', { name: 'Navegacion principal' })
+        .getByRole('button', { name: 'Soluciones' })
+        .click();
+      await page
+        .getByRole('link', { name: new RegExp(`^${card.navLabel}`) })
         .click();
 
       await expect(page).toHaveURL(new RegExp(`#${card.anchorId}$`));

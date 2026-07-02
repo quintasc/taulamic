@@ -115,7 +115,7 @@ function SetupJourneyRow({
     <div className="flex min-w-0 items-center gap-2">
       <p className={`text-sm leading-tight ${textClass}`}>{label}</p>
       {locked ? (
-        <span className="text-[10px] font-medium uppercase tracking-wide text-neutral-400">
+        <span className="text-[8px] font-medium uppercase tracking-wide text-neutral-400">
           Próximamente
         </span>
       ) : null}

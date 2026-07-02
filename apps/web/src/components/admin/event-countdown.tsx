@@ -136,7 +136,7 @@ function CountdownBody({ state }: { state: EventCountdownState }) {
     <>
       <div className="flex items-end justify-between gap-4 sm:gap-8">
         <DaysRemainingDisplay days={state.days} />
-        <div className="flex items-end">
+        <div className="hidden sm:flex items-end">
           <DotMatrixClock hours={state.hours} minutes={state.minutes} />
         </div>
       </div>

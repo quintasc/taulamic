@@ -2,15 +2,23 @@
 
 - Ultima actualizacion: **2026-07-05**
 - Sprint activo: **10 — Pulido PO post-validación piloto (continuación)**
-- **`main` @ `7cd78f3`** (pusheado)
+- **`main` @ `71d0077`** (pusheado)
 
 ## Frase clave
 
 ```text
-Retomo Taulamic. main @ 7cd78f3: corrección CLS en SaveStatusIndicator, autoguardado híbrido seguro en Configuración con intercepción de navegación y beforeunload. Sprint 10 en progreso / validación final.
+Retomo Taulamic. main @ 71d0077: corrección CLS, autoguardado híbrido seguro e indicador de progreso stepper en PageHeader desktop (Paso X de Y). Sprint 10 en progreso / validación final.
 ```
 
 ## Entregado hoy 2026-07-05
+
+### `71d0077` — feat: indicador de progreso de pasos en PageHeader desktop
+
+| Área | Entrega |
+|------|---------|
+| Stepper desktop | Indicador de pasos dinámico en la esquina superior derecha (`Paso X de Y` con guiones redondeados) |
+| Lógica adaptativa | Mapea el pathname actual al índice del paso activo. Oculto por debajo de resoluciones de escritorio (`hidden lg:flex`) |
+| Seguridad y solapamiento | Evita solapamiento con flexbox `flex-wrap` y ocultación responsive. Se adapta al número dinámico de pasos contables (`getCountableSetupSteps`) |
 
 ### `7cd78f3` — fix: CLS y autoguardado híbrido en Configuración
 
@@ -56,6 +64,7 @@ Detalle: `evidencias-piloto/sesion-2026-07-02-plano-escalado-ux.md`
 
 | Commit | Descripción |
 |--------|-------------|
+| `71d0077` | feat: indicador de progreso de pasos en PageHeader desktop |
 | `7cd78f3` | fix: CLS y autoguardado híbrido seguro en Configuración |
 | `0289b71` | fix: dashboard y setup journey móvil |
 | `62463d4` | Plano: UX pulido y layout desktop/móvil unificado |

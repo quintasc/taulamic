@@ -4,6 +4,7 @@ import { TableShapeInlineSelect } from '@/components/admin/tables/table-shape-in
 import { IconPencil, IconTrash } from '@/components/icons';
 import type { TableEditDraft } from '@/lib/table-form';
 import { TABLE_CAPACITY_MAX, TABLE_CAPACITY_MIN } from '@/lib/table-form';
+import { AdminMobileCardShell } from '@/components/admin/ui/admin-mobile-card-shell';
 
 type TableRow = {
   id: string;
@@ -52,10 +53,10 @@ export function TableMobileCard({
   const editPanelId = `table-mobile-edit-${table.id}`;
 
   return (
-    <article
+    <AdminMobileCardShell
       id={`table-mobile-card-${table.id}`}
-      className="card-admin overflow-hidden p-0"
-      aria-label={`Mesa ${table.label}`}
+      ariaLabel={`Mesa ${table.label}`}
+      ariaExpanded={isEditing}
       onBlur={(event) => {
         if (!isEditing || editBlocked) {
           return;
@@ -68,8 +69,7 @@ export function TableMobileCard({
           onFinishEdit();
         }, 0);
       }}
-    >
-      <div className="flex items-center gap-2 p-3">
+      checkbox={
         <input
           type="checkbox"
           className="checkbox-admin shrink-0"
@@ -78,8 +78,9 @@ export function TableMobileCard({
           disabled={planLocked || deleting || (editBlocked && !isEditing)}
           onChange={onToggleSelect}
         />
-
-        <div className="min-w-0 flex-1">
+      }
+      middleContent={
+        <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-neutral-900">
             {isEditing && editingDraft ? editingDraft.label : table.label}
           </p>
@@ -90,9 +91,10 @@ export function TableMobileCard({
             </p>
           ) : null}
         </div>
-
-        {!isEditing ? (
-          <div className="flex shrink-0 items-center gap-1">
+      }
+      actionsAfter={
+        !isEditing ? (
+          <>
             <button
               type="button"
               className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-neutral-500 hover:bg-neutral-100 disabled:opacity-40"
@@ -113,10 +115,10 @@ export function TableMobileCard({
             >
               <IconTrash width={16} height={16} strokeWidth={2} />
             </button>
-          </div>
-        ) : null}
-      </div>
-
+          </>
+        ) : null
+      }
+    >
       {isEditing && editingDraft ? (
         <div
           id={editPanelId}
@@ -208,6 +210,6 @@ export function TableMobileCard({
           </div>
         </div>
       ) : null}
-    </article>
+    </AdminMobileCardShell>
   );
 }

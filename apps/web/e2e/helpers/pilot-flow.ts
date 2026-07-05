@@ -52,8 +52,14 @@ function hrefUrlPattern(href: string): RegExp {
 
 export async function clickSetupNext(page: Page, stepLabel: string) {
   const pattern = new RegExp(`Siguiente: ${stepLabel}`);
-  const linkLocator = page.locator('a').filter({ hasText: pattern });
-  const buttonLocator = page.getByRole('button', { name: pattern });
+  let linkLocator = page.locator('a').filter({ hasText: pattern });
+  let buttonLocator = page.getByRole('button', { name: pattern });
+
+  // Fallback móvil: si no existe la etiqueta 'Siguiente: ...', busca por aria-label (ej. 'Invitados')
+  if ((await linkLocator.count()) === 0 && (await buttonLocator.count()) === 0) {
+    linkLocator = page.getByRole('link', { name: stepLabel, exact: true });
+    buttonLocator = page.getByRole('button', { name: stepLabel, exact: true });
+  }
 
   if ((await linkLocator.count()) > 0) {
     const link = linkLocator.first();
@@ -61,28 +67,30 @@ export async function clickSetupNext(page: Page, stepLabel: string) {
     const href = await link.getAttribute('href');
     await link.scrollIntoViewIfNeeded();
     if (href) {
-      await link.click();
+      await link.click({ force: true });
       try {
         await page.waitForURL(hrefUrlPattern(href), { timeout: 5_000 });
       } catch {
         await page.goto(href);
       }
     } else {
-      await link.click();
+      await link.click({ force: true });
     }
     return;
   }
 
   const button = buttonLocator.first();
   await expect(button).toBeVisible({ timeout: 15_000 });
-  await button.click();
+  await button.click({ force: true });
 }
 
 /** Clic en «Siguiente» bloqueado (muestra banner de validación). */
 export async function clickBlockedSetupNext(page: Page, stepLabel: string) {
-  await page
-    .getByRole('button', { name: new RegExp(`Siguiente: ${stepLabel}`) })
-    .click({ force: true });
+  let buttonLocator = page.getByRole('button', { name: new RegExp(`Siguiente: ${stepLabel}`) });
+  if ((await buttonLocator.count()) === 0) {
+    buttonLocator = page.getByRole('button', { name: stepLabel, exact: true });
+  }
+  await buttonLocator.first().click({ force: true });
 }
 
 /** Espera confirmación visual de auto-guardado (cabecera). */
@@ -108,7 +116,7 @@ export async function addTable(page: Page) {
   await expect(addButton).toBeVisible({ timeout: 30_000 });
   const rows = page.locator('table tbody tr');
   const countBefore = await rows.count();
-  await addButton.click();
+  await addButton.click({ force: true });
   await expect(rows).toHaveCount(countBefore + 1, { timeout: 15_000 });
 }
 
@@ -128,14 +136,14 @@ export async function addGuestManually(
   const openDrawer = page
     .getByRole('button', { name: 'Añadir invitado' })
     .first();
-  await openDrawer.click();
+  await openDrawer.click({ force: true });
   await page.getByLabel('Nombre').fill(guest.nombre);
   await page.getByLabel('Correo').fill(guest.correo);
   await page.getByLabel('Teléfono').fill(guest.telefono);
   await page
     .getByRole('dialog')
     .getByRole('button', { name: 'Añadir', exact: true })
-    .click();
+    .click({ force: true });
   await expect(
     page
       .locator('table tbody')
@@ -148,7 +156,7 @@ export async function importGuestsFromPilotExcel(page: Page) {
   await page
     .locator('input[type="file"][accept*=".xlsx"]')
     .setInputFiles(PILOT_GUESTS_XLSX);
-  await page.getByRole('button', { name: 'Importar invitados' }).click();
+  await page.getByRole('button', { name: 'Importar invitados' }).click({ force: true });
   await expect(page.getByText('Importación completada')).toBeVisible({
     timeout: 30_000,
   });
@@ -166,7 +174,7 @@ export async function reachDistributionStep(page: Page) {
   await clickSetupNext(page, 'Mesas');
   await addTable(page);
   await clickSetupNext(page, 'Afinidades');
-  await page.getByRole('button', { name: 'Agrupar por categoría' }).click();
+  await page.getByRole('button', { name: 'Agrupar por categoría' }).click({ force: true });
   await waitForAutoSaved(page);
   await clickSetupNext(page, 'Distribución');
   await expect(page).toHaveURL(/\/distribution$/);

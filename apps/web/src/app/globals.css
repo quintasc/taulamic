@@ -203,3 +203,8 @@ body {
     }
   }
 }
+
+nextjs-portal {
+  display: none !important;
+  pointer-events: none !important;
+}

@@ -412,16 +412,14 @@ export function GuestsPanelV2({
     setEditingGuest(null);
   }
 
-  function handleDrawerSubmit(payload: GuestDrawerSubmit) {
+  async function handleDrawerSubmit(payload: GuestDrawerSubmit) {
     if (drawerMode === 'add') {
-      onAddGuest(payload);
-      closeDrawer();
+      await onAddGuest(payload);
       return;
     }
     if (drawerMode === 'edit' && editingGuest) {
-      onUpdateGuest(editingGuest.id, payload);
+      await onUpdateGuest(editingGuest.id, payload);
       bumpMeta();
-      closeDrawer();
     }
   }
 

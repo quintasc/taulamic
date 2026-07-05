@@ -35,16 +35,25 @@ export function useEventConfig() {
     markIdle,
   } = saveIndicator;
 
-  const [name, setName] = useState('');
+  const [name, setNameRaw] = useState('');
   const [date, setDate] = useState('');
-  const [approximateGuests, setApproximateGuests] = useState('');
-  const [location, setLocation] = useState('');
-  const [notes, setNotes] = useState('');
-  const [preferenceMode, setPreferenceMode] =
+  const [approximateGuests, setApproximateGuestsRaw] = useState('');
+  const [location, setLocationRaw] = useState('');
+  const [notes, setNotesRaw] = useState('');
+  const [preferenceMode, setPreferenceModeRaw] =
     useState<PreferenceControlMode>(PILOT_PREFERENCE_MODE);
   const [hydrated, setHydrated] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [dateError, setDateError] = useState<string | null>(null);
+
+  // Dirty flag: only true after a real user interaction, never during hydration.
+  const isDirtyRef = useRef(false);
+
+  const setName = useCallback((v: string) => { isDirtyRef.current = true; setNameRaw(v); }, []);
+  const setApproximateGuests = useCallback((v: string) => { isDirtyRef.current = true; setApproximateGuestsRaw(v); }, []);
+  const setLocation = useCallback((v: string) => { isDirtyRef.current = true; setLocationRaw(v); }, []);
+  const setNotes = useCallback((v: string) => { isDirtyRef.current = true; setNotesRaw(v); }, []);
+  const setPreferenceMode = useCallback((v: PreferenceControlMode) => { isDirtyRef.current = true; setPreferenceModeRaw(v); }, []);
 
   const canAdvance =
     Boolean(name.trim()) && !isApiPlaceholderEventName(name.trim());
@@ -52,7 +61,8 @@ export function useEventConfig() {
   useEffect(() => {
     if (eventId) {
       const meta = loadEventUiMeta(eventId);
-      setName(configFormInitialName(event?.name));
+      // Use raw setters during hydration to avoid marking dirty.
+      setNameRaw(configFormInitialName(event?.name));
       const loadedDate = meta.date ?? '';
       if (loadedDate && isPastEventDate(loadedDate)) {
         setDate('');
@@ -61,14 +71,15 @@ export function useEventConfig() {
         setDate(loadedDate);
         setDateError(null);
       }
-      setLocation(meta.location ?? '');
-      setApproximateGuests(
+      setLocationRaw(meta.location ?? '');
+      setApproximateGuestsRaw(
         meta.approximateGuestCount ?? meta.tableCount ?? '',
       );
-      setNotes(meta.notes ?? '');
+      setNotesRaw(meta.notes ?? '');
       if (meta.preferenceMode) {
-        setPreferenceMode(resolvePreferenceModeForPilot(meta.preferenceMode));
+        setPreferenceModeRaw(resolvePreferenceModeForPilot(meta.preferenceMode));
       }
+      isDirtyRef.current = false;
       setHydrated(true);
     }
   }, [event?.name, eventId]);
@@ -80,12 +91,13 @@ export function useEventConfig() {
     void preferencesApi
       .get(eventId)
       .then((settings) =>
-        setPreferenceMode(resolvePreferenceModeForPilot(settings.mode)),
+        setPreferenceModeRaw(resolvePreferenceModeForPilot(settings.mode)),
       )
       .catch(() => undefined);
   }, [eventId]);
 
   const handleDateChange = useCallback((value: string) => {
+    isDirtyRef.current = true;
     if (!value) {
       setDate('');
       setDateError(null);
@@ -122,6 +134,7 @@ export function useEventConfig() {
       });
       notifyEventConfigStatusChanged(eventId);
       await refreshEvent({ silent: true });
+      isDirtyRef.current = false;
       return true;
     } catch (err: unknown) {
       const detail =
@@ -151,8 +164,19 @@ export function useEventConfig() {
   const persistConfigRef = useRef(persistConfig);
   persistConfigRef.current = persistConfig;
 
+  // Track validation status via refs so the unmount hook can check them without dependency triggers
+  const canAdvanceRef = useRef(canAdvance);
+  canAdvanceRef.current = canAdvance;
+
+  const dateErrorRef = useRef(dateError);
+  dateErrorRef.current = dateError;
+
+  // 1. Debounce (Background Saving) - Delay auto-save 2 seconds
   useEffect(() => {
     if (!hydrated || !eventId || !canAdvance || dateError) {
+      return;
+    }
+    if (!isDirtyRef.current) {
       return;
     }
     markPending();
@@ -165,7 +189,7 @@ export function useEventConfig() {
           markIdle();
         }
       });
-    }, 500);
+    }, 2000);
     return () => window.clearTimeout(timer);
   }, [
     hydrated,
@@ -183,6 +207,29 @@ export function useEventConfig() {
     markSaved,
     markIdle,
   ]);
+
+  // 2. Prevent data loss on browser tab reload/close (beforeunload)
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirtyRef.current && canAdvanceRef.current && !dateErrorRef.current) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+
+  // 3. Safety save on navigation (Unmount Interceptor)
+  useEffect(() => {
+    return () => {
+      if (isDirtyRef.current && canAdvanceRef.current && !dateErrorRef.current) {
+        void persistConfigRef.current();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!eventId || !hydrated) {

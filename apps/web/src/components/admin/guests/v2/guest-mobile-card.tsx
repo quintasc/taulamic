@@ -14,6 +14,7 @@ import {
   getGuestPilotMeta,
 } from '@/lib/guest-ui-meta';
 import { invitationSentBadgeClass } from '@/lib/semantic-ui';
+import { AdminMobileCardShell } from '@/components/admin/ui/admin-mobile-card-shell';
 
 export function GuestMobileCard({
   eventId,
@@ -53,8 +54,11 @@ export function GuestMobileCard({
     : 'Marca la invitación como enviada para registrar RSVP';
 
   return (
-    <article aria-label={guest.nombre} className="card-admin overflow-hidden p-0">
-      <div className="flex items-center gap-1.5 p-2.5">
+    <AdminMobileCardShell
+      id={undefined}
+      ariaLabel={guest.nombre}
+      ariaExpanded={expanded}
+      checkbox={
         <input
           type="checkbox"
           className="shrink-0"
@@ -62,7 +66,8 @@ export function GuestMobileCard({
           checked={selected}
           onChange={onToggleSelect}
         />
-
+      }
+      actionsBefore={
         <button
           type="button"
           className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition ${
@@ -77,7 +82,8 @@ export function GuestMobileCard({
         >
           <GuestRsvpIcon status={status} size={20} />
         </button>
-
+      }
+      middleContent={
         <button
           type="button"
           className="min-w-0 flex-1 truncate text-left text-sm font-semibold text-neutral-900"
@@ -87,41 +93,44 @@ export function GuestMobileCard({
         >
           {guest.nombre}
         </button>
+      }
+      actionsAfter={
+        <>
+          <button
+            type="button"
+            className={`inline-flex h-9 w-9 shrink-0 items-center justify-center transition ${
+              invitationSent
+                ? 'rounded-full border border-primary-500/40 bg-primary-500/10 text-primary-600 hover:bg-primary-500/15'
+                : 'rounded-xl text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700'
+            }`}
+            title={invitationStatusLabel}
+            aria-label={`${invitationStatusLabel} de ${guest.nombre}`}
+            onClick={onToggleInvitation}
+          >
+            <IconMail width={17} height={17} />
+          </button>
 
-        <button
-          type="button"
-          className={`inline-flex h-9 w-9 shrink-0 items-center justify-center transition ${
-            invitationSent
-              ? 'rounded-full border border-primary-500/40 bg-primary-500/10 text-primary-600 hover:bg-primary-500/15'
-              : 'rounded-xl text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700'
-          }`}
-          title={invitationStatusLabel}
-          aria-label={`${invitationStatusLabel} de ${guest.nombre}`}
-          onClick={onToggleInvitation}
-        >
-          <IconMail width={17} height={17} />
-        </button>
-
-        <button
-          type="button"
-          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-neutral-500 hover:bg-neutral-100"
-          aria-label={
-            expanded
-              ? `Contraer detalle de ${guest.nombre}`
-              : `Expandir detalle de ${guest.nombre}`
-          }
-          aria-expanded={expanded}
-          aria-controls={detailsId}
-          onClick={onToggleExpand}
-        >
-          <IconChevronDown
-            width={18}
-            height={18}
-            className={`transition ${expanded ? 'rotate-180' : ''}`}
-          />
-        </button>
-      </div>
-
+          <button
+            type="button"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-neutral-500 hover:bg-neutral-100"
+            aria-label={
+              expanded
+                ? `Contraer detalle de ${guest.nombre}`
+                : `Expandir detalle de ${guest.nombre}`
+            }
+            aria-expanded={expanded}
+            aria-controls={detailsId}
+            onClick={onToggleExpand}
+          >
+            <IconChevronDown
+              width={18}
+              height={18}
+              className={`transition ${expanded ? 'rotate-180' : ''}`}
+            />
+          </button>
+        </>
+      }
+    >
       {expanded ? (
         <div
           id={detailsId}
@@ -199,7 +208,7 @@ export function GuestMobileCard({
           </div>
         </div>
       ) : null}
-    </article>
+    </AdminMobileCardShell>
   );
 }
 

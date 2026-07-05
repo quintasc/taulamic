@@ -48,7 +48,12 @@ export function useAutoSaveIndicator() {
 
 export function SaveStatusIndicator({ status }: { status: AutoSaveStatus }) {
   if (status === 'idle') {
-    return null;
+    return (
+      <p className="invisible flex items-center gap-1.5 whitespace-nowrap text-xs font-medium" aria-hidden>
+        <IconCheck className="h-3.5 w-3.5 shrink-0" />
+        {SAVE_STATUS_COPY.saved}
+      </p>
+    );
   }
 
   if (status === 'pending' || status === 'saving') {

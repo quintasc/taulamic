@@ -86,7 +86,7 @@ export function GuestsPageView() {
               saving={saving}
               open={manualDrawerOpen}
               onClose={() => setManualDrawerOpen(false)}
-              onSubmit={(payload) => void handleAddGuest(payload)}
+              onSubmit={handleAddGuest}
             />
           ) : null}
         </>

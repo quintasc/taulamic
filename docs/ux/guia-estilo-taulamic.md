@@ -191,13 +191,15 @@ Cuando `nextReady={false}`:
 ### 7.3 Indicador «Guardado automáticamente»
 
 - **Componente:** `SaveStatusIndicator` + `useAutoSaveIndicator()` · slot `saveStatus` en `PageHeader`.
-- **Estados:** oculto · «Guardando…» · «Guardado automáticamente» (~3 s, check verde).
+- **Estados:** oculto (reservando espacio visual invisible para evitar CLS) · «Guardando…» · «Guardado automáticamente» (~3 s, check verde).
 
-| Pantalla | Cuándo |
-|----------|--------|
-| Config | Debounce + API |
-| Plano | Debounce + `saveRoomSetup` |
-| Afinidades | Tras toggle de regla genérica (instantáneo, sin «Guardando…») |
+| Pantalla | Cuándo | Comportamiento Híbrido / Red de Seguridad |
+|----------|--------|-------------------------------------------|
+| Config | Debounce 2s + API | **Híbrido**: Solo tras interactuar (dirty flag). Al cerrar pestaña (`beforeunload`) o cambiar de ruta (desmontaje), se fuerza un guardado inmediato para evitar pérdidas. |
+| Plano | Debounce + `saveRoomSetup` | Debounce 600ms. |
+| Afinidades | Tras toggle de regla genérica | Guardado instantáneo en localStorage sin «Guardando…». |
+
+**Estabilidad Visual (Evitar CLS):** El componente `SaveStatusIndicator` en estado `idle` no debe retornar `null`. Debe renderizar un elemento invisible (`visibility: hidden`) con las mismas dimensiones para asegurar que no se produzcan saltos en el layout (CLS).
 
 **Errores de persistencia:** `Alert` rojo bajo el header (Config, Plano); el indicador vuelve a oculto.
 

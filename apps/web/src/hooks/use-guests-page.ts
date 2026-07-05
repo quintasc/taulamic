@@ -122,6 +122,7 @@ export function useGuestsPage() {
     } finally {
       setImporting(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [eventId, reloadGuests, router, routes.guestErrors, selectedFile, toast]);
 
   const handleAddGuest = useCallback(
@@ -139,8 +140,8 @@ export function useGuestsPage() {
         await reloadGuests();
         setManualDrawerOpen(false);
         toast.success(`Invitado «${payload.input.nombre}» añadido.`);
-      } catch {
-        toast.error('Error al añadir el invitado. Revisa correo y teléfono.');
+      } catch (err: unknown) {
+        throw err;
       } finally {
         setSaving(false);
       }
@@ -162,8 +163,8 @@ export function useGuestsPage() {
         updateGuestV2DetailMeta(eventId, guestId, payload.detailMeta);
         await reloadGuests();
         toast.success(`Invitado «${payload.input.nombre}» actualizado.`);
-      } catch {
-        toast.error('Error al actualizar el invitado.');
+      } catch (err: unknown) {
+        throw err;
       } finally {
         setSaving(false);
       }

@@ -9,7 +9,8 @@ import type {
 import {
   getGuestV2DetailMeta,
 } from '@/lib/guest-v2-detail-meta';
-import type { GuestView } from '@/lib/api';
+import { ApiError, type GuestView } from '@/lib/api';
+import { Alert } from '@/components/ui';
 
 type DrawerMode = 'add' | 'edit';
 
@@ -28,7 +29,7 @@ export function GuestDrawerV2({
   saving: boolean;
   open: boolean;
   onClose: () => void;
-  onSubmit: (payload: GuestDrawerSubmit) => void;
+  onSubmit: (payload: GuestDrawerSubmit) => Promise<void>;
 }) {
   const [nombre, setNombre] = useState('');
   const [correo, setCorreo] = useState('');
@@ -38,11 +39,14 @@ export function GuestDrawerV2({
   const [mobilityAlert, setMobilityAlert] = useState(false);
   const [notes, setNotes] = useState('');
   const [companionGroup, setCompanionGroup] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [savingLocal, setSavingLocal] = useState(false);
 
   useEffect(() => {
     if (!open) {
       return;
     }
+    setError(null);
     if (mode === 'edit' && guest) {
       const detail = getGuestV2DetailMeta(eventId, guest.id);
       setNombre(guest.nombre);
@@ -110,6 +114,9 @@ export function GuestDrawerV2({
         </header>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5 space-y-4">
+          {error ? (
+            <Alert variant="error">{error}</Alert>
+          ) : null}
           <div>
             <label className="label-field" htmlFor="v2-nombre">
               Nombre
@@ -212,26 +219,41 @@ export function GuestDrawerV2({
           <button
             type="button"
             className="btn-primary"
-            disabled={saving || !nombre.trim() || !correo.trim() || !telefono.trim()}
-            onClick={() => {
+            disabled={saving || savingLocal || !nombre.trim() || !correo.trim() || !telefono.trim()}
+            onClick={async () => {
               const input: GuestFormInput = {
                 nombre: nombre.trim(),
                 correo: correo.trim(),
                 telefono: telefono.trim(),
                 categoryNames: categoria.trim() ? [categoria.trim()] : undefined,
               };
-              onSubmit({
-                input,
-                detailMeta: {
-                  dietaryAlert,
-                  mobilityAlert,
-                  notes: notes.trim() || undefined,
-                  companionGroup: companionGroup.trim() || undefined,
-                },
-              });
+              setError(null);
+              setSavingLocal(true);
+              try {
+                await onSubmit({
+                  input,
+                  detailMeta: {
+                    dietaryAlert,
+                    mobilityAlert,
+                    notes: notes.trim() || undefined,
+                    companionGroup: companionGroup.trim() || undefined,
+                  },
+                });
+                onClose();
+              } catch (err: unknown) {
+                const detail =
+                  err instanceof ApiError
+                    ? err.body.message ?? `Error API ${err.status}`
+                    : err instanceof Error
+                      ? err.message
+                      : 'Error de validación';
+                setError(detail);
+              } finally {
+                setSavingLocal(false);
+              }
             }}
           >
-            {saving ? 'Guardando…' : mode === 'add' ? 'Añadir' : 'Guardar'}
+            {saving || savingLocal ? 'Guardando…' : mode === 'add' ? 'Añadir' : 'Guardar'}
           </button>
         </footer>
       </aside>

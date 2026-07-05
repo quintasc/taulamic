@@ -71,6 +71,16 @@ Estas mejoras **no forman parte del SDD piloto**. Requieren gate PO/SDD antes de
 
 **Épica relacionada:** EP-09 + EP-10 (UX invitado móvil).
 
+## BF-04 — Toast duplicado en error de alta manual de invitado (desktop)
+
+**Bug:** Al añadir un invitado manualmente y recibir un error de validación de la API, se muestran **dos mensajes de error simultáneos**: un `<Alert>` dentro del drawer (correcto) y un `toast.error()` detrás del drawer (redundante). En móvil no se percibe porque el drawer cubre la pantalla completa.
+
+**Causa raíz:** `handleAddGuest` / `handleUpdateGuest` en `use-guests-page.ts` llaman a `toast.error(...)` y luego hacen `throw err` para que el drawer lo capture. El drawer entonces muestra su propio `<Alert>` con el detalle del error. Resultado: error duplicado.
+
+**Corrección propuesta:** Eliminar el `toast.error(...)` del `catch` en `handleAddGuest` y `handleUpdateGuest`, dejando solo el `throw err`. El drawer se encarga de mostrar el error al usuario de forma contextual.
+
+**Prioridad:** Baja (cosmético, solo desktop).
+
 ---
 
 ## Referencias

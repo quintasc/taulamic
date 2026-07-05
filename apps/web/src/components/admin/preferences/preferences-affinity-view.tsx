@@ -602,8 +602,8 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
                           : 'bg-rose-50 text-rose-600 border-rose-200/50 hover:bg-rose-100/50 focus:border-rose-400'
                       }`}
                     >
-                      <option value="afinidad">↔ afinidad</option>
-                      <option value="incompatibilidad">✕ incompatible</option>
+                      <option value="afinidad" className="bg-neutral-0 text-neutral-900 font-normal">↔ afinidad</option>
+                      <option value="incompatibilidad" className="bg-neutral-0 text-neutral-900 font-normal">✕ incompatible</option>
                     </select>
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                       <IconChevronDown

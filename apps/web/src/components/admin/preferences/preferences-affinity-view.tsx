@@ -27,6 +27,7 @@ const GENERIC_RULES: Array<{
   key: keyof AffinityRuleToggles;
   title: string;
   description: string;
+  disabled?: boolean;
 }> = [
   {
     key: 'groupByCategory',
@@ -47,6 +48,17 @@ const GENERIC_RULES: Array<{
     key: 'separateKnownIncompatibles',
     title: 'Separar incompatibles conocidos',
     description: 'Aplica incompatibilidades marcadas como regla dura.',
+  },
+  {
+    key: 'groupByAge',
+    title: 'Agrupar por edades',
+    description: 'Prioriza juntar personas de rangos de edad similares (requiere el dato de edad, no disponible en piloto).',
+    disabled: true,
+  },
+  {
+    key: 'alternateGender',
+    title: 'Intercalar hombre-mujer',
+    description: 'Distribuye alternando géneros alrededor de las mesas siempre que sea posible.',
   },
 ];
 
@@ -120,15 +132,17 @@ const DEFAULT_RELATIONS: Array<{
   type: 'afinidad' | 'incompatibilidad';
 }> = [];
 
-function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void }) {
+function Toggle({ checked, disabled }: { checked: boolean; disabled?: boolean }) {
   return (
-    <button
-      type="button"
+    <div
       role="switch"
       aria-checked={checked}
-      onClick={onChange}
-      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500/40 ${
-        checked ? 'bg-primary-500' : 'bg-neutral-200'
+      className={`relative inline-flex h-5 w-9 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
+        disabled
+          ? 'bg-neutral-100 opacity-60'
+          : checked
+          ? 'bg-primary-500'
+          : 'bg-neutral-200'
       }`}
     >
       <span
@@ -137,7 +151,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void 
           checked ? 'translate-x-4' : 'translate-x-0'
         }`}
       />
-    </button>
+    </div>
   );
 }
 
@@ -151,6 +165,8 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
     'keepFamiliesTogether',
     'singlesTable',
     'separateKnownIncompatibles',
+    'groupByAge',
+    'alternateGender',
   ]);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
@@ -178,7 +194,20 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
     }
     setRules(meta.affinityRules ?? {});
     if (meta.affinityRulesOrder) {
-      setRulesOrder(meta.affinityRulesOrder as Array<keyof AffinityRuleToggles>);
+      const loadedOrder = meta.affinityRulesOrder as Array<keyof AffinityRuleToggles>;
+      const allKeys: Array<keyof AffinityRuleToggles> = [
+        'groupByCategory',
+        'keepFamiliesTogether',
+        'singlesTable',
+        'separateKnownIncompatibles',
+        'groupByAge',
+        'alternateGender',
+      ];
+      const mergedOrder = [
+        ...loadedOrder.filter((k) => allKeys.includes(k)),
+        ...allKeys.filter((k) => !loadedOrder.includes(k)),
+      ];
+      setRulesOrder(mergedOrder);
     }
 
     // Load relations or initialize empty
@@ -480,19 +509,23 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
             if (!rule) return null;
             const active = Boolean(rules[key]);
             const isDragging = draggedIndex === index;
+            const isDraggable = active && !rule.disabled;
 
             return (
               <button
                 key={key}
                 type="button"
-                draggable={active}
-                onDragStart={(e) => handleDragStart(e, index)}
-                onDragOver={(e) => handleDragOver(e, index)}
-                onDrop={(e) => handleDrop(e, index)}
+                draggable={isDraggable}
+                onDragStart={(e) => isDraggable && handleDragStart(e, index)}
+                onDragOver={(e) => isDraggable && handleDragOver(e, index)}
+                onDrop={(e) => isDraggable && handleDrop(e, index)}
                 onDragEnd={handleDragEnd}
-                onClick={() => toggleRule(key)}
+                onClick={() => !rule.disabled && toggleRule(key)}
+                disabled={rule.disabled}
                 className={`flex w-full items-center gap-3 rounded-xl border p-4 text-left transition duration-200 ${
-                  active
+                  rule.disabled
+                    ? 'border-neutral-200 bg-neutral-100/50 cursor-not-allowed opacity-60'
+                    : active
                     ? 'border-primary-500 bg-primary-500/5 cursor-grab active:cursor-grabbing'
                     : 'border-neutral-200 bg-neutral-0 hover:border-neutral-300'
                 } ${isDragging ? 'opacity-40 border-dashed border-primary-300' : ''}`}
@@ -523,7 +556,7 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
                 </div>
 
                 {/* Toggle Switch */}
-                <Toggle checked={active} onChange={() => {}} />
+                <Toggle checked={active} disabled={rule.disabled} />
               </button>
             );
           })}
@@ -547,49 +580,51 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
             {relations.map((rel) => (
               <div
                 key={rel.id}
-                className="flex items-center justify-between rounded-2xl border border-neutral-200 bg-neutral-0 p-4 shadow-sm"
+                className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 rounded-xl border border-neutral-200 bg-neutral-0 p-4 shadow-sm"
               >
                 {/* Guest A */}
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 text-sm font-bold text-neutral-0">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 text-sm font-bold text-neutral-0 shrink-0">
                     {getInitials(rel.guestA)}
                   </div>
-                  <span className="text-sm font-medium text-neutral-900">{rel.guestA}</span>
+                  <span className="text-sm font-medium text-neutral-900 truncate">{rel.guestA}</span>
                 </div>
 
                 {/* Relation Badge Select Dropdown */}
-                <div className="relative inline-block">
-                  <select
-                    value={rel.type}
-                    onChange={(e) => updateRelationType(rel.id, e.target.value as 'afinidad' | 'incompatibilidad')}
-                    className={`appearance-none cursor-pointer rounded-full pl-3 pr-7 py-1 text-xs font-semibold border focus:outline-none transition-colors ${
-                      rel.type === 'afinidad'
-                        ? 'bg-emerald-50 text-emerald-600 border-emerald-200/50 hover:bg-emerald-100/50 focus:border-emerald-400'
-                        : 'bg-rose-50 text-rose-600 border-rose-200/50 hover:bg-rose-100/50 focus:border-rose-400'
-                    }`}
-                  >
-                    <option value="afinidad">↔ afinidad</option>
-                    <option value="incompatibilidad">✕ incompatible</option>
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                    <IconChevronDown
-                      className={`h-3.5 w-3.5 ${
-                        rel.type === 'afinidad' ? 'text-emerald-500' : 'text-rose-500'
+                <div className="justify-self-center">
+                  <div className="relative inline-block">
+                    <select
+                      value={rel.type}
+                      onChange={(e) => updateRelationType(rel.id, e.target.value as 'afinidad' | 'incompatibilidad')}
+                      className={`appearance-none cursor-pointer rounded-full pl-3 pr-7 py-1 text-xs font-semibold border focus:outline-none transition-colors ${
+                        rel.type === 'afinidad'
+                          ? 'bg-emerald-50 text-emerald-600 border-emerald-200/50 hover:bg-emerald-100/50 focus:border-emerald-400'
+                          : 'bg-rose-50 text-rose-600 border-rose-200/50 hover:bg-rose-100/50 focus:border-rose-400'
                       }`}
-                    />
+                    >
+                      <option value="afinidad">↔ afinidad</option>
+                      <option value="incompatibilidad">✕ incompatible</option>
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                      <IconChevronDown
+                        className={`h-3.5 w-3.5 ${
+                          rel.type === 'afinidad' ? 'text-emerald-500' : 'text-rose-500'
+                        }`}
+                      />
+                    </div>
                   </div>
                 </div>
 
                 {/* Guest B + Remove button */}
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium text-neutral-900">{rel.guestB}</span>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 text-sm font-bold text-neutral-0">
+                <div className="flex items-center gap-3 justify-self-end min-w-0">
+                  <span className="text-sm font-medium text-neutral-900 truncate mr-1">{rel.guestB}</span>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 text-sm font-bold text-neutral-0 shrink-0">
                     {getInitials(rel.guestB)}
                   </div>
                   <button
                     type="button"
                     onClick={() => removeRelation(rel.id)}
-                    className="ml-2 rounded-full p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 transition"
+                    className="ml-2 rounded-full p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 transition shrink-0"
                     title="Eliminar relación"
                   >
                     <IconClose className="h-4 w-4" />
@@ -602,7 +637,7 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
 
         {/* Add Relation Form / Button */}
         {isAdding ? (
-          <div className="rounded-2xl border border-neutral-200 bg-neutral-0 p-6 shadow-sm space-y-4">
+          <div className="rounded-xl border border-neutral-200 bg-neutral-0 p-6 shadow-sm space-y-4">
             <h3 className="text-sm font-semibold text-neutral-900">Nueva relación</h3>
 
             {/* Inputs Grid */}
@@ -712,11 +747,7 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
                 type="button"
                 disabled={!canSubmit}
                 onClick={addRelation}
-                className={`flex-1 rounded-xl py-2.5 text-sm font-semibold text-neutral-0 transition ${
-                  canSubmit
-                    ? 'bg-neutral-900 hover:bg-neutral-800'
-                    : 'bg-neutral-200 cursor-not-allowed opacity-50'
-                }`}
+                className="flex-1 btn-primary py-2.5 text-sm font-semibold transition"
               >
                 Añadir relación
               </button>
@@ -728,7 +759,7 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
                   setNewType('afinidad');
                   setIsAdding(false);
                 }}
-                className="rounded-xl border border-neutral-200 px-6 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition"
+                className="btn-secondary px-6 py-2.5 text-sm font-semibold transition"
               >
                 Cancelar
               </button>

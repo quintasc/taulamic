@@ -96,7 +96,7 @@ export function UploadZone({
       </label>
       <button
         type="button"
-        className="inline-flex shrink-0 items-center justify-center rounded-lg p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-800 disabled:opacity-40"
+        className="inline-flex shrink-0 items-center justify-center rounded-lg p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 disabled:opacity-40"
         aria-label="Quitar archivo seleccionado"
         disabled={disabled}
         onClick={() => onClearPick?.()}

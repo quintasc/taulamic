@@ -17,6 +17,8 @@ export type AffinityRuleToggles = {
   keepFamiliesTogether?: boolean;
   singlesTable?: boolean;
   separateKnownIncompatibles?: boolean;
+  groupByAge?: boolean;
+  alternateGender?: boolean;
 };
 
 export type EventUiMeta = {

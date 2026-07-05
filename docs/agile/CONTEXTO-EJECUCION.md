@@ -1,18 +1,28 @@
-﻿# Contexto de ejecucion — punto de reanudacion
+# Contexto de ejecucion — punto de reanudacion
 
-- Ultima actualizacion: **2026-07-02**
+- Ultima actualizacion: **2026-07-05**
 - Sprint activo: **10 — Pulido PO post-validación piloto (continuación)**
-- **`main` @ `0289b71`** (pusheado)
+- **`main` @ `7cd78f3`** (pusheado)
 
 ## Frase clave
 
 ```text
-Retomo Taulamic. main @ 0289b71: plano refactorizado, layout unificado,
-dashboard movil (sin reloj), setup journey sin wrapping. Sprint 10 activo.
-Validacion PO plano pendiente.
+Retomo Taulamic. main @ 7cd78f3: corrección CLS en SaveStatusIndicator, autoguardado híbrido seguro en Configuración con intercepción de navegación y beforeunload. Sprint 10 en progreso / validación final.
 ```
 
-## Entregado hoy 2026-07-02
+## Entregado hoy 2026-07-05
+
+### `7cd78f3` — fix: CLS y autoguardado híbrido en Configuración
+
+| Área | Entrega |
+|------|---------|
+| Corrección CLS | `SaveStatusIndicator` usa `.invisible` en estado `idle` en lugar de `null` para preservar espacio visual estable |
+| Autoguardado inteligente | Debounce ampliado a 2000ms. Uso de `isDirtyRef` para descartar primer renderizado (hidratación inicial) |
+| Red de seguridad SPA | Interceptor en unmount del componente `EventConfigView` para disparar guardado asíncrono inmediato si hay cambios pendientes |
+| Red de seguridad navegador | Evento `beforeunload` para advertir al usuario de cambios pendientes al refrescar o cerrar la pestaña |
+| Verificación E2E | Suite completa de 13 pruebas Playwright ejecutada con éxito sin regresiones |
+
+## Entregado recientemente (2026-07-02)
 
 ### `1e74d45` — fix: plano escalado y límites lógicos
 
@@ -46,6 +56,7 @@ Detalle: `evidencias-piloto/sesion-2026-07-02-plano-escalado-ux.md`
 
 | Commit | Descripción |
 |--------|-------------|
+| `7cd78f3` | fix: CLS y autoguardado híbrido seguro en Configuración |
 | `0289b71` | fix: dashboard y setup journey móvil |
 | `62463d4` | Plano: UX pulido y layout desktop/móvil unificado |
 | `bfce6c0` | Docs: contexto y evidencias sesión 2026-07-02 |

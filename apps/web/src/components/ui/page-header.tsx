@@ -46,44 +46,38 @@ export function PageHeader({
   const pathname = usePathname();
   const stepInfo = getStepProgress(pathname);
 
-  const showRightSide = Boolean(stepInfo) || Boolean(action) || Boolean(saveStatus);
-
   return (
-    <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
+    <div className="relative mb-8 flex flex-wrap items-start justify-between gap-4">
       <div>
         <h1 className="text-[17px] font-semibold text-neutral-900">{title}</h1>
         {subtitle ? (
           <p className="mt-1 text-[13px] text-neutral-500">{subtitle}</p>
         ) : null}
       </div>
-      {showRightSide ? (
-        <div className="flex shrink-0 flex-row items-center gap-4">
-          {stepInfo ? (
-            <div
-              className="hidden lg:flex items-center gap-2.5 mr-2"
-              aria-label={`Paso ${stepInfo.stepNumber} de ${stepInfo.total}`}
-            >
-              <div className="flex gap-1">
-                {Array.from({ length: stepInfo.total }).map((_, i) => (
-                  <span
-                    key={i}
-                    className={`h-[3.5px] w-[18px] rounded-full transition-colors duration-300 ${
-                      i < stepInfo.stepNumber ? 'bg-neutral-900' : 'bg-neutral-200'
-                    }`}
-                  />
-                ))}
-              </div>
-              <span className="text-[11px] font-medium text-neutral-500 whitespace-nowrap">
-                Paso {stepInfo.stepNumber} de {stepInfo.total}
-              </span>
-            </div>
-          ) : null}
-          {action || saveStatus ? (
-            <div className="flex flex-row items-center gap-3">
-              {action}
-              {saveStatus}
-            </div>
-          ) : null}
+      {stepInfo ? (
+        <div
+          className="hidden lg:flex absolute left-1/2 top-0 -translate-x-1/2 items-center gap-2"
+          aria-label={`Paso ${stepInfo.stepNumber} de ${stepInfo.total}`}
+        >
+          <div className="flex gap-0.5">
+            {Array.from({ length: stepInfo.total }).map((_, i) => (
+              <span
+                key={i}
+                className={`h-[2px] w-[14px] rounded-full transition-colors duration-300 ${
+                  i < stepInfo.stepNumber ? 'bg-neutral-900' : 'bg-neutral-200'
+                }`}
+              />
+            ))}
+          </div>
+          <span className="text-[10px] font-medium text-neutral-500 whitespace-nowrap">
+            Paso {stepInfo.stepNumber} de {stepInfo.total}
+          </span>
+        </div>
+      ) : null}
+      {action || saveStatus ? (
+        <div className="flex shrink-0 flex-row items-center gap-3">
+          {action}
+          {saveStatus}
         </div>
       ) : null}
     </div>

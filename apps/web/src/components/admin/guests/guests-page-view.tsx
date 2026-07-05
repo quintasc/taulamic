@@ -65,7 +65,7 @@ export function GuestsPageView() {
       />
       <PageHeader
         title="Invitados"
-        subtitle="Paso 2 del setup: importa la lista o gestiona invitados de última hora."
+        subtitle="Importa la lista o gestiona invitados de última hora."
       />
 
       {showImportFlow ? (

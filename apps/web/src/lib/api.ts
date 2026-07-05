@@ -287,6 +287,19 @@ export const guestsApi = {
     }),
 };
 
+export const companionGroupsApi = {
+  list: (eventId: string) =>
+    apiFetch<{
+      eventId: string;
+      groups: Array<{
+        key: string;
+        guestIds: string[];
+        guestNames: string[];
+        keepTogether: boolean;
+      }>;
+    }>(`/events/${eventId}/companion-groups`),
+};
+
 export const preferencesApi = {
   get: (eventId: string) =>
     apiFetch<PreferenceMode & { eventId: string }>(

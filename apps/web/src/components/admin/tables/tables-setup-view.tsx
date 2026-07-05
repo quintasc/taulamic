@@ -131,7 +131,7 @@ export function TablesSetupView() {
       />
       <PageHeader
         title="Configurar mesa"
-        subtitle="Paso 5 del setup: define forma y capacidad para las mesas del evento."
+        subtitle="Define forma y capacidad para las mesas del evento."
       />
 
       <div className="grid gap-8 lg:grid-cols-2">

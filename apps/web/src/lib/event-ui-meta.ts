@@ -33,6 +33,13 @@ export type EventUiMeta = {
   /** Piloto: borrador de afinidades/reglas revisado. */
   affinitiesDraftSaved?: boolean;
   affinityRules?: AffinityRuleToggles;
+  affinityRulesOrder?: string[];
+  affinityRelations?: Array<{
+    id: string;
+    guestA: string;
+    guestB: string;
+    type: 'afinidad' | 'incompatibilidad';
+  }>;
   /** @deprecated Sustituido por approximateGuestCount. */
   tableCount?: string;
 };

@@ -304,7 +304,7 @@ export function FloorPlanSetupView({
     <>
       <PageHeader
         title="Plano del salón"
-        subtitle="Paso 4: Define la forma, tamaño y accesorios."
+        subtitle="Define la forma, tamaño y accesorios."
         saveStatus={<SaveStatusIndicator status={saveStatus} />}
         action={
           hasDistribution ? (

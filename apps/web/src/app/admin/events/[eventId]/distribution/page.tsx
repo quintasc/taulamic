@@ -218,7 +218,7 @@ export default function DistributionPage() {
     <>
       <PageHeader
         title="Distribución"
-        subtitle="Paso 7 del setup: asigna invitados a las mesas por afinidad"
+        subtitle="Asigna invitados a las mesas por afinidad"
         action={
           hasCalculatedView ? (
             <button

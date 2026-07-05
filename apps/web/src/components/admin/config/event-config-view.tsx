@@ -43,7 +43,7 @@ export function EventConfigView() {
     <>
       <PageHeader
         title="Configuración del evento"
-        subtitle="Paso 1 del setup: nombre, volumen esperado y modo de captura de afinidades."
+        subtitle="Nombre, volumen esperado y modo de captura de afinidades."
         saveStatus={<SaveStatusIndicator status={saveStatus} />}
       />
 

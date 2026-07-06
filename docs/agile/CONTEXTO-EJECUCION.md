@@ -1,16 +1,32 @@
 # Contexto de ejecucion — punto de reanudacion
 
-- Ultima actualizacion: **2026-07-05**
-- Sprint activo: **10 — Pulido PO post-validación piloto (continuación)**
-- **`main` @ `71d0077`** (pusheado)
+- Ultima actualizacion: **2026-07-07**
+- Sprint activo: **10 — CERRADO** / Sprint 11 pendiente de planificación
+- **`main` @ `9933ce7`** (pusheado)
 
 ## Frase clave
 
 ```text
-Retomo Taulamic. main @ 71d0077: corrección CLS, autoguardado híbrido seguro e indicador de progreso stepper en PageHeader desktop (Paso X de Y). Sprint 10 en progreso / validación final.
+Retomo Taulamic. main @ 9933ce7: Sprint 10 cerrado. Distribución por sillas S1…Sn, estrella orientación mesa principal, botón Añadir en silla vacía (plano + distribución), fix z-index panel flotante y bounds de arrastre. Documentación SDD y cierre S10 actualizados.
 ```
 
-## Entregado hoy 2026-07-05
+## Entregado hoy 2026-07-07
+
+### `9933ce7` — feat(ui): distribución por sillas, estrella presidencial y mejoras panel plano
+
+| Área | Entrega |
+|------|---------|
+| Botón "Ver mesas" | Renombrado desde "Ver plano" en pantalla distribución |
+| Panel sillas 384px | Ampliado + diferenciación visual ocupadas (naranja) / vacías |
+| Botón `"+ Añadir"` por silla | Panel plano + lista de distribución — asigna en chairId exacto |
+| Fix asignación silla | Invitado ya no regresa a silla previa; mapeo se limpia al eliminar |
+| Distribución vertical sillas | Desglose lista de mesas con filas S1…Sn |
+| `TableVisualRepresentation` | Mesa miniatura con sillas radiales + nombres (solo desktop) |
+| ⭐ Estrella presidencial | Marca silla orientada a mesa principal; color ámbar; persiste localStorage |
+| Z-index + bounds drag | Panel `z-[60]`; no puede salir del card canvas |
+| `IconStar` | Nuevo icono con prop `filled` |
+
+## Entregado en sesión 2026-07-05
 
 ### `71d0077` — feat: indicador de progreso de pasos en PageHeader desktop
 
@@ -30,40 +46,17 @@ Retomo Taulamic. main @ 71d0077: corrección CLS, autoguardado híbrido seguro e
 | Red de seguridad navegador | Evento `beforeunload` para advertir al usuario de cambios pendientes al refrescar o cerrar la pestaña |
 | Verificación E2E | Suite completa de 13 pruebas Playwright ejecutada con éxito sin regresiones |
 
-## Entregado recientemente (2026-07-02)
-
-### `1e74d45` — fix: plano escalado y límites lógicos
-
-| Área | Entrega |
-|------|---------|
-| Bug 3×3 | Elimina bucle `fitLimits→efecto→setup→fitLimits`; auto-clamp removido |
-| Escala round/oval | `roomPixelSizeFit` usa `budget` directamente (no interpolación lineal) |
-| Límites lógicos | `computeLogicalRoomLimits()` — mínimos hiperbólicos por invitados |
-| Tope visual | `isRoomAtVisualMax()` + aviso en UI; inputs admiten hasta 200 m |
-| Flechas scroll | `MobileHorizontalScroll`: ‹ › siempre visibles, disabled por posición |
-
-### `c4c55a4` — feat: paleta accesorios desktop y UX botones
-
-| Área | Entrega |
-|------|---------|
-| Desktop accesories | Paleta horizontal chips entre alert y canvas; botón ✕ Limpiar plano |
-| Botón recomendación | ↻ junto al texto de dimensiones bajo canvas |
-| Sidebar | Tarjeta Accesorios eliminada (reemplazada por paleta) |
-| Mobile tooltips | "Limpiar plano" / "Volver al tamaño recomendado" |
-
-Detalle: `evidencias-piloto/sesion-2026-07-02-plano-escalado-ux.md`
-
 ## Pendiente inmediato
 
-1. **Validación PO visual — Plano desktop + móvil** (`guion-validacion-piloto-ui.md`)
-2. **Corregir room-setup 3×3** en eventos de prueba (desde la propia UI, no código)
-3. **GitHub Project** — marcar ítems del plano como Done ([Project #2](https://github.com/users/quintasc/projects/2))
-4. **Sprint 10 cierre** — cuando validación PO pase
+1. **Validación PO visual — sillas, estrella presidencial, móvil** (`guion-validacion-piloto-ui.md`)
+2. **GitHub Project** — marcar ítems Sprint 10 como Done ([Project #2](https://github.com/users/quintasc/projects/2))
+3. **Sprint 11 planificación** — persistencia `seatId` API servidor (Fase D), arrastre intra-mesa
 
 ## Historial reciente
 
 | Commit | Descripción |
 |--------|-------------|
+| `9933ce7` | feat(ui): distribución por sillas, estrella presidencial y mejoras panel plano |
 | `71d0077` | feat: indicador de progreso de pasos en PageHeader desktop |
 | `7cd78f3` | fix: CLS y autoguardado híbrido seguro en Configuración |
 | `0289b71` | fix: dashboard y setup journey móvil |
@@ -71,7 +64,10 @@ Detalle: `evidencias-piloto/sesion-2026-07-02-plano-escalado-ux.md`
 | `bfce6c0` | Docs: contexto y evidencias sesión 2026-07-02 |
 | `c4c55a4` | Plano desktop: paleta accesorios horizontal y UX botones |
 | `1e74d45` | Plano: corrige escala, límites lógicos y bug 3×3 |
-| `4d42bdb` | Admin móvil/iPad: refactor responsive, pulido PO y E2E Sprint 09-10 |
+
+## Sprint 10 (cerrado)
+
+- `sprint-10-cierre.md` · Sillas, estrella presidencial, panel plano mejorado
 
 ## Sprint 09 (cerrado)
 
@@ -82,4 +78,4 @@ Detalle: `evidencias-piloto/sesion-2026-07-02-plano-escalado-ux.md`
 - `guion-validacion-piloto-ui.md`
 - `refactor-ui-mobile-admin.md`
 - `docs/sdd/SDD-GOVERNANZA-PROTECCION-SDD.md`
-- `evidencias-piloto/sesion-2026-07-02-plano-escalado-ux.md`
+- `docs/sdd/SDD-PILOTO-enmienda-HU05-fase2c-sillas-distribucion-estrella.md`

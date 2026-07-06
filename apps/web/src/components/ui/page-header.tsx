@@ -64,7 +64,7 @@ export function PageHeader({
               <span
                 key={i}
                 className={`h-[2px] w-[14px] rounded-full transition-colors duration-300 ${
-                  i < stepInfo.stepNumber ? 'bg-neutral-900' : 'bg-neutral-200'
+                  i < stepInfo.stepNumber ? 'bg-primary-500' : 'bg-neutral-200'
                 }`}
               />
             ))}

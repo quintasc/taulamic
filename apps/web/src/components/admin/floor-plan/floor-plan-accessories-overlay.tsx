@@ -14,6 +14,9 @@ export function FloorPlanAccessoriesOverlay({
   portraitCanvas = false,
   portraitFixedSlots = false,
   roomShape = 'rectangular',
+  customPositions = {},
+  onPointerDownAccessory,
+  editable = false,
 }: {
   accessoryIds: string[];
   tableCount?: number;
@@ -22,6 +25,9 @@ export function FloorPlanAccessoriesOverlay({
   portraitCanvas?: boolean;
   portraitFixedSlots?: boolean;
   roomShape?: RoomShape;
+  customPositions?: Record<string, { x: number; y: number }>;
+  onPointerDownAccessory?: (e: React.PointerEvent, id: string, initialPos: { x: number; y: number }) => void;
+  editable?: boolean;
 }) {
   if (accessoryIds.length === 0) {
     return null;
@@ -52,7 +58,14 @@ export function FloorPlanAccessoriesOverlay({
         if (!accessory) {
           return null;
         }
-        const layout = layouts[id] ?? { top: '50%', left: '50%' };
+        const customPos = customPositions[id];
+        const layout = customPos
+          ? { top: `${customPos.y}%`, left: `${customPos.x}%` }
+          : layouts[id] ?? { top: '50%', left: '50%' };
+
+        const initialX = customPos ? customPos.x : Number.parseFloat(layout.left);
+        const initialY = customPos ? customPos.y : Number.parseFloat(layout.top);
+
         const iconSize = Math.max(
           20,
           Math.round(getFloorAccessoryDisplaySize(id, 'overlay') * displayScale),
@@ -60,7 +73,9 @@ export function FloorPlanAccessoriesOverlay({
         return (
           <span
             key={id}
-            className="badge-floor-accessory pointer-events-auto absolute z-[3] inline-flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-0.5"
+            className={`badge-floor-accessory absolute z-[3] inline-flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-0.5 pointer-events-auto ${
+              editable ? 'cursor-move select-none touch-none' : ''
+            }`}
             style={{
               top: layout.top,
               left: layout.left,
@@ -68,6 +83,11 @@ export function FloorPlanAccessoriesOverlay({
             }}
             title={accessory.label}
             aria-label={accessory.label}
+            onPointerDown={(e) => {
+              if (editable && onPointerDownAccessory) {
+                onPointerDownAccessory(e, id, { x: initialX, y: initialY });
+              }
+            }}
           >
             <span className="inline-flex items-center justify-center rounded-lg bg-neutral-0/90 shadow-sm">
               <FloorAccessoryIcon

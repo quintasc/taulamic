@@ -69,12 +69,21 @@ export function shouldUsePointerGuestDrag(pointerType: string): boolean {
 function findDropTargetAt(
   x: number,
   y: number,
-): { tableId: string; freeSeats: number } | null {
+): { tableId: string; freeSeats: number; chair?: string } | null {
   if (typeof document === 'undefined') {
     return null;
   }
   const elements = document.elementsFromPoint(x, y);
   for (const element of elements) {
+    const chairTarget = element.closest(`[data-guest-drop-chair]`);
+    if (chairTarget) {
+      const tableId = chairTarget.getAttribute('data-guest-drop-table-id');
+      const chair = chairTarget.getAttribute('data-guest-drop-chair');
+      if (tableId && chair) {
+        return { tableId, freeSeats: 99, chair };
+      }
+    }
+
     const target = element.closest(`[${GUEST_DROP_TABLE_ATTR}]`);
     if (!target) {
       continue;
@@ -100,6 +109,9 @@ function resolveHoverTableId(
   const hover = findDropTargetAt(x, y);
   if (!hover) {
     return null;
+  }
+  if (hover.chair) {
+    return hover.tableId;
   }
   return canDropGuestOnTable(payload, hover.tableId, hover.freeSeats)
     ? hover.tableId
@@ -165,6 +177,7 @@ export function endGuestPointerDrag(): {
   guestId: string;
   sourceTableId: string;
   targetTableId: string;
+  chair?: string;
 } | null {
   const payload = activePayload;
   const targetTableId = snapshot?.hoverTableId ?? null;
@@ -186,11 +199,11 @@ export function endGuestPointerDrag(): {
   }
 
   const hover = findDropTargetAt(lastX, lastY);
-  if (
-    !hover ||
-    hover.tableId !== targetTableId ||
-    !canDropGuestOnTable(payload, targetTableId, hover.freeSeats)
-  ) {
+  if (!hover || hover.tableId !== targetTableId) {
+    return null;
+  }
+
+  if (!hover.chair && !canDropGuestOnTable(payload, targetTableId, hover.freeSeats)) {
     return null;
   }
 
@@ -198,6 +211,7 @@ export function endGuestPointerDrag(): {
     guestId: payload.guestId,
     sourceTableId: payload.sourceTableId,
     targetTableId,
+    chair: hover.chair,
   };
 }
 

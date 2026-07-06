@@ -61,6 +61,15 @@ export function IconHeart(props: IconProps) {
   );
 }
 
+export function IconHeartBroken(props: IconProps) {
+  return (
+    <svg {...defaults} {...props}>
+      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+      <path d="m12 5-1.5 4 3 3-2 3.5 2.5 2.5" />
+    </svg>
+  );
+}
+
 export function IconTable(props: IconProps) {
   return (
     <svg {...defaults} {...props}>
@@ -174,6 +183,33 @@ export function IconChevronDown(props: IconProps) {
   return (
     <svg {...defaults} {...props}>
       <path d="m6 9 6 6 6-6" />
+    </svg>
+  );
+}
+
+export function IconChevronUp(props: IconProps) {
+  return (
+    <svg {...defaults} {...props}>
+      <path d="m18 15-6-6-6 6" />
+    </svg>
+  );
+}
+
+export function IconLink(props: IconProps) {
+  return (
+    <svg {...defaults} {...props}>
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+    </svg>
+  );
+}
+
+export function IconLinkOff(props: IconProps) {
+  return (
+    <svg {...defaults} {...props}>
+      <path d="M18.8 4a5 5 0 0 0-7.07 0l-1.72 1.71" />
+      <path d="M5.1 20a5 5 0 0 0 7.07 0l1.71-1.71" />
+      <path d="m2 2 20 20" />
     </svg>
   );
 }
@@ -537,6 +573,25 @@ export function IconSliders(props: IconProps) {
       <line x1="2" y1="14" x2="6" y2="14" />
       <line x1="10" y1="8" x2="14" y2="8" />
       <line x1="18" y1="16" x2="22" y2="16" />
+    </svg>
+  );
+}
+
+export function IconStar({ filled = false, ...props }: IconProps & { filled?: boolean }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={20}
+      height={20}
+      viewBox="0 0 24 24"
+      fill={filled ? "currentColor" : "none"}
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
     </svg>
   );
 }

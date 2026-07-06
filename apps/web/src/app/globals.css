@@ -183,6 +183,12 @@ body {
     border-color: var(--wf-4);
   }
 
+  .bg-dot-grid {
+    background-color: #fafafa;
+    background-image: radial-gradient(rgba(0, 0, 0, 0.06) 1.2px, transparent 1.2px);
+    background-size: 16px 16px;
+  }
+
   @keyframes countdown-colon-pulse {
     0%,
     100% {

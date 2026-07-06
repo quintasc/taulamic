@@ -48,7 +48,7 @@ export function GuestPointerDragLayer({
   onDragEnd,
   children,
 }: {
-  onDrop: (guestId: string, targetTableId: string) => void;
+  onDrop: (guestId: string, targetTableId: string, chair?: string) => void;
   onDragStart?: () => void;
   onDragEnd?: () => void;
   children: ReactNode;
@@ -84,7 +84,7 @@ export function GuestPointerDragLayer({
       document.body.style.touchAction = previousTouchAction;
       dragStartedRef.current = false;
       if (result) {
-        onDropRef.current(result.guestId, result.targetTableId);
+        onDropRef.current(result.guestId, result.targetTableId, result.chair);
       }
       if (hadActiveDrag) {
         onDragEndRef.current?.();

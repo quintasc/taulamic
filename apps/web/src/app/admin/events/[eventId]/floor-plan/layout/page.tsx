@@ -208,6 +208,7 @@ export default function FloorPlanLayoutPage() {
 
   return (
     <FloorPlanLayoutView
+      eventId={params.eventId}
       tableGroups={tableGroups}
       roomSetup={roomSetup}
       distributionHref={routes.distribution}

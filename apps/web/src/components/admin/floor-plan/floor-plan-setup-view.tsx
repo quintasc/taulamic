@@ -307,18 +307,16 @@ export function FloorPlanSetupView({
         subtitle="Define la forma, tamaño y accesorios."
         saveStatus={<SaveStatusIndicator status={saveStatus} />}
         action={
-          hasDistribution ? (
-            <Link
-              href={routes.floorPlanLayout}
-              className="btn-secondary"
-              aria-label={DISTRIBUTION_COPY.viewFloorPlan.full}
-            >
-              <ResponsiveButtonLabel
-                short={DISTRIBUTION_COPY.viewFloorPlan.short}
-                full={DISTRIBUTION_COPY.viewFloorPlan.full}
-              />
-            </Link>
-          ) : undefined
+          <Link
+            href={routes.floorPlanLayout}
+            className="btn-secondary"
+            aria-label={DISTRIBUTION_COPY.viewFloorPlan.full}
+          >
+            <ResponsiveButtonLabel
+              short={DISTRIBUTION_COPY.viewFloorPlan.short}
+              full={DISTRIBUTION_COPY.viewFloorPlan.full}
+            />
+          </Link>
         }
       />
 

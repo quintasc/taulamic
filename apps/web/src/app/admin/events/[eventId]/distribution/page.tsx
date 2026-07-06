@@ -262,6 +262,7 @@ export default function DistributionPage() {
       ) : hasCalculatedView ? (
         <DistributionCalculatedView
           key={proposal.id}
+          eventId={params.eventId}
           proposal={proposal}
           tableGroups={tableGroups}
           guestTotal={guestTotal}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useParams } from 'next/navigation';
 import { FloorPlanAccessoriesOverlay } from '@/components/admin/floor-plan/floor-plan-accessories-overlay';
 import {
   canvasTierEdgePaddingPx,
@@ -72,6 +73,75 @@ export function ResizableRoomCanvas({
   compact?: boolean;
   areaRef?: React.RefObject<HTMLElement | null>;
 }) {
+  const params = useParams<{ eventId: string }>();
+  const eventId = params?.eventId ?? '';
+  const [customPositions, setCustomPositions] = useState<Record<string, { x: number; y: number }>>({});
+
+  useEffect(() => {
+    if (!eventId) return;
+    const key = `taulamic:customLayoutPositions:${eventId}`;
+    const rawData = localStorage.getItem(key);
+    if (rawData) {
+      try {
+        setCustomPositions(JSON.parse(rawData));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }, [setup.shape, eventId]);
+
+  const handlePointerDownAccessory = (
+    event: React.PointerEvent,
+    entityId: string,
+    initialPos: { x: number; y: number }
+  ) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const handle = event.currentTarget as HTMLElement;
+    handle.setPointerCapture(event.pointerId);
+    
+    const startX = event.clientX;
+    const startY = event.clientY;
+    
+    const container = containerRef.current;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    
+    const onPointerMove = (moveEvent: PointerEvent) => {
+      const dx = moveEvent.clientX - startX;
+      const dy = moveEvent.clientY - startY;
+      
+      const dxPct = (dx / rect.width) * 100;
+      const dyPct = (dy / rect.height) * 100;
+      
+      const nextX = Math.max(0, Math.min(100, initialPos.x + dxPct));
+      const nextY = Math.max(0, Math.min(100, initialPos.y + dyPct));
+      
+      setCustomPositions((prev) => ({
+        ...prev,
+        [entityId]: { x: nextX, y: nextY },
+      }));
+    };
+    
+    const onPointerUp = (upEvent: PointerEvent) => {
+      if (handle.hasPointerCapture(upEvent.pointerId)) {
+        handle.releasePointerCapture(upEvent.pointerId);
+      }
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+      
+      setCustomPositions((prev) => {
+        const next = { ...prev };
+        localStorage.setItem(`taulamic:customLayoutPositions:${eventId}`, JSON.stringify(next));
+        return next;
+      });
+    };
+    
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+  };
+
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasTier = useLayoutCanvasTier();
   const portraitLayout = compact
@@ -208,7 +278,7 @@ export function ResizableRoomCanvas({
         style={{ width: widthPx, height: heightPx }}
       >
           <div
-            className={`relative h-full w-full overflow-hidden border-2 border-neutral-400 bg-neutral-50/90 shadow-sm ${
+            className={`relative h-full w-full overflow-hidden border-2 border-neutral-400 bg-dot-grid shadow-sm ${
               setup.shape === 'round'
                 ? 'rounded-full'
                 : setup.shape === 'oval'
@@ -231,6 +301,9 @@ export function ResizableRoomCanvas({
               portraitCanvas={heightPx > widthPx}
               portraitFixedSlots={compact}
               roomShape={setup.shape}
+              customPositions={customPositions}
+              onPointerDownAccessory={handlePointerDownAccessory}
+              editable={true}
             />
           </div>
           {!compact ? (

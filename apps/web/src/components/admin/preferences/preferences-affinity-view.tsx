@@ -1,11 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { SetupNavBar } from '@/components/admin/setup-nav-bar';
 import { PageHeader, SaveStatusIndicator, SectionLabel, useAutoSaveIndicator } from '@/components/ui';
 import { preferencesApi, guestsApi, companionGroupsApi } from '@/lib/api';
-import { IconSliders, IconClose, IconChevronDown } from '@/components/icons';
+import { IconSliders, IconClose, IconChevronDown, IconChevronUp, IconLink, IconLinkOff } from '@/components/icons';
 import {
   loadEventUiMeta,
   markAffinitiesDraftSaved,
@@ -155,6 +155,101 @@ function Toggle({ checked, disabled }: { checked: boolean; disabled?: boolean })
   );
 }
 
+interface CustomSelectProps {
+  value: string;
+  onChange: (value: string) => void;
+  options: Array<{ id: string; name: string; category?: string }>;
+  placeholder: string;
+}
+
+function CustomSelect({ value, onChange, options, placeholder }: CustomSelectProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    if (isOpen) {
+      document.addEventListener('mousedown', handleOutsideClick);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, [isOpen]);
+
+  return (
+    <div ref={containerRef} className="relative w-full">
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 focus:border-primary-500 focus:bg-neutral-0 focus:outline-none transition text-left"
+      >
+        <span className={value ? 'text-neutral-900 font-medium' : 'text-neutral-400 font-normal'}>
+          {value || placeholder}
+        </span>
+        <svg
+          className={`h-4 w-4 text-neutral-500 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {isOpen && (
+        <div className="absolute left-0 mt-1 w-full max-h-60 overflow-y-auto rounded-xl border border-neutral-200 bg-neutral-0 p-0 shadow-lg z-[100] overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
+          <button
+            type="button"
+            onClick={() => {
+              onChange('');
+              setIsOpen(false);
+            }}
+            className={`w-full text-left px-4 py-2.5 text-sm transition-colors font-medium ${
+              !value
+                ? 'bg-primary-500 text-neutral-0 font-semibold'
+                : 'text-neutral-800 bg-neutral-0 hover:bg-primary-500 hover:text-neutral-0'
+            }`}
+          >
+            {placeholder}
+          </button>
+          
+          {options.map((opt) => {
+            const isSelected = opt.name === value;
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => {
+                  onChange(opt.name);
+                  setIsOpen(false);
+                }}
+                className={`w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between ${
+                  isSelected
+                    ? 'bg-primary-500 text-neutral-0 font-semibold'
+                    : 'text-neutral-800 bg-neutral-0 hover:bg-primary-500 hover:text-neutral-0 font-medium'
+                }`}
+              >
+                <span className="truncate">{opt.name}</span>
+                {opt.category && (
+                  <span className="hidden sm:inline-block text-[10px] uppercase tracking-wider font-semibold ml-2 shrink-0 opacity-65">
+                    ({opt.category})
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 export function PreferencesAffinityView({ eventId }: { eventId: string }) {
   const routes = adminRoutes(eventId);
   const { status: saveStatus, markSaved } = useAutoSaveIndicator();
@@ -178,6 +273,20 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
     type: 'afinidad' | 'incompatibilidad';
   }>>([]);
   const [guestList, setGuestList] = useState<Array<{ id: string; name: string; category?: string }>>([]);
+  const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
+
+  // Click outside to close custom select dropdowns
+  useEffect(() => {
+    if (!activeDropdownId) return;
+    function handleGlobalClick(e: MouseEvent) {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.relation-select-container')) {
+        setActiveDropdownId(null);
+      }
+    }
+    document.addEventListener('click', handleGlobalClick);
+    return () => document.removeEventListener('click', handleGlobalClick);
+  }, [activeDropdownId]);
 
   // Creation form state
   const [isAdding, setIsAdding] = useState(false);
@@ -207,7 +316,27 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
         ...loadedOrder.filter((k) => allKeys.includes(k)),
         ...allKeys.filter((k) => !loadedOrder.includes(k)),
       ];
-      setRulesOrder(mergedOrder);
+      const activeRules = meta.affinityRules ?? {};
+      const sortedOrder = [
+        ...mergedOrder.filter((k) => activeRules[k]),
+        ...mergedOrder.filter((k) => !activeRules[k]),
+      ];
+      setRulesOrder(sortedOrder);
+    } else {
+      const activeRules = meta.affinityRules ?? {};
+      const defaultKeys: Array<keyof AffinityRuleToggles> = [
+        'groupByCategory',
+        'keepFamiliesTogether',
+        'singlesTable',
+        'separateKnownIncompatibles',
+        'groupByAge',
+        'alternateGender',
+      ];
+      const sortedOrder = [
+        ...defaultKeys.filter((k) => activeRules[k]),
+        ...defaultKeys.filter((k) => !activeRules[k]),
+      ];
+      setRulesOrder(sortedOrder);
     }
 
     // Load relations or initialize empty
@@ -470,10 +599,6 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
 
   const canSubmit = newGuestA !== '' && newGuestB !== '' && newGuestA !== newGuestB && !relationExists;
 
-  const guestACat = guestList.find((g) => g.name === newGuestA)?.category;
-  const guestBCat = guestList.find((g) => g.name === newGuestB)?.category;
-  const showCategory = guestACat === guestBCat ? guestACat : (guestACat || guestBCat);
-
   return (
     <>
       <PageHeader
@@ -577,61 +702,217 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
         {/* Relations List */}
         {relations.length > 0 && (
           <div className="space-y-3">
-            {relations.map((rel) => (
-              <div
-                key={rel.id}
-                className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 rounded-xl border border-neutral-200 bg-neutral-0 p-4 shadow-sm"
-              >
-                {/* Guest A */}
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 text-sm font-bold text-neutral-0 shrink-0">
-                    {getInitials(rel.guestA)}
+            {relations.map((rel) => {
+              const catA = guestList.find((g) => g.name === rel.guestA)?.category;
+              const catB = guestList.find((g) => g.name === rel.guestB)?.category;
+              return (
+                <div key={rel.id}>
+                {/* Desktop View */}
+                <div className="hidden sm:grid grid-cols-[1fr_auto_1fr] items-center gap-4 rounded-xl border border-neutral-200 bg-neutral-0 p-4 shadow-sm">
+                  {/* Guest A */}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 text-sm font-bold text-neutral-0 shrink-0">
+                      {getInitials(rel.guestA)}
+                    </div>
+                    <span className="text-sm font-medium text-neutral-900 truncate">{rel.guestA}</span>
+                    {catA && (
+                      <span className="text-[10px] text-neutral-500 font-semibold uppercase tracking-wider ml-1.5 shrink-0">
+                        ({catA})
+                      </span>
+                    )}
                   </div>
-                  <span className="text-sm font-medium text-neutral-900 truncate">{rel.guestA}</span>
-                </div>
 
-                {/* Relation Badge Select Dropdown */}
-                <div className="justify-self-center">
-                  <div className="relative inline-block">
-                    <select
-                      value={rel.type}
-                      onChange={(e) => updateRelationType(rel.id, e.target.value as 'afinidad' | 'incompatibilidad')}
-                      className={`appearance-none cursor-pointer rounded-full pl-3 pr-7 py-1 text-xs font-semibold border focus:outline-none transition-colors ${
+                  {/* Relation Badge Select Dropdown */}
+                  <div className="justify-self-center relative relation-select-container">
+                    <button
+                      type="button"
+                      onClick={() => setActiveDropdownId(activeDropdownId === rel.id ? null : rel.id)}
+                      className={`flex items-center gap-1.5 rounded-full pl-3 pr-2.5 py-1.5 text-xs font-semibold border focus:outline-none transition-colors ${
                         rel.type === 'afinidad'
-                          ? 'bg-emerald-50 text-emerald-600 border-emerald-200/50 hover:bg-emerald-100/50 focus:border-emerald-400'
-                          : 'bg-rose-50 text-rose-600 border-rose-200/50 hover:bg-rose-100/50 focus:border-rose-400'
+                          ? 'bg-emerald-50 text-emerald-600 border-emerald-200/50 hover:bg-emerald-100/50'
+                          : 'bg-rose-50 text-rose-600 border-rose-200/50 hover:bg-rose-100/50'
                       }`}
                     >
-                      <option value="afinidad" className="bg-neutral-0 text-neutral-900 font-normal">↔ afinidad</option>
-                      <option value="incompatibilidad" className="bg-neutral-0 text-neutral-900 font-normal">✕ incompatible</option>
-                    </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                      <IconChevronDown
-                        className={`h-3.5 w-3.5 ${
-                          rel.type === 'afinidad' ? 'text-emerald-500' : 'text-rose-500'
-                        }`}
-                      />
+                      {rel.type === 'afinidad' ? (
+                        <>
+                          <IconLink className="h-3.5 w-3.5 text-emerald-500 fill-none stroke-current shrink-0" />
+                          <span>afinidad</span>
+                        </>
+                      ) : (
+                        <>
+                          <IconLinkOff className="h-3.5 w-3.5 text-rose-500 fill-none stroke-current shrink-0" />
+                          <span>incompatible</span>
+                        </>
+                      )}
+                      {activeDropdownId === rel.id ? (
+                        <IconChevronUp className="h-3 w-3 opacity-70" />
+                      ) : (
+                        <IconChevronDown className="h-3 w-3 opacity-70" />
+                      )}
+                    </button>
+
+                    {activeDropdownId === rel.id && (
+                      <div className="absolute left-1/2 -translate-x-1/2 mt-1 w-36 rounded-xl border border-neutral-200 bg-neutral-0 p-1 shadow-lg z-50">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateRelationType(rel.id, 'afinidad');
+                            setActiveDropdownId(null);
+                          }}
+                          className={`w-full px-3 py-2 text-xs font-medium rounded-lg text-left transition-colors flex items-center gap-2 ${
+                            rel.type === 'afinidad'
+                              ? 'bg-emerald-50 text-emerald-700 font-semibold'
+                              : 'text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900'
+                          }`}
+                        >
+                          <IconLink className={`h-3.5 w-3.5 fill-none stroke-current shrink-0 ${
+                            rel.type === 'afinidad' ? 'text-emerald-500' : 'text-neutral-400'
+                          }`} />
+                          <span>afinidad</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateRelationType(rel.id, 'incompatibilidad');
+                            setActiveDropdownId(null);
+                          }}
+                          className={`w-full px-3 py-2 text-xs font-medium rounded-lg text-left transition-colors flex items-center gap-2 ${
+                            rel.type === 'incompatibilidad'
+                              ? 'bg-rose-50 text-rose-700 font-semibold'
+                              : 'text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900'
+                          }`}
+                        >
+                          <IconLinkOff className={`h-3.5 w-3.5 fill-none stroke-current shrink-0 ${
+                            rel.type === 'incompatibilidad' ? 'text-rose-500' : 'text-neutral-400'
+                          }`} />
+                          <span>incompatible</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Guest B + Remove button */}
+                  <div className="flex items-center gap-3 justify-self-end min-w-0">
+                    <span className="text-sm font-medium text-neutral-900 truncate mr-1">{rel.guestB}</span>
+                    {catB && (
+                      <span className="text-[10px] text-neutral-500 font-semibold uppercase tracking-wider mr-1.5 shrink-0">
+                        ({catB})
+                      </span>
+                    )}
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 text-sm font-bold text-neutral-0 shrink-0">
+                      {getInitials(rel.guestB)}
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => removeRelation(rel.id)}
+                      className="ml-2 rounded-full p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 transition shrink-0"
+                      title="Eliminar relación"
+                    >
+                      <IconClose className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
 
-                {/* Guest B + Remove button */}
-                <div className="flex items-center gap-3 justify-self-end min-w-0">
-                  <span className="text-sm font-medium text-neutral-900 truncate mr-1">{rel.guestB}</span>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 text-sm font-bold text-neutral-0 shrink-0">
-                    {getInitials(rel.guestB)}
+                {/* Mobile View */}
+                <div className="relative sm:hidden flex flex-col gap-2 rounded-xl border border-neutral-200 bg-neutral-0 p-4 shadow-sm">
+                  {/* Guest A */}
+                  <div className="flex items-center gap-3 pr-8 min-w-0">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 text-sm font-bold text-neutral-0 shrink-0">
+                      {getInitials(rel.guestA)}
+                    </div>
+                    <span className="text-sm font-medium text-neutral-900 break-words leading-tight">
+                      {rel.guestA}
+                    </span>
                   </div>
+
+                  {/* Relation select indented (avatar 40px + gap 12px = 52px) */}
+                  <div className="pl-[52px] flex">
+                    <div className="relative relation-select-container">
+                      <button
+                        type="button"
+                        onClick={() => setActiveDropdownId(activeDropdownId === rel.id ? null : rel.id)}
+                        className={`flex items-center gap-1 rounded-full p-1.5 text-xs font-semibold border focus:outline-none transition-colors ${
+                          rel.type === 'afinidad'
+                            ? 'bg-emerald-50 text-emerald-600 border-emerald-200/50'
+                            : 'bg-rose-50 text-rose-600 border-rose-200/50'
+                        }`}
+                      >
+                        {rel.type === 'afinidad' ? (
+                          <IconLink className="h-3.5 w-3.5 text-emerald-500 fill-none stroke-current shrink-0" />
+                        ) : (
+                          <IconLinkOff className="h-3.5 w-3.5 text-rose-500 fill-none stroke-current shrink-0" />
+                        )}
+                        {activeDropdownId === rel.id ? (
+                          <IconChevronUp className="h-3 w-3 opacity-70" />
+                        ) : (
+                          <IconChevronDown className="h-3 w-3 opacity-70" />
+                        )}
+                      </button>
+
+                      {activeDropdownId === rel.id && (
+                        <div className="absolute left-0 mt-1 w-32 rounded-xl border border-neutral-200 bg-neutral-0 p-1 shadow-lg z-50">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              updateRelationType(rel.id, 'afinidad');
+                              setActiveDropdownId(null);
+                            }}
+                            className={`w-full px-3 py-2 text-xs font-medium rounded-lg text-left transition-colors flex items-center gap-2 ${
+                              rel.type === 'afinidad'
+                                ? 'bg-emerald-50 text-emerald-700 font-semibold'
+                                : 'text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900'
+                            }`}
+                          >
+                            <IconLink className={`h-3.5 w-3.5 fill-none stroke-current shrink-0 ${
+                              rel.type === 'afinidad' ? 'text-emerald-500' : 'text-neutral-400'
+                            }`} />
+                            <span>afinidad</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              updateRelationType(rel.id, 'incompatibilidad');
+                              setActiveDropdownId(null);
+                            }}
+                            className={`w-full px-3 py-2 text-xs font-medium rounded-lg text-left transition-colors flex items-center gap-2 ${
+                              rel.type === 'incompatibilidad'
+                                ? 'bg-rose-50 text-rose-700 font-semibold'
+                                : 'text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900'
+                            }`}
+                          >
+                            <IconLinkOff className={`h-3.5 w-3.5 fill-none stroke-current shrink-0 ${
+                              rel.type === 'incompatibilidad' ? 'text-rose-500' : 'text-neutral-400'
+                            }`} />
+                            <span>incompatible</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Guest B */}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 text-sm font-bold text-neutral-0 shrink-0">
+                      {getInitials(rel.guestB)}
+                    </div>
+                    <span className="text-sm font-medium text-neutral-900 break-words leading-tight">
+                      {rel.guestB}
+                    </span>
+                  </div>
+
+                  {/* Delete button (top right, always visible) */}
                   <button
                     type="button"
                     onClick={() => removeRelation(rel.id)}
-                    className="ml-2 rounded-full p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 transition shrink-0"
+                    className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 transition shrink-0"
                     title="Eliminar relación"
                   >
-                    <IconClose className="h-4 w-4" />
+                    <IconClose className="h-4.5 w-4.5" />
                   </button>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
@@ -646,39 +927,23 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
                 <label className="mb-1.5 block text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
                   Invitado A
                 </label>
-                <select
-                  className="w-full rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 focus:border-primary-500 focus:bg-neutral-0 focus:outline-none transition"
+                <CustomSelect
                   value={newGuestA}
-                  onChange={(e) => setNewGuestA(e.target.value)}
-                >
-                  <option value="">Selecciona un invitado...</option>
-                  {guestList
-                    .filter((g) => g.name !== newGuestB)
-                    .map((g) => (
-                      <option key={g.id} value={g.name}>
-                        {g.name}
-                      </option>
-                    ))}
-                </select>
+                  onChange={setNewGuestA}
+                  options={guestList.filter((g) => g.name !== newGuestB)}
+                  placeholder="Selecciona un invitado..."
+                />
               </div>
               <div>
                 <label className="mb-1.5 block text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
                   Invitado B
                 </label>
-                <select
-                  className="w-full rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 focus:border-primary-500 focus:bg-neutral-0 focus:outline-none transition"
+                <CustomSelect
                   value={newGuestB}
-                  onChange={(e) => setNewGuestB(e.target.value)}
-                >
-                  <option value="">Selecciona un invitado...</option>
-                  {guestList
-                    .filter((g) => g.name !== newGuestA)
-                    .map((g) => (
-                      <option key={g.id} value={g.name}>
-                        {g.name}
-                      </option>
-                    ))}
-                </select>
+                  onChange={setNewGuestB}
+                  options={guestList.filter((g) => g.name !== newGuestA)}
+                  placeholder="Selecciona un invitado..."
+                />
               </div>
             </div>
 
@@ -703,14 +968,8 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
                   {newGuestA || 'Invitado A'} y {newGuestB || 'Invitado B'}
                 </span>
               </div>
-              {showCategory ? (
-                <span className="rounded-full bg-primary-100/80 px-2.5 py-0.5 text-[10px] font-semibold text-primary-700 uppercase tracking-wider">
-                  {showCategory}
-                </span>
-              ) : null}
-            </div>
+              </div>
 
-            {/* Type Selector */}
             <div className="space-y-1.5">
               <label className="block text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
                 Tipo de relación
@@ -719,24 +978,30 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
                 <button
                   type="button"
                   onClick={() => setNewType('afinidad')}
-                  className={`flex items-center justify-center gap-1.5 rounded-xl border py-3 text-sm font-medium transition ${
+                  title="Afinidad"
+                  className={`flex items-center justify-center rounded-xl border py-3 transition ${
                     newType === 'afinidad'
-                      ? 'border-neutral-900 bg-neutral-100 text-neutral-900'
-                      : 'border-neutral-200 bg-neutral-0 text-neutral-500 hover:bg-neutral-50'
+                      ? 'border-emerald-200/50 bg-emerald-50 text-emerald-600'
+                      : 'border-neutral-200 bg-neutral-0 text-neutral-400 hover:bg-neutral-50 hover:text-neutral-600'
                   }`}
                 >
-                  ↔ Afinidad
+                  <IconLink className={`h-5 w-5 fill-none stroke-current shrink-0 ${
+                    newType === 'afinidad' ? 'text-emerald-500' : 'text-neutral-400'
+                  }`} />
                 </button>
                 <button
                   type="button"
                   onClick={() => setNewType('incompatibilidad')}
-                  className={`flex items-center justify-center gap-1.5 rounded-xl border py-3 text-sm font-medium transition ${
+                  title="Incompatibilidad"
+                  className={`flex items-center justify-center rounded-xl border py-3 transition ${
                     newType === 'incompatibilidad'
-                      ? 'border-rose-500 bg-rose-50 text-rose-600'
-                      : 'border-neutral-200 bg-neutral-0 text-neutral-500 hover:bg-neutral-50'
+                      ? 'border-rose-200/50 bg-rose-50 text-rose-600'
+                      : 'border-neutral-200 bg-neutral-0 text-neutral-400 hover:bg-neutral-50 hover:text-neutral-600'
                   }`}
                 >
-                  ✕ Incompatibilidad
+                  <IconLinkOff className={`h-5 w-5 fill-none stroke-current shrink-0 ${
+                    newType === 'incompatibilidad' ? 'text-rose-500' : 'text-neutral-400'
+                  }`} />
                 </button>
               </div>
             </div>
@@ -749,7 +1014,7 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
                 onClick={addRelation}
                 className="flex-1 btn-primary py-2.5 text-sm font-semibold transition"
               >
-                Añadir relación
+                Añadir
               </button>
               <button
                 type="button"
@@ -772,7 +1037,7 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
             className="flex items-center gap-2 text-sm font-semibold text-neutral-800 hover:text-neutral-900 transition pl-1 py-1"
           >
             <IconPlus className="h-4.5 w-4.5 text-neutral-600" />
-            Añadir relación
+            Añadir
           </button>
         )}
       </div>

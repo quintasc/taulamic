@@ -31,7 +31,9 @@ export function DistributionCalculatedView({
   onMoveGuest,
   mutationWarning = null,
   mutationError = null,
+  eventId,
 }: {
+  eventId: string;
   proposal: DistributionProposal;
   tableGroups: DistributionTableGroup[];
   guestTotal: number;
@@ -85,6 +87,7 @@ export function DistributionCalculatedView({
       </div>
 
       <DistributionTableList
+        eventId={eventId}
         tableGroups={tableGroups}
         editable={editable}
         unassigningGuestId={unassigningGuestId}

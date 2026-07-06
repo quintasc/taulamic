@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState, type DragEvent } from 'react';
+import { IconStar } from '@/components/icons';
 import { GuestPill } from '@/components/admin/distribution/guest-pill';
 import { GuestPointerDragLayer } from '@/components/admin/distribution/guest-pointer-drag-layer';
 import { useGuestPointerDropHighlight } from '@/components/admin/distribution/use-guest-pointer-drop-highlight';
@@ -15,7 +16,7 @@ import {
   canvasTierUsesPortraitLayout,
   canvasTierEdgePaddingPx,
 } from '@/components/admin/floor-plan/use-room-canvas-max-px';
-import { Alert, EmptyState, PageHeader } from '@/components/ui';
+import { Alert, ConfirmDialog, EmptyState, PageHeader } from '@/components/ui';
 import {
   acceptGuestDragOver,
   clearGuestDrag,
@@ -209,6 +210,14 @@ function TableGuestsPanel({
   onOpenAssignGuest,
   mutationWarning = null,
   mutationError = null,
+  eventId,
+  chairMappings,
+  setChairMappings,
+  handleGuestDroppedOnChair,
+  tableGroups,
+  onHeaderPointerDown,
+  presidentialChairs,
+  setPresidentialChairs,
 }: {
   group: DistributionTableGroup;
   onClose: () => void;
@@ -221,17 +230,73 @@ function TableGuestsPanel({
   onDragEndGuest?: () => void;
   onUnassignGuest?: (guestId: string) => void;
   canAssignGuest?: boolean;
-  onOpenAssignGuest?: () => void;
+  onOpenAssignGuest?: (chairId?: string) => void;
   mutationWarning?: string | null;
   mutationError?: string | null;
+  eventId: string;
+  chairMappings: Record<string, string>;
+  setChairMappings: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+  handleGuestDroppedOnChair: (guestId: string, sourceTableId: string, targetTableId: string, targetChair: string) => void;
+  tableGroups: DistributionTableGroup[];
+  onHeaderPointerDown?: (e: React.PointerEvent) => void;
+  presidentialChairs: Set<string>;
+  setPresidentialChairs: React.Dispatch<React.SetStateAction<Set<string>>>;
 }) {
+  const occupiedChairs = useMemo(() => {
+    const guestsAtTable = group.guests.filter((g) => g.guestId);
+    const capacity = group.capacity;
+    const nextMappings = { ...chairMappings };
+    let changed = false;
+    
+    const occupied: Record<string, typeof group.guests[0]> = {};
+    const unassigned: typeof group.guests = [];
+    
+    guestsAtTable.forEach((g) => {
+      const chair = nextMappings[g.guestId];
+      if (chair && chair.startsWith('S')) {
+        const num = Number.parseInt(chair.slice(1), 10);
+        if (num >= 1 && num <= capacity && !occupied[chair]) {
+          occupied[chair] = g;
+          return;
+        }
+      }
+      unassigned.push(g);
+    });
+    
+    unassigned.forEach((g) => {
+      for (let s = 1; s <= capacity; s++) {
+        const chair = `S${s}`;
+        if (!occupied[chair]) {
+          occupied[chair] = g;
+          nextMappings[g.guestId] = chair;
+          changed = true;
+          break;
+        }
+      }
+    });
+    
+    if (changed) {
+      localStorage.setItem(`taulamic:guestChairs:${eventId}`, JSON.stringify(nextMappings));
+      setTimeout(() => setChairMappings(nextMappings), 0);
+    }
+    
+    return occupied;
+  }, [group.guests, group.capacity, chairMappings, eventId, setChairMappings]);
   return (
     <div
       className={`card-admin shadow-lg ${compact ? 'border-primary-500/30 bg-neutral-0' : ''}`}
     >
-      <div className="flex items-start justify-between gap-3">
+      <div 
+        className={`flex items-start justify-between gap-3 p-1 rounded-lg ${onHeaderPointerDown ? 'cursor-grab active:cursor-grabbing select-none hover:bg-neutral-50/50 transition-colors' : ''}`}
+        onPointerDown={onHeaderPointerDown}
+      >
         <div>
-          <h2 className="text-[10px] font-bold uppercase tracking-[0.08em] text-wf-5">
+          <h2 className="text-[10px] font-bold uppercase tracking-[0.08em] text-wf-5 flex items-center gap-1.5">
+            {onHeaderPointerDown && (
+              <svg className="h-3.5 w-3.5 text-neutral-400 shrink-0 select-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 8h16M4 16h16" />
+              </svg>
+            )}
             Invitados en mesa
           </h2>
           <p className="mt-1 text-sm font-semibold text-neutral-900">
@@ -244,8 +309,9 @@ function TableGuestsPanel({
         </div>
         <button
           type="button"
-          className="shrink-0 text-xs font-medium text-neutral-500 hover:text-neutral-700"
+          className="shrink-0 text-xs font-medium text-neutral-500 hover:text-neutral-700 p-1"
           onClick={onClose}
+          onPointerDown={(e) => e.stopPropagation()} // Stop drag when clicking Close
         >
           Cerrar
         </button>
@@ -257,40 +323,122 @@ function TableGuestsPanel({
         compact
       />
 
-      <div className="mt-4 max-h-48 overflow-y-auto lg:max-h-40">
-        <div className="flex flex-wrap gap-2">
-          {group.guests.length > 0 ? (
-            group.guests.map((guest) => (
-              <GuestPill
-                key={`${group.tableId}-${guest.guestId || guest.guestName}`}
-                name={guest.guestName}
-                guestId={guest.guestId}
-                removable={editable}
-                removing={
-                  unassigningGuestId === guest.guestId ||
-                  movingGuestId === guest.guestId
+      <div className="mt-4 max-h-72 overflow-y-auto space-y-3">
+        <h3 className="text-[10px] font-bold uppercase tracking-[0.08em] text-neutral-500">
+          Distribución de Sillas
+        </h3>
+        <div className="flex flex-col gap-2">
+          {Array.from({ length: group.capacity }).map((_, idx) => {
+            const chairId = `S${idx + 1}`;
+            const occupant = occupiedChairs[chairId];
+            const presidentialKey = `${group.tableId}:${chairId}`;
+            const isPresidential = presidentialChairs.has(presidentialKey);
+
+            const togglePresidential = (e: React.MouseEvent) => {
+              e.stopPropagation();
+              setPresidentialChairs((prev) => {
+                const next = new Set(prev);
+                if (next.has(presidentialKey)) {
+                  next.delete(presidentialKey);
+                } else {
+                  next.add(presidentialKey);
                 }
-                draggable={editable}
-                dragging={draggingGuestId === guest.guestId}
-                sourceTableId={group.tableId}
-                onDragStart={() => onDragStartGuest?.(guest.guestId)}
-                onDragEnd={onDragEndGuest}
-                onRemove={onUnassignGuest}
-              />
-            ))
-          ) : (
-            <p className="text-sm text-neutral-500">Sin invitados asignados</p>
-          )}
-          {canAssignGuest ? (
-            <button
-              type="button"
-              className="inline-flex h-9 items-center gap-1 rounded-full border border-dashed border-neutral-300 bg-neutral-0 px-3 text-sm font-medium text-neutral-600 transition hover:border-primary-500/50 hover:text-primary-600"
-              aria-label={`Añadir invitado a ${group.tableLabel}`}
-              onClick={onOpenAssignGuest}
-            >
-              + Añadir
-            </button>
-          ) : null}
+                localStorage.setItem(`taulamic:presidentialChairs:${eventId}`, JSON.stringify([...next]));
+                return next;
+              });
+            };
+            
+            return (
+              <div
+                key={chairId}
+                data-guest-drop-chair={chairId}
+                data-guest-drop-table-id={group.tableId}
+                onDragOver={(e) => {
+                  if (editable) {
+                    e.preventDefault();
+                  }
+                }}
+                onDrop={(e) => {
+                  if (!editable) return;
+                  e.preventDefault();
+                  const payload = getActiveGuestDrag();
+                  if (!payload) return;
+                  handleGuestDroppedOnChair(payload.guestId, payload.sourceTableId, group.tableId, chairId);
+                }}
+                className={`relative flex items-center gap-3 rounded-xl border p-2 transition ${
+                  isPresidential
+                    ? 'border-amber-400/60 bg-amber-50/50'
+                    : occupant 
+                    ? 'border-primary-500/30 bg-primary-500/5' 
+                    : 'border-dashed border-neutral-200 bg-neutral-0 hover:border-primary-500/30 hover:bg-primary-500/5'
+                }`}
+              >
+                <span className={`flex h-6 w-7 shrink-0 items-center justify-center rounded-lg border text-[10px] font-bold select-none transition ${
+                  isPresidential
+                    ? 'bg-amber-400 border-amber-500 text-amber-900'
+                    : occupant
+                    ? 'bg-primary-500 border-primary-500 text-neutral-0'
+                    : 'bg-neutral-100 border-neutral-200/50 text-neutral-600'
+                }`}>
+                  {chairId}
+                </span>
+                <div className="flex-1 min-w-0">
+                  {occupant ? (
+                    <GuestPill
+                      name={occupant.guestName}
+                      guestId={occupant.guestId}
+                      removable={editable}
+                      removing={
+                        unassigningGuestId === occupant.guestId ||
+                        movingGuestId === occupant.guestId
+                      }
+                      draggable={editable}
+                      dragging={draggingGuestId === occupant.guestId}
+                      sourceTableId={group.tableId}
+                      onDragStart={() => onDragStartGuest?.(occupant.guestId)}
+                      onDragEnd={onDragEndGuest}
+                      onRemove={onUnassignGuest}
+                      variant="row"
+                    />
+                  ) : (
+                    <div className="flex items-center">
+                      {canAssignGuest ? (
+                        <button
+                          type="button"
+                          onClick={() => onOpenAssignGuest?.(chairId)}
+                          className="flex items-center gap-1 text-[12px] font-semibold text-primary-600 hover:text-primary-700 transition text-left"
+                        >
+                          <span>+</span>
+                          <span className="hidden sm:inline">Añadir</span>
+                        </button>
+                      ) : (
+                        <div className="text-[12px] font-semibold text-neutral-400 italic text-left">
+                          Vacía
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                {/* Presidential star button */}
+                <button
+                  type="button"
+                  title={isPresidential ? 'Quitar orientación a mesa principal' : 'Orientar a mesa principal'}
+                  onClick={togglePresidential}
+                  className={`shrink-0 transition-colors ${
+                    isPresidential
+                      ? 'text-amber-400 hover:text-amber-300'
+                      : 'text-neutral-300 hover:text-amber-400'
+                  }`}
+                >
+                  <IconStar
+                    width={14}
+                    height={14}
+                    filled={isPresidential}
+                  />
+                </button>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -300,26 +448,15 @@ function TableGuestsPanel({
 function TableGuestsPanelSlot({
   group,
   className,
+  onHeaderPointerDown,
   ...panelProps
-}: {
-  group: DistributionTableGroup;
+}: React.ComponentProps<typeof TableGuestsPanel> & {
   className?: string;
-  editable?: boolean;
-  unassigningGuestId?: string | null;
-  movingGuestId?: string | null;
-  draggingGuestId?: string | null;
-  onDragStartGuest?: (guestId: string) => void;
-  onDragEndGuest?: () => void;
-  onUnassignGuest?: (guestId: string) => void;
-  canAssignGuest?: boolean;
-  onOpenAssignGuest?: () => void;
-  mutationWarning?: string | null;
-  mutationError?: string | null;
-  onClose: () => void;
+  onHeaderPointerDown?: (e: React.PointerEvent) => void;
 }) {
   return (
     <div className={className}>
-      <TableGuestsPanel group={group} compact {...panelProps} />
+      <TableGuestsPanel group={group} compact onHeaderPointerDown={onHeaderPointerDown} {...panelProps} />
     </div>
   );
 }
@@ -350,6 +487,7 @@ function FilterChip({
 }
 
 export function FloorPlanLayoutView({
+  eventId,
   tableGroups,
   roomSetup,
   distributionHref,
@@ -365,6 +503,7 @@ export function FloorPlanLayoutView({
   mutationError = null,
   mutationWarning = null,
 }: {
+  eventId: string;
   tableGroups: DistributionTableGroup[];
   roomSetup: FloorPlanSetup;
   distributionHref: string;
@@ -388,6 +527,262 @@ export function FloorPlanLayoutView({
     useState<DistributionTableGroup | null>(null);
   const [assignOpen, setAssignOpen] = useState(false);
   const [draggingGuestId, setDraggingGuestId] = useState<string | null>(null);
+  const [customPositions, setCustomPositions] = useState<Record<string, { x: number; y: number }>>({});
+  const [chairMappings, setChairMappings] = useState<Record<string, string>>({});
+  const [panelOffset, setPanelOffset] = useState({ x: 0, y: 0 });
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const [targetChair, setTargetChair] = useState<string | null>(null);
+  const [presidentialChairs, setPresidentialChairs] = useState<Set<string>>(() => new Set());
+  const panelDragStart = useRef<{ x: number; y: number } | null>(null);
+
+  const handleRemoveGuest = (guestId: string) => {
+    setChairMappings((prev) => {
+      const next = { ...prev };
+      delete next[guestId];
+      localStorage.setItem(`taulamic:guestChairs:${eventId}`, JSON.stringify(next));
+      return next;
+    });
+    if (onUnassignGuest) {
+      onUnassignGuest(guestId);
+    }
+  };
+
+  useEffect(() => {
+    setPanelOffset({ x: 0, y: 0 });
+  }, [selectedGroup?.tableId]);
+
+  const handlePanelHeaderPointerDown = (e: React.PointerEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('a') || target.closest('input') || target.closest('select')) {
+      return;
+    }
+    
+    const startX = e.clientX - panelOffset.x;
+    const startY = e.clientY - panelOffset.y;
+    
+    panelDragStart.current = { x: startX, y: startY };
+    
+    const handlePointerMove = (moveEvent: PointerEvent) => {
+      if (!panelDragStart.current) return;
+      let newX = moveEvent.clientX - panelDragStart.current.x;
+      let newY = moveEvent.clientY - panelDragStart.current.y;
+
+      // Clamp to keep panel inside the canvas card
+      if (canvasCardRef.current) {
+        const card = canvasCardRef.current.getBoundingClientRect();
+        // Panel is positioned right-4 top-4 (16px from right, 16px from top).
+        // The default (offset=0) corresponds to right:16px, top:16px.
+        // Max leftward drag: panel right edge can go at most to card left edge.
+        // Panel width ≈ 384px (w-96). We allow it to go right up to the left card edge.
+        const panelWidth = 384;
+        const minX = -(card.width - panelWidth - 32); // allows dragging to left edge
+        const maxX = card.width - 32; // allows dragging further right beyond default
+        const minY = -16; // no higher than original top position
+        const maxY = card.height - 80; // keep at least 80px of card visible below
+        newX = Math.max(minX, Math.min(maxX, newX));
+        newY = Math.max(minY, Math.min(maxY, newY));
+      }
+
+      setPanelOffset({ x: newX, y: newY });
+    };
+    
+    const handlePointerUp = () => {
+      panelDragStart.current = null;
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+    };
+    
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
+  };
+
+  useEffect(() => {
+    const key = `taulamic:customLayoutPositions:${eventId}`;
+    const rawData = localStorage.getItem(key);
+    if (rawData) {
+      try {
+        setCustomPositions(JSON.parse(rawData));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }, [roomSetup.shape, eventId]);
+
+  useEffect(() => {
+    const raw = localStorage.getItem(`taulamic:guestChairs:${eventId}`);
+    if (raw) {
+      try {
+        setChairMappings(JSON.parse(raw));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }, [eventId]);
+
+  useEffect(() => {
+    const raw = localStorage.getItem(`taulamic:presidentialChairs:${eventId}`);
+    if (raw) {
+      try {
+        setPresidentialChairs(new Set(JSON.parse(raw) as string[]));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }, [eventId]);
+
+  const wasDraggingTableRef = useRef(false);
+
+  const handlePointerDownEntity = (
+    event: React.PointerEvent,
+    entityId: string,
+    initialPos: { x: number; y: number }
+  ) => {
+    if (!editable) {
+      return;
+    }
+    
+    const handle = event.currentTarget as HTMLElement;
+    const startX = event.clientX;
+    const startY = event.clientY;
+    let hasDragged = false;
+    
+    const container = canvasHostRef.current;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    
+    const onPointerMove = (moveEvent: PointerEvent) => {
+      const dx = moveEvent.clientX - startX;
+      const dy = moveEvent.clientY - startY;
+      
+      if (!hasDragged && Math.hypot(dx, dy) < 5) {
+        return;
+      }
+      
+      if (!hasDragged) {
+        hasDragged = true;
+        try {
+          handle.setPointerCapture(event.pointerId);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+      
+      const dxPct = (dx / rect.width) * 100;
+      const dyPct = (dy / rect.height) * 100;
+      
+      const nextX = Math.max(0, Math.min(100, initialPos.x + dxPct));
+      const nextY = Math.max(0, Math.min(100, initialPos.y + dyPct));
+      
+      setCustomPositions((prev) => ({
+        ...prev,
+        [entityId]: { x: nextX, y: nextY },
+      }));
+    };
+    
+    const onPointerUp = (upEvent: PointerEvent) => {
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+      
+      if (hasDragged) {
+        if (handle.hasPointerCapture(upEvent.pointerId)) {
+          try {
+            handle.releasePointerCapture(upEvent.pointerId);
+          } catch (err) {}
+        }
+        
+        // Suppress selecting/clicking right after a drag
+        wasDraggingTableRef.current = true;
+        setTimeout(() => {
+          wasDraggingTableRef.current = false;
+        }, 100);
+
+        setCustomPositions((prev) => {
+          const next = { ...prev };
+          localStorage.setItem(`taulamic:customLayoutPositions:${eventId}`, JSON.stringify(next));
+          return next;
+        });
+      }
+    };
+    
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+  };
+
+  const handleGuestDroppedOnChair = (
+    guestId: string,
+    sourceTableId: string,
+    targetTableId: string,
+    targetChair: string
+  ) => {
+    if (sourceTableId !== targetTableId) {
+      if (onMoveGuest) {
+        void Promise.resolve(onMoveGuest(guestId, targetTableId));
+      } else if (onAssignGuest) {
+        void Promise.resolve(onAssignGuest(targetTableId, guestId));
+      }
+    }
+    
+    const nextMappings = { ...chairMappings };
+    const prevChair = nextMappings[guestId];
+    
+    const occupantId = Object.keys(nextMappings).find(
+      (k) => nextMappings[k] === targetChair && k !== guestId
+    );
+    
+    nextMappings[guestId] = targetChair;
+    if (occupantId) {
+      if (prevChair) {
+        nextMappings[occupantId] = prevChair;
+      } else {
+        const capacity = tableGroups.find((g) => g.tableId === targetTableId)?.capacity ?? 10;
+        const occupied = new Set(Object.values(nextMappings));
+        for (let s = 1; s <= capacity; s++) {
+          const chair = `S${s}`;
+          if (!occupied.has(chair)) {
+            nextMappings[occupantId] = chair;
+            break;
+          }
+        }
+      }
+    }
+    
+    localStorage.setItem(`taulamic:guestChairs:${eventId}`, JSON.stringify(nextMappings));
+    setChairMappings(nextMappings);
+    setDraggingGuestId(null);
+  };
+
+  const getDefaultTablePosition = (i: number) => {
+    const { columns, scale, compact } = tableGridLayout;
+    const { widthPx: W_canvas, heightPx: H_canvas } = canvasSize;
+    if (W_canvas <= 0 || H_canvas <= 0) {
+      return { x: 50, y: 50 };
+    }
+    
+    const W_zone = 100 - 2 * tableLayout.insetX;
+    const H_zone = 100 - 2 * tableLayout.insetY;
+    const W_grid = tableGridLayout.scaledWidth;
+    const H_grid = tableGridLayout.scaledHeight;
+    
+    const gridLeftPx = (W_canvas * (tableLayout.insetX / 100)) + ((W_canvas * (W_zone / 100)) - W_grid) / 2;
+    const gridTopPx = (H_canvas * (tableLayout.insetY / 100)) + ((H_canvas * (H_zone / 100)) - H_grid) / 2;
+    
+    const w_slot = compact ? 40 : 48;
+    const h_slot = compact ? 36 : 44;
+    
+    const col = i % columns;
+    const row = Math.floor(i / columns);
+    
+    const slotLeftPx = col * (w_slot + 2) * scale;
+    const slotTopPx = row * (h_slot + 2) * scale;
+    
+    const centerX = gridLeftPx + slotLeftPx + (w_slot * scale) / 2;
+    const centerY = gridTopPx + slotTopPx + (h_slot * scale) / 2;
+    
+    return {
+      x: (centerX / W_canvas) * 100,
+      y: (centerY / H_canvas) * 100,
+    };
+  };
   const canvasCardRef = useRef<HTMLDivElement>(null);
   const canvasHostRef = useRef<HTMLDivElement>(null);
   const canvasTier = useLayoutCanvasTier();
@@ -484,33 +879,41 @@ export function FloorPlanLayoutView({
         draggingGuestId,
         onDragStartGuest: setDraggingGuestId,
         onDragEndGuest: () => setDraggingGuestId(null),
-        onUnassignGuest,
+        onUnassignGuest: handleRemoveGuest,
         mutationWarning,
         mutationError,
         canAssignGuest:
           editable &&
-          selectedGroup.freeSeats > 0 &&
-          unassignedGuests.length > 0,
-        onOpenAssignGuest: () => setAssignOpen(true),
+          selectedGroup.freeSeats > 0,
+        onOpenAssignGuest: (chairId?: string) => {
+          setTargetChair(chairId ?? null);
+          setAssignOpen(true);
+        },
         onClose: () => setSelectedGroup(null),
+        eventId,
+        chairMappings,
+        setChairMappings,
+        handleGuestDroppedOnChair,
+        tableGroups,
+        presidentialChairs,
+        setPresidentialChairs,
       }
     : null;
 
   return (
     <GuestPointerDragLayer
-      onDrop={(guestId, targetTableId) => {
-        if (!editable || !onMoveGuest) {
-          return;
+      onDrop={(guestId, targetTableId, chair) => {
+        if (!editable) return;
+        if (chair) {
+          const sourceTableId = tableGroups.find((g) => g.guests.some((gst) => gst.guestId === guestId))?.tableId ?? '';
+          handleGuestDroppedOnChair(guestId, sourceTableId, targetTableId, chair);
+        } else {
+          if (onMoveGuest) {
+            void Promise.resolve(onMoveGuest(guestId, targetTableId)).finally(
+              () => setDraggingGuestId(null),
+            );
+          }
         }
-        const targetGroup = tableGroups.find(
-          (group) => group.tableId === targetTableId,
-        );
-        if (targetGroup) {
-          setSelectedGroup(targetGroup);
-        }
-        void Promise.resolve(onMoveGuest(guestId, targetTableId)).finally(
-          () => setDraggingGuestId(null),
-        );
       }}
       onDragStart={() => {
         const payload = getActiveGuestDrag();
@@ -525,11 +928,13 @@ export function FloorPlanLayoutView({
         subtitle="Pulsa una mesa para ver los invitados asignados."
         action={
           <div className="flex flex-wrap gap-2">
-            <button type="button" className="btn-secondary" disabled>
-              Restablecer
-            </button>
-            <button type="button" className="btn-primary" disabled>
-              Guardar posiciones
+            <button
+              type="button"
+              className="btn-secondary"
+              disabled={!editable || Object.keys(customPositions).length === 0}
+              onClick={() => setResetDialogOpen(true)}
+            >
+              Restablecer posiciones
             </button>
           </div>
         }
@@ -620,88 +1025,82 @@ export function FloorPlanLayoutView({
               heightPx={canvasSize.heightPx}
               className="max-w-none"
             >
-              <div
-                className="absolute z-[2] flex items-center justify-center"
-                style={{
-                  left: `${tableLayout.insetX}%`,
-                  right: `${tableLayout.insetX}%`,
-                  top: `${tableLayout.insetY}%`,
-                  bottom: `${tableLayout.insetY}%`,
-                }}
-              >
-                <div
-                  style={{
-                    width: tableGridLayout.scaledWidth,
-                    height: tableGridLayout.scaledHeight,
-                  }}
-                >
+              {filteredGroups.map((group, idx) => {
+                const customPos = customPositions[group.tableId];
+                const pos = customPos ?? getDefaultTablePosition(idx);
+                
+                return (
                   <div
-                    className="grid gap-0.5"
+                    key={group.tableId}
+                    className={`absolute z-[2] -translate-x-1/2 -translate-y-1/2 ${
+                      editable ? 'cursor-move touch-none select-none' : ''
+                    }`}
                     style={{
-                      width: tableGridLayout.naturalWidth,
-                      height: tableGridLayout.naturalHeight,
-                      gridTemplateColumns: `repeat(${tableGridLayout.columns}, minmax(0, max-content))`,
-                      transform: `scale(${tableGridLayout.scale})`,
-                      transformOrigin: 'top left',
+                      left: `${pos.x}%`,
+                      top: `${pos.y}%`,
+                    }}
+                    onPointerDown={(e) => {
+                      handlePointerDownEntity(e, group.tableId, pos);
                     }}
                   >
-                {filteredGroups.map((group) => (
-                  <TablePreviewCard
-                    key={group.tableId}
-                    group={group}
-                    compact={compactTableMarkers}
-                    selected={selectedGroup?.tableId === group.tableId}
-                    dropActive={dropTargetTableId === group.tableId}
-                    onSelect={() =>
-                      setSelectedGroup((current) =>
-                        current?.tableId === group.tableId ? null : group,
-                      )
-                    }
-                    onDragOver={(event) => {
-                      if (!editable || !onMoveGuest) {
-                        return;
-                      }
-                      if (
-                        acceptGuestDragOver(
-                          event,
-                          group.tableId,
-                          group.freeSeats,
-                        )
-                      ) {
-                        setDropTargetTableId(group.tableId);
-                      } else {
+                    <TablePreviewCard
+                      group={group}
+                      compact={compactTableMarkers}
+                      selected={selectedGroup?.tableId === group.tableId}
+                      dropActive={dropTargetTableId === group.tableId}
+                      onSelect={() => {
+                        if (wasDraggingTableRef.current) {
+                          return;
+                        }
+                        setSelectedGroup((current) =>
+                          current?.tableId === group.tableId ? null : group,
+                        );
+                      }}
+                      onDragOver={(event) => {
+                        if (!editable || !onMoveGuest) {
+                          return;
+                        }
+                        if (
+                          acceptGuestDragOver(
+                            event,
+                            group.tableId,
+                            group.freeSeats,
+                          )
+                        ) {
+                          setDropTargetTableId(group.tableId);
+                        } else {
+                          setDropTargetTableId((current) =>
+                            current === group.tableId ? null : current,
+                          );
+                        }
+                      }}
+                      onDragLeave={() => {
                         setDropTargetTableId((current) =>
                           current === group.tableId ? null : current,
                         );
-                      }
-                    }}
-                    onDragLeave={() => {
-                      setDropTargetTableId((current) =>
-                        current === group.tableId ? null : current,
-                      );
-                    }}
-                    onDrop={(event) => {
-                      event.preventDefault();
-                      setDropTargetTableId(null);
-                      if (!editable || !onMoveGuest) {
+                      }}
+                      onDrop={(event) => {
+                        event.preventDefault();
+                        setDropTargetTableId(null);
+                        if (!editable || !onMoveGuest) {
+                          clearGuestDrag();
+                          return;
+                        }
+                        const payload = getActiveGuestDrag();
                         clearGuestDrag();
-                        return;
-                      }
-                      const payload = getActiveGuestDrag();
-                      clearGuestDrag();
-                      if (!payload) {
-                        return;
-                      }
-                      setSelectedGroup(group);
-                      void Promise.resolve(
-                        onMoveGuest(payload.guestId, group.tableId),
-                      ).finally(() => setDraggingGuestId(null));
-                    }}
-                  />
-                ))}
+                        if (!payload) {
+                          return;
+                        }
+                        setSelectedGroup(group);
+                        void Promise.resolve(
+                          onMoveGuest(payload.guestId, group.tableId),
+                        ).finally(() => setDraggingGuestId(null));
+                      }}
+                    />
                   </div>
-                </div>
-              </div>
+                );
+              })}
+
               <FloorPlanAccessoriesOverlay
                 accessoryIds={roomSetup.placedAccessories}
                 tableCount={filteredGroups.length}
@@ -709,6 +1108,9 @@ export function FloorPlanLayoutView({
                 portraitFixedSlots={isPhoneCanvas}
                 roomShape={roomSetup.shape}
                 portraitCanvas={canvasSize.heightPx > canvasSize.widthPx}
+                customPositions={customPositions}
+                onPointerDownAccessory={(e, id, initialPos) => handlePointerDownEntity(e, id, initialPos)}
+                editable={editable}
               />
             </RoomShapeDisplay>
           </div>
@@ -728,8 +1130,14 @@ export function FloorPlanLayoutView({
           <FloorPlanOccupancyLegend />
 
           {guestPanelProps ? (
-            <div className="absolute right-4 top-4 z-30 hidden w-72 max-w-xs lg:block">
-              <TableGuestsPanelSlot {...guestPanelProps} />
+            <div 
+              style={{ transform: `translate(${panelOffset.x}px, ${panelOffset.y}px)` }}
+              className="absolute right-4 top-4 z-[60] hidden w-96 max-w-sm lg:block select-none"
+            >
+              <TableGuestsPanelSlot 
+                {...guestPanelProps} 
+                onHeaderPointerDown={handlePanelHeaderPointerDown}
+              />
             </div>
           ) : null}
         </div>
@@ -760,10 +1168,34 @@ export function FloorPlanLayoutView({
           if (!selectedGroup || !onAssignGuest) {
             return;
           }
+          if (targetChair) {
+            setChairMappings((prev) => {
+              const next = { ...prev, [guestId]: targetChair };
+              localStorage.setItem(`taulamic:guestChairs:${eventId}`, JSON.stringify(next));
+              return next;
+            });
+          }
           void Promise.resolve(
             onAssignGuest(selectedGroup.tableId, guestId),
-          ).finally(() => setAssignOpen(false));
+          ).finally(() => {
+            setAssignOpen(false);
+            setTargetChair(null);
+          });
         }}
+      />
+      <ConfirmDialog
+        open={resetDialogOpen}
+        title="Restablecer posiciones"
+        description="¿Restablecer todas las mesas y accesorios a sus posiciones por defecto?"
+        confirmLabel="Restablecer"
+        cancelLabel="Cancelar"
+        destructive
+        onConfirm={() => {
+          localStorage.removeItem(`taulamic:customLayoutPositions:${eventId}`);
+          setCustomPositions({});
+          setResetDialogOpen(false);
+        }}
+        onCancel={() => setResetDialogOpen(false)}
       />
     </GuestPointerDragLayer>
   );

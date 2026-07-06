@@ -17,7 +17,7 @@ export const UI_COPY = {
   distribution: {
     calculate: { short: 'Calcular', full: 'Calcular distribución' },
     confirm: { short: 'Confirmar', full: 'Confirmar distribución' },
-    viewFloorPlan: { short: 'Ver plano', full: 'Ver mesas en plano' },
+    viewFloorPlan: { short: 'Ver mesas', full: 'Ver mesas en plano' },
     comparadorTopK: 'Comparador Top-K — próximamente',
     emptyStateDescription:
       'Pulsa «Calcular distribución» para asignar invitados a las mesas según afinidad.',

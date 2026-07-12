@@ -2,7 +2,7 @@
 
 - Ultima actualizacion: **2026-07-12**
 - Sprint activo: **Post Sprint 10** (documentación piloto consolidada)
-- **`main` @ `f8f9dd2`** (pusheado)
+- **`main` @ `909325c`** (pusheado)
 
 ## Frase clave
 
@@ -81,6 +81,7 @@ Retomo Taulamic. Estado 2026-07-12: refactor web distribución/plano (hooks comp
 
 | Commit | Descripción |
 |--------|-------------|
+| `f8f9dd2` | docs: corrige hash main en contexto y project |
 | `e66c132` | docs: sincroniza hash main y Project tras refactor web distribución |
 | `1c1be75` | docs: actualiza CONTEXTO-EJECUCION tras refactor web distribución |
 | `6f242a8` | refactor(web): hooks/modales compartidos distribución, badge PAX y E2E categoría |

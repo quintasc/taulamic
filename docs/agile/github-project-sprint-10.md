@@ -1,7 +1,7 @@
 # GitHub Project — actualización Sprint 10 / post-S10 (última revisión: 2026-07-12)
 
 **Project:** https://github.com/users/quintasc/projects/2  
-**`main` @ `f8f9dd2`** — refactor web distribución + docs sincronizados
+**`main` @ `909325c`** — refactor web distribución + docs sincronizados
 
 ## Resumen de estado (2026-07-12)
 

@@ -2,7 +2,7 @@
 
 - Ultima actualizacion: **2026-07-12**
 - Sprint activo: **Post Sprint 10** (documentación piloto consolidada)
-- **`main` @ `1c1be75`** (pusheado)
+- **`main` @ `e66c132`** (pusheado)
 
 ## Frase clave
 

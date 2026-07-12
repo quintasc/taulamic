@@ -2,7 +2,7 @@
 
 - Ultima actualizacion: **2026-07-12**
 - Sprint activo: **Post Sprint 10** (documentación piloto consolidada)
-- **`main` @ `e66c132`** (pusheado)
+- **`main` @ `f8f9dd2`** (pusheado)
 
 ## Frase clave
 
@@ -81,7 +81,8 @@ Retomo Taulamic. Estado 2026-07-12: refactor web distribución/plano (hooks comp
 
 | Commit | Descripción |
 |--------|-------------|
-| `1c1be75` | docs: sincroniza CONTEXTO-EJECUCION tras refactor web distribución |
+| `e66c132` | docs: sincroniza hash main y Project tras refactor web distribución |
+| `1c1be75` | docs: actualiza CONTEXTO-EJECUCION tras refactor web distribución |
 | `6f242a8` | refactor(web): hooks/modales compartidos distribución, badge PAX y E2E categoría |
 | `50f779d` | docs: sincroniza GitHub Project #2 y contexto tras consolidación piloto |
 | `4dd7e39` | docs: consolidate current pilot scope and SDD traceability |

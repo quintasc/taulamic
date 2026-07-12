@@ -1,13 +1,13 @@
 # Contexto de ejecucion — punto de reanudacion
 
 - Ultima actualizacion: **2026-07-12**
-- Sprint activo: **Post Sprint 10** (hardening motor CP-SAT, informe PDF y ajustes UX móvil)
-- **`main` @ `d08d11a`** (pusheado)
+- Sprint activo: **Post Sprint 10** (documentación piloto consolidada)
+- **`main` @ `4dd7e39`** (pusheado)
 
 ## Frase clave
 
 ```text
-Retomo Taulamic. Estado 2026-07-12: motor CP-SAT en asíncrono con tracker de progreso y recuperación automática de cálculos estancados; afinidades por categorías y refinamientos de distribución activos; informe PDF confirmado en estilo Taulamic; ajustes de UX móvil en afinidades/distribución/plano listos para validación final.
+Retomo Taulamic. Estado 2026-07-12: docs/pilot consolidado (alcance, evolución, trazabilidad); GitHub Project #2 alineado; motor CP-SAT async; PDF organizador parcial; pendiente validación PO visual y deuda sillas/afinidades API.
 ```
 
 ## Entregado hoy 2026-07-12
@@ -60,9 +60,9 @@ Retomo Taulamic. Estado 2026-07-12: motor CP-SAT en asíncrono con tracker de pr
 
 ## Pendiente inmediato
 
-1. **Validación PO visual — sillas, estrella presidencial, móvil** (`guion-validacion-piloto-ui.md`)
-2. **GitHub Project** — marcar ítems Sprint 10 como Done ([Project #2](https://github.com/users/quintasc/projects/2))
-3. **Sprint 11 planificación** — persistencia `seatId` API servidor (Fase D), arrastre intra-mesa
+1. **Validación PO visual** — sillas, estrella presidencial, móvil (`guion-validacion-piloto-ui.md`)
+2. **Deuda técnica piloto** — unificar sillas API/local; persistencia API afinidades
+3. **Sprint 11 planificación** — arrastre intra-mesa; documento cocina HU-08
 
 ## Historial reciente
 

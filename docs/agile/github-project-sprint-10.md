@@ -1,6 +1,22 @@
 # GitHub Project — actualización Sprint 10 / post-S10 (última revisión: 2026-07-12)
 
-**Project:** https://github.com/users/quintasc/projects/2
+**Project:** https://github.com/users/quintasc/projects/2  
+**`main` @ `4dd7e39`** — consolidación documental `docs/pilot/`
+
+## Resumen de estado (2026-07-12)
+
+| Área | Estado en Project | Notas |
+|------|-------------------|-------|
+| Piloto evaluable (flujo admin E2E) | Cerrado técnicamente | Validación simulada + E2E; ver `docs/pilot/` |
+| EP-03 Motor distribución async | `Done` / `Done` | CP-SAT v1 + tracker (`d08d11a`) |
+| EP-04 Revisión manual | `In Progress` | HU-05 hecho; versionado rico HU-06 pendiente |
+| EP-05 Publicación y documentos | `In Progress` | PDF organizador parcial (frontend); publicación/cocina pendiente |
+| EP-07 OpenAPI | `In Progress` | Contrato piloto documentado; auth/JWT completo pendiente |
+| EP-08 Estrategia motor | `In Progress` | ADR-023 CP-SAT; Top-K/comparador pendiente |
+| EP-09 RSVP / EP-10 UX completa | `Todo` / Backlog-Ready | Fuera piloto evaluable |
+| Post-piloto MEJ (#44–#52) | `Done` | Incluye HU-05 manual (#51) |
+| #53 Organizador real | `Todo` | Post-piloto |
+| Docs `docs/pilot/` | `Done` (draft) | Commit `4dd7e39` |
 
 ## Mover a Done (o equivalente «Hecho»)
 
@@ -33,11 +49,17 @@
 | Refactor UI móvil fases 2–4 | `refactor-ui-mobile-admin.md` |
 | Accesorios room-setup `(x,y)` | Gate SDD |
 
-## Actualización aplicada en Project #2 (2026-07-12)
+## Actualización aplicada en Project #2 (2026-07-12, sesión consolidación)
 
 | Ítem | Estado anterior | Estado actualizado | Nota |
 |------|------------------|--------------------|------|
-| [EP-03] Motor de distribución asíncrono | `Status: Todo` / `Flujo: Backlog` | `Status: Done` / `Flujo: Done` | Implementado flujo asíncrono con tracker y protección frente a cálculos estancados |
+| [EP-03] Motor de distribución asíncrono | `Status: Todo` / `Flujo: Backlog` | `Status: Done` / `Flujo: Done` | CP-SAT async + tracker (`d08d11a`) |
+| Sprint 02 épicas (#15–#18, #21–#36) | `Flujo: In Progress/Ready` con `Status: Done` | `Flujo: Done` | Alineación Status/Flujo |
+| [EP-04] Revisión manual y versionado | `Todo` / `Backlog` | `In Progress` / `In Progress` | Manual HU-05 hecho; versionado pendiente |
+| [EP-05] Publicación y documentos | `Todo` / `Backlog` | `In Progress` / `In Progress` | PDF organizador parcial (frontend) |
+| [EP-07] OpenAPI | `Todo` / `Ready` | `In Progress` / `In Progress` | Piloto documentado en `/api/docs` |
+| [EP-08] Estrategia optimización motor | `Todo` / `Backlog` | `In Progress` / `In Progress` | ADR-023; Top-K pendiente |
+| Docs consolidación `docs/pilot/` | (nuevo draft) | `Done` / `Done` | Commit `4dd7e39` |
 
 ## Comandos útiles (si usas `gh`)
 

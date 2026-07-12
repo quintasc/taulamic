@@ -26,12 +26,10 @@ import {
   clearGuestDrag,
   getActiveGuestDrag,
 } from '@/lib/distribution-dnd';
-import {
-  getGuestPointerDragHoverTableId,
-  subscribeGuestPointerDrag,
-} from '@/lib/guest-pointer-drag';
+import { useGuestPointerDropHighlightForTable } from '@/components/admin/distribution/use-guest-pointer-drop-highlight';
 import {
   countTablesByStatus,
+  DISTRIBUTION_TABLE_FILTER_OPTIONS,
   filterDistributionTableGroups,
   formatTableAffinity,
   getStatusChipLabel,
@@ -75,17 +73,6 @@ const TABLE_ROW_GRID_CLASS =
 /** Más aire entre PAX, Proximidad, Forma y Uso en desktop. */
 const TABLE_ROW_GAP_CLASS = 'gap-3 lg:gap-x-5';
 const CAPACITY_BAR_TRACK_WIDTH_CLASS = 'w-[3.65rem]';
-
-const FILTER_OPTIONS: Array<{
-  id: DistributionTableFilter;
-  label: string;
-  countKey: keyof ReturnType<typeof countTablesByStatus>;
-}> = [
-  { id: 'all', label: 'Todas', countKey: 'all' },
-  { id: 'full', label: 'Llenas', countKey: 'full' },
-  { id: 'in-use', label: 'En uso', countKey: 'inUse' },
-  { id: 'empty', label: 'Vacías', countKey: 'empty' },
-];
 
 function StatusDot({ status }: { status: TableOccupancyStatus }) {
   return (
@@ -139,7 +126,7 @@ function CapacityBar({ group }: { group: DistributionTableGroup }) {
     : undefined;
 
   return (
-    <div className={`grid min-w-0 grid-cols-[3.65rem_auto] items-center gap-1.5`}>
+    <div className="inline-flex w-fit items-center gap-1.5">
       <div className={`h-2 ${CAPACITY_BAR_TRACK_WIDTH_CLASS} overflow-hidden rounded-full bg-wf-2`}>
         <div
           className={`h-full rounded-full transition-all ${barClass}`}
@@ -147,7 +134,7 @@ function CapacityBar({ group }: { group: DistributionTableGroup }) {
         />
       </div>
       <span
-        className={`shrink-0 text-[11px] font-semibold tabular-nums ${usageClass} ${usageBadgeClass}`}
+        className={`inline-flex w-fit shrink-0 text-[11px] font-semibold tabular-nums ${usageClass} ${usageBadgeClass}`}
         title={usageTitle}
       >
         {group.assignedCount}/{group.capacity}
@@ -351,13 +338,7 @@ function DistributionTableRow({
     [occupiedChairs, guestsById],
   );
 
-  useEffect(() => {
-    return subscribeGuestPointerDrag(() => {
-      setPointerDropActive(
-        getGuestPointerDragHoverTableId() === group.tableId,
-      );
-    });
-  }, [group.tableId]);
+  useGuestPointerDropHighlightForTable(group.tableId, setPointerDropActive);
 
   const isDropActive = dropActive || pointerDropActive;
 
@@ -930,7 +911,7 @@ export function DistributionTableList({
     <div className="space-y-4">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-wrap gap-2">
-          {FILTER_OPTIONS.map((option) => {
+          {DISTRIBUTION_TABLE_FILTER_OPTIONS.map((option) => {
             const count = statusCounts[option.countKey];
             const active = filter === option.id;
 

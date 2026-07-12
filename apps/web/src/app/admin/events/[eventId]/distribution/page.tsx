@@ -8,7 +8,7 @@ import { IconRefresh } from '@/components/icons';
 import { Alert, EmptyState, PageHeader, ResponsiveButtonLabel } from '@/components/ui';
 import { buildDistributionTableGroups, buildUnassignedGuestOptions } from '@/lib/distribution-view';
 import { notifyDistributionChanged } from '@/lib/distribution-events';
-import { applyDistributionMutationResult, syncProposalAfterMutation } from '@/lib/distribution-mutation-feedback';
+import { useDistributionPlacementMutations } from '@/hooks/use-distribution-placement-mutations';
 import {
   ApiError,
   companionGroupsApi,
@@ -54,11 +54,6 @@ export default function DistributionPage() {
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
   const [confirming, setConfirming] = useState(false);
-  const [unassigningGuestId, setUnassigningGuestId] = useState<string | null>(
-    null,
-  );
-  const [assigningGuestId, setAssigningGuestId] = useState<string | null>(null);
-  const [movingGuestId, setMovingGuestId] = useState<string | null>(null);
   const [savingTableId, setSavingTableId] = useState<string | null>(null);
   const [downloadingReport, setDownloadingReport] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -69,6 +64,21 @@ export default function DistributionPage() {
   const [companionGroups, setCompanionGroups] = useState<
     Array<{ guestIds: string[]; keepTogether: boolean }>
   >([]);
+
+  const {
+    unassigningGuestId,
+    assigningGuestId,
+    movingGuestId,
+    unassignGuest,
+    assignGuest,
+    moveGuest,
+    updateGuestSeat,
+  } = useDistributionPlacementMutations(
+    eventId,
+    setProposal,
+    setWarning,
+    setMutationError,
+  );
 
   const refreshDistribution = useCallback(
     async (options?: { silent?: boolean }) => {
@@ -256,108 +266,6 @@ export default function DistributionPage() {
     }
   }
 
-  async function unassignGuest(guestId: string) {
-    if (!eventId) {
-      return;
-    }
-    setUnassigningGuestId(guestId);
-    setMutationError(null);
-    try {
-      const result = await distributionApi.unassignGuest(eventId, guestId);
-      const synced = await syncProposalAfterMutation(eventId, result);
-      applyDistributionMutationResult(
-        setProposal,
-        setWarning,
-        setMutationError,
-        synced,
-      );
-      notifyDistributionChanged(eventId);
-    } catch (err) {
-      setWarning(null);
-      setMutationError(
-        err instanceof ApiError
-          ? err.message
-          : 'No se pudo quitar el invitado de la mesa.',
-      );
-    } finally {
-      setUnassigningGuestId(null);
-    }
-  }
-
-  async function assignGuest(
-    tableId: string,
-    guestId: string,
-    seatIndex?: number,
-  ) {
-    if (!eventId) {
-      return;
-    }
-    setAssigningGuestId(guestId);
-    setMutationError(null);
-    try {
-      const result = await distributionApi.assignGuest(
-        eventId,
-        guestId,
-        tableId,
-        seatIndex,
-      );
-      const synced = await syncProposalAfterMutation(eventId, result);
-      applyDistributionMutationResult(
-        setProposal,
-        setWarning,
-        setMutationError,
-        synced,
-      );
-      notifyDistributionChanged(eventId);
-    } catch (err) {
-      setWarning(null);
-      setMutationError(
-        err instanceof ApiError
-          ? err.message
-          : 'No se pudo asignar el invitado a la mesa.',
-      );
-    } finally {
-      setAssigningGuestId(null);
-    }
-  }
-
-  async function moveGuest(
-    guestId: string,
-    tableId: string,
-    seatIndex?: number,
-  ) {
-    if (!eventId) {
-      return;
-    }
-    setMovingGuestId(guestId);
-    setMutationError(null);
-    try {
-      const result = await distributionApi.moveGuest(
-        eventId,
-        guestId,
-        tableId,
-        seatIndex,
-      );
-      const synced = await syncProposalAfterMutation(eventId, result);
-      applyDistributionMutationResult(
-        setProposal,
-        setWarning,
-        setMutationError,
-        synced,
-      );
-      notifyDistributionChanged(eventId);
-    } catch (err) {
-      setWarning(null);
-      setMutationError(
-        err instanceof ApiError
-          ? err.message
-          : 'No se pudo mover el invitado a la mesa.',
-      );
-    } finally {
-      setMovingGuestId(null);
-    }
-  }
-
   async function updateTable(tableId: string, draft: TableEditDraft) {
     if (!eventId) {
       return false;
@@ -470,38 +378,6 @@ export default function DistributionPage() {
     proposal,
     tableGroups,
   ]);
-
-  async function updateGuestSeat(guestId: string, seatIndex: number) {
-    if (!eventId) {
-      return;
-    }
-    setMovingGuestId(guestId);
-    setMutationError(null);
-    try {
-      const result = await distributionApi.updateGuestSeat(
-        eventId,
-        guestId,
-        seatIndex,
-      );
-      const synced = await syncProposalAfterMutation(eventId, result);
-      applyDistributionMutationResult(
-        setProposal,
-        setWarning,
-        setMutationError,
-        synced,
-      );
-      notifyDistributionChanged(eventId);
-    } catch (err) {
-      setWarning(null);
-      setMutationError(
-        err instanceof ApiError
-          ? err.message
-          : 'No se pudo cambiar el asiento del invitado.',
-      );
-    } finally {
-      setMovingGuestId(null);
-    }
-  }
 
   const isCalculating = proposal?.status === 'calculating';
   const hasCalculatedView = proposal !== null && !isCalculating;

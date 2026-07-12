@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useId, useMemo, useState } from 'react';
-import { createPortal } from 'react-dom';
 
+import { AdminModalShell } from '@/components/ui/admin-modal-shell';
 import { CustomSelect } from '@/components/ui/custom-select';
 import { chairIdToSeatIndex } from '@/lib/guest-chair-mappings';
 
@@ -117,24 +117,8 @@ export function MoveGuestDialog({
     }
   }, [firstFreeChairId, open, seatOptions, selectedTable, targetChairId]);
 
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-    function onKey(event: KeyboardEvent) {
-      if (event.key === 'Escape' && !movingGuestId) {
-        onCancel();
-      }
-    }
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [movingGuestId, onCancel, open]);
-
-  if (!open || typeof document === 'undefined') {
-    return null;
-  }
-
   const seatIndex = chairIdToSeatIndex(targetChairId);
+  const busy = Boolean(movingGuestId);
   const canConfirm =
     selectedTable !== null &&
     seatIndex !== null &&
@@ -142,26 +126,20 @@ export function MoveGuestDialog({
       (option) => option.chairId === targetChairId && !option.disabled,
     );
 
-  return createPortal(
-    <>
-      <button
-        type="button"
-        className="fixed inset-0 z-[110] bg-neutral-900/40"
-        aria-label="Cerrar mover invitado"
-        disabled={Boolean(movingGuestId)}
-        onClick={onCancel}
-      />
+  return (
+    <AdminModalShell
+      open={open}
+      busy={busy}
+      onClose={onCancel}
+      backdropLabel="Cerrar mover invitado"
+    >
       <div
-        className="fixed inset-0 z-[111] flex items-center justify-center p-4 pointer-events-none"
-        role="presentation"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={descriptionId}
+        className="card-admin pointer-events-auto w-full max-w-md shadow-lg"
       >
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby={titleId}
-          aria-describedby={descriptionId}
-          className="card-admin pointer-events-auto w-full max-w-md shadow-lg"
-        >
           <h2 id={titleId} className="text-lg font-semibold text-neutral-900">
             Mover a…
           </h2>
@@ -234,8 +212,6 @@ export function MoveGuestDialog({
             </button>
           </div>
         </div>
-      </div>
-    </>,
-    document.body,
+    </AdminModalShell>
   );
 }

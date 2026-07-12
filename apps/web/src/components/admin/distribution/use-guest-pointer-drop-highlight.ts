@@ -17,3 +17,15 @@ export function useGuestPointerDropHighlight(
     });
   }, [setDropTargetTableId]);
 }
+
+/** Variante por mesa (filas de lista de distribución). */
+export function useGuestPointerDropHighlightForTable(
+  tableId: string,
+  setPointerDropActive: (active: boolean) => void,
+) {
+  useEffect(() => {
+    return subscribeGuestPointerDrag(() => {
+      setPointerDropActive(getGuestPointerDragHoverTableId() === tableId);
+    });
+  }, [setPointerDropActive, tableId]);
+}

@@ -9,8 +9,7 @@ import {
 import { Alert } from '@/components/ui';
 import { ApiError, distributionApi, eventsApi, guestsApi, type DistributionProposal, type GuestView } from '@/lib/api';
 import { buildDistributionTableGroups, buildUnassignedGuestOptions } from '@/lib/distribution-view';
-import { notifyDistributionChanged } from '@/lib/distribution-events';
-import { applyDistributionMutationResult, syncProposalAfterMutation } from '@/lib/distribution-mutation-feedback';
+import { useDistributionPlacementMutations } from '@/hooks/use-distribution-placement-mutations';
 import {
   DEFAULT_FLOOR_PLAN_SETUP,
   loadFloorPlanSetup,
@@ -31,14 +30,24 @@ export default function FloorPlanLayoutPage() {
   const [mutationError, setMutationError] = useState<string | null>(null);
   const [mutationWarning, setMutationWarning] = useState<string | null>(null);
   const [proposal, setProposal] = useState<DistributionProposal | null>(null);
-  const [unassigningGuestId, setUnassigningGuestId] = useState<string | null>(
-    null,
-  );
-  const [assigningGuestId, setAssigningGuestId] = useState<string | null>(null);
-  const [movingGuestId, setMovingGuestId] = useState<string | null>(null);
   const [guests, setGuests] = useState<GuestView[]>([]);
   const [roomSetup, setRoomSetup] = useState<FloorPlanSetup>(
     DEFAULT_FLOOR_PLAN_SETUP,
+  );
+
+  const {
+    unassigningGuestId,
+    assigningGuestId,
+    movingGuestId,
+    unassignGuest,
+    assignGuest,
+    moveGuest,
+    updateGuestSeat,
+  } = useDistributionPlacementMutations(
+    params.eventId,
+    setProposal,
+    setMutationWarning,
+    setMutationError,
   );
 
   const tableGroups = useMemo(
@@ -109,128 +118,6 @@ export default function FloorPlanLayoutPage() {
       })
       .finally(() => setLoading(false));
   }, [params.eventId]);
-
-  async function unassignGuest(guestId: string) {
-    setUnassigningGuestId(guestId);
-    setMutationError(null);
-    try {
-      const result = await distributionApi.unassignGuest(params.eventId, guestId);
-      const synced = await syncProposalAfterMutation(params.eventId, result);
-      applyDistributionMutationResult(
-        setProposal,
-        setMutationWarning,
-        setMutationError,
-        synced,
-      );
-      notifyDistributionChanged(params.eventId);
-    } catch (err) {
-      setMutationWarning(null);
-      setMutationError(
-        err instanceof ApiError
-          ? err.message
-          : 'No se pudo quitar el invitado de la mesa.',
-      );
-    } finally {
-      setUnassigningGuestId(null);
-    }
-  }
-
-  async function assignGuest(
-    tableId: string,
-    guestId: string,
-    seatIndex?: number,
-  ) {
-    setAssigningGuestId(guestId);
-    setMutationError(null);
-    try {
-      const result = await distributionApi.assignGuest(
-        params.eventId,
-        guestId,
-        tableId,
-        seatIndex,
-      );
-      const synced = await syncProposalAfterMutation(params.eventId, result);
-      applyDistributionMutationResult(
-        setProposal,
-        setMutationWarning,
-        setMutationError,
-        synced,
-      );
-      notifyDistributionChanged(params.eventId);
-    } catch (err) {
-      setMutationWarning(null);
-      setMutationError(
-        err instanceof ApiError
-          ? err.message
-          : 'No se pudo asignar el invitado a la mesa.',
-      );
-    } finally {
-      setAssigningGuestId(null);
-    }
-  }
-
-  async function moveGuest(
-    guestId: string,
-    tableId: string,
-    seatIndex?: number,
-  ) {
-    setMovingGuestId(guestId);
-    setMutationError(null);
-    try {
-      const result = await distributionApi.moveGuest(
-        params.eventId,
-        guestId,
-        tableId,
-        seatIndex,
-      );
-      const synced = await syncProposalAfterMutation(params.eventId, result);
-      applyDistributionMutationResult(
-        setProposal,
-        setMutationWarning,
-        setMutationError,
-        synced,
-      );
-      notifyDistributionChanged(params.eventId);
-    } catch (err) {
-      setMutationWarning(null);
-      setMutationError(
-        err instanceof ApiError
-          ? err.message
-          : 'No se pudo mover el invitado a la mesa.',
-      );
-    } finally {
-      setMovingGuestId(null);
-    }
-  }
-
-  async function updateGuestSeat(guestId: string, seatIndex: number) {
-    setMovingGuestId(guestId);
-    setMutationError(null);
-    try {
-      const result = await distributionApi.updateGuestSeat(
-        params.eventId,
-        guestId,
-        seatIndex,
-      );
-      const synced = await syncProposalAfterMutation(params.eventId, result);
-      applyDistributionMutationResult(
-        setProposal,
-        setMutationWarning,
-        setMutationError,
-        synced,
-      );
-      notifyDistributionChanged(params.eventId);
-    } catch (err) {
-      setMutationWarning(null);
-      setMutationError(
-        err instanceof ApiError
-          ? err.message
-          : 'No se pudo cambiar el asiento del invitado.',
-      );
-    } finally {
-      setMovingGuestId(null);
-    }
-  }
 
   if (loading) {
     return <p className="text-sm text-neutral-500">Cargando plano…</p>;

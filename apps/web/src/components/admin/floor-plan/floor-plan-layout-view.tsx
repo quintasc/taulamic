@@ -43,31 +43,15 @@ import {
 } from '@/lib/floor-plan-setup';
 import {
   countTablesByStatus,
+  DISTRIBUTION_TABLE_FILTER_OPTIONS,
   filterDistributionTableGroups,
   getStatusChipLabel,
+  TABLE_OCCUPANCY_LEGEND,
   type DistributionTableFilter,
   type DistributionTableGroup,
   type TableOccupancyStatus,
   type UnassignedGuestOption,
 } from '@/lib/distribution-view';
-
-const STATUS_FILTER_OPTIONS: Array<{
-  id: DistributionTableFilter;
-  label: string;
-  countKey: keyof ReturnType<typeof countTablesByStatus>;
-}> = [
-  { id: 'all', label: 'Todas', countKey: 'all' },
-  { id: 'full', label: 'Llenas', countKey: 'full' },
-  { id: 'in-use', label: 'En uso', countKey: 'inUse' },
-  { id: 'empty', label: 'Vacías', countKey: 'empty' },
-];
-
-const OCCUPANCY_LEGEND: Array<{ status: TableOccupancyStatus; label: string }> =
-  [
-    { status: 'full', label: 'Llena' },
-    { status: 'in-use', label: 'En uso' },
-    { status: 'empty', label: 'Vacía' },
-  ];
 
 function tableMarkerTooltip(group: DistributionTableGroup): string {
   return `${group.tableLabel} · ${group.shapeLabel} · ${group.assignedCount}/${group.capacity} · ${getStatusChipLabel(group)}`;
@@ -122,7 +106,7 @@ function FloorPlanOccupancyLegend() {
       className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5"
       aria-label="Leyenda de ocupación de mesas"
     >
-      {OCCUPANCY_LEGEND.map((item) => (
+      {TABLE_OCCUPANCY_LEGEND.map((item) => (
         <span
           key={item.status}
           className="inline-flex items-center gap-1.5 text-xs text-neutral-600"
@@ -978,7 +962,7 @@ export function FloorPlanLayoutView({
             Estado
           </p>
           <div className="mt-2 flex flex-wrap gap-2">
-            {STATUS_FILTER_OPTIONS.map((option) => (
+            {DISTRIBUTION_TABLE_FILTER_OPTIONS.map((option) => (
               <FilterChip
                 key={option.id}
                 active={statusFilter === option.id}

@@ -45,7 +45,9 @@ test.describe('Distribución — reparto proporcional por categoría (ADR-024)',
       page.getByRole('button', { name: DISTRIBUTION_COPY.confirm.full }),
     ).toBeVisible({ timeout: 120_000 });
 
-    await expect(page.getByText(/mesas \(mín\./)).toBeVisible();
-    await expect(page.getByText(/huérfanos/)).toBeVisible();
+    await expect(page.getByText('Compatibilidad')).toBeVisible();
+    await expect(page.getByText('100%').first()).toBeVisible();
+    await expect(page.getByRole('button', { name: 'En uso 2' })).toBeVisible();
+    await expect(page.getByText('66.7%').first()).toBeVisible();
   });
 });

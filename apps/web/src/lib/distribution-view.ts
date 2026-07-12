@@ -108,6 +108,32 @@ export function countTablesByStatus(groups: DistributionTableGroup[]) {
   };
 }
 
+export type DistributionTableFilterCounts = ReturnType<
+  typeof countTablesByStatus
+>;
+
+/** Chips de filtro por ocupación (lista distribución y plano layout). */
+export const DISTRIBUTION_TABLE_FILTER_OPTIONS: Array<{
+  id: DistributionTableFilter;
+  label: string;
+  countKey: keyof DistributionTableFilterCounts;
+}> = [
+  { id: 'all', label: 'Todas', countKey: 'all' },
+  { id: 'full', label: 'Llenas', countKey: 'full' },
+  { id: 'in-use', label: 'En uso', countKey: 'inUse' },
+  { id: 'empty', label: 'Vacías', countKey: 'empty' },
+];
+
+/** Leyenda compacta de estados de mesa (plano layout). */
+export const TABLE_OCCUPANCY_LEGEND: Array<{
+  status: TableOccupancyStatus;
+  label: string;
+}> = [
+  { status: 'full', label: 'Llena' },
+  { status: 'in-use', label: 'En uso' },
+  { status: 'empty', label: 'Vacía' },
+];
+
 function guestMatchesSearchQuery(
   guest: DistributionTableGuest,
   query: string,

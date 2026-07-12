@@ -2,7 +2,7 @@
 
 - Ultima actualizacion: **2026-07-12**
 - Sprint activo: **Post Sprint 10** (hardening motor CP-SAT, informe PDF y ajustes UX móvil)
-- **`main` @ `d78cfac`** (base pusheada; rama local con cambios listos para push)
+- **`main` @ `d08d11a`** (pusheado)
 
 ## Frase clave
 

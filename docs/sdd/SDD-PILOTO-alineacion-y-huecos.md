@@ -1,3 +1,9 @@
+> [!IMPORTANT]
+> **Estado documental: línea base histórica.**
+> Este documento refleja el alcance definido en una fase anterior del proyecto (última actualización 2026-06-21).
+> No constituye la referencia vigente del piloto evaluable.
+> Consulta [`docs/pilot/README.md`](../pilot/README.md).
+
 # SDD piloto — Alineacion y huecos (jun 2026)
 
 - Ultima actualizacion: **2026-06-21**

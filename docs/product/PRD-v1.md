@@ -1,3 +1,7 @@
+> [!NOTE]
+> **Estado documental: visión de producto correspondiente a una fase anterior.**
+> Este documento resume la definición del producto existente en el momento de su redacción. Se conserva como referencia de la evolución de TAULAMIC, pero no incorpora todas las funcionalidades y decisiones desarrolladas posteriormente. Para consultar el alcance vigente del piloto evaluable, véase [`docs/pilot/README.md`](../pilot/README.md).
+
 # PRD v1 - Taulamic
 
 - Producto: **Taulamic** — distribucion inteligente de mesas para eventos

@@ -2,7 +2,7 @@
 
 **Distribucion inteligente de mesas para eventos.**
 
-Repositorio privado (SDD + Agile) para definir y construir Taulamic: una aplicacion de distribucion de personas en eventos (bodas, cenas de empresa, clases y otros escenarios similares).
+Repositorio de especificacion y codigo (SDD + Agile) para definir y construir Taulamic: una aplicacion de distribucion de personas en eventos (bodas, cenas de empresa, clases y otros escenarios similares).
 
 - **Marca:** Taulamic
 - **Dominio:** `taulamic.com` (registrado)
@@ -15,6 +15,17 @@ Repositorio privado (SDD + Agile) para definir y construir Taulamic: una aplicac
 Este repositorio guarda decisiones de producto y tecnologia antes de programar en grande, usando enfoque SDD (Spec-Driven Development).
 
 **Regla obligatoria:** el SDD es la fuente de verdad funcional. Ver `docs/sdd/SDD-GOVERNANZA-PROTECCION-SDD.md`.
+
+## Documentacion vigente del piloto
+
+La referencia actual para evaluacion y docencia se encuentra en:
+
+- `docs/pilot/README.md`
+- `docs/pilot/ALCANCE-ACTUAL.md`
+- `docs/pilot/EVOLUCION-DEL-ALCANCE.md`
+- `docs/pilot/TRAZABILIDAD.md`
+
+El SDD inicial y las enmiendas se conservan como historial de evolucion. La carpeta `docs/pilot` consolida el alcance real actualmente evaluable.
 
 ## Para quien esta pensado este contenido
 

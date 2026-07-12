@@ -1,3 +1,5 @@
+> Este documento describe la visión completa del MVP. Para consultar el alcance actual del piloto evaluable, véase [`docs/pilot/README.md`](../pilot/README.md).
+
 # SDD-01 - Alcance MVP y Requisitos (v1)
 
 ## 1) Objetivo del documento

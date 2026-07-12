@@ -1,3 +1,9 @@
+> [!IMPORTANT]
+> **Estado documental: especificación de fases posteriores al corte inicial.**
+> Este documento planificó HU-05 como post-piloto; parte de su contenido ya está implementada (MEJ-08, enmiendas 2b/2c).
+> No constituye por sí solo la referencia vigente del piloto evaluable.
+> Consulta [`docs/pilot/README.md`](../pilot/README.md) y [`docs/pilot/EVOLUCION-DEL-ALCANCE.md`](../pilot/EVOLUCION-DEL-ALCANCE.md).
+
 # SDD piloto — Enmienda HU-05 ajuste manual de asignaciones (post-piloto)
 
 - **Fecha:** 2026-06-21

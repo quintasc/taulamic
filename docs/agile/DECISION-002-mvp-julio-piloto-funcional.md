@@ -1,3 +1,7 @@
+> [!NOTE]
+> **Estado documental: línea base del piloto reducido.**
+> Este documento recoge la decisión original de alcance adoptada en junio de 2026. Sigue siendo válido como registro de dicha decisión, pero no refleja las ampliaciones y funcionalidades adelantadas posteriormente. Para consultar el alcance vigente del piloto evaluable, véase [`docs/pilot/README.md`](../pilot/README.md).
+
 # DECISION-002 - MVP julio: piloto funcional (alcance acotado)
 
 - Estado: **Aceptada**

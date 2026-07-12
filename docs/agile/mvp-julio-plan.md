@@ -1,3 +1,9 @@
+> [!IMPORTANT]
+> **Estado documental: plan de ejecución histórico.**
+> Este documento refleja la planificación semanal del piloto hasta julio de 2026 (motor v0, calendario W1–W6).
+> No constituye la referencia vigente del piloto evaluable.
+> Consulta [`docs/pilot/README.md`](../pilot/README.md).
+
 # Plan MVP julio — Piloto funcional (hasta 2026-07-31)
 
 > **Decision:** `DECISION-002-mvp-julio-piloto-funcional.md`  

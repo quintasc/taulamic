@@ -2,15 +2,27 @@
 
 - Ultima actualizacion: **2026-07-12**
 - Sprint activo: **Post Sprint 10** (documentación piloto consolidada)
-- **`main` @ `4dd7e39`** (pusheado)
+- **`main` @ `6f242a8`** (pusheado)
 
 ## Frase clave
 
 ```text
-Retomo Taulamic. Estado 2026-07-12: docs/pilot consolidado (alcance, evolución, trazabilidad); GitHub Project #2 alineado; motor CP-SAT async; PDF organizador parcial; pendiente validación PO visual y deuda sillas/afinidades API.
+Retomo Taulamic. Estado 2026-07-12: refactor web distribución/plano (hooks compartidos, AdminModalShell, badge PAX); E2E piloto/plano/categoría validados; docs/pilot consolidado; pendiente validación PO visual y deuda sillas/afinidades API.
 ```
 
 ## Entregado hoy 2026-07-12
+
+### `6f242a8` — refactor(web): consolida distribución y corrige badge de ocupación
+
+| Área | Entrega |
+|------|---------|
+| Hooks compartidos | `useDistributionPlacementMutations` y `useTableMetaDraft` entre pantalla Distribución y plano layout |
+| Modales admin | `AdminModalShell` unifica backdrop/z-index/Escape en diálogos de asignar, mover y sin asignar |
+| Constantes UI | Filtros de ocupación y leyenda compartidos en `distribution-view.ts` |
+| Badge PAX | Caja `10/8` ajustada al contenido (sin espacio sobrante a la derecha en sobrecapacidad) |
+| E2E | `category-grouping-distribution` alineado con UI actual; suite piloto/plano móvil validada en entorno limpio |
+
+### Sesión anterior 2026-07-12
 
 | Área | Entrega |
 |------|---------|
@@ -21,6 +33,7 @@ Retomo Taulamic. Estado 2026-07-12: docs/pilot consolidado (alcance, evolución,
 | Informe PDF confirmado | Maquetación premium Taulamic, cabecera por página, relaciones con iconos, diagramas de mesas y mejoras de densidad/legibilidad |
 | UX móvil | Toggle Invitados/Categorías sin desborde, botones con texto en una línea y visibilidad contextual de “Ver mesas” en plano |
 | Proyecto GitHub | Actualizado Project #2: EP-03 (`Motor de distribución asíncrono`) movido a `Done` en `Status` y `Flujo` |
+| Docs piloto | `docs/pilot/` consolidado (alcance, evolución, trazabilidad) — `4dd7e39`, `50f779d` |
 
 ## Entregado hoy 2026-07-07
 
@@ -68,6 +81,9 @@ Retomo Taulamic. Estado 2026-07-12: docs/pilot consolidado (alcance, evolución,
 
 | Commit | Descripción |
 |--------|-------------|
+| `6f242a8` | refactor(web): hooks/modales compartidos distribución, badge PAX y E2E categoría |
+| `50f779d` | docs: sincroniza GitHub Project #2 y contexto tras consolidación piloto |
+| `4dd7e39` | docs: consolidate current pilot scope and SDD traceability |
 | `9933ce7` | feat(ui): distribución por sillas, estrella presidencial y mejoras panel plano |
 | `71d0077` | feat: indicador de progreso de pasos en PageHeader desktop |
 | `7cd78f3` | fix: CLS y autoguardado híbrido seguro en Configuración |

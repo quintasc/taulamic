@@ -18,6 +18,7 @@ import {
   unassignGuestFromProposal,
 } from '../domain/unassign-guest-from-proposal';
 import { finalizeManualPlacementMutation } from '../domain/finalize-manual-placement-mutation';
+import { persistScoredProposal } from './persist-scored-proposal';
 import {
   GUEST_REPOSITORY,
   type GuestRepositoryPort,
@@ -50,7 +51,7 @@ export class UnassignGuestFromDistributionUseCase {
     actorRole: ActorRole,
   ): Promise<DistributionProposal> {
     this.assertAdminActorUseCase.execute(actorRole);
-    await this.requireEvent(eventId);
+    const event = await this.requireEvent(eventId);
 
     const proposal =
       await this.distributionRepository.findLatestByEventId(eventId);
@@ -66,12 +67,18 @@ export class UnassignGuestFromDistributionUseCase {
     try {
       const from = findGuestPlacement(proposal, guestId);
       const updated = unassignGuestFromProposal(proposal, guestId);
-      const saved = await this.distributionRepository.save(updated);
       const guests = await this.guestRepository.listGuests(eventId);
       const withWarnings = finalizeManualPlacementMutation(
-        saved,
+        updated,
         guests,
         guestId,
+      );
+      const scored = await persistScoredProposal(
+        this.distributionRepository,
+        withWarnings,
+        guests,
+        event.tables,
+        proposal.appliedSoftRules,
       );
       if (from) {
         await recordDistributionPlacementAudit(
@@ -84,12 +91,12 @@ export class UnassignGuestFromDistributionUseCase {
             from,
             to: null,
             companionSeparationWarning: Boolean(
-              withWarnings.manualWarnings?.length,
+              scored.manualWarnings?.length,
             ),
           },
         );
       }
-      return withWarnings;
+      return scored;
     } catch (error) {
       if (error instanceof UnassignGuestError) {
         throw new ConflictException({

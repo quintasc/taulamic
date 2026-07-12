@@ -26,11 +26,18 @@ import {
   GetDistributionUseCase,
   RunDistributionUseCase,
 } from './application/manage-distribution.use-case';
+import { GetDistributionCalculationStatusUseCase } from './application/get-distribution-calculation-status.use-case';
 import { AssignGuestToDistributionUseCase } from './application/assign-guest-to-distribution.use-case';
 import { MoveGuestInDistributionUseCase } from './application/move-guest-in-distribution.use-case';
 import { UnassignGuestFromDistributionUseCase } from './application/unassign-guest-from-distribution.use-case';
+import { UpdateGuestSeatInDistributionUseCase } from './application/update-guest-seat-in-distribution.use-case';
 import { AssignGuestDto } from './dto/assign-guest.dto';
-import { DistributionProposalDto } from './dto/distribution.dto';
+import {
+  DistributionCalculationStatusDto,
+  DistributionProposalDto,
+} from './dto/distribution.dto';
+import { RunDistributionDto } from './dto/run-distribution.dto';
+import { UpdateGuestSeatDto } from './dto/update-guest-seat.dto';
 
 @ApiTags('distribution')
 @Controller('events/:eventId/distribution')
@@ -38,16 +45,19 @@ export class DistributionController {
   constructor(
     private readonly runDistributionUseCase: RunDistributionUseCase,
     private readonly getDistributionUseCase: GetDistributionUseCase,
+    private readonly getDistributionCalculationStatusUseCase: GetDistributionCalculationStatusUseCase,
     private readonly confirmDistributionUseCase: ConfirmDistributionUseCase,
     private readonly unassignGuestFromDistributionUseCase: UnassignGuestFromDistributionUseCase,
     private readonly assignGuestToDistributionUseCase: AssignGuestToDistributionUseCase,
     private readonly moveGuestInDistributionUseCase: MoveGuestInDistributionUseCase,
+    private readonly updateGuestSeatInDistributionUseCase: UpdateGuestSeatInDistributionUseCase,
   ) {}
 
   @Post('run')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
-    summary: 'Ejecutar motor v0 piloto y generar propuesta de distribucion',
+    summary:
+      'Iniciar cálculo asíncrono de distribución y marcar propuesta como calculating',
   })
   @ApiParam({ name: 'eventId', example: 'evt_550e8400' })
   @ApiHeader({
@@ -64,8 +74,15 @@ export class DistributionController {
   async run(
     @Param('eventId') eventId: string,
     @ActorRoleHeader() actorRole: ActorRole,
+    @Body() body?: RunDistributionDto,
   ): Promise<DistributionProposalDto> {
-    return this.runDistributionUseCase.execute(eventId, actorRole);
+    return this.runDistributionUseCase.execute(
+      eventId,
+      actorRole,
+      body?.softRules,
+      body?.explicitAffinityRelations,
+      body?.categoryAffinityRelations,
+    );
   }
 
   @Get()
@@ -77,6 +94,19 @@ export class DistributionController {
     @Param('eventId') eventId: string,
   ): Promise<DistributionProposalDto> {
     return this.getDistributionUseCase.execute(eventId);
+  }
+
+  @Get('status')
+  @ApiOperation({
+    summary: 'Obtener estado del cálculo de distribución en segundo plano',
+  })
+  @ApiParam({ name: 'eventId', example: 'evt_550e8400' })
+  @ApiOkResponse({ type: DistributionCalculationStatusDto })
+  @ApiNotFoundResponse({ description: 'Evento inexistente.' })
+  async getStatus(
+    @Param('eventId') eventId: string,
+  ): Promise<DistributionCalculationStatusDto> {
+    return this.getDistributionCalculationStatusUseCase.execute(eventId);
   }
 
   @Post('confirm')
@@ -162,6 +192,7 @@ export class DistributionController {
       guestId,
       body.tableId,
       actorRole,
+      body.seatIndex,
     );
   }
 
@@ -193,6 +224,39 @@ export class DistributionController {
       eventId,
       guestId,
       body.tableId,
+      actorRole,
+      body.seatIndex,
+    );
+  }
+
+  @Put('placements/:guestId/seat')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Cambiar asiento de un invitado en su mesa (propuesta en borrador)',
+  })
+  @ApiParam({ name: 'eventId', example: 'evt_550e8400' })
+  @ApiParam({ name: 'guestId', example: 'guest-1' })
+  @ApiHeader({
+    name: 'x-taulamic-actor-role',
+    required: true,
+    description: 'Debe ser admin.',
+  })
+  @ApiOkResponse({ type: DistributionProposalDto })
+  @ApiForbiddenResponse({ description: 'Solo admin puede cambiar el asiento.' })
+  @ApiConflictResponse({
+    description: 'Propuesta confirmada, asiento invalido o invitado no asignado.',
+  })
+  @ApiNotFoundResponse({ description: 'Sin propuesta o evento inexistente.' })
+  async updateGuestSeat(
+    @Param('eventId') eventId: string,
+    @Param('guestId') guestId: string,
+    @Body() body: UpdateGuestSeatDto,
+    @ActorRoleHeader() actorRole: ActorRole,
+  ): Promise<DistributionProposalDto> {
+    return this.updateGuestSeatInDistributionUseCase.execute(
+      eventId,
+      guestId,
+      body.seatIndex,
       actorRole,
     );
   }

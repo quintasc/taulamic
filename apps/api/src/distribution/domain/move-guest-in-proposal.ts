@@ -1,6 +1,8 @@
 import type { EventTable } from '../../events/domain/event-config';
 import type { Guest } from '../../guest-import/domain/guest';
+import type { SoftRuleKind } from './distribution-engine.port';
 import type { DistributionProposal } from './distribution.types';
+import { wouldCreateAvoidableCategoryOrphan } from './category-grouping';
 
 export class MoveGuestError extends Error {
   constructor(
@@ -10,7 +12,8 @@ export class MoveGuestError extends Error {
       | 'SAME_TABLE'
       | 'TABLE_NOT_FOUND'
       | 'TABLE_FULL'
-      | 'INCOMPATIBLE_TABLEMATE',
+      | 'INCOMPATIBLE_TABLEMATE'
+      | 'CATEGORY_ORPHAN_AVOIDABLE',
     message: string,
   ) {
     super(message);
@@ -18,11 +21,18 @@ export class MoveGuestError extends Error {
   }
 }
 
+import {
+  UpdateGuestSeatError,
+  updateGuestSeatInProposal,
+} from './update-guest-seat-in-proposal';
+
 export type MoveGuestInProposalInput = {
   guestId: string;
   tableId: string;
+  seatIndex?: number;
   guests: Guest[];
   tables: EventTable[];
+  softRules?: SoftRuleKind[];
 };
 
 export function moveGuestInProposal(
@@ -50,10 +60,30 @@ export function moveGuestInProposal(
   const currentPlacement = proposal.placements[placementIndex];
 
   if (currentPlacement.tableId === input.tableId) {
-    throw new MoveGuestError(
-      'SAME_TABLE',
-      'El invitado ya esta en esa mesa.',
-    );
+    if (input.seatIndex === undefined) {
+      throw new MoveGuestError(
+        'SAME_TABLE',
+        'El invitado ya esta en esa mesa.',
+      );
+    }
+
+    try {
+      return updateGuestSeatInProposal(proposal, {
+        guestId: input.guestId,
+        seatIndex: input.seatIndex,
+        tables: input.tables,
+      });
+    } catch (error) {
+      if (error instanceof UpdateGuestSeatError) {
+        throw new MoveGuestError(
+          error.code === 'SEAT_OUT_OF_RANGE'
+            ? 'TABLE_FULL'
+            : 'GUEST_NOT_ASSIGNED',
+          error.message,
+        );
+      }
+      throw error;
+    }
   }
 
   const table = input.tables.find((item) => item.id === input.tableId);
@@ -86,6 +116,7 @@ export function moveGuestInProposal(
   }
 
   assertIncompatibilityRule(proposal, guest, input.guests, input.tableId);
+  assertCategoryGroupingRule(proposal, guest, input);
 
   const placements = proposal.placements.map((placement, index) =>
     index === placementIndex
@@ -93,6 +124,15 @@ export function moveGuestInProposal(
           ...placement,
           tableId: table.id,
           tableLabel: table.label,
+          ...(input.seatIndex !== undefined
+            ? {
+                seatIndex: input.seatIndex,
+                seatLabel: `S${input.seatIndex + 1}`,
+              }
+            : {
+                seatIndex: undefined,
+                seatLabel: undefined,
+              }),
         }
       : placement,
   );
@@ -101,6 +141,41 @@ export function moveGuestInProposal(
     ...proposal,
     placements,
   };
+}
+
+function assertCategoryGroupingRule(
+  proposal: DistributionProposal,
+  guest: Guest,
+  input: MoveGuestInProposalInput,
+): void {
+  if (!input.softRules?.includes('groupByCategory')) {
+    return;
+  }
+
+  const hypotheticalPlacements = proposal.placements.map((placement) =>
+    placement.guestId === guest.id
+      ? { ...placement, tableId: input.tableId }
+      : placement,
+  );
+  const hypotheticalProposal: DistributionProposal = {
+    ...proposal,
+    placements: hypotheticalPlacements,
+  };
+
+  if (
+    wouldCreateAvoidableCategoryOrphan(
+      hypotheticalProposal,
+      guest,
+      input.tableId,
+      input.guests,
+      input.tables,
+    )
+  ) {
+    throw new MoveGuestError(
+      'CATEGORY_ORPHAN_AVOIDABLE',
+      'No puedes dejar a este invitado como único de su categoría en la mesa cuando hay otra mesa factible con compañeros de su grupo.',
+    );
+  }
 }
 
 function assertIncompatibilityRule(

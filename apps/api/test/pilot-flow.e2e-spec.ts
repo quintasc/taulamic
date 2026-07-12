@@ -36,6 +36,26 @@ describe('MVP julio pilot flow (e2e integracion)', () => {
     await app.init();
   });
 
+  async function waitForDistributionReady(
+    eventId: string,
+    expectedProposalId?: string,
+  ) {
+    const deadline = Date.now() + 15_000;
+    while (Date.now() < deadline) {
+      const current = await request(app.getHttpServer())
+        .get(`/api/v1/events/${eventId}/distribution`)
+        .expect(200);
+      if (
+        (!expectedProposalId || current.body.id === expectedProposalId) &&
+        current.body.status !== 'calculating'
+      ) {
+        return current;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    throw new Error('Timeout esperando a que termine el cálculo de distribución');
+  }
+
   afterEach(async () => {
     await app.close();
     await rm(join(process.cwd(), 'uploads'), { recursive: true, force: true });
@@ -184,10 +204,16 @@ describe('MVP julio pilot flow (e2e integracion)', () => {
       ]),
     );
 
-    const distribution = await request(app.getHttpServer())
+    const distributionStarted = await request(app.getHttpServer())
       .post(`/api/v1/events/${eventId}/distribution/run`)
       .set('x-taulamic-actor-role', 'admin')
       .expect(201);
+    expect(distributionStarted.body.status).toBe('calculating');
+
+    const distribution = await waitForDistributionReady(
+      eventId,
+      distributionStarted.body.id,
+    );
 
     expect(distribution.body).toMatchObject({
       eventId,
@@ -219,7 +245,7 @@ describe('MVP julio pilot flow (e2e integracion)', () => {
       .get(`/api/v1/events/${eventId}/distribution`)
       .expect(200);
 
-    expect(fetchedDistribution.body.id).toBe(distribution.body.id);
+    expect(fetchedDistribution.body.id).toBe(distributionStarted.body.id);
 
     const confirmed = await request(app.getHttpServer())
       .post(`/api/v1/events/${eventId}/distribution/confirm`)

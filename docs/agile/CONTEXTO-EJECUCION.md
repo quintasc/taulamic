@@ -1,14 +1,26 @@
 # Contexto de ejecucion — punto de reanudacion
 
-- Ultima actualizacion: **2026-07-07**
-- Sprint activo: **10 — CERRADO** / Sprint 11 pendiente de planificación
-- **`main` @ `9933ce7`** (pusheado)
+- Ultima actualizacion: **2026-07-12**
+- Sprint activo: **Post Sprint 10** (hardening motor CP-SAT, informe PDF y ajustes UX móvil)
+- **`main` @ `d78cfac`** (base pusheada; rama local con cambios listos para push)
 
 ## Frase clave
 
 ```text
-Retomo Taulamic. main @ 9933ce7: Sprint 10 cerrado. Distribución por sillas S1…Sn, estrella orientación mesa principal, botón Añadir en silla vacía (plano + distribución), fix z-index panel flotante y bounds de arrastre. Documentación SDD y cierre S10 actualizados.
+Retomo Taulamic. Estado 2026-07-12: motor CP-SAT en asíncrono con tracker de progreso y recuperación automática de cálculos estancados; afinidades por categorías y refinamientos de distribución activos; informe PDF confirmado en estilo Taulamic; ajustes de UX móvil en afinidades/distribución/plano listos para validación final.
 ```
+
+## Entregado hoy 2026-07-12
+
+| Área | Entrega |
+|------|---------|
+| Motor asíncrono | Flujo `run/status` en segundo plano con estado `calculating`, tracker por fase y barra de progreso unificada |
+| Recuperación de cuelgues | Guardarraíl de timeout: si el cálculo queda atascado se marca como fallo y se desbloquea recálculo (evita 90% indefinido) |
+| Reglas avanzadas CP-SAT | Capacidad elástica, quórum por categoría y afinidad inter-categoría integradas en Fase 1 sin romper jerarquía existente |
+| Afinidad local por mesa | Score por mesa ajustado para penalizar mesas casi vacías y evitar falsos 100% |
+| Informe PDF confirmado | Maquetación premium Taulamic, cabecera por página, relaciones con iconos, diagramas de mesas y mejoras de densidad/legibilidad |
+| UX móvil | Toggle Invitados/Categorías sin desborde, botones con texto en una línea y visibilidad contextual de “Ver mesas” en plano |
+| Proyecto GitHub | Actualizado Project #2: EP-03 (`Motor de distribución asíncrono`) movido a `Done` en `Status` y `Flujo` |
 
 ## Entregado hoy 2026-07-07
 

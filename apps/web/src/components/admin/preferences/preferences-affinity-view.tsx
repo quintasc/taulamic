@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { SetupNavBar } from '@/components/admin/setup-nav-bar';
 import { PageHeader, SaveStatusIndicator, SectionLabel, useAutoSaveIndicator } from '@/components/ui';
+import { CustomSelect } from '@/components/ui/custom-select';
 import { preferencesApi, guestsApi, companionGroupsApi } from '@/lib/api';
 import { IconSliders, IconClose, IconChevronDown, IconChevronUp, IconLink, IconLinkOff } from '@/components/icons';
 import {
@@ -110,9 +111,24 @@ function getInitials(name: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-function deduplicateRelations(
-  list: Array<{ guestA: string; guestB: string; type: 'afinidad' | 'incompatibilidad'; id: string }>
-) {
+type RelationType = 'afinidad' | 'incompatibilidad';
+type AffinityTargetMode = 'guests' | 'categories';
+
+type GuestAffinityRelation = {
+  id: string;
+  guestA: string;
+  guestB: string;
+  type: RelationType;
+};
+
+type CategoryAffinityRelation = {
+  id: string;
+  categoryA: string;
+  categoryB: string;
+  type: RelationType;
+};
+
+function deduplicateGuestRelations(list: GuestAffinityRelation[]) {
   const seen = new Set<string>();
   return list.filter((r) => {
     const key = [r.guestA.toLowerCase(), r.guestB.toLowerCase()].sort().join(' ↔ ');
@@ -124,13 +140,22 @@ function deduplicateRelations(
   });
 }
 
-// Initialized to empty array as per user request
-const DEFAULT_RELATIONS: Array<{
-  id: string;
-  guestA: string;
-  guestB: string;
-  type: 'afinidad' | 'incompatibilidad';
-}> = [];
+function deduplicateCategoryRelations(list: CategoryAffinityRelation[]) {
+  const seen = new Set<string>();
+  return list.filter((r) => {
+    const key = [r.categoryA.toLowerCase(), r.categoryB.toLowerCase()]
+      .sort()
+      .join(' ↔ ');
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
+const DEFAULT_GUEST_RELATIONS: GuestAffinityRelation[] = [];
+const DEFAULT_CATEGORY_RELATIONS: CategoryAffinityRelation[] = [];
 
 function Toggle({ checked, disabled }: { checked: boolean; disabled?: boolean }) {
   return (
@@ -155,101 +180,6 @@ function Toggle({ checked, disabled }: { checked: boolean; disabled?: boolean })
   );
 }
 
-interface CustomSelectProps {
-  value: string;
-  onChange: (value: string) => void;
-  options: Array<{ id: string; name: string; category?: string }>;
-  placeholder: string;
-}
-
-function CustomSelect({ value, onChange, options, placeholder }: CustomSelectProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-    if (isOpen) {
-      document.addEventListener('mousedown', handleOutsideClick);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleOutsideClick);
-    };
-  }, [isOpen]);
-
-  return (
-    <div ref={containerRef} className="relative w-full">
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-900 focus:border-primary-500 focus:bg-neutral-0 focus:outline-none transition text-left"
-      >
-        <span className={value ? 'text-neutral-900 font-medium' : 'text-neutral-400 font-normal'}>
-          {value || placeholder}
-        </span>
-        <svg
-          className={`h-4 w-4 text-neutral-500 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
-
-      {isOpen && (
-        <div className="absolute left-0 mt-1 w-full max-h-60 overflow-y-auto rounded-xl border border-neutral-200 bg-neutral-0 p-0 shadow-lg z-[100] overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
-          <button
-            type="button"
-            onClick={() => {
-              onChange('');
-              setIsOpen(false);
-            }}
-            className={`w-full text-left px-4 py-2.5 text-sm transition-colors font-medium ${
-              !value
-                ? 'bg-primary-500 text-neutral-0 font-semibold'
-                : 'text-neutral-800 bg-neutral-0 hover:bg-primary-500 hover:text-neutral-0'
-            }`}
-          >
-            {placeholder}
-          </button>
-          
-          {options.map((opt) => {
-            const isSelected = opt.name === value;
-            return (
-              <button
-                key={opt.id}
-                type="button"
-                onClick={() => {
-                  onChange(opt.name);
-                  setIsOpen(false);
-                }}
-                className={`w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between ${
-                  isSelected
-                    ? 'bg-primary-500 text-neutral-0 font-semibold'
-                    : 'text-neutral-800 bg-neutral-0 hover:bg-primary-500 hover:text-neutral-0 font-medium'
-                }`}
-              >
-                <span className="truncate">{opt.name}</span>
-                {opt.category && (
-                  <span className="hidden sm:inline-block text-[10px] uppercase tracking-wider font-semibold ml-2 shrink-0 opacity-65">
-                    ({opt.category})
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
-
-
 export function PreferencesAffinityView({ eventId }: { eventId: string }) {
   const routes = adminRoutes(eventId);
   const { status: saveStatus, markSaved } = useAutoSaveIndicator();
@@ -266,13 +196,16 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   // Relations state
-  const [relations, setRelations] = useState<Array<{
-    id: string;
-    guestA: string;
-    guestB: string;
-    type: 'afinidad' | 'incompatibilidad';
-  }>>([]);
+  const [guestRelations, setGuestRelations] = useState<GuestAffinityRelation[]>(
+    [],
+  );
+  const [categoryRelations, setCategoryRelations] = useState<
+    CategoryAffinityRelation[]
+  >([]);
+  const [affinityTargetMode, setAffinityTargetMode] =
+    useState<AffinityTargetMode>('guests');
   const [guestList, setGuestList] = useState<Array<{ id: string; name: string; category?: string }>>([]);
+  const [categoryList, setCategoryList] = useState<string[]>([]);
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
 
   // Click outside to close custom select dropdowns
@@ -290,9 +223,9 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
 
   // Creation form state
   const [isAdding, setIsAdding] = useState(false);
-  const [newGuestA, setNewGuestA] = useState('');
-  const [newGuestB, setNewGuestB] = useState('');
-  const [newType, setNewType] = useState<'afinidad' | 'incompatibilidad'>('afinidad');
+  const [newEntityA, setNewEntityA] = useState('');
+  const [newEntityB, setNewEntityB] = useState('');
+  const [newType, setNewType] = useState<RelationType>('afinidad');
 
   const setupNav = getSetupNav(eventId, 'prefs');
 
@@ -339,21 +272,24 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
       setRulesOrder(sortedOrder);
     }
 
-    // Load relations or initialize empty
-    if (meta.affinityRelations) {
-      const uniqueRelations = deduplicateRelations(meta.affinityRelations);
-      setRelations(uniqueRelations);
-      if (uniqueRelations.length !== meta.affinityRelations.length) {
-        saveEventUiMeta(eventId, {
-          ...meta,
-          affinityRelations: uniqueRelations,
-        });
-      }
-    } else {
-      setRelations(DEFAULT_RELATIONS);
+    const normalizedGuestRelations = meta.affinityRelations
+      ? deduplicateGuestRelations(meta.affinityRelations)
+      : DEFAULT_GUEST_RELATIONS;
+    const normalizedCategoryRelations = meta.categoryAffinityRelations
+      ? deduplicateCategoryRelations(meta.categoryAffinityRelations)
+      : DEFAULT_CATEGORY_RELATIONS;
+    setGuestRelations(normalizedGuestRelations);
+    setCategoryRelations(normalizedCategoryRelations);
+    const shouldNormalizePersist =
+      !meta.affinityRelations ||
+      !meta.categoryAffinityRelations ||
+      normalizedGuestRelations.length !== meta.affinityRelations.length ||
+      normalizedCategoryRelations.length !== meta.categoryAffinityRelations.length;
+    if (shouldNormalizePersist) {
       saveEventUiMeta(eventId, {
         ...meta,
-        affinityRelations: DEFAULT_RELATIONS,
+        affinityRelations: normalizedGuestRelations,
+        categoryAffinityRelations: normalizedCategoryRelations,
       });
     }
 
@@ -371,6 +307,16 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
           name: g.nombre,
           category: g.categories?.[0]?.name,
         })));
+        const categories = Array.from(
+          new Set(
+            guests.flatMap((guest) =>
+              (guest.categories ?? [])
+                .map((category) => category.name.trim())
+                .filter((name) => name.length > 0),
+            ),
+          ),
+        ).sort((left, right) => left.localeCompare(right, 'es'));
+        setCategoryList(categories);
 
         // 1. Auto-generate companion/family relations from local metadata companionGroup
         const guestMetaList = guests.map((g) => {
@@ -432,7 +378,7 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
         }
 
         // Merge autoRelations with existing ones
-        setRelations((current) => {
+        setGuestRelations((current) => {
           const existing = [...current];
           let updated = false;
           for (const auto of autoRelations) {
@@ -446,7 +392,7 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
               updated = true;
             }
           }
-          const unique = deduplicateRelations(existing);
+          const unique = deduplicateGuestRelations(existing);
           if (unique.length !== existing.length) {
             updated = true;
           }
@@ -481,11 +427,20 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
     markAffinitiesDraftSaved(eventId);
   }
 
-  function persistRelations(nextRelations: typeof relations) {
+  function persistGuestRelations(nextRelations: GuestAffinityRelation[]) {
     const meta = loadEventUiMeta(eventId);
     saveEventUiMeta(eventId, {
       ...meta,
       affinityRelations: nextRelations,
+    });
+    markAffinitiesDraftSaved(eventId);
+  }
+
+  function persistCategoryRelations(nextRelations: CategoryAffinityRelation[]) {
+    const meta = loadEventUiMeta(eventId);
+    saveEventUiMeta(eventId, {
+      ...meta,
+      categoryAffinityRelations: nextRelations,
     });
     markAffinitiesDraftSaved(eventId);
   }
@@ -541,45 +496,89 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
   }
 
   function removeRelation(id: string) {
-    setRelations((current) => {
-      const next = current.filter((r) => r.id !== id);
-      persistRelations(next);
+    if (affinityTargetMode === 'guests') {
+      setGuestRelations((current) => {
+        const next = current.filter((relation) => relation.id !== id);
+        persistGuestRelations(next);
+        markSaved();
+        return next;
+      });
+      return;
+    }
+    setCategoryRelations((current) => {
+      const next = current.filter((relation) => relation.id !== id);
+      persistCategoryRelations(next);
       markSaved();
       return next;
     });
   }
 
-  function updateRelationType(id: string, newType: 'afinidad' | 'incompatibilidad') {
-    setRelations((current) => {
-      const next = current.map((r) => r.id === id ? { ...r, type: newType } : r);
-      persistRelations(next);
+  function updateRelationType(id: string, type: RelationType) {
+    if (affinityTargetMode === 'guests') {
+      setGuestRelations((current) => {
+        const next = current.map((relation) =>
+          relation.id === id ? { ...relation, type } : relation,
+        );
+        persistGuestRelations(next);
+        markSaved();
+        return next;
+      });
+      return;
+    }
+    setCategoryRelations((current) => {
+      const next = current.map((relation) =>
+        relation.id === id ? { ...relation, type } : relation,
+      );
+      persistCategoryRelations(next);
       markSaved();
       return next;
     });
   }
 
   function addRelation() {
-    if (!newGuestA || !newGuestB) return;
-    if (newGuestA === newGuestB) return;
+    if (!newEntityA || !newEntityB) return;
+    if (newEntityA === newEntityB) return;
 
-    const newRel = {
-      id: String(Date.now()),
-      guestA: newGuestA,
-      guestB: newGuestB,
-      type: newType,
-    };
+    if (affinityTargetMode === 'guests') {
+      const newRelation: GuestAffinityRelation = {
+        id: String(Date.now()),
+        guestA: newEntityA,
+        guestB: newEntityB,
+        type: newType,
+      };
+      setGuestRelations((current) => {
+        const next = [...current, newRelation];
+        persistGuestRelations(next);
+        markSaved();
+        return next;
+      });
+    } else {
+      const newRelation: CategoryAffinityRelation = {
+        id: String(Date.now()),
+        categoryA: newEntityA,
+        categoryB: newEntityB,
+        type: newType,
+      };
+      setCategoryRelations((current) => {
+        const next = [...current, newRelation];
+        persistCategoryRelations(next);
+        markSaved();
+        return next;
+      });
+    }
 
-    setRelations((current) => {
-      const next = [...current, newRel];
-      persistRelations(next);
-      markSaved();
-      return next;
-    });
-
-    setNewGuestA('');
-    setNewGuestB('');
+    setNewEntityA('');
+    setNewEntityB('');
     setNewType('afinidad');
     setIsAdding(false);
+  }
+
+  function switchAffinityTargetMode(nextMode: AffinityTargetMode) {
+    setAffinityTargetMode(nextMode);
+    setNewEntityA('');
+    setNewEntityB('');
+    setNewType('afinidad');
+    setActiveDropdownId(null);
   }
 
   const effectiveMode = resolvePreferenceModeForPilot(mode);
@@ -591,19 +590,93 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
   const activeCount = rulesOrder.filter(k => rules[k]).length;
   const totalCount = rulesOrder.length;
 
-  const relationExists = relations.some(
-    (r) =>
-      (r.guestA.toLowerCase() === newGuestA.toLowerCase() && r.guestB.toLowerCase() === newGuestB.toLowerCase()) ||
-      (r.guestA.toLowerCase() === newGuestB.toLowerCase() && r.guestB.toLowerCase() === newGuestA.toLowerCase())
+  const displayedRelations = useMemo(
+    () =>
+      affinityTargetMode === 'guests'
+        ? guestRelations.map((relation) => ({
+            id: relation.id,
+            leftName: relation.guestA,
+            rightName: relation.guestB,
+            type: relation.type,
+            leftHint: guestList.find((guest) => guest.name === relation.guestA)
+              ?.category,
+            rightHint: guestList.find((guest) => guest.name === relation.guestB)
+              ?.category,
+          }))
+        : categoryRelations.map((relation) => ({
+            id: relation.id,
+            leftName: relation.categoryA,
+            rightName: relation.categoryB,
+            type: relation.type,
+            leftHint: undefined,
+            rightHint: undefined,
+          })),
+    [affinityTargetMode, categoryRelations, guestList, guestRelations],
   );
-
-  const canSubmit = newGuestA !== '' && newGuestB !== '' && newGuestA !== newGuestB && !relationExists;
+  const relationExists =
+    affinityTargetMode === 'guests'
+      ? guestRelations.some(
+          (relation) =>
+            (relation.guestA.toLowerCase() === newEntityA.toLowerCase() &&
+              relation.guestB.toLowerCase() === newEntityB.toLowerCase()) ||
+            (relation.guestA.toLowerCase() === newEntityB.toLowerCase() &&
+              relation.guestB.toLowerCase() === newEntityA.toLowerCase()),
+        )
+      : categoryRelations.some(
+          (relation) =>
+            (relation.categoryA.toLowerCase() === newEntityA.toLowerCase() &&
+              relation.categoryB.toLowerCase() === newEntityB.toLowerCase()) ||
+            (relation.categoryA.toLowerCase() === newEntityB.toLowerCase() &&
+              relation.categoryB.toLowerCase() === newEntityA.toLowerCase()),
+        );
+  const canSubmit =
+    newEntityA !== '' &&
+    newEntityB !== '' &&
+    newEntityA !== newEntityB &&
+    !relationExists;
+  const leftLabel = affinityTargetMode === 'guests' ? 'Invitado A' : 'Categoría A';
+  const rightLabel = affinityTargetMode === 'guests' ? 'Invitado B' : 'Categoría B';
+  const leftPlaceholder =
+    affinityTargetMode === 'guests'
+      ? 'Selecciona un invitado...'
+      : 'Selecciona una categoría...';
+  const rightPlaceholder = leftPlaceholder;
+  const entityOptionsA =
+    affinityTargetMode === 'guests'
+      ? guestList
+          .filter((guest) => guest.name !== newEntityB)
+          .map((guest) => ({
+            value: guest.name,
+            label: guest.name,
+            hint: guest.category ? `(${guest.category})` : undefined,
+          }))
+      : categoryList
+          .filter((category) => category !== newEntityB)
+          .map((category) => ({
+            value: category,
+            label: category,
+          }));
+  const entityOptionsB =
+    affinityTargetMode === 'guests'
+      ? guestList
+          .filter((guest) => guest.name !== newEntityA)
+          .map((guest) => ({
+            value: guest.name,
+            label: guest.name,
+            hint: guest.category ? `(${guest.category})` : undefined,
+          }))
+      : categoryList
+          .filter((category) => category !== newEntityA)
+          .map((category) => ({
+            value: category,
+            label: category,
+          }));
 
   return (
     <>
       <PageHeader
         title="Afinidades y reglas"
-        subtitle="Restricciones por persona y reglas genéricas para el motor de distribución."
+        subtitle="Restricciones por invitado/categoría y reglas genéricas para el motor de distribución."
         saveStatus={<SaveStatusIndicator status={saveStatus} />}
       />
 
@@ -689,9 +762,39 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
       </div>
 
       <div className="mt-6 card-admin space-y-4">
-        <SectionLabel>Por persona — afinidades e incompatibilidades</SectionLabel>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-[10px] font-semibold uppercase tracking-[0.06em] text-neutral-500 whitespace-nowrap">
+            Afinidades e incompatibilidades
+          </h2>
+          <div className="inline-flex w-full rounded-xl border border-neutral-200 bg-neutral-100/80 p-1 sm:w-auto">
+            <button
+              type="button"
+              onClick={() => switchAffinityTargetMode('guests')}
+              className={`flex-1 rounded-lg px-3 py-1.5 text-sm font-semibold transition sm:flex-none ${
+                affinityTargetMode === 'guests'
+                  ? 'bg-neutral-0 text-neutral-900 shadow-sm'
+                  : 'text-neutral-500 hover:text-neutral-700'
+              }`}
+            >
+              Invitados
+            </button>
+            <button
+              type="button"
+              onClick={() => switchAffinityTargetMode('categories')}
+              className={`flex-1 rounded-lg px-3 py-1.5 text-sm font-semibold transition sm:flex-none ${
+                affinityTargetMode === 'categories'
+                  ? 'bg-neutral-0 text-neutral-900 shadow-sm'
+                  : 'text-neutral-500 hover:text-neutral-700'
+              }`}
+            >
+              Categorías
+            </button>
+          </div>
+        </div>
         <p className="text-sm text-neutral-600">
-          Marca quién debe sentarse junto a quién y quién debe evitarse.
+          {affinityTargetMode === 'guests'
+            ? 'Marca qué invitados deben sentarse juntos y qué invitados deben evitarse.'
+            : 'Marca qué categorías tienen afinidad o incompatibilidad para guiar las mesas híbridas.'}
           {!PILOT_COLLABORATIVE_MODE_ENABLED ? (
             <span className="mt-1 block text-xs text-neutral-500">
               {PILOT_COPY.collaborativePrefsNote}
@@ -700,24 +803,22 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
         </p>
 
         {/* Relations List */}
-        {relations.length > 0 && (
+        {displayedRelations.length > 0 && (
           <div className="space-y-3">
-            {relations.map((rel) => {
-              const catA = guestList.find((g) => g.name === rel.guestA)?.category;
-              const catB = guestList.find((g) => g.name === rel.guestB)?.category;
+            {displayedRelations.map((rel) => {
               return (
                 <div key={rel.id}>
                 {/* Desktop View */}
                 <div className="hidden sm:grid grid-cols-[1fr_auto_1fr] items-center gap-4 rounded-xl border border-neutral-200 bg-neutral-0 p-4 shadow-sm">
-                  {/* Guest A */}
+                  {/* Left entity */}
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 text-sm font-bold text-neutral-0 shrink-0">
-                      {getInitials(rel.guestA)}
+                      {getInitials(rel.leftName)}
                     </div>
-                    <span className="text-sm font-medium text-neutral-900 truncate">{rel.guestA}</span>
-                    {catA && (
+                    <span className="text-sm font-medium text-neutral-900 truncate">{rel.leftName}</span>
+                    {rel.leftHint && (
                       <span className="text-[10px] text-neutral-500 font-semibold uppercase tracking-wider ml-1.5 shrink-0">
-                        ({catA})
+                        ({rel.leftHint})
                       </span>
                     )}
                   </div>
@@ -791,16 +892,16 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
                     )}
                   </div>
 
-                  {/* Guest B + Remove button */}
+                  {/* Right entity + Remove button */}
                   <div className="flex items-center gap-3 justify-self-end min-w-0">
-                    <span className="text-sm font-medium text-neutral-900 truncate mr-1">{rel.guestB}</span>
-                    {catB && (
+                    <span className="text-sm font-medium text-neutral-900 truncate mr-1">{rel.rightName}</span>
+                    {rel.rightHint && (
                       <span className="text-[10px] text-neutral-500 font-semibold uppercase tracking-wider mr-1.5 shrink-0">
-                        ({catB})
+                        ({rel.rightHint})
                       </span>
                     )}
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 text-sm font-bold text-neutral-0 shrink-0">
-                      {getInitials(rel.guestB)}
+                      {getInitials(rel.rightName)}
                     </div>
                     <button
                       type="button"
@@ -815,13 +916,13 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
 
                 {/* Mobile View */}
                 <div className="relative sm:hidden flex flex-col gap-2 rounded-xl border border-neutral-200 bg-neutral-0 p-4 shadow-sm">
-                  {/* Guest A */}
+                  {/* Left entity */}
                   <div className="flex items-center gap-3 pr-8 min-w-0">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 text-sm font-bold text-neutral-0 shrink-0">
-                      {getInitials(rel.guestA)}
+                      {getInitials(rel.leftName)}
                     </div>
                     <span className="text-sm font-medium text-neutral-900 break-words leading-tight">
-                      {rel.guestA}
+                      {rel.leftName}
                     </span>
                   </div>
 
@@ -890,13 +991,13 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
                     </div>
                   </div>
 
-                  {/* Guest B */}
+                  {/* Right entity */}
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 text-sm font-bold text-neutral-0 shrink-0">
-                      {getInitials(rel.guestB)}
+                      {getInitials(rel.rightName)}
                     </div>
                     <span className="text-sm font-medium text-neutral-900 break-words leading-tight">
-                      {rel.guestB}
+                      {rel.rightName}
                     </span>
                   </div>
 
@@ -919,38 +1020,66 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
         {/* Add Relation Form / Button */}
         {isAdding ? (
           <div className="rounded-xl border border-neutral-200 bg-neutral-0 p-6 shadow-sm space-y-4">
-            <h3 className="text-sm font-semibold text-neutral-900">Nueva relación</h3>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <h3 className="text-sm font-semibold text-neutral-900">Nueva relación</h3>
+              <div className="inline-flex w-full rounded-xl border border-neutral-200 bg-neutral-100/80 p-1 sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => switchAffinityTargetMode('guests')}
+                  className={`flex-1 rounded-lg px-3 py-1.5 text-sm font-semibold transition sm:flex-none ${
+                    affinityTargetMode === 'guests'
+                      ? 'bg-neutral-0 text-neutral-900 shadow-sm'
+                      : 'text-neutral-500 hover:text-neutral-700'
+                  }`}
+                >
+                  Invitados
+                </button>
+                <button
+                  type="button"
+                  onClick={() => switchAffinityTargetMode('categories')}
+                  className={`flex-1 rounded-lg px-3 py-1.5 text-sm font-semibold transition sm:flex-none ${
+                    affinityTargetMode === 'categories'
+                      ? 'bg-neutral-0 text-neutral-900 shadow-sm'
+                      : 'text-neutral-500 hover:text-neutral-700'
+                  }`}
+                >
+                  Categorías
+                </button>
+              </div>
+            </div>
 
             {/* Inputs Grid */}
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="mb-1.5 block text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
-                  Invitado A
+                  {leftLabel}
                 </label>
                 <CustomSelect
-                  value={newGuestA}
-                  onChange={setNewGuestA}
-                  options={guestList.filter((g) => g.name !== newGuestB)}
-                  placeholder="Selecciona un invitado..."
+                  value={newEntityA}
+                  onChange={setNewEntityA}
+                  clearable
+                  options={entityOptionsA}
+                  placeholder={leftPlaceholder}
                 />
               </div>
               <div>
                 <label className="mb-1.5 block text-[11px] font-semibold text-neutral-500 uppercase tracking-wider">
-                  Invitado B
+                  {rightLabel}
                 </label>
                 <CustomSelect
-                  value={newGuestB}
-                  onChange={setNewGuestB}
-                  options={guestList.filter((g) => g.name !== newGuestA)}
-                  placeholder="Selecciona un invitado..."
+                  value={newEntityB}
+                  onChange={setNewEntityB}
+                  clearable
+                  options={entityOptionsB}
+                  placeholder={rightPlaceholder}
                 />
               </div>
             </div>
 
             {/* Warning when relation exists */}
-            {newGuestA && newGuestB && relationExists && (
+            {newEntityA && newEntityB && relationExists && (
               <p className="text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200/50 rounded-xl px-4 py-2.5">
-                ⚠ Ya existe una relación activa entre {newGuestA} y {newGuestB}.
+                ⚠ Ya existe una relación activa entre {newEntityA} y {newEntityB}.
               </p>
             )}
 
@@ -958,14 +1087,14 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
             <div className="flex items-center justify-between rounded-xl bg-neutral-100/60 p-4 border border-neutral-200/50">
               <div className="flex items-center gap-2 flex-wrap">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-900 text-xs font-bold text-neutral-0">
-                  {getInitials(newGuestA) || '?'}
+                  {getInitials(newEntityA) || '?'}
                 </div>
                 <span className="text-xs text-neutral-500 font-medium">con</span>
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-900 text-xs font-bold text-neutral-0">
-                  {getInitials(newGuestB) || '?'}
+                  {getInitials(newEntityB) || '?'}
                 </div>
                 <span className="ml-2 text-sm font-semibold text-neutral-900 truncate max-w-[200px] sm:max-w-none">
-                  {newGuestA || 'Invitado A'} y {newGuestB || 'Invitado B'}
+                  {newEntityA || leftLabel} y {newEntityB || rightLabel}
                 </span>
               </div>
               </div>
@@ -1019,8 +1148,8 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
               <button
                 type="button"
                 onClick={() => {
-                  setNewGuestA('');
-                  setNewGuestB('');
+                  setNewEntityA('');
+                  setNewEntityB('');
                   setNewType('afinidad');
                   setIsAdding(false);
                 }}

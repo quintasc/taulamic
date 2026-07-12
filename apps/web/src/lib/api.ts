@@ -64,6 +64,7 @@ export type GuestView = {
   nombre: string;
   correo: string | null;
   telefono?: string | null;
+  acompananteKey?: string | null;
   categories: Array<{ name: string }>;
   /** Notas internas (solo admin). */
   observaciones?: string | null;
@@ -80,15 +81,41 @@ export type ManualPlacementWarning = {
   guestIds: string[];
 };
 
+export type CompatibilityCriterionScore = {
+  key: string;
+  label: string;
+  earnedPoints: number;
+  maxPoints: number;
+  percent: number;
+  detail?: string;
+};
+
+export type DistributionCompatibilityScore = {
+  globalPercent: number;
+  earnedPoints: number;
+  maxPoints: number;
+  criteria: CompatibilityCriterionScore[];
+};
+
+export type TableAffinityScore = {
+  tableId: string;
+  earnedPoints: number;
+  maxPoints: number;
+  percent: number;
+  detail: string;
+};
+
 export type DistributionProposal = {
   id: string;
   motorVersion: string;
-  status: 'draft' | 'confirmed';
+  status: 'calculating' | 'draft' | 'confirmed';
   placements: Array<{
     guestId: string;
     guestName: string;
     tableId: string;
     tableLabel: string;
+    seatIndex?: number;
+    seatLabel?: string;
   }>;
   unassignedGuestIds: string[];
   stats: {
@@ -98,6 +125,9 @@ export type DistributionProposal = {
     totalCapacity: number;
   };
   confirmedAt: string | null;
+  appliedSoftRules?: string[];
+  compatibilityScore?: DistributionCompatibilityScore;
+  tableAffinityScores?: TableAffinityScore[];
   manualWarnings?: ManualPlacementWarning[];
 };
 
@@ -315,13 +345,56 @@ export const preferencesApi = {
     ),
 };
 
+export type ExplicitAffinityRelationInput = {
+  guestA: string;
+  guestB: string;
+  type: 'afinidad' | 'incompatibilidad';
+};
+
+export type CategoryAffinityRelationInput = {
+  categoryA: string;
+  categoryB: string;
+  type: 'afinidad' | 'incompatibilidad';
+};
+
+export type DistributionCalculationStatus = {
+  eventId: string;
+  proposalId: string | null;
+  state: 'idle' | 'calculating' | 'draft' | 'confirmed' | 'failed';
+  phase: 'queued' | 'computing' | 'persisting' | 'completed' | 'failed';
+  progressPercent: number;
+  startedAt: string | null;
+  updatedAt: string | null;
+  elapsedMs: number | null;
+  estimatedRemainingMs: number | null;
+  message?: string;
+};
+
 export const distributionApi = {
-  run: (eventId: string) =>
+  run: (
+    eventId: string,
+    softRules?: string[],
+    explicitAffinityRelations?: ExplicitAffinityRelationInput[],
+    categoryAffinityRelations?: CategoryAffinityRelationInput[],
+  ) =>
     apiFetch<DistributionProposal>(`/events/${eventId}/distribution/run`, {
       method: 'POST',
+      body: JSON.stringify({
+        ...(softRules && softRules.length > 0 ? { softRules } : {}),
+        ...(explicitAffinityRelations && explicitAffinityRelations.length > 0
+          ? { explicitAffinityRelations }
+          : {}),
+        ...(categoryAffinityRelations && categoryAffinityRelations.length > 0
+          ? { categoryAffinityRelations }
+          : {}),
+      }),
     }),
   get: (eventId: string) =>
     apiFetch<DistributionProposal>(`/events/${eventId}/distribution`),
+  status: (eventId: string) =>
+    apiFetch<DistributionCalculationStatus>(
+      `/events/${eventId}/distribution/status`,
+    ),
   confirm: (eventId: string) =>
     apiFetch<DistributionProposal>(`/events/${eventId}/distribution/confirm`, {
       method: 'POST',
@@ -331,20 +404,44 @@ export const distributionApi = {
       `/events/${eventId}/distribution/placements/${guestId}/unassign`,
       { method: 'POST' },
     ),
-  assignGuest: (eventId: string, guestId: string, tableId: string) =>
+  assignGuest: (
+    eventId: string,
+    guestId: string,
+    tableId: string,
+    seatIndex?: number,
+  ) =>
     apiFetch<DistributionProposal>(
       `/events/${eventId}/distribution/placements/${guestId}`,
       {
         method: 'PUT',
-        body: JSON.stringify({ tableId }),
+        body: JSON.stringify({
+          tableId,
+          ...(seatIndex !== undefined ? { seatIndex } : {}),
+        }),
       },
     ),
-  moveGuest: (eventId: string, guestId: string, tableId: string) =>
+  moveGuest: (
+    eventId: string,
+    guestId: string,
+    tableId: string,
+    seatIndex?: number,
+  ) =>
     apiFetch<DistributionProposal>(
       `/events/${eventId}/distribution/placements/${guestId}/move`,
       {
         method: 'POST',
-        body: JSON.stringify({ tableId }),
+        body: JSON.stringify({
+          tableId,
+          ...(seatIndex !== undefined ? { seatIndex } : {}),
+        }),
+      },
+    ),
+  updateGuestSeat: (eventId: string, guestId: string, seatIndex: number) =>
+    apiFetch<DistributionProposal>(
+      `/events/${eventId}/distribution/placements/${guestId}/seat`,
+      {
+        method: 'PUT',
+        body: JSON.stringify({ seatIndex }),
       },
     ),
 };

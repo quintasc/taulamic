@@ -17,5 +17,6 @@ export { ResponsiveButtonLabel } from './responsive-button-label';
 export { PreferenceOption } from './preference-option';
 export { SectionLabel } from './section-label';
 export { StatCard } from './stat-card';
+export { CustomSelect, type CustomSelectOption } from './custom-select';
 export { UploadZone } from './upload-zone';
 export { MobileHorizontalScroll } from './mobile-horizontal-scroll';

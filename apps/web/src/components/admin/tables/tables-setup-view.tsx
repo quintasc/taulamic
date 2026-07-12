@@ -177,7 +177,7 @@ export function TablesSetupView() {
           </FormField>
 
           <Button
-            className="w-full"
+            className="w-auto max-w-full whitespace-nowrap px-4"
             disabled={saving || planLocked}
             onClick={() => void saveTables()}
           >

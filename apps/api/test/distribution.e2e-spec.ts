@@ -70,16 +70,39 @@ describe('Distribution motor v0 (e2e #3)', () => {
       .expect(201);
   });
 
+  async function waitForDistributionReady(
+    eventIdToPoll: string,
+    expectedProposalId?: string,
+  ) {
+    const deadline = Date.now() + 15_000;
+    while (Date.now() < deadline) {
+      const current = await request(app.getHttpServer())
+        .get(`/api/v1/events/${eventIdToPoll}/distribution`)
+        .expect(200);
+      if (
+        (!expectedProposalId || current.body.id === expectedProposalId) &&
+        current.body.status !== 'calculating'
+      ) {
+        return current;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    throw new Error('Timeout esperando a que termine el cálculo de distribución');
+  }
+
   afterEach(async () => {
     await app.close();
     await rm(join(process.cwd(), 'uploads'), { recursive: true, force: true });
   });
 
   it('ejecuta motor v0, asigna acompanantes juntos y confirma distribucion', async () => {
-    const run = await request(app.getHttpServer())
+    const runStarted = await request(app.getHttpServer())
       .post(`/api/v1/events/${eventId}/distribution/run`)
       .set('x-taulamic-actor-role', 'admin')
       .expect(201);
+    expect(runStarted.body.status).toBe('calculating');
+
+    const run = await waitForDistributionReady(eventId, runStarted.body.id);
 
     expect(run.body).toMatchObject({
       motorVersion: 'v0-pilot',
@@ -99,11 +122,7 @@ describe('Distribution motor v0 (e2e #3)', () => {
 
     expect(ana.tableId).toBe(luis.tableId);
 
-    const fetched = await request(app.getHttpServer())
-      .get(`/api/v1/events/${eventId}/distribution`)
-      .expect(200);
-
-    expect(fetched.body.id).toBe(run.body.id);
+    expect(run.body.id).toBe(runStarted.body.id);
 
     const confirmed = await request(app.getHttpServer())
       .post(`/api/v1/events/${eventId}/distribution/confirm`)
@@ -120,11 +139,50 @@ describe('Distribution motor v0 (e2e #3)', () => {
     expect(event.body.status).toBe('plan_approved');
   });
 
-  it('rechaza recalcular tras confirmar distribucion', async () => {
-    await request(app.getHttpServer())
+  it('expone estado del job async con progreso y timestamps', async () => {
+    const runStarted = await request(app.getHttpServer())
       .post(`/api/v1/events/${eventId}/distribution/run`)
       .set('x-taulamic-actor-role', 'admin')
       .expect(201);
+
+    const statusStarted = await request(app.getHttpServer())
+      .get(`/api/v1/events/${eventId}/distribution/status`)
+      .expect(200);
+
+    expect(statusStarted.body).toMatchObject({
+      eventId,
+      proposalId: runStarted.body.id,
+    });
+    expect(
+      ['calculating', 'draft', 'failed'].includes(statusStarted.body.state),
+    ).toBe(true);
+    expect(typeof statusStarted.body.progressPercent).toBe('number');
+    expect(statusStarted.body.progressPercent).toBeGreaterThanOrEqual(0);
+    expect(statusStarted.body.progressPercent).toBeLessThanOrEqual(100);
+    expect(statusStarted.body.startedAt).toBeTruthy();
+
+    await waitForDistributionReady(eventId, runStarted.body.id);
+
+    const statusCompleted = await request(app.getHttpServer())
+      .get(`/api/v1/events/${eventId}/distribution/status`)
+      .expect(200);
+
+    expect(statusCompleted.body).toMatchObject({
+      eventId,
+      proposalId: runStarted.body.id,
+      state: 'draft',
+      phase: 'completed',
+      progressPercent: 100,
+    });
+    expect(statusCompleted.body.updatedAt).toBeTruthy();
+  });
+
+  it('rechaza recalcular tras confirmar distribucion', async () => {
+    const runStarted = await request(app.getHttpServer())
+      .post(`/api/v1/events/${eventId}/distribution/run`)
+      .set('x-taulamic-actor-role', 'admin')
+      .expect(201);
+    await waitForDistributionReady(eventId, runStarted.body.id);
 
     await request(app.getHttpServer())
       .post(`/api/v1/events/${eventId}/distribution/confirm`)
@@ -140,10 +198,11 @@ describe('Distribution motor v0 (e2e #3)', () => {
   });
 
   it('desasigna un invitado en borrador y actualiza estadisticas', async () => {
-    const run = await request(app.getHttpServer())
+    const runStarted = await request(app.getHttpServer())
       .post(`/api/v1/events/${eventId}/distribution/run`)
       .set('x-taulamic-actor-role', 'admin')
       .expect(201);
+    const run = await waitForDistributionReady(eventId, runStarted.body.id);
 
     const ana = run.body.placements.find(
       (item: { guestName: string }) => item.guestName === 'Ana Garcia',
@@ -175,10 +234,11 @@ describe('Distribution motor v0 (e2e #3)', () => {
   });
 
   it('asigna un invitado sin asignar a una mesa en borrador', async () => {
-    const run = await request(app.getHttpServer())
+    const runStarted = await request(app.getHttpServer())
       .post(`/api/v1/events/${eventId}/distribution/run`)
       .set('x-taulamic-actor-role', 'admin')
       .expect(201);
+    const run = await waitForDistributionReady(eventId, runStarted.body.id);
 
     const ana = run.body.placements.find(
       (item: { guestName: string }) => item.guestName === 'Ana Garcia',
@@ -241,10 +301,11 @@ describe('Distribution motor v0 (e2e #3)', () => {
       })
       .expect(201);
 
-    const run = await request(app.getHttpServer())
+    const runStarted = await request(app.getHttpServer())
       .post(`/api/v1/events/${eventId}/distribution/run`)
       .set('x-taulamic-actor-role', 'admin')
       .expect(201);
+    const run = await waitForDistributionReady(eventId, runStarted.body.id);
 
     const pepe = run.body.placements.find(
       (item: { guestName: string }) => item.guestName === 'Pepe Ruiz',

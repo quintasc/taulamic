@@ -13,4 +13,8 @@ export const appConfig = () => ({
   events: {
     dataDir: process.env.EVENTS_DATA_DIR ?? 'uploads/events',
   },
+  distribution: {
+    /** Motor de distribucion: 'v1' (CP-SAT ADR-023, por defecto) o 'v0' (greedy piloto). */
+    engine: process.env.DISTRIBUTION_ENGINE ?? 'v1',
+  },
 });

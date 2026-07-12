@@ -1,4 +1,4 @@
-# GitHub Project — actualización Sprint 10 (última revisión: 2026-07-02)
+# GitHub Project — actualización Sprint 10 / post-S10 (última revisión: 2026-07-12)
 
 **Project:** https://github.com/users/quintasc/projects/2
 
@@ -32,6 +32,12 @@
 | Corregir room-setup 3×3 en eventos de prueba | Desde UI, no código |
 | Refactor UI móvil fases 2–4 | `refactor-ui-mobile-admin.md` |
 | Accesorios room-setup `(x,y)` | Gate SDD |
+
+## Actualización aplicada en Project #2 (2026-07-12)
+
+| Ítem | Estado anterior | Estado actualizado | Nota |
+|------|------------------|--------------------|------|
+| [EP-03] Motor de distribución asíncrono | `Status: Todo` / `Flujo: Backlog` | `Status: Done` / `Flujo: Done` | Implementado flujo asíncrono con tracker y protección frente a cálculos estancados |
 
 ## Comandos útiles (si usas `gh`)
 

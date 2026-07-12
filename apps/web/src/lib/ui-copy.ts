@@ -17,6 +17,7 @@ export const UI_COPY = {
   distribution: {
     calculate: { short: 'Calcular', full: 'Calcular distribución' },
     confirm: { short: 'Confirmar', full: 'Confirmar distribución' },
+    downloadReport: { short: 'Descargar PDF', full: 'Descargar informe PDF' },
     viewFloorPlan: { short: 'Ver mesas', full: 'Ver mesas en plano' },
     comparadorTopK: 'Comparador Top-K — próximamente',
     emptyStateDescription:
@@ -24,8 +25,11 @@ export const UI_COPY = {
     calculating: 'Calculando…',
     recalculating: 'Recalculando…',
     confirming: 'Confirmando…',
-    pilotAffinityLabel: 'No calculado en piloto',
+    downloadingReport: 'Generando PDF…',
+    pilotAffinityLabel: 'Según reglas activas en Afinidades',
     pilotAffinityShort: 'N/D piloto',
+    tableAffinityColumnTitle:
+      'Compatibilidad de la mesa según las reglas activas (categoría, vínculos, proximidad…)',
   },
   pilot: {
     collaborativeConfigNote:
@@ -35,6 +39,7 @@ export const UI_COPY = {
   },
   guestPill: {
     dragTitle: 'Arrastra para mover a otra mesa',
+    moveTitle: 'Mover a otra mesa o silla',
     removeTitle: 'Quitar de la mesa',
   },
 } as const;

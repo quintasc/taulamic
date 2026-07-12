@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { dirname, isAbsolute, join } from 'node:path';
 import type { DistributionProposal } from '../../domain/distribution.types';
 import { stripManualWarnings } from '../../domain/companion-separation-warning';
@@ -25,9 +25,11 @@ export class FileDistributionRepository implements DistributionRepositoryPort {
 
   async save(proposal: DistributionProposal): Promise<DistributionProposal> {
     const path = this.storePath(proposal.eventId);
+    const tmpPath = `${path}.tmp-${process.pid}-${Date.now()}`;
     const persisted = stripManualWarnings(proposal);
     await mkdir(dirname(path), { recursive: true });
-    await writeFile(path, JSON.stringify(persisted, null, 2), 'utf8');
+    await writeFile(tmpPath, JSON.stringify(persisted, null, 2), 'utf8');
+    await rename(tmpPath, path);
     return persisted;
   }
 

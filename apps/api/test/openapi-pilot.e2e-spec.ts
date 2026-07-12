@@ -61,7 +61,7 @@ describe('OpenAPI piloto (e2e #9)', () => {
     await request(app.getHttpServer()).get(`/${OPENAPI_UI_PATH}`).expect(200);
   });
 
-  it('documenta motor v0 con motorVersion en el esquema de distribucion', async () => {
+  it('documenta motorVersion en el esquema de distribucion', async () => {
     const spec = await request(app.getHttpServer())
       .get(OPENAPI_JSON_PATH)
       .expect(200);
@@ -71,7 +71,7 @@ describe('OpenAPI piloto (e2e #9)', () => {
 
     expect(distributionSchema).toBeDefined();
     expect(distributionSchema.properties.motorVersion).toMatchObject({
-      example: 'v0-pilot',
+      example: 'v1-cpsat',
     });
   });
 });

@@ -1,5 +1,4 @@
 import type { EventTable } from '../../events/domain/event-config';
-import { buildCompanionGroups } from '../../guest-import/domain/companion-group.engine';
 import type { Guest } from '../../guest-import/domain/guest';
 import {
   MOTOR_VERSION_V0_PILOT,
@@ -8,6 +7,11 @@ import {
   type GuestPlacement,
   type HardRuleViolation,
 } from './distribution.types';
+import {
+  buildPlacementUnits,
+  hasCrossIncompatibility,
+  hasInternalIncompatibility,
+} from './placement-units';
 
 export type MotorV0Input = {
   eventId: string;
@@ -25,11 +29,6 @@ export type MotorV0Result = Pick<
   | 'stats'
   | 'motorVersion'
 >;
-
-type PlacementUnit = {
-  guestIds: string[];
-  keepTogether: boolean;
-};
 
 type TableState = {
   tableId: string;
@@ -132,37 +131,6 @@ export function runMotorV0(input: MotorV0Input): MotorV0Result {
   };
 }
 
-function buildPlacementUnits(guests: Guest[]): PlacementUnit[] {
-  const groups = buildCompanionGroups(guests);
-  const groupedGuestIds = new Set<string>();
-  const units: PlacementUnit[] = [];
-
-  for (const group of groups) {
-    for (const guestId of group.guestIds) {
-      groupedGuestIds.add(guestId);
-    }
-
-    if (group.keepTogether) {
-      units.push({ guestIds: group.guestIds, keepTogether: true });
-      continue;
-    }
-
-    for (const guestId of group.guestIds) {
-      units.push({ guestIds: [guestId], keepTogether: false });
-    }
-  }
-
-  for (const guest of guests) {
-    if (!groupedGuestIds.has(guest.id)) {
-      units.push({ guestIds: [guest.id], keepTogether: false });
-    }
-  }
-
-  return units.sort(
-    (left, right) => right.guestIds.length - left.guestIds.length,
-  );
-}
-
 function placeUnit(
   members: Guest[],
   tableStates: TableState[],
@@ -196,63 +164,6 @@ function placeUnit(
   }
 
   return null;
-}
-
-function hasInternalIncompatibility(members: Guest[]): boolean {
-  for (let left = 0; left < members.length; left += 1) {
-    for (let right = left + 1; right < members.length; right += 1) {
-      if (areIncompatible(members[left], members[right])) {
-        return true;
-      }
-    }
-  }
-
-  return false;
-}
-
-function hasCrossIncompatibility(
-  incoming: Guest[],
-  tablemates: Guest[],
-): boolean {
-  for (const guest of incoming) {
-    for (const tablemate of tablemates) {
-      if (areIncompatible(guest, tablemate)) {
-        return true;
-      }
-    }
-  }
-
-  return false;
-}
-
-function areIncompatible(left: Guest, right: Guest): boolean {
-  return (
-    hasIncompatibilityToward(left, right.nombre) ||
-    hasIncompatibilityToward(right, left.nombre)
-  );
-}
-
-function hasIncompatibilityToward(from: Guest, targetName: string): boolean {
-  return from.restrictions.some(
-    (restriction) =>
-      restriction.kind === 'incompatibilidad' &&
-      restriction.targetHint !== null &&
-      namesMatch(targetName, restriction.targetHint),
-  );
-}
-
-function namesMatch(guestName: string, targetHint: string): boolean {
-  const normalizedGuest = normalizeName(guestName);
-  const normalizedTarget = normalizeName(targetHint);
-
-  return (
-    normalizedGuest.includes(normalizedTarget) ||
-    normalizedTarget.includes(normalizedGuest)
-  );
-}
-
-function normalizeName(value: string): string {
-  return value.trim().toLowerCase();
 }
 
 function buildStats(

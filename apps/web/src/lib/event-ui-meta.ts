@@ -42,6 +42,12 @@ export type EventUiMeta = {
     guestB: string;
     type: 'afinidad' | 'incompatibilidad';
   }>;
+  categoryAffinityRelations?: Array<{
+    id: string;
+    categoryA: string;
+    categoryB: string;
+    type: 'afinidad' | 'incompatibilidad';
+  }>;
   /** @deprecated Sustituido por approximateGuestCount. */
   tableCount?: string;
 };
@@ -132,6 +138,33 @@ export function markFloorPlanUploaded(eventId: string) {
 export function markAffinitiesDraftSaved(eventId: string) {
   const meta = loadEventUiMeta(eventId);
   saveEventUiMeta(eventId, { ...meta, affinitiesDraftSaved: true });
+}
+
+const AFFINITY_RULE_KEYS: Array<keyof AffinityRuleToggles> = [
+  'groupByCategory',
+  'keepFamiliesTogether',
+  'singlesTable',
+  'separateKnownIncompatibles',
+  'groupByAge',
+  'alternateGender',
+];
+
+/**
+ * Reglas genéricas activas en su orden de prioridad (pantalla Afinidades).
+ * La posición define la prioridad para el motor (1 domina a 2, etc.).
+ */
+export function getActiveAffinityRulesOrdered(eventId: string): string[] {
+  const meta = loadEventUiMeta(eventId);
+  const toggles = meta.affinityRules ?? {};
+  const savedOrder = (meta.affinityRulesOrder ?? []).filter(
+    (key): key is keyof AffinityRuleToggles =>
+      AFFINITY_RULE_KEYS.includes(key as keyof AffinityRuleToggles),
+  );
+  const order = [
+    ...savedOrder,
+    ...AFFINITY_RULE_KEYS.filter((key) => !savedOrder.includes(key)),
+  ];
+  return order.filter((key) => Boolean(toggles[key]));
 }
 
 function formatEventDate(iso: string): string {

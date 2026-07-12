@@ -309,7 +309,9 @@ export function FloorPlanSetupView({
         action={
           <Link
             href={routes.floorPlanLayout}
-            className="btn-secondary"
+            className={`btn-secondary whitespace-nowrap ${
+              hasDistribution ? '' : 'hidden lg:inline-flex'
+            }`}
             aria-label={DISTRIBUTION_COPY.viewFloorPlan.full}
           >
             <ResponsiveButtonLabel

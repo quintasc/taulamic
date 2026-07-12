@@ -1,0 +1,374 @@
+{
+  "wasmWarmupMs": 1610,
+  "scenarios": {
+    "pequeno": {
+      "timeBudgetMs": 3000,
+      "guestCounts": [
+        51,
+        57,
+        59,
+        32,
+        40
+      ],
+      "v0": {
+        "runs": 5,
+        "assignedPct": 100,
+        "refereeViolations": 0,
+        "p50Ms": 0.49,
+        "p95Ms": 6.49,
+        "maxMs": 6.49,
+        "statuses": [
+          "n/a"
+        ]
+      },
+      "cpsat": {
+        "runs": 5,
+        "assignedPct": 100,
+        "refereeViolations": 0,
+        "p50Ms": 721.79,
+        "p95Ms": 940.54,
+        "maxMs": 940.54,
+        "statuses": [
+          "OPTIMAL"
+        ]
+      },
+      "detail": {
+        "v0": [
+          {
+            "seed": 1,
+            "guestCount": 51,
+            "elapsedMs": 6.49,
+            "assigned": 51,
+            "total": 51,
+            "violations": []
+          },
+          {
+            "seed": 2,
+            "guestCount": 57,
+            "elapsedMs": 0.49,
+            "assigned": 57,
+            "total": 57,
+            "violations": []
+          },
+          {
+            "seed": 3,
+            "guestCount": 59,
+            "elapsedMs": 2.5,
+            "assigned": 59,
+            "total": 59,
+            "violations": []
+          },
+          {
+            "seed": 4,
+            "guestCount": 32,
+            "elapsedMs": 0.26,
+            "assigned": 32,
+            "total": 32,
+            "violations": []
+          },
+          {
+            "seed": 5,
+            "guestCount": 40,
+            "elapsedMs": 0.2,
+            "assigned": 40,
+            "total": 40,
+            "violations": []
+          }
+        ],
+        "cpsat": [
+          {
+            "seed": 1,
+            "guestCount": 51,
+            "elapsedMs": 721.79,
+            "assigned": 51,
+            "total": 51,
+            "violations": [],
+            "solverStatus": "OPTIMAL"
+          },
+          {
+            "seed": 2,
+            "guestCount": 57,
+            "elapsedMs": 940.54,
+            "assigned": 57,
+            "total": 57,
+            "violations": [],
+            "solverStatus": "OPTIMAL"
+          },
+          {
+            "seed": 3,
+            "guestCount": 59,
+            "elapsedMs": 740.59,
+            "assigned": 59,
+            "total": 59,
+            "violations": [],
+            "solverStatus": "OPTIMAL"
+          },
+          {
+            "seed": 4,
+            "guestCount": 32,
+            "elapsedMs": 295.44,
+            "assigned": 32,
+            "total": 32,
+            "violations": [],
+            "solverStatus": "OPTIMAL"
+          },
+          {
+            "seed": 5,
+            "guestCount": 40,
+            "elapsedMs": 342.63,
+            "assigned": 40,
+            "total": 40,
+            "violations": [],
+            "solverStatus": "OPTIMAL"
+          }
+        ]
+      }
+    },
+    "medio": {
+      "timeBudgetMs": 8000,
+      "guestCounts": [
+        115,
+        130,
+        137,
+        67,
+        86
+      ],
+      "v0": {
+        "runs": 5,
+        "assignedPct": 100,
+        "refereeViolations": 0,
+        "p50Ms": 0.37,
+        "p95Ms": 4.6,
+        "maxMs": 4.6,
+        "statuses": [
+          "n/a"
+        ]
+      },
+      "cpsat": {
+        "runs": 5,
+        "assignedPct": 100,
+        "refereeViolations": 0,
+        "p50Ms": 835.04,
+        "p95Ms": 1104.39,
+        "maxMs": 1104.39,
+        "statuses": [
+          "OPTIMAL"
+        ]
+      },
+      "detail": {
+        "v0": [
+          {
+            "seed": 1,
+            "guestCount": 115,
+            "elapsedMs": 0.63,
+            "assigned": 115,
+            "total": 115,
+            "violations": []
+          },
+          {
+            "seed": 2,
+            "guestCount": 130,
+            "elapsedMs": 4.6,
+            "assigned": 130,
+            "total": 130,
+            "violations": []
+          },
+          {
+            "seed": 3,
+            "guestCount": 137,
+            "elapsedMs": 0.37,
+            "assigned": 137,
+            "total": 137,
+            "violations": []
+          },
+          {
+            "seed": 4,
+            "guestCount": 67,
+            "elapsedMs": 0.27,
+            "assigned": 67,
+            "total": 67,
+            "violations": []
+          },
+          {
+            "seed": 5,
+            "guestCount": 86,
+            "elapsedMs": 0.27,
+            "assigned": 86,
+            "total": 86,
+            "violations": []
+          }
+        ],
+        "cpsat": [
+          {
+            "seed": 1,
+            "guestCount": 115,
+            "elapsedMs": 940.89,
+            "assigned": 115,
+            "total": 115,
+            "violations": [],
+            "solverStatus": "OPTIMAL"
+          },
+          {
+            "seed": 2,
+            "guestCount": 130,
+            "elapsedMs": 1104.39,
+            "assigned": 130,
+            "total": 130,
+            "violations": [],
+            "solverStatus": "OPTIMAL"
+          },
+          {
+            "seed": 3,
+            "guestCount": 137,
+            "elapsedMs": 835.04,
+            "assigned": 137,
+            "total": 137,
+            "violations": [],
+            "solverStatus": "OPTIMAL"
+          },
+          {
+            "seed": 4,
+            "guestCount": 67,
+            "elapsedMs": 247.8,
+            "assigned": 67,
+            "total": 67,
+            "violations": [],
+            "solverStatus": "OPTIMAL"
+          },
+          {
+            "seed": 5,
+            "guestCount": 86,
+            "elapsedMs": 473.12,
+            "assigned": 86,
+            "total": 86,
+            "violations": [],
+            "solverStatus": "OPTIMAL"
+          }
+        ]
+      }
+    },
+    "grande": {
+      "timeBudgetMs": 20000,
+      "guestCounts": [
+        251,
+        280,
+        293,
+        154,
+        193
+      ],
+      "v0": {
+        "runs": 5,
+        "assignedPct": 100,
+        "refereeViolations": 0,
+        "p50Ms": 0.58,
+        "p95Ms": 1.43,
+        "maxMs": 1.43,
+        "statuses": [
+          "n/a"
+        ]
+      },
+      "cpsat": {
+        "runs": 5,
+        "assignedPct": 100,
+        "refereeViolations": 0,
+        "p50Ms": 2891.6,
+        "p95Ms": 3625.72,
+        "maxMs": 3625.72,
+        "statuses": [
+          "OPTIMAL"
+        ]
+      },
+      "detail": {
+        "v0": [
+          {
+            "seed": 1,
+            "guestCount": 251,
+            "elapsedMs": 0.58,
+            "assigned": 251,
+            "total": 251,
+            "violations": []
+          },
+          {
+            "seed": 2,
+            "guestCount": 280,
+            "elapsedMs": 1.43,
+            "assigned": 280,
+            "total": 280,
+            "violations": []
+          },
+          {
+            "seed": 3,
+            "guestCount": 293,
+            "elapsedMs": 0.67,
+            "assigned": 293,
+            "total": 293,
+            "violations": []
+          },
+          {
+            "seed": 4,
+            "guestCount": 154,
+            "elapsedMs": 0.39,
+            "assigned": 154,
+            "total": 154,
+            "violations": []
+          },
+          {
+            "seed": 5,
+            "guestCount": 193,
+            "elapsedMs": 0.35,
+            "assigned": 193,
+            "total": 193,
+            "violations": []
+          }
+        ],
+        "cpsat": [
+          {
+            "seed": 1,
+            "guestCount": 251,
+            "elapsedMs": 2891.6,
+            "assigned": 251,
+            "total": 251,
+            "violations": [],
+            "solverStatus": "OPTIMAL"
+          },
+          {
+            "seed": 2,
+            "guestCount": 280,
+            "elapsedMs": 3625.72,
+            "assigned": 280,
+            "total": 280,
+            "violations": [],
+            "solverStatus": "OPTIMAL"
+          },
+          {
+            "seed": 3,
+            "guestCount": 293,
+            "elapsedMs": 3613.55,
+            "assigned": 293,
+            "total": 293,
+            "violations": [],
+            "solverStatus": "OPTIMAL"
+          },
+          {
+            "seed": 4,
+            "guestCount": 154,
+            "elapsedMs": 963.12,
+            "assigned": 154,
+            "total": 154,
+            "violations": [],
+            "solverStatus": "OPTIMAL"
+          },
+          {
+            "seed": 5,
+            "guestCount": 193,
+            "elapsedMs": 1416.86,
+            "assigned": 193,
+            "total": 193,
+            "violations": [],
+            "solverStatus": "OPTIMAL"
+          }
+        ]
+      }
+    }
+  }
+}

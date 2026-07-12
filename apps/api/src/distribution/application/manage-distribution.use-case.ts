@@ -18,11 +18,30 @@ import {
   type GuestRepositoryPort,
 } from '../../guest-import/infrastructure/persistence/guest.repository.port';
 import type { DistributionProposal } from '../domain/distribution.types';
-import { runMotorV0 } from '../domain/motor-v0.engine';
+import { attachCompatibilityScore } from '../domain/evaluate-distribution-score';
+import {
+  type CategoryAffinityMatrix,
+  DISTRIBUTION_ENGINE,
+  type DistributionEngine,
+  type DistributionEngineInput,
+  type ExplicitCategoryAffinityRelation,
+  type SoftRuleKind,
+} from '../domain/distribution-engine.port';
+import { prepareDistributionMotorInput } from '../domain/prepare-distribution-motor-input';
+import { RunDistributionAsyncService } from './run-distribution-async.service';
 import {
   DISTRIBUTION_REPOSITORY,
   type DistributionRepositoryPort,
 } from '../infrastructure/persistence/distribution.repository.port';
+
+const CALCULATING_STALE_MS = 4 * 60_000;
+const CATEGORY_AFFINITY_RELATION_WEIGHT: Record<
+  ExplicitCategoryAffinityRelation['type'],
+  number
+> = {
+  afinidad: 5_000,
+  incompatibilidad: -10_000,
+};
 
 @Injectable()
 export class RunDistributionUseCase {
@@ -33,12 +52,18 @@ export class RunDistributionUseCase {
     private readonly guestRepository: GuestRepositoryPort,
     @Inject(DISTRIBUTION_REPOSITORY)
     private readonly distributionRepository: DistributionRepositoryPort,
+    @Inject(DISTRIBUTION_ENGINE)
+    private readonly distributionEngine: DistributionEngine,
+    private readonly runDistributionAsyncService: RunDistributionAsyncService,
     private readonly assertAdminActorUseCase: AssertAdminActorUseCase,
   ) {}
 
   async execute(
     eventId: string,
     actorRole: ActorRole,
+    softRules?: SoftRuleKind[],
+    explicitAffinityRelations?: DistributionEngineInput['explicitAffinityRelations'],
+    categoryAffinityRelations?: ExplicitCategoryAffinityRelation[],
   ): Promise<DistributionProposal> {
     this.assertAdminActorUseCase.execute(actorRole);
     const event = await this.requireEvent(eventId);
@@ -73,6 +98,16 @@ export class RunDistributionUseCase {
       });
     }
 
+    if (existing?.status === 'calculating') {
+      const startedAtMs = Date.parse(existing.createdAt);
+      const isStale =
+        Number.isFinite(startedAtMs) &&
+        Date.now() - startedAtMs > CALCULATING_STALE_MS;
+      if (!isStale) {
+        return existing;
+      }
+    }
+
     const totalCapacity = event.tables.reduce(
       (sum, table) => sum + table.capacity,
       0,
@@ -87,28 +122,44 @@ export class RunDistributionUseCase {
 
     const createdAt = new Date().toISOString();
     const proposalId = `dist_${randomUUID()}`;
-    const motorResult = runMotorV0({
-      eventId,
-      proposalId,
-      tables: event.tables,
+    const prepared = prepareDistributionMotorInput(
       guests,
-      createdAt,
-    });
-
+      softRules,
+      explicitAffinityRelations,
+    );
+    const categoryAffinityMatrix = buildCategoryAffinityMatrix(
+      categoryAffinityRelations,
+    );
     const proposal: DistributionProposal = {
       id: proposalId,
       eventId,
-      motorVersion: motorResult.motorVersion,
-      status: 'draft',
-      placements: motorResult.placements,
-      unassignedGuestIds: motorResult.unassignedGuestIds,
-      hardRuleViolations: motorResult.hardRuleViolations,
-      stats: motorResult.stats,
+      motorVersion: this.distributionEngine.motorVersion,
+      status: 'calculating',
+      placements: [],
+      unassignedGuestIds: guests.map((guest) => guest.id),
+      hardRuleViolations: [],
+      stats: {
+        assignedCount: 0,
+        unassignedCount: guests.length,
+        tableCount: event.tables.length,
+        totalCapacity,
+      },
       createdAt,
       confirmedAt: null,
+      appliedSoftRules: prepared.softRules,
     };
-
-    return this.distributionRepository.save(proposal);
+    await this.distributionRepository.save(proposal);
+    this.runDistributionAsyncService.schedule({
+      eventId,
+      proposalId,
+      createdAt,
+      tables: event.tables,
+      guests,
+      softRules: prepared.softRules,
+      explicitAffinityRelations: prepared.explicitAffinityRelations,
+      categoryAffinityMatrix,
+    });
+    return proposal;
   }
 
   private async requireEvent(eventId: string): Promise<EventConfig> {
@@ -136,17 +187,60 @@ export class RunDistributionUseCase {
   }
 }
 
+function buildCategoryAffinityMatrix(
+  relations?: ExplicitCategoryAffinityRelation[],
+): CategoryAffinityMatrix | undefined {
+  if (!relations || relations.length === 0) {
+    return undefined;
+  }
+
+  const matrix: Record<string, Record<string, number>> = {};
+  for (const relation of relations) {
+    const categoryA = normalizeCategoryName(relation.categoryA);
+    const categoryB = normalizeCategoryName(relation.categoryB);
+    if (categoryA.length === 0 || categoryB.length === 0) {
+      continue;
+    }
+    if (categoryA.toLowerCase() === categoryB.toLowerCase()) {
+      continue;
+    }
+
+    const weight = CATEGORY_AFFINITY_RELATION_WEIGHT[relation.type];
+    setCategoryAffinityWeight(matrix, categoryA, categoryB, weight);
+  }
+
+  return Object.keys(matrix).length > 0 ? matrix : undefined;
+}
+
+function normalizeCategoryName(value: string): string {
+  return value.trim();
+}
+
+function setCategoryAffinityWeight(
+  matrix: Record<string, Record<string, number>>,
+  leftCategory: string,
+  rightCategory: string,
+  weight: number,
+): void {
+  matrix[leftCategory] ??= {};
+  matrix[rightCategory] ??= {};
+  matrix[leftCategory][rightCategory] = weight;
+  matrix[rightCategory][leftCategory] = weight;
+}
+
 @Injectable()
 export class GetDistributionUseCase {
   constructor(
     @Inject(EVENT_CONFIG_REPOSITORY)
     private readonly eventRepository: EventConfigRepositoryPort,
+    @Inject(GUEST_REPOSITORY)
+    private readonly guestRepository: GuestRepositoryPort,
     @Inject(DISTRIBUTION_REPOSITORY)
     private readonly distributionRepository: DistributionRepositoryPort,
   ) {}
 
   async execute(eventId: string): Promise<DistributionProposal> {
-    await this.requireEvent(eventId);
+    const event = await this.requireEvent(eventId);
 
     const proposal =
       await this.distributionRepository.findLatestByEventId(eventId);
@@ -159,7 +253,12 @@ export class GetDistributionUseCase {
       });
     }
 
-    return proposal;
+    if (proposal.status === 'calculating') {
+      return proposal;
+    }
+
+    const guests = await this.guestRepository.listGuests(eventId);
+    return attachCompatibilityScore(proposal, guests, event.tables);
   }
 
   private async requireEvent(eventId: string): Promise<EventConfig> {
@@ -209,6 +308,14 @@ export class ConfirmDistributionUseCase {
       throw new ConflictException({
         code: 'DISTRIBUTION_ALREADY_CONFIRMED',
         message: 'La distribucion ya estaba confirmada.',
+      });
+    }
+
+    if (proposal.status === 'calculating') {
+      throw new ConflictException({
+        code: 'DISTRIBUTION_CALCULATING',
+        message:
+          'La distribución sigue calculándose en segundo plano. Espera a que termine para confirmar.',
       });
     }
 

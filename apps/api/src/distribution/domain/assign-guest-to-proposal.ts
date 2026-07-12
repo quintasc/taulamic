@@ -1,6 +1,8 @@
 import type { EventTable } from '../../events/domain/event-config';
 import type { Guest } from '../../guest-import/domain/guest';
+import type { SoftRuleKind } from './distribution-engine.port';
 import type { DistributionProposal } from './distribution.types';
+import { wouldCreateAvoidableCategoryOrphan } from './category-grouping';
 
 export class AssignGuestError extends Error {
   constructor(
@@ -10,7 +12,8 @@ export class AssignGuestError extends Error {
       | 'GUEST_ALREADY_ASSIGNED'
       | 'TABLE_NOT_FOUND'
       | 'TABLE_FULL'
-      | 'INCOMPATIBLE_TABLEMATE',
+      | 'INCOMPATIBLE_TABLEMATE'
+      | 'CATEGORY_ORPHAN_AVOIDABLE',
     message: string,
   ) {
     super(message);
@@ -21,8 +24,10 @@ export class AssignGuestError extends Error {
 export type AssignGuestToProposalInput = {
   guestId: string;
   tableId: string;
+  seatIndex?: number;
   guests: Guest[];
   tables: EventTable[];
+  softRules?: SoftRuleKind[];
 };
 
 export function assignGuestToProposal(
@@ -80,6 +85,7 @@ export function assignGuestToProposal(
   }
 
   assertIncompatibilityRule(proposal, guest, input.guests, input.tableId);
+  assertCategoryGroupingRule(proposal, guest, input);
 
   const placements = [
     ...proposal.placements,
@@ -88,6 +94,12 @@ export function assignGuestToProposal(
       guestName: guest.nombre,
       tableId: table.id,
       tableLabel: table.label,
+      ...(input.seatIndex !== undefined
+        ? {
+            seatIndex: input.seatIndex,
+            seatLabel: `S${input.seatIndex + 1}`,
+          }
+        : {}),
     },
   ];
   const unassignedGuestIds = proposal.unassignedGuestIds.filter(
@@ -104,6 +116,31 @@ export function assignGuestToProposal(
       unassignedCount: unassignedGuestIds.length,
     },
   };
+}
+
+function assertCategoryGroupingRule(
+  proposal: DistributionProposal,
+  guest: Guest,
+  input: AssignGuestToProposalInput,
+): void {
+  if (!input.softRules?.includes('groupByCategory')) {
+    return;
+  }
+
+  if (
+    wouldCreateAvoidableCategoryOrphan(
+      proposal,
+      guest,
+      input.tableId,
+      input.guests,
+      input.tables,
+    )
+  ) {
+    throw new AssignGuestError(
+      'CATEGORY_ORPHAN_AVOIDABLE',
+      'No puedes dejar a este invitado como único de su categoría en la mesa cuando hay otra mesa factible con compañeros de su grupo.',
+    );
+  }
 }
 
 function assertIncompatibilityRule(

@@ -10,7 +10,7 @@ import { Alert } from '@/components/ui';
 import { ApiError, distributionApi, eventsApi, guestsApi, type DistributionProposal, type GuestView } from '@/lib/api';
 import { buildDistributionTableGroups, buildUnassignedGuestOptions } from '@/lib/distribution-view';
 import { notifyDistributionChanged } from '@/lib/distribution-events';
-import { applyDistributionMutationResult } from '@/lib/distribution-mutation-feedback';
+import { applyDistributionMutationResult, syncProposalAfterMutation } from '@/lib/distribution-mutation-feedback';
 import {
   DEFAULT_FLOOR_PLAN_SETUP,
   loadFloorPlanSetup,
@@ -115,11 +115,12 @@ export default function FloorPlanLayoutPage() {
     setMutationError(null);
     try {
       const result = await distributionApi.unassignGuest(params.eventId, guestId);
+      const synced = await syncProposalAfterMutation(params.eventId, result);
       applyDistributionMutationResult(
         setProposal,
         setMutationWarning,
         setMutationError,
-        result,
+        synced,
       );
       notifyDistributionChanged(params.eventId);
     } catch (err) {
@@ -134,7 +135,11 @@ export default function FloorPlanLayoutPage() {
     }
   }
 
-  async function assignGuest(tableId: string, guestId: string) {
+  async function assignGuest(
+    tableId: string,
+    guestId: string,
+    seatIndex?: number,
+  ) {
     setAssigningGuestId(guestId);
     setMutationError(null);
     try {
@@ -142,12 +147,14 @@ export default function FloorPlanLayoutPage() {
         params.eventId,
         guestId,
         tableId,
+        seatIndex,
       );
+      const synced = await syncProposalAfterMutation(params.eventId, result);
       applyDistributionMutationResult(
         setProposal,
         setMutationWarning,
         setMutationError,
-        result,
+        synced,
       );
       notifyDistributionChanged(params.eventId);
     } catch (err) {
@@ -162,7 +169,11 @@ export default function FloorPlanLayoutPage() {
     }
   }
 
-  async function moveGuest(guestId: string, tableId: string) {
+  async function moveGuest(
+    guestId: string,
+    tableId: string,
+    seatIndex?: number,
+  ) {
     setMovingGuestId(guestId);
     setMutationError(null);
     try {
@@ -170,12 +181,14 @@ export default function FloorPlanLayoutPage() {
         params.eventId,
         guestId,
         tableId,
+        seatIndex,
       );
+      const synced = await syncProposalAfterMutation(params.eventId, result);
       applyDistributionMutationResult(
         setProposal,
         setMutationWarning,
         setMutationError,
-        result,
+        synced,
       );
       notifyDistributionChanged(params.eventId);
     } catch (err) {
@@ -184,6 +197,35 @@ export default function FloorPlanLayoutPage() {
         err instanceof ApiError
           ? err.message
           : 'No se pudo mover el invitado a la mesa.',
+      );
+    } finally {
+      setMovingGuestId(null);
+    }
+  }
+
+  async function updateGuestSeat(guestId: string, seatIndex: number) {
+    setMovingGuestId(guestId);
+    setMutationError(null);
+    try {
+      const result = await distributionApi.updateGuestSeat(
+        params.eventId,
+        guestId,
+        seatIndex,
+      );
+      const synced = await syncProposalAfterMutation(params.eventId, result);
+      applyDistributionMutationResult(
+        setProposal,
+        setMutationWarning,
+        setMutationError,
+        synced,
+      );
+      notifyDistributionChanged(params.eventId);
+    } catch (err) {
+      setMutationWarning(null);
+      setMutationError(
+        err instanceof ApiError
+          ? err.message
+          : 'No se pudo cambiar el asiento del invitado.',
       );
     } finally {
       setMovingGuestId(null);
@@ -209,6 +251,7 @@ export default function FloorPlanLayoutPage() {
   return (
     <FloorPlanLayoutView
       eventId={params.eventId}
+      proposal={proposal}
       tableGroups={tableGroups}
       roomSetup={roomSetup}
       distributionHref={routes.distribution}
@@ -219,8 +262,15 @@ export default function FloorPlanLayoutPage() {
       movingGuestId={movingGuestId}
       unassignedGuests={unassignedGuests}
       onUnassignGuest={(guestId) => void unassignGuest(guestId)}
-      onAssignGuest={(tableId, guestId) => assignGuest(tableId, guestId)}
-      onMoveGuest={(guestId, tableId) => moveGuest(guestId, tableId)}
+      onAssignGuest={(tableId, guestId, seatIndex) =>
+        assignGuest(tableId, guestId, seatIndex)
+      }
+      onMoveGuest={(guestId, tableId, seatIndex) =>
+        moveGuest(guestId, tableId, seatIndex)
+      }
+      onUpdateGuestSeat={(guestId, seatIndex) =>
+        updateGuestSeat(guestId, seatIndex)
+      }
       mutationError={mutationError}
       mutationWarning={mutationWarning}
     />

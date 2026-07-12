@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useRef, useState, type DragEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent } from 'react';
 import { IconStar } from '@/components/icons';
 import { GuestPill } from '@/components/admin/distribution/guest-pill';
 import { GuestPointerDragLayer } from '@/components/admin/distribution/guest-pointer-drag-layer';
@@ -23,6 +23,12 @@ import {
   getActiveGuestDrag,
 } from '@/lib/distribution-dnd';
 import { wasGuestPointerDragRecent } from '@/lib/guest-pointer-drag';
+import {
+  chairIdToSeatIndex,
+  chairMappingsFromProposal,
+  buildOccupiedChairsForTable,
+} from '@/lib/guest-chair-mappings';
+import type { DistributionProposal } from '@/lib/api';
 import {
   filterChipClass,
   filterChipCountClass,
@@ -242,46 +248,16 @@ function TableGuestsPanel({
   presidentialChairs: Set<string>;
   setPresidentialChairs: React.Dispatch<React.SetStateAction<Set<string>>>;
 }) {
-  const occupiedChairs = useMemo(() => {
-    const guestsAtTable = group.guests.filter((g) => g.guestId);
-    const capacity = group.capacity;
-    const nextMappings = { ...chairMappings };
-    let changed = false;
-    
-    const occupied: Record<string, typeof group.guests[0]> = {};
-    const unassigned: typeof group.guests = [];
-    
-    guestsAtTable.forEach((g) => {
-      const chair = nextMappings[g.guestId];
-      if (chair && chair.startsWith('S')) {
-        const num = Number.parseInt(chair.slice(1), 10);
-        if (num >= 1 && num <= capacity && !occupied[chair]) {
-          occupied[chair] = g;
-          return;
-        }
-      }
-      unassigned.push(g);
-    });
-    
-    unassigned.forEach((g) => {
-      for (let s = 1; s <= capacity; s++) {
-        const chair = `S${s}`;
-        if (!occupied[chair]) {
-          occupied[chair] = g;
-          nextMappings[g.guestId] = chair;
-          changed = true;
-          break;
-        }
-      }
-    });
-    
-    if (changed) {
-      localStorage.setItem(`taulamic:guestChairs:${eventId}`, JSON.stringify(nextMappings));
-      setTimeout(() => setChairMappings(nextMappings), 0);
-    }
-    
-    return occupied;
-  }, [group.guests, group.capacity, chairMappings, eventId, setChairMappings]);
+  const renderSeatCapacity = Math.max(group.capacity, group.assignedCount);
+  const occupiedChairs = useMemo(
+    () =>
+      buildOccupiedChairsForTable(
+        renderSeatCapacity,
+        group.guests.filter((guest) => guest.guestId),
+        chairMappings,
+      ),
+    [renderSeatCapacity, group.guests, chairMappings],
+  );
   return (
     <div
       className={`card-admin shadow-lg ${compact ? 'border-primary-500/30 bg-neutral-0' : ''}`}
@@ -328,7 +304,7 @@ function TableGuestsPanel({
           Distribución de Sillas
         </h3>
         <div className="flex flex-col gap-2">
-          {Array.from({ length: group.capacity }).map((_, idx) => {
+          {Array.from({ length: renderSeatCapacity }).map((_, idx) => {
             const chairId = `S${idx + 1}`;
             const occupant = occupiedChairs[chairId];
             const presidentialKey = `${group.tableId}:${chairId}`;
@@ -488,6 +464,7 @@ function FilterChip({
 
 export function FloorPlanLayoutView({
   eventId,
+  proposal = null,
   tableGroups,
   roomSetup,
   distributionHref,
@@ -500,10 +477,12 @@ export function FloorPlanLayoutView({
   onUnassignGuest,
   onAssignGuest,
   onMoveGuest,
+  onUpdateGuestSeat,
   mutationError = null,
   mutationWarning = null,
 }: {
   eventId: string;
+  proposal?: DistributionProposal | null;
   tableGroups: DistributionTableGroup[];
   roomSetup: FloorPlanSetup;
   distributionHref: string;
@@ -514,8 +493,17 @@ export function FloorPlanLayoutView({
   movingGuestId?: string | null;
   unassignedGuests?: UnassignedGuestOption[];
   onUnassignGuest?: (guestId: string) => void;
-  onAssignGuest?: (tableId: string, guestId: string) => void | Promise<void>;
-  onMoveGuest?: (guestId: string, targetTableId: string) => void | Promise<void>;
+  onAssignGuest?: (
+    tableId: string,
+    guestId: string,
+    seatIndex?: number,
+  ) => void | Promise<void>;
+  onMoveGuest?: (
+    guestId: string,
+    targetTableId: string,
+    seatIndex?: number,
+  ) => void | Promise<void>;
+  onUpdateGuestSeat?: (guestId: string, seatIndex: number) => void | Promise<void>;
   mutationError?: string | null;
   mutationWarning?: string | null;
 }) {
@@ -528,7 +516,35 @@ export function FloorPlanLayoutView({
   const [assignOpen, setAssignOpen] = useState(false);
   const [draggingGuestId, setDraggingGuestId] = useState<string | null>(null);
   const [customPositions, setCustomPositions] = useState<Record<string, { x: number; y: number }>>({});
-  const [chairMappings, setChairMappings] = useState<Record<string, string>>({});
+  const proposalChairMappings = useMemo(
+    () => (proposal ? chairMappingsFromProposal(proposal) : {}),
+    [proposal],
+  );
+  const [chairOverrides, setChairOverrides] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    setChairOverrides({});
+  }, [proposal?.id]);
+
+  const chairMappings = useMemo(
+    () => ({ ...proposalChairMappings, ...chairOverrides }),
+    [proposalChairMappings, chairOverrides],
+  );
+
+  const setChairMappings = useCallback(
+    (
+      value:
+        | Record<string, string>
+        | ((prev: Record<string, string>) => Record<string, string>),
+    ) => {
+      setChairOverrides((prev) =>
+        typeof value === 'function'
+          ? value({ ...proposalChairMappings, ...prev })
+          : value,
+      );
+    },
+    [proposalChairMappings],
+  );
   const [panelOffset, setPanelOffset] = useState({ x: 0, y: 0 });
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const [targetChair, setTargetChair] = useState<string | null>(null);
@@ -539,7 +555,6 @@ export function FloorPlanLayoutView({
     setChairMappings((prev) => {
       const next = { ...prev };
       delete next[guestId];
-      localStorage.setItem(`taulamic:guestChairs:${eventId}`, JSON.stringify(next));
       return next;
     });
     if (onUnassignGuest) {
@@ -607,17 +622,6 @@ export function FloorPlanLayoutView({
       }
     }
   }, [roomSetup.shape, eventId]);
-
-  useEffect(() => {
-    const raw = localStorage.getItem(`taulamic:guestChairs:${eventId}`);
-    if (raw) {
-      try {
-        setChairMappings(JSON.parse(raw));
-      } catch (e) {
-        console.error(e);
-      }
-    }
-  }, [eventId]);
 
   useEffect(() => {
     const raw = localStorage.getItem(`taulamic:presidentialChairs:${eventId}`);
@@ -712,42 +716,39 @@ export function FloorPlanLayoutView({
     guestId: string,
     sourceTableId: string,
     targetTableId: string,
-    targetChair: string
+    targetChair: string,
   ) => {
-    if (sourceTableId !== targetTableId) {
-      if (onMoveGuest) {
-        void Promise.resolve(onMoveGuest(guestId, targetTableId));
-      } else if (onAssignGuest) {
-        void Promise.resolve(onAssignGuest(targetTableId, guestId));
-      }
+    const seatIndex = chairIdToSeatIndex(targetChair);
+    if (seatIndex === null) {
+      setDraggingGuestId(null);
+      return;
     }
-    
-    const nextMappings = { ...chairMappings };
-    const prevChair = nextMappings[guestId];
-    
-    const occupantId = Object.keys(nextMappings).find(
-      (k) => nextMappings[k] === targetChair && k !== guestId
-    );
-    
-    nextMappings[guestId] = targetChair;
-    if (occupantId) {
-      if (prevChair) {
-        nextMappings[occupantId] = prevChair;
+
+    if (sourceTableId === targetTableId) {
+      if (onUpdateGuestSeat) {
+        void Promise.resolve(onUpdateGuestSeat(guestId, seatIndex)).finally(
+          () => setDraggingGuestId(null),
+        );
       } else {
-        const capacity = tableGroups.find((g) => g.tableId === targetTableId)?.capacity ?? 10;
-        const occupied = new Set(Object.values(nextMappings));
-        for (let s = 1; s <= capacity; s++) {
-          const chair = `S${s}`;
-          if (!occupied.has(chair)) {
-            nextMappings[occupantId] = chair;
-            break;
-          }
-        }
+        setDraggingGuestId(null);
       }
+      return;
     }
-    
-    localStorage.setItem(`taulamic:guestChairs:${eventId}`, JSON.stringify(nextMappings));
-    setChairMappings(nextMappings);
+
+    if (onMoveGuest) {
+      void Promise.resolve(
+        onMoveGuest(guestId, targetTableId, seatIndex),
+      ).finally(() => setDraggingGuestId(null));
+      return;
+    }
+
+    if (onAssignGuest) {
+      void Promise.resolve(
+        onAssignGuest(targetTableId, guestId, seatIndex),
+      ).finally(() => setDraggingGuestId(null));
+      return;
+    }
+
     setDraggingGuestId(null);
   };
 
@@ -930,7 +931,7 @@ export function FloorPlanLayoutView({
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
-              className="btn-secondary"
+              className="btn-secondary whitespace-nowrap"
               disabled={!editable || Object.keys(customPositions).length === 0}
               onClick={() => setResetDialogOpen(true)}
             >
@@ -1147,7 +1148,7 @@ export function FloorPlanLayoutView({
       </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-4">
-        <Link href={distributionHref} className="btn-secondary">
+        <Link href={distributionHref} className="btn-secondary whitespace-nowrap">
           Volver a distribución
         </Link>
         <Link
@@ -1211,7 +1212,7 @@ export function FloorPlanLayoutEmpty({
       title="Sin distribución calculada"
       description="Calcula la distribución antes de visualizar las mesas en el plano."
       action={
-        <Link href={distributionHref} className="btn-primary">
+        <Link href={distributionHref} className="btn-primary whitespace-nowrap">
           Ir a distribución
         </Link>
       }

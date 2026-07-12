@@ -22,6 +22,7 @@ import {
 } from '../domain/move-guest-in-proposal';
 import { finalizeManualPlacementMutation } from '../domain/finalize-manual-placement-mutation';
 import type { DistributionProposal } from '../domain/distribution.types';
+import { persistScoredProposal } from './persist-scored-proposal';
 import {
   DISTRIBUTION_REPOSITORY,
   type DistributionRepositoryPort,
@@ -50,6 +51,7 @@ export class MoveGuestInDistributionUseCase {
     guestId: string,
     tableId: string,
     actorRole: ActorRole,
+    seatIndex?: number,
   ): Promise<DistributionProposal> {
     this.assertAdminActorUseCase.execute(actorRole);
     const event = await this.requireEvent(eventId);
@@ -72,14 +74,22 @@ export class MoveGuestInDistributionUseCase {
       const updated = moveGuestInProposal(proposal, {
         guestId,
         tableId,
+        seatIndex,
         guests,
         tables: event.tables,
+        softRules: proposal.appliedSoftRules,
       });
-      const saved = await this.distributionRepository.save(updated);
       const withWarnings = finalizeManualPlacementMutation(
-        saved,
+        updated,
         guests,
         guestId,
+      );
+      const scored = await persistScoredProposal(
+        this.distributionRepository,
+        withWarnings,
+        guests,
+        event.tables,
+        proposal.appliedSoftRules,
       );
       const to = findTableRef(event.tables, tableId);
       if (from && to) {
@@ -93,12 +103,12 @@ export class MoveGuestInDistributionUseCase {
             from,
             to,
             companionSeparationWarning: Boolean(
-              withWarnings.manualWarnings?.length,
+              scored.manualWarnings?.length,
             ),
           },
         );
       }
-      return withWarnings;
+      return scored;
     } catch (error) {
       if (error instanceof MoveGuestError) {
         throw new ConflictException({

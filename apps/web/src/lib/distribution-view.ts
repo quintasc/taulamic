@@ -1,5 +1,12 @@
 import type { DistributionProposal, EventDetail } from '@/lib/api';
 import { DISTRIBUTION_COPY } from '@/lib/ui-copy';
+import {
+  resolveTableAffinityScores,
+  type CompanionGroupInput,
+  type AffinityRelationInput,
+} from '@/lib/table-affinity-score';
+
+export type { CompanionGroupInput, AffinityRelationInput };
 
 export const PILOT_AFFINITY_LABEL = DISTRIBUTION_COPY.pilotAffinityLabel;
 
@@ -20,6 +27,7 @@ export type DistributionTableFilter = 'all' | 'full' | 'in-use' | 'empty';
 export type DistributionTableGuest = {
   guestId: string;
   guestName: string;
+  categoryNames?: string[];
 };
 
 export type UnassignedGuestOption = {
@@ -41,12 +49,22 @@ export type DistributionTableGroup = {
   tableId: string;
   tableLabel: string;
   shapeLabel: string;
+  tableShape: string;
   assignedCount: number;
   capacity: number;
   freeSeats: number;
   status: TableOccupancyStatus;
   guests: DistributionTableGuest[];
   guestNames: string[];
+  /** Categorías presentes en la mesa (nombres únicos). */
+  categoryNames: string[];
+  /** Compatibilidad por mesa (mismas reglas que el índice global, acotado a la mesa). */
+  tableAffinity?: {
+    earnedPoints: number;
+    maxPoints: number;
+    percent: number;
+    detail: string;
+  };
 };
 
 export function formatTableShapeLabel(shape: string): string {
@@ -90,6 +108,64 @@ export function countTablesByStatus(groups: DistributionTableGroup[]) {
   };
 }
 
+function guestMatchesSearchQuery(
+  guest: DistributionTableGuest,
+  query: string,
+): boolean {
+  return (
+    guest.guestName.toLowerCase().includes(query) ||
+    (guest.categoryNames ?? []).some((category) =>
+      category.toLowerCase().includes(query),
+    )
+  );
+}
+
+export function tableGroupMatchesSearchQuery(
+  group: DistributionTableGroup,
+  query: string,
+): boolean {
+  if (!query) {
+    return true;
+  }
+
+  const matchesTable =
+    group.tableLabel.toLowerCase().includes(query) ||
+    group.tableId.toLowerCase().includes(query);
+  const matchesGuest = group.guestNames.some((name) =>
+    name.toLowerCase().includes(query),
+  );
+  const matchesCategory = group.categoryNames.some((category) =>
+    category.toLowerCase().includes(query),
+  );
+
+  return matchesTable || matchesGuest || matchesCategory;
+}
+
+/** Resumen de búsqueda: mesas visibles e invitados que coinciden (no el total de la mesa). */
+export function summarizeDistributionSearch(
+  groups: DistributionTableGroup[],
+  search: string,
+): { matchingTables: number; matchingGuests: number } | null {
+  const query = search.trim().toLowerCase();
+  if (!query) {
+    return null;
+  }
+
+  let matchingGuests = 0;
+  for (const group of groups) {
+    for (const guest of group.guests) {
+      if (guestMatchesSearchQuery(guest, query)) {
+        matchingGuests += 1;
+      }
+    }
+  }
+
+  return {
+    matchingTables: groups.length,
+    matchingGuests,
+  };
+}
+
 export function filterDistributionTableGroups(
   groups: DistributionTableGroup[],
   filter: DistributionTableFilter,
@@ -112,13 +188,7 @@ export function filterDistributionTableGroups(
       return false;
     }
     if (query) {
-      const matchesTable =
-        group.tableLabel.toLowerCase().includes(query) ||
-        group.tableId.toLowerCase().includes(query);
-      const matchesGuest = group.guestNames.some((name) =>
-        name.toLowerCase().includes(query),
-      );
-      if (!matchesTable && !matchesGuest) {
+      if (!tableGroupMatchesSearchQuery(group, query)) {
         return false;
       }
     }
@@ -131,17 +201,48 @@ function compareTableLabels(a: string, b: string): number {
 }
 
 
-export function formatPilotTableAffinity(group: DistributionTableGroup): string {
+export function formatTableAffinity(group: DistributionTableGroup): string {
   if (group.assignedCount <= 0) {
     return '—';
   }
-  return PILOT_AFFINITY_SHORT;
+  if (!group.tableAffinity || group.tableAffinity.maxPoints === 0) {
+    return '—';
+  }
+  return `${group.tableAffinity.percent}%`;
+}
+
+/** @deprecated Usar formatTableAffinity */
+export function formatPilotTableAffinity(group: DistributionTableGroup): string {
+  return formatTableAffinity(group);
 }
 
 export function buildDistributionTableGroups(
   proposal: DistributionProposal,
   event: EventDetail | null,
+  context?: {
+    guests?: Array<{
+      id: string;
+      nombre: string;
+      acompananteKey?: string | null;
+      categories?: Array<{ name: string }>;
+    }>;
+    companionGroups?: CompanionGroupInput[];
+    affinityRelations?: AffinityRelationInput[];
+  },
 ): DistributionTableGroup[] {
+  const guestById = new Map(
+    (context?.guests ?? []).map((guest) => [guest.id, guest]),
+  );
+  const affinityScores = resolveTableAffinityScores(
+    proposal,
+    event,
+    context?.guests ?? [],
+    context?.companionGroups ?? [],
+    context?.affinityRelations ?? [],
+  );
+  const affinityByTable = new Map(
+    affinityScores.map((score) => [score.tableId, score]),
+  );
   const placementByTable = new Map<
     string,
     { tableLabel: string; guests: DistributionTableGuest[] }
@@ -156,6 +257,10 @@ export function buildDistributionTableGroups(
     current.guests.push({
       guestId: placement.guestId,
       guestName: placement.guestName,
+      categoryNames:
+        guestById
+          .get(placement.guestId)
+          ?.categories?.map((category) => category.name) ?? [],
     });
     placementByTable.set(placement.tableId, current);
 
@@ -194,20 +299,37 @@ export function buildDistributionTableGroups(
         }));
       }
       const guestNames = guests.map((guest) => guest.guestName);
+      const categoryNames = [
+        ...new Set(
+          guests.flatMap((guest) => guest.categoryNames ?? []).filter(Boolean),
+        ),
+      ].sort((left, right) => left.localeCompare(right, 'es'));
       const assignedCount = guests.length;
       const capacity = table.capacity;
       const status = getTableOccupancyStatus(assignedCount, capacity);
+      const affinity = affinityByTable.get(table.id);
 
       return {
         tableId: table.id,
         tableLabel: table.label || placement?.tableLabel || table.id,
         shapeLabel: formatTableShapeLabel(table.shape),
+        tableShape: table.shape,
         assignedCount,
         capacity,
         freeSeats: Math.max(0, capacity - assignedCount),
         status,
         guests,
         guestNames,
+        categoryNames,
+        tableAffinity:
+          affinity && affinity.maxPoints > 0
+            ? {
+                earnedPoints: affinity.earnedPoints,
+                maxPoints: affinity.maxPoints,
+                percent: affinity.percent,
+                detail: affinity.detail,
+              }
+            : undefined,
       };
     })
     .sort((a, b) => compareTableLabels(a.tableLabel, b.tableLabel));

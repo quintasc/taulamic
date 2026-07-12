@@ -20,7 +20,7 @@ export const PILOT_OPENAPI_TAGS = [
   {
     name: 'distribution',
     description:
-      'EP-03 piloto: motor v0 sincrono (motorVersion v0-pilot) y confirmacion.',
+      'EP-03: distribucion automatica (motor v1 CP-SAT por defecto; v0-pilot como fallback) y confirmacion.',
   },
   {
     name: 'floor-plans',
@@ -120,6 +120,11 @@ export const PILOT_OPENAPI_OPERATIONS: PilotOpenApiOperation[] = [
   {
     method: 'get',
     pathSuffix: '/events/{eventId}/distribution',
+    tag: 'distribution',
+  },
+  {
+    method: 'get',
+    pathSuffix: '/events/{eventId}/distribution/status',
     tag: 'distribution',
   },
   {

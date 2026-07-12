@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
   devIndicators: {
     position: 'bottom-right',
   },
+  // CP-SAT puede tardar >2 min con reglas blandas; el proxy por defecto corta antes.
+  experimental: {
+    proxyTimeout: 360_000,
+  },
   // Monorepo: evita que Next infiera mal el root (varios package-lock.json).
   outputFileTracingRoot: path.join(__dirname, '../..'),
   // Evita vendor-chunks rotos de OpenTelemetry (Sentry) en dev tras HMR/caché.

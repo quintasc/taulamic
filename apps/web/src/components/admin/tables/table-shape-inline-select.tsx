@@ -11,9 +11,13 @@ import {
 export function TableShapeInlineSelect({
   value,
   onChange,
+  buttonClassName,
+  truncateLabel = true,
 }: {
   value: TableShapeUiId;
   onChange: (shape: TableShapeUiId) => void;
+  buttonClassName?: string;
+  truncateLabel?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -49,13 +53,18 @@ export function TableShapeInlineSelect({
     <div ref={rootRef} className="relative">
       <button
         type="button"
-        className="input-field-compact flex w-[7.5rem] items-center justify-between gap-1 capitalize"
+        className={
+          buttonClassName ??
+          'input-field-compact flex w-[7.5rem] items-center justify-between gap-1 capitalize'
+        }
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label="Forma de la mesa"
         onClick={() => setOpen((current) => !current)}
       >
-        <span className="truncate">{selectedLabel}</span>
+        <span className={truncateLabel ? 'truncate' : 'whitespace-nowrap'}>
+          {selectedLabel}
+        </span>
         <IconChevronDown
           width={14}
           height={14}
@@ -76,7 +85,9 @@ export function TableShapeInlineSelect({
                   type="button"
                   role="option"
                   aria-selected={selected}
-                  className={`flex w-full px-2.5 py-1.5 text-left text-sm capitalize transition ${
+                  className={`flex w-full px-2.5 py-1.5 text-left capitalize transition ${
+                    buttonClassName ? 'text-xs' : 'text-sm'
+                  } ${
                     selected
                       ? 'bg-primary-500/10 text-primary-700'
                       : 'text-neutral-700 hover:bg-neutral-50'

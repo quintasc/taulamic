@@ -1,13 +1,14 @@
 # GitHub Project — actualización Sprint 10 / post-S10 (última revisión: 2026-07-12)
 
 **Project:** https://github.com/users/quintasc/projects/2  
-**`main` @ `4dd7e39`** — consolidación documental `docs/pilot/`
+**`main` @ `1c1be75`** — refactor web distribución + docs sincronizados
 
 ## Resumen de estado (2026-07-12)
 
 | Área | Estado en Project | Notas |
 |------|-------------------|-------|
 | Piloto evaluable (flujo admin E2E) | Cerrado técnicamente | Validación simulada + E2E; ver `docs/pilot/` |
+| Refactor web distribución/plano | `Done` (local) | Hooks compartidos, `AdminModalShell`, badge PAX — `6f242a8` |
 | EP-03 Motor distribución async | `Done` / `Done` | CP-SAT v1 + tracker (`d08d11a`) |
 | EP-04 Revisión manual | `In Progress` | HU-05 hecho; versionado rico HU-06 pendiente |
 | EP-05 Publicación y documentos | `In Progress` | PDF organizador parcial (frontend); publicación/cocina pendiente |
@@ -39,6 +40,11 @@
 | Plano — layout desktop vertical (config→accesorios→plano) | `62463d4` | |
 | Plano — accesorios perimetrales rect/oval/redondo | `62463d4` | |
 | Plano — botón "Ver plano" estable; texto guardado corto | `62463d4` | |
+| Refactor web — hooks mutaciones distribución/plano | `6f242a8` | `useDistributionPlacementMutations`, `useTableMetaDraft` |
+| Refactor web — modales admin unificados | `6f242a8` | `AdminModalShell` en asignar/mover/sin asignar |
+| UX distribución — badge PAX ajustado al contenido | `6f242a8` | Sobrecapacidad `10/8` sin espacio sobrante |
+| E2E — agrupación por categoría alineado con UI | `6f242a8` | `category-grouping-distribution.spec.ts` |
+| Docs — contexto ejecución sincronizado | `1c1be75` | `CONTEXTO-EJECUCION.md` |
 
 ## Mantener en In progress / To do
 
@@ -60,6 +66,13 @@
 | [EP-07] OpenAPI | `Todo` / `Ready` | `In Progress` / `In Progress` | Piloto documentado en `/api/docs` |
 | [EP-08] Estrategia optimización motor | `Todo` / `Backlog` | `In Progress` / `In Progress` | ADR-023; Top-K pendiente |
 | Docs consolidación `docs/pilot/` | (nuevo draft) | `Done` / `Done` | Commit `4dd7e39` |
+
+## Actualización aplicada en Project #2 (2026-07-12, sesión refactor web)
+
+| Ítem | Estado | Nota |
+|------|--------|------|
+| Refactor web distribución/plano | Documentado local | `6f242a8` — hooks, modales, badge PAX, E2E |
+| Contexto ejecución + Project doc | Sincronizado | Ver commit docs de esta sesión |
 
 ## Comandos útiles (si usas `gh`)
 

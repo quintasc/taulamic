@@ -2,7 +2,7 @@
 
 - Ultima actualizacion: **2026-07-17**
 - Sprint activo: **Post Sprint 10** (W5 cierre piloto)
-- **`main` @ (este commit)** — ADR-024 L3bis + Fase 1a/1b + exclusión Pareja
+- **`main` @ `3447809`** — ADR-024 L3bis + Fase 1a/1b + exclusión Pareja
 
 ## Frase clave
 
@@ -58,7 +58,7 @@ E2E respetan `DISTRIBUTION_ENGINE` (default CP-SAT).
 
 | Commit | Descripción |
 |--------|-------------|
-| *(este)* | feat: ADR-024 L3bis, Fase 1a/1b, exclusión Pareja, colores categoría |
+| *(este)* `3447809` | feat: ADR-024 L3bis, Fase 1a/1b, exclusión Pareja, colores categoría |
 | `9d6fdb0` | test(api): e2e respetan DISTRIBUTION_ENGINE (CP-SAT por defecto) |
 | `aec8ce1` | docs: actualiza roadmap MVP a 17 jul (W5) |
 | `6f242a8` | refactor(web): hooks/modales distribución, badge PAX |

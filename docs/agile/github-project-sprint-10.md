@@ -1,7 +1,7 @@
 # GitHub Project — actualización Sprint 10 / post-S10 (última revisión: 2026-07-17)
 
 **Project:** https://github.com/users/quintasc/projects/2  
-**`main`:** ADR-024 L3bis + Fase 1a/1b + exclusión Pareja (sesión 17 jul tarde)
+**`main` @ `3447809`:** ADR-024 L3bis + Fase 1a/1b + exclusión Pareja (sesión 17 jul tarde)
 
 ## Resumen de estado (2026-07-17)
 
@@ -48,8 +48,8 @@
 | E2E — agrupación por categoría alineado con UI | `6f242a8` | `category-grouping-distribution.spec.ts` |
 | Docs — contexto ejecución sincronizado | `1c1be75` | `CONTEXTO-EJECUCION.md` |
 | E2E API ↔ `DISTRIBUTION_ENGINE` | `9d6fdb0` | Default CP-SAT |
-| Motor ADR-024 L3bis + Fase 1a/1b | *(este commit)* | Ver sección siguiente |
-| UI colores categoría sin colisión | *(este commit)* | Lookup por índice ordenado |
+| Motor ADR-024 L3bis + Fase 1a/1b | `3447809` | Ver sección siguiente |
+| UI colores categoría sin colisión | `3447809` | Lookup por índice ordenado |
 
 ## Mantener en In progress / To do
 

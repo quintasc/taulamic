@@ -6,8 +6,9 @@ import { rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { AppModule } from '../src/app.module';
 import { ApiExceptionFilter } from '../src/common/filters/api-exception.filter';
+import { expectedMotorVersion } from './expected-motor-version';
 
-describe('Distribution motor v0 (e2e #3)', () => {
+describe('Distribution motor (e2e #3)', () => {
   let app: INestApplication<App>;
   let eventId: string;
 
@@ -30,7 +31,7 @@ describe('Distribution motor v0 (e2e #3)', () => {
     const created = await request(app.getHttpServer())
       .post('/api/v1/events')
       .set('Content-Type', 'application/json')
-      .send({ name: 'Evento motor v0' })
+      .send({ name: 'Evento motor distribucion' })
       .expect(201);
 
     eventId = created.body.id as string;
@@ -74,7 +75,7 @@ describe('Distribution motor v0 (e2e #3)', () => {
     eventIdToPoll: string,
     expectedProposalId?: string,
   ) {
-    const deadline = Date.now() + 15_000;
+    const deadline = Date.now() + 60_000;
     while (Date.now() < deadline) {
       const current = await request(app.getHttpServer())
         .get(`/api/v1/events/${eventIdToPoll}/distribution`)
@@ -95,7 +96,7 @@ describe('Distribution motor v0 (e2e #3)', () => {
     await rm(join(process.cwd(), 'uploads'), { recursive: true, force: true });
   });
 
-  it('ejecuta motor v0, asigna acompanantes juntos y confirma distribucion', async () => {
+  it('ejecuta el motor configurado, asigna acompanantes juntos y confirma distribucion', async () => {
     const runStarted = await request(app.getHttpServer())
       .post(`/api/v1/events/${eventId}/distribution/run`)
       .set('x-taulamic-actor-role', 'admin')
@@ -105,7 +106,7 @@ describe('Distribution motor v0 (e2e #3)', () => {
     const run = await waitForDistributionReady(eventId, runStarted.body.id);
 
     expect(run.body).toMatchObject({
-      motorVersion: 'v0-pilot',
+      motorVersion: expectedMotorVersion(),
       status: 'draft',
       stats: {
         assignedCount: 2,

@@ -1,100 +1,51 @@
 # Contexto de ejecucion — punto de reanudacion
 
-- Ultima actualizacion: **2026-07-12**
-- Sprint activo: **Post Sprint 10** (documentación piloto consolidada)
-- **`main` @ `13b79c7`** (pusheado)
+- Ultima actualizacion: **2026-07-17**
+- Sprint activo: **Post Sprint 10** (W5 cierre piloto)
+- **`main` @ (pendiente push de esta sesion)** — e2e API alineados a `DISTRIBUTION_ENGINE`
 
 ## Frase clave
 
 ```text
-Retomo Taulamic. Estado 2026-07-12: refactor web distribución/plano (hooks compartidos, AdminModalShell, badge PAX); E2E piloto/plano/categoría validados; docs/pilot consolidado; pendiente validación PO visual y deuda sillas/afinidades API.
+Retomo Taulamic. Estado 2026-07-17: e2e API ya no fuerzan motor v0; usan DISTRIBUTION_ENGINE (default v1 CP-SAT). Suite e2e 66/66 con CP-SAT. Pendiente: decision PO L3 anti-huerfano vs quorum 3; validacion PO visual; deuda sillas/afinidades API.
 ```
 
-## Entregado hoy 2026-07-12
+## Entregado hoy 2026-07-17
 
-### `6f242a8` — refactor(web): consolida distribución y corrige badge de ocupación
-
-| Área | Entrega |
-|------|---------|
-| Hooks compartidos | `useDistributionPlacementMutations` y `useTableMetaDraft` entre pantalla Distribución y plano layout |
-| Modales admin | `AdminModalShell` unifica backdrop/z-index/Escape en diálogos de asignar, mover y sin asignar |
-| Constantes UI | Filtros de ocupación y leyenda compartidos en `distribution-view.ts` |
-| Badge PAX | Caja `10/8` ajustada al contenido (sin espacio sobrante a la derecha en sobrecapacidad) |
-| E2E | `category-grouping-distribution` alineado con UI actual; suite piloto/plano móvil validada en entorno limpio |
-
-### Sesión anterior 2026-07-12
+### E2E API alineados a `DISTRIBUTION_ENGINE`
 
 | Área | Entrega |
 |------|---------|
-| Motor asíncrono | Flujo `run/status` en segundo plano con estado `calculating`, tracker por fase y barra de progreso unificada |
-| Recuperación de cuelgues | Guardarraíl de timeout: si el cálculo queda atascado se marca como fallo y se desbloquea recálculo (evita 90% indefinido) |
-| Reglas avanzadas CP-SAT | Capacidad elástica, quórum por categoría y afinidad inter-categoría integradas en Fase 1 sin romper jerarquía existente |
-| Afinidad local por mesa | Score por mesa ajustado para penalizar mesas casi vacías y evitar falsos 100% |
-| Informe PDF confirmado | Maquetación premium Taulamic, cabecera por página, relaciones con iconos, diagramas de mesas y mejoras de densidad/legibilidad |
-| UX móvil | Toggle Invitados/Categorías sin desborde, botones con texto en una línea y visibilidad contextual de “Ver mesas” en plano |
-| Proyecto GitHub | Actualizado Project #2: EP-03 (`Motor de distribución asíncrono`) movido a `Done` en `Status` y `Flujo` |
-| Docs piloto | `docs/pilot/` consolidado (alcance, evolución, trazabilidad) — `4dd7e39`, `50f779d` |
+| Setup e2e | `setup-e2e.ts` deja de forzar `DISTRIBUTION_ENGINE=v0` |
+| Assertions | `expectedMotorVersion()` según env (`v1`/`cpsat` → `v1-cpsat`, `v0` → `v0-pilot`) |
+| Jest + WASM | `test:e2e` con `--experimental-vm-modules` (import dinámico or-tools-wasm) |
+| Verificación | Suite e2e API **66/66** con CP-SAT; regresión con `DISTRIBUTION_ENGINE=v0` OK |
+| Docs piloto | `docs/pilot/` y Project doc actualizados (E2E = config, no v0 fijo) |
 
-## Entregado hoy 2026-07-07
-
-### `9933ce7` — feat(ui): distribución por sillas, estrella presidencial y mejoras panel plano
+### Docs roadmap (commit previo `aec8ce1`)
 
 | Área | Entrega |
 |------|---------|
-| Botón "Ver mesas" | Renombrado desde "Ver plano" en pantalla distribución |
-| Panel sillas 384px | Ampliado + diferenciación visual ocupadas (naranja) / vacías |
-| Botón `"+ Añadir"` por silla | Panel plano + lista de distribución — asigna en chairId exacto |
-| Fix asignación silla | Invitado ya no regresa a silla previa; mapeo se limpia al eliminar |
-| Distribución vertical sillas | Desglose lista de mesas con filas S1…Sn |
-| `TableVisualRepresentation` | Mesa miniatura con sillas radiales + nombres (solo desktop) |
-| ⭐ Estrella presidencial | Marca silla orientada a mesa principal; color ámbar; persiste localStorage |
-| Z-index + bounds drag | Panel `z-[60]`; no puede salir del card canvas |
-| `IconStar` | Nuevo icono con prop `filled` |
-
-## Entregado en sesión 2026-07-05
-
-### `71d0077` — feat: indicador de progreso de pasos en PageHeader desktop
-
-| Área | Entrega |
-|------|---------|
-| Stepper desktop | Indicador de pasos dinámico en la esquina superior derecha (`Paso X de Y` con guiones redondeados) |
-| Lógica adaptativa | Mapea el pathname actual al índice del paso activo. Oculto por debajo de resoluciones de escritorio (`hidden lg:flex`) |
-| Seguridad y solapamiento | Evita solapamiento con flexbox `flex-wrap` y ocultación responsive. Se adapta al número dinámico de pasos contables (`getCountableSetupSteps`) |
-
-### `7cd78f3` — fix: CLS y autoguardado híbrido en Configuración
-
-| Área | Entrega |
-|------|---------|
-| Corrección CLS | `SaveStatusIndicator` usa `.invisible` en estado `idle` en lugar de `null` para preservar espacio visual estable |
-| Autoguardado inteligente | Debounce ampliado a 2000ms. Uso de `isDirtyRef` para descartar primer renderizado (hidratación inicial) |
-| Red de seguridad SPA | Interceptor en unmount del componente `EventConfigView` para disparar guardado asíncrono inmediato si hay cambios pendientes |
-| Red de seguridad navegador | Evento `beforeunload` para advertir al usuario de cambios pendientes al refrescar o cerrar la pestaña |
-| Verificación E2E | Suite completa de 13 pruebas Playwright ejecutada con éxito sin regresiones |
+| Roadmap MVP | Actualizado a 17 jul / W5 (14 días al hito) |
+| Contexto | Limpieza historial punteros main |
 
 ## Pendiente inmediato
 
-1. **Validación PO visual** — sillas, estrella presidencial, móvil (`guion-validacion-piloto-ui.md`)
-2. **Deuda técnica piloto** — unificar sillas API/local; persistencia API afinidades
-3. **Sprint 11 planificación** — arrastre intra-mesa; documento cocina HU-08
+1. **Decision PO L3** — alinear ADR-024 (≥2) vs quorum CP-SAT (≥3 al fragmentar); sin tocar L1/L2
+2. **Validación PO visual** — sillas, estrella, móvil (`guion-validacion-piloto-ui.md`)
+3. **Deuda técnica piloto** — unificar sillas API/local; persistencia API afinidades
 
 ## Historial reciente
 
 | Commit | Descripción |
 |--------|-------------|
+| `aec8ce1` | docs: actualiza roadmap MVP a 17 jul (W5) y limpia historial de contexto |
+| `d66a1f8` | docs: fija puntero main en 13b79c7 |
 | `13b79c7` | docs: alinea puntero main a HEAD |
-| `e66c132` | docs: sincroniza hash main y Project tras refactor web distribución |
-| `1c1be75` | docs: actualiza CONTEXTO-EJECUCION tras refactor web distribución |
 | `6f242a8` | refactor(web): hooks/modales compartidos distribución, badge PAX y E2E categoría |
 | `50f779d` | docs: sincroniza GitHub Project #2 y contexto tras consolidación piloto |
 | `4dd7e39` | docs: consolidate current pilot scope and SDD traceability |
 | `9933ce7` | feat(ui): distribución por sillas, estrella presidencial y mejoras panel plano |
-| `71d0077` | feat: indicador de progreso de pasos en PageHeader desktop |
-| `7cd78f3` | fix: CLS y autoguardado híbrido seguro en Configuración |
-| `0289b71` | fix: dashboard y setup journey móvil |
-| `62463d4` | Plano: UX pulido y layout desktop/móvil unificado |
-| `bfce6c0` | Docs: contexto y evidencias sesión 2026-07-02 |
-| `c4c55a4` | Plano desktop: paleta accesorios horizontal y UX botones |
-| `1e74d45` | Plano: corrige escala, límites lógicos y bug 3×3 |
 
 ## Sprint 10 (cerrado)
 
@@ -107,6 +58,6 @@ Retomo Taulamic. Estado 2026-07-12: refactor web distribución/plano (hooks comp
 ## Referencias
 
 - `guion-validacion-piloto-ui.md`
-- `refactor-ui-mobile-admin.md`
+- `docs/pilot/README.md`
 - `docs/sdd/SDD-GOVERNANZA-PROTECCION-SDD.md`
-- `docs/sdd/SDD-PILOTO-enmienda-HU05-fase2c-sillas-distribucion-estrella.md`
+- `apps/api/.env.example` (`DISTRIBUTION_ENGINE`)

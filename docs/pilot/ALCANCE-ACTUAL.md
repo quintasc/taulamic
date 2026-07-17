@@ -53,8 +53,8 @@ Leyenda de estados: ver [`README.md`](README.md#limitaciones-conocidas).
 
 | Área | Capacidad | Estado | Persistencia | Limitaciones | Evidencia |
 |------|-----------|--------|--------------|--------------|-----------|
-| Motor | CP-SAT v1 (dos fases: mesa + silla) | Implementado / ampliación adelantada | Resultado en backend | Default prod; E2E API usan v0 | [`cp-sat-distribution.engine.ts`](../../apps/api/src/distribution/domain/cp-sat-distribution.engine.ts), [`ADR-023`](../adr/ADR-023-motor-cpsat-dos-fases-mesa-y-asiento.md) |
-| Motor | Motor v0 (fallback) | Implementado con persistencia backend | Backend | Referencia histórica del corte jun 2026 | [`motor-v0.strategy.ts`](../../apps/api/src/distribution/domain/motor-v0.strategy.ts), [`setup-e2e.ts`](../../apps/api/test/setup-e2e.ts) |
+| Motor | CP-SAT v1 (dos fases: mesa + silla) | Implementado / ampliación adelantada | Resultado en backend | Default (`DISTRIBUTION_ENGINE=v1`); E2E API usan el mismo criterio | [`cp-sat-distribution.engine.ts`](../../apps/api/src/distribution/domain/cp-sat-distribution.engine.ts), [`ADR-023`](../adr/ADR-023-motor-cpsat-dos-fases-mesa-y-asiento.md) |
+| Motor | Motor v0 (fallback) | Implementado con persistencia backend | Backend | Activable con `DISTRIBUTION_ENGINE=v0` (prod o e2e) | [`motor-v0.strategy.ts`](../../apps/api/src/distribution/domain/motor-v0.strategy.ts) |
 | Motor | Cálculo asíncrono (`run` / `status`) | Implementado con persistencia backend | Tracker en memoria de proceso | Sin cola BullMQ externa | [`run-distribution-async.service.ts`](../../apps/api/src/distribution/application/run-distribution-async.service.ts) |
 | Motor | Una propuesta (sin Top-K) | Implementado con persistencia backend | Backend | Top-K pospuesto (HU-09) | [`DECISION-002`](../agile/DECISION-002-mvp-julio-piloto-funcional.md) |
 | Motor | Agrupación por categoría / reparto proporcional | Implementado con persistencia backend | — | — | [`category-grouping.ts`](../../apps/api/src/distribution/domain/category-grouping.ts), [`ADR-024`](../adr/ADR-024-reparto-proporcional-por-categoria.md) |

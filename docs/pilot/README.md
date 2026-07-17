@@ -91,7 +91,7 @@ El piloto evaluable demuestra un flujo admin de punta a punta: configurar el eve
 | Persistencia backend | Eventos, invitados, mesas, distribución, room-setup (ficheros JSON en `uploads/`) |
 | Persistencia local | Afinidades, reglas blandas, posiciones custom del plano, `guestChairs`, estrella presidencial, metadatos UI |
 | Funcionalidad parcial | HU-08 (PDF organizador sin documento cocina), afinidades (config no centralizada), asignación por silla (convivencia API + local) |
-| Funcionalidad experimental | Motor CP-SAT v1 como default en producción; E2E API validan motor v0 |
+| Funcionalidad experimental | Motor CP-SAT v1 por defecto (`DISTRIBUTION_ENGINE=v1`); E2E API usan el mismo valor (v0 solo si se fuerza en env) |
 | Backend sin UI piloto | Subida plano imagen, auditoría gobernanza, separar acompañantes, sugerencias restricciones |
 
 ## Estado documental

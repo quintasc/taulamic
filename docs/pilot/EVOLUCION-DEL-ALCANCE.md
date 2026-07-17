@@ -34,7 +34,7 @@ SDD-01 (MVP completo)
 | Top-K comparador | HU-09 | Fuera del piloto | Sigue fuera | Sin cambio; pospuesto explícito | [DECISION-002](../agile/DECISION-002-mvp-julio-piloto-funcional.md) |
 | RSVP / invitaciones | HU-10, HU-11 | Fuera del piloto | Sigue fuera; mock UI en lista | `PILOT_INVITATION_DESIGN_ENABLED = false` | [`pilot-features.ts`](../../apps/web/src/lib/pilot-features.ts) |
 | Publicación a invitados | HU-07 | Fuera del piloto | Sigue fuera | — | [SDD-01](../sdd/SDD-01-borrador-mvp.md) |
-| Validaciones E2E | Contrato piloto | Motor v0 | E2E API siguen con v0; prod usa v1 | Política tests: validan contrato; no redefinen SDD | [`setup-e2e.ts`](../../apps/api/test/setup-e2e.ts) |
+| Validaciones E2E | Contrato piloto | Motor v0 forzado en e2e | E2E API siguen `DISTRIBUTION_ENGINE` (default v1 CP-SAT; v0 opcional) | Alineado con prod; Jest necesita `--experimental-vm-modules` | [`setup-e2e.ts`](../../apps/api/test/setup-e2e.ts), [`expected-motor-version.ts`](../../apps/api/test/expected-motor-version.ts) |
 
 ---
 

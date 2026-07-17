@@ -11,10 +11,11 @@ import {
   GUEST_TEMPLATE_DOWNLOAD_COLUMNS,
   GUEST_TEMPLATE_SHEET_NAME,
 } from '../src/guest-import/domain/guest-template.schema';
+import { expectedMotorVersion } from './expected-motor-version';
 
 /**
  * Suite E2E integracion piloto MVP julio (DECISION-002 / mvp-julio-plan Fase C).
- * Flujo admin: evento → mesas → preferencias → Excel → motor v0 → confirmacion.
+ * Flujo admin: evento → mesas → preferencias → Excel → motor (DISTRIBUTION_ENGINE) → confirmacion.
  */
 describe('MVP julio pilot flow (e2e integracion)', () => {
   let app: INestApplication<App>;
@@ -40,7 +41,7 @@ describe('MVP julio pilot flow (e2e integracion)', () => {
     eventId: string,
     expectedProposalId?: string,
   ) {
-    const deadline = Date.now() + 15_000;
+    const deadline = Date.now() + 60_000;
     while (Date.now() < deadline) {
       const current = await request(app.getHttpServer())
         .get(`/api/v1/events/${eventId}/distribution`)
@@ -217,7 +218,7 @@ describe('MVP julio pilot flow (e2e integracion)', () => {
 
     expect(distribution.body).toMatchObject({
       eventId,
-      motorVersion: 'v0-pilot',
+      motorVersion: expectedMotorVersion(),
       status: 'draft',
       stats: {
         assignedCount: 4,
@@ -254,7 +255,7 @@ describe('MVP julio pilot flow (e2e integracion)', () => {
 
     expect(confirmed.body).toMatchObject({
       status: 'confirmed',
-      motorVersion: 'v0-pilot',
+      motorVersion: expectedMotorVersion(),
     });
     expect(confirmed.body.confirmedAt).toBeTruthy();
 

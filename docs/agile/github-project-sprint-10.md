@@ -1,15 +1,16 @@
-# GitHub Project — actualización Sprint 10 / post-S10 (última revisión: 2026-07-12)
+# GitHub Project — actualización Sprint 10 / post-S10 (última revisión: 2026-07-17)
 
 **Project:** https://github.com/users/quintasc/projects/2  
-**`main` @ `13b79c7`** — refactor web distribución + docs sincronizados
+**`main`:** ver HEAD tras push de e2e `DISTRIBUTION_ENGINE` (sesión 2026-07-17)
 
-## Resumen de estado (2026-07-12)
+## Resumen de estado (2026-07-17)
 
 | Área | Estado en Project | Notas |
 |------|-------------------|-------|
-| Piloto evaluable (flujo admin E2E) | Cerrado técnicamente | Validación simulada + E2E; ver `docs/pilot/` |
+| Piloto evaluable (flujo admin E2E) | Cerrado técnicamente | E2E API con CP-SAT (default `v1`); ver `docs/pilot/` |
+| E2E motor = config | Hecho (local) | Ya no fuerzan v0; `DISTRIBUTION_ENGINE` + `--experimental-vm-modules` |
 | Refactor web distribución/plano | `Done` (local) | Hooks compartidos, `AdminModalShell`, badge PAX — `6f242a8` |
-| EP-03 Motor distribución async | `Done` / `Done` | CP-SAT v1 + tracker (`d08d11a`) |
+| EP-03 Motor distribución async | `Done` / `Done` | CP-SAT v1 + tracker (`d08d11a`); e2e alineados 2026-07-17 |
 | EP-04 Revisión manual | `In Progress` | HU-05 hecho; versionado rico HU-06 pendiente |
 | EP-05 Publicación y documentos | `In Progress` | PDF organizador parcial (frontend); publicación/cocina pendiente |
 | EP-07 OpenAPI | `In Progress` | Contrato piloto documentado; auth/JWT completo pendiente |
@@ -73,6 +74,15 @@
 |------|--------|------|
 | Refactor web distribución/plano | Documentado local | `6f242a8` — hooks, modales, badge PAX, E2E |
 | Contexto ejecución + Project doc | Sincronizado | Ver commit docs de esta sesión |
+
+## Actualización documental (2026-07-17, e2e motor)
+
+| Ítem | Estado | Nota |
+|------|--------|------|
+| E2E API ↔ `DISTRIBUTION_ENGINE` | Hecho | Default CP-SAT; v0 opcional vía env |
+| Suite e2e API | 66/66 con v1 | Jest `--experimental-vm-modules` |
+| Docs piloto (`TRAZABILIDAD`, `ALCANCE-ACTUAL`, `EVOLUCION`, README) | Sincronizados | Dejan de decir «E2E fuerzan v0» |
+| EP-03 / EP-08 en Project #2 | Sin cambio de Status | Mejora de validación, no nuevo alcance de épica |
 
 ## Comandos útiles (si usas `gh`)
 

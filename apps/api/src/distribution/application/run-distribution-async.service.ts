@@ -125,7 +125,9 @@ export class RunDistributionAsyncService {
       });
     } catch (error) {
       this.logger.error(
-        `Fallo en cálculo asíncrono de distribución para evento ${eventId}`,
+        `Fallo en cálculo asíncrono de distribución para evento ${eventId}: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
         error instanceof Error ? error.stack : undefined,
       );
       this.tracker.markFailed({

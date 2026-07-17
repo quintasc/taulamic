@@ -1,7 +1,7 @@
 # GitHub Project — actualización Sprint 10 / post-S10 (última revisión: 2026-07-17)
 
 **Project:** https://github.com/users/quintasc/projects/2  
-**`main`:** ver HEAD tras push de e2e `DISTRIBUTION_ENGINE` (sesión 2026-07-17)
+**`main` @ `9d6fdb0`** — e2e API respetan `DISTRIBUTION_ENGINE` (default CP-SAT)
 
 ## Resumen de estado (2026-07-17)
 

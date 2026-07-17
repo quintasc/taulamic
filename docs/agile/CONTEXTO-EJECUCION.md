@@ -2,7 +2,7 @@
 
 - Ultima actualizacion: **2026-07-17**
 - Sprint activo: **Post Sprint 10** (W5 cierre piloto)
-- **`main` @ (pendiente push de esta sesion)** — e2e API alineados a `DISTRIBUTION_ENGINE`
+- **`main` @ `9d6fdb0`** (pusheado) — e2e API alineados a `DISTRIBUTION_ENGINE`
 
 ## Frase clave
 
@@ -39,6 +39,7 @@ Retomo Taulamic. Estado 2026-07-17: e2e API ya no fuerzan motor v0; usan DISTRIB
 
 | Commit | Descripción |
 |--------|-------------|
+| `9d6fdb0` | test(api): e2e respetan DISTRIBUTION_ENGINE (CP-SAT por defecto) |
 | `aec8ce1` | docs: actualiza roadmap MVP a 17 jul (W5) y limpia historial de contexto |
 | `d66a1f8` | docs: fija puntero main en 13b79c7 |
 | `13b79c7` | docs: alinea puntero main a HEAD |

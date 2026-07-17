@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { getCategoryColor } from '@/lib/category-colors';
+import { getCategoryColor, type CategoryColor } from '@/lib/category-colors';
 import {
   TABLE_DIAGRAM,
   diagramEdgePoint,
@@ -32,16 +32,19 @@ export function SeatCircle({
   presidential = false,
   className = '',
   style,
+  colorLookup,
 }: {
   chairId: string;
   occupant?: SeatOccupant;
   presidential?: boolean;
   className?: string;
   style?: React.CSSProperties;
+  colorLookup?: ReadonlyMap<string, CategoryColor>;
 }) {
   const colors = getCategoryColor(occupant?.categoryName, {
     presidential,
     empty: !occupant,
+    colorLookup,
   });
 
   const tooltip = occupant
@@ -238,6 +241,7 @@ export function TableSeatDiagram({
   guestsById,
   affinityRelations,
   companionGroups,
+  colorLookup,
 }: {
   capacity: number;
   tableLabel: string;
@@ -248,6 +252,7 @@ export function TableSeatDiagram({
   guestsById: Map<string, { nombre: string; categoryName?: string }>;
   affinityRelations: AffinityRelationInput[];
   companionGroups: CompanionGroupInput[];
+  colorLookup?: ReadonlyMap<string, CategoryColor>;
 }) {
   const seatPositions = useMemo(
     () => getDiagramSeatPositions(tableShape, capacity),
@@ -364,6 +369,7 @@ export function TableSeatDiagram({
         const colors = getCategoryColor(occupant?.categoryName, {
           presidential: isPresidential,
           empty: !occupant,
+          colorLookup,
         });
         const tooltip = occupant
           ? occupant.categoryName?.trim() || 'Sin categoría'

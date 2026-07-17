@@ -107,17 +107,13 @@ describe('evaluateDistributionScore', () => {
   });
 
   it('agrupar por categoria: reparto equilibrado puntua al máximo', () => {
+    // N=10, C=8, E=2 → k_min=ceil(10/10)=1: óptimo L1 es una sola mesa (elasticidad).
     const guests = Array.from({ length: 10 }, (_, index) =>
       guest(`g${index}`, `Invitado ${index}`, { categoriaIds: ['familia'] }),
     );
-    const placements = [
-      ...Array.from({ length: 5 }, (_, index) =>
-        placement(`g${index}`, `Invitado ${index}`, 't1'),
-      ),
-      ...Array.from({ length: 5 }, (_, index) =>
-        placement(`g${index + 5}`, `Invitado ${index + 5}`, 't2'),
-      ),
-    ];
+    const placements = Array.from({ length: 10 }, (_, index) =>
+      placement(`g${index}`, `Invitado ${index}`, 't1'),
+    );
 
     const score = evaluateDistributionScore({
       placements,
@@ -129,7 +125,7 @@ describe('evaluateDistributionScore', () => {
     const category = score.criteria.find((item) => item.key === 'groupByCategory');
     expect(category?.percent).toBe(100);
     expect(category?.detail).toContain('0 huérfanos');
-    expect(category?.detail).toContain('equilibrado');
+    expect(category?.detail).toContain('1 mesas');
   });
 
   it('afinidad por mesa: penaliza pareja separada en mesas distintas', () => {
@@ -158,9 +154,9 @@ describe('evaluateDistributionScore', () => {
     expect(affinity?.detail).toContain('0 de 2 invitados');
 
     const byTable = evaluateTableAffinityByTable(placements, guests, tables, []);
-    // El score por mesa es local y añade ocupación para evitar 100% con mesa vacía.
-    expect(byTable.find((item) => item.tableId === 't1')?.percent).toBe(25);
-    expect(byTable.find((item) => item.tableId === 't2')?.percent).toBe(25);
+    // El score por mesa es local y añade ocupación (tolera hasta 2 vacías).
+    expect(byTable.find((item) => item.tableId === 't1')?.percent).toBe(50);
+    expect(byTable.find((item) => item.tableId === 't2')?.percent).toBe(50);
   });
 
   it('compatibilidad por mesa replica reglas globales (categoria + vinculos)', () => {
@@ -201,12 +197,12 @@ describe('evaluateDistributionScore', () => {
     const mesa1 = byTable.find((item) => item.tableId === 't1');
     const mesa2 = byTable.find((item) => item.tableId === 't2');
 
-    expect(mesa1?.percent).toBe(53.3);
+    expect(mesa1?.percent).toBe(60);
     expect(mesa1?.detail).toContain('Agrupar por categoría');
     expect(mesa1?.detail).toContain('Afinidad por mesa');
     expect(mesa1?.detail).toContain('Ocupación de la mesa');
     expect(mesa1?.detail).toContain('Proximidad en la silla');
-    expect(mesa2?.percent).toBe(50);
+    expect(mesa2?.percent).toBe(60);
 
     const mesa1Scoped = evaluateDistributionScore({
       placements,
@@ -260,7 +256,7 @@ describe('evaluateDistributionScore', () => {
       [table('t1', 8)],
       [],
     );
-    expect(byTable[0]?.percent).toBe(41.7);
+    expect(byTable[0]?.percent).toBe(45.5);
     expect(byTable[0]?.detail).toContain('Afinidad por mesa');
     expect(byTable[0]?.detail).toContain('Ocupación de la mesa');
     expect(byTable[0]?.detail).toContain('Proximidad en la silla');
@@ -282,7 +278,7 @@ describe('evaluateDistributionScore', () => {
       [table('t1', 8)],
       [],
     );
-    expect(byTable[0]?.percent).toBe(58.3);
+    expect(byTable[0]?.percent).toBe(63.6);
     expect(byTable[0]?.detail).toContain('Ocupación de la mesa');
   });
 

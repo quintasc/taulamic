@@ -63,6 +63,10 @@ export type DistributionEngineInput = {
    * Si no se proporciona, el motor aplica una matriz por defecto.
    */
   categoryAffinityMatrix?: CategoryAffinityMatrix;
+  /**
+   * Catálogo id→nombre para excluir metadatos del agrupado (p. ej. «Pareja»).
+   */
+  categoryCatalog?: ReadonlyArray<{ id: string; name: string }>;
 };
 
 export type SolverStatus = 'OPTIMAL' | 'FEASIBLE' | 'INFEASIBLE' | 'UNKNOWN';

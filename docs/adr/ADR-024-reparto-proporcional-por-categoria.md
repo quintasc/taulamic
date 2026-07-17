@@ -1,7 +1,7 @@
 # ADR-024 — Reparto proporcional por categoría (`groupByCategory`)
 
-- **Estado:** Aceptado (PO 2026-07-08)
-- **Fecha:** 2026-07-08
+- **Estado:** Aceptado (PO 2026-07-08); **enmienda L3bis** aceptada PO 2026-07-17
+- **Fecha:** 2026-07-08 (enmienda 2026-07-17)
 - **Evoluciona:** interpretación operativa de `groupByCategory` en motor CP-SAT (`ADR-023` §2 Fase 1)
 - **Afecta:** `SDD-01` §7.1–§7.2, HU-17, HU-05 (validación manual), `ADR-018` (toggle Afinidades), `ADR-022` (override manual)
 - **Relacionado:** `ADR-012` (acompañantes), `ADR-009` (asientos — sin impacto directo en Fase 1)
@@ -39,21 +39,82 @@ La regla se modela como **objetivo jerárquico de tres niveles** (lexicográfico
 | **L1** | Minimizar mesas usadas por categoría | Cada categoría C debe ocupar el **menor número de mesas** posible compatible con §7.1 |
 | **L2** | Reparto proporcional entre esas mesas | Los miembros de C en las k mesas elegidas deben quedar **lo más equilibrados posible** |
 | **L3** | Anti-huérfano local | En cada mesa, los invitados de C son **0 o ≥ 2** (salvo \|C\| = 1 en todo el evento) |
+| **L3bis** | Islas descolgadas (preferible / blanda) | Ver §1bis — no es dura ni «preferencia fuerte» |
 
 **L3** es consecuencia de **L2** salvo casos límite; se explicita para validación manual y mensajes de error.
 
-**No se exige:**
+### 1bis. Enmienda PO 2026-07-17 — L3bis e islas (mesas de boda ~6–12)
+
+**Supuesto de dominio:** capacidades típicas de boda (aprox. 6–12 plazas; elasticidad operativa ±2 sillas). Números fijos, no porcentajes.
+
+| Símbolo | Valor | Significado |
+|---------|-------|-------------|
+| `L3_MIN` | 2 | Anti-huérfano duro/blando |
+| `ISLAND_MAX` | 3 | Techo de «isla» |
+| `LARGE_CATEGORY_MIN_N` | 6 | Umbral categoría grande |
+| `SPLIT_MIN` | 3 | Preferible al partir categoría grande |
+| `SPARSE_TABLE_MIN` | 6 | Mesa «muy vacía» por debajo |
+| `ELASTIC_EXTRA` | 2 | Ya en motor CP-SAT |
+
+**Predicado L3bis (`islandSoft`, v1):**
+
+```
+islandSoft(C,t) ⇔
+  N_C ≥ 6
+  ∧ 1 ≤ count(C,t) ≤ 3
+  ∧ count(C,t) < N_C
+  ∧ C no predomina en t
+```
+
+«C no predomina»: existe otra categoría C' en t con `count(C',t) > count(C,t)`. Empate (co-predominante) → **no** es isla.
+
+**Qué no es L3bis:**
+
+- Categoría pequeña (`N < 6`): integrar en mesa mixta es esperado; **no** se penaliza.
+- Mesa propia con volumen suficiente (`ocupación ≥ 6` o categoría que llena sin verse muy vacía): **no** se penaliza por L3bis.
+- Resolver una isla **creando un huérfano (count=1) en otra mesa**: **prohibido** (viola L3); no es remedio admisible.
+- Categorías de metadato tipo **«Pareja» / «Parejas»** (columna Excel): **excluidas** de L1–L3; las parejas se modelan por `acompanante_key` (D3), no como etiqueta de reparto.
+
+**Mezcla de categorías (preferencia PO):** mezclar dos categorías **grandes** (`N ≥ 6`) en la misma mesa es **admisible pero caro** — solo cuando L1 + elasticidad ±E no permiten mesas propias (p. ej. familia novio de 10 → una mesa C+2; trabajo de 12 → 6+6). No llenar huecos con otra categoría grande si se puede ampliar ±2 o repartir en bolsillos propios.
+
+**Jerarquía de remedios (blanda, subordinada a duras y a L1–L2):**
+
+1. Concentrar / equilibrar (L1–L2).
+2. **Elasticidad ≤ +2** para absorber el resto con su categoría (preferible a la isla).
+3. Partir la categoría grande en **2 bolsillos propios con tamaño local ≥ 3**.
+4. Isla ≤3 descolgada en mesa ajena: **factible pero penalizada** (L3bis).
+
+**HU-05:** el bloqueo duro sigue siendo solo huérfano **1** evitable. L3bis **no** bloquea movimientos (dúo/trío en mesa mixta).
+
+**Dónde corre en el motor (`ADR-023` §2bis):**
+
+| Pieza | Subfase |
+|-------|---------|
+| L1, L2, L3 duro | **Fase 1a** (capacidad rígida) |
+| L3bis + elasticidad ±2 | **Fase 1b** (remedios; esqueleto de 1a) |
+| Asientos S1…Sn | Fase 2 (sin cambio) |
+
+Tras el refactor `ADR-023` §2bis, L3bis y elasticidad corren en **Fase 1b**; la Fase 1a mantiene capacidad rígida y L1–L3 duro.
+
+### 1ter. Lo que no se exige (sin cambio)
 
 - llenar mesas hasta la capacidad;
-- concentrar **toda** una categoría en una sola mesa si \|C\| > capacidad de mesa.
+- concentrar **toda** una categoría en una sola mesa si \|C\| > capacidad efectiva (C+E).
+
+**Packing / sillas vacías:** se toleran hasta **E vacías** (default 2) en una mesa usada sin penalizar el objetivo de ocupación — p. ej. dos mesas de 6 en mesas de 8. Más de E vacías sí se penaliza (suave).
 
 ### 2. Definición formal
 
-Para una categoría C con N invitados asignados (N ≥ 2) y capacidad máxima de mesa C_max:
+Para una categoría C con N invitados asignados (N ≥ 2) y capacidad base de mesa C_max, con holgura elástica operativa E (default **2**, ADR-023 §2bis Fase 1b):
 
 ```
-k_min(C) = ceil(N / C_max)     // mínimo de mesas que C necesita
+k_min(C) = ceil(N / (C_max + E))     // mínimo de mesas con capacidad efectiva
+k_min_rígido(C) = ceil(N / C_max)    // usado en Fase 1a (capacidad sin elasticidad)
 ```
+
+**Enmienda PO 2026-07-17 (bis):** la elasticidad ±E **sí puede** reducir el número de mesas respecto a `k_min_rígido` cuando cabe en C+E (p. ej. N=18, C_max=8, E=2 → **9+9** en 2 mesas; L1 final apunta a `k_min`, no a bloquear concentrar bajo el rígido).
+
+En Fase **1a** el modelo sigue con capacidad rígida y empuja hacia `k_min_rígido`. En Fase **1b** (y en score/selección de propuesta) L1 usa `k_min` con C+E.
 
 Para una solución con k mesas que contienen al menos un invitado de C, sea n₁, n₂, …, n_k el número de invitados de C en cada una (nᵢ ≥ 0, Σ nᵢ = N).
 
@@ -119,6 +180,14 @@ Tras acordar este ADR, la implementación sustituirá el par de unidades genéri
 
 - Restricción: si count(C, t) > 0 entonces count(C, t) ≥ 2, salvo \|C\| = 1.
 
+**L3bis — Islas (blando) — preferible en Fase 1b**
+
+- Penalizar `islandSoft(C,t)` con peso **moderado** (preferible, no lexicográficamente dominante sobre L1/L2 de 1a).
+- Preferir pagar elasticidad ≤ +2 antes que aceptar la isla (**solo en 1b**).
+- Soft adicional: en categoría grande, disuadir bolsillos locales de tamaño 1–2 al partir (`SPLIT_MIN = 3`).
+- La elasticidad también puede usarse para alcanzar `k_min = ceil(N/(C+E))` (p. ej. dos mesas de 9 en lugar de 8+8+2).
+- Tras el refactor `ADR-023` §2bis: **no** modelar L3bis ni elasticidad en 1a.
+
 **Integración con `buildSoftRulePlan`**
 
 - Cuando `groupByCategory` está en `softRules`, el plan incluirá términos de categoría con peso lexicográfico **superior** a `keepFamiliesTogether` y `singlesTable` **solo si** el orden en pantalla Afinidades lo indica (HU-17: posición 1 domina a 2).
@@ -132,15 +201,16 @@ Tras acordar este ADR, la implementación sustituirá el par de unidades genéri
 |---------|---------|
 | Mesas por categoría | k usado vs k_min |
 | Equilibrio | max spread nᵢ - min nᵢ por categoría |
-| Huérfanos | invitados sin compañero de categoría en mesa (métrica actual, subconjunto de L3) |
+| Huérfanos | invitados sin compañero de categoría en mesa (L3) |
+| Islas descolgadas | mesas con `islandSoft` (L3bis) |
 
 El **detalle** en compatibilidad global y por mesa mostrará, por ejemplo:
 
-> «Amigos novia: 2 mesas (mín. 2) · reparto 8+7 · 0 huérfanos»
+> «Amigos novia: 2 mesas (mín. 2) · reparto 8+7 · 0 huérfanos · 0 islas descolgadas»
 
 Si el reparto es subóptimo pero factible tras relajación:
 
-> «Amigos novia: 3 mesas (mín. 2, relajado por incompatibilidad) · reparto desequilibrado · 1 huérfano»
+> «Amigos novia: 3 mesas (mín. 2, relajado por incompatibilidad) · reparto desequilibrado · 1 huérfano · 1 isla descolgada (≤3)»
 
 ### 6. Mutaciones manuales (HU-05)
 

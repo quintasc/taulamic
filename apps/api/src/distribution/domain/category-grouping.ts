@@ -4,6 +4,17 @@ import type { DistributionProposal, GuestPlacement } from './distribution.types'
 import type { PlacementUnit } from './placement-units';
 import { sharesCategory } from './placement-units';
 
+/** ADR-024 L3: anti-huérfano (0 o ≥2). */
+export const CATEGORY_L3_MIN = 2;
+/** ADR-024 L3bis: techo de isla descolgada (1..3). */
+export const CATEGORY_ISLAND_MAX = 3;
+/** Categoría grande (boda ~6–12 por mesa). */
+export const CATEGORY_LARGE_MIN_N = 6;
+/** Preferible al partir categoría grande. */
+export const CATEGORY_SPLIT_MIN = 3;
+/** Por debajo, mesa “muy vacía” si solo hay ese volumen. */
+export const CATEGORY_SPARSE_TABLE_MIN = 6;
+
 /** Plan de reparto proporcional por categoría (ADR-024). */
 export type CategoryGroupingPlan = {
   categoryId: string;
@@ -21,9 +32,97 @@ export type CategoryDistributionAnalysis = {
   countsByTable: Map<string, number>;
   spread: number;
   orphanCount: number;
+  /** Mesas con isla L3bis (categoría grande descolgada ≤3 y no predominante). */
+  strandedIslandCount: number;
   relaxed: boolean;
 };
 
+/**
+ * Isla L3bis: categoría grande, trozo 1..3 descolgado y C no predomina en la mesa.
+ * (Co-predominante en empate → no es isla.)
+ */
+export function isStrandedCategoryIsland(input: {
+  categoryGuestCount: number;
+  localCount: number;
+  countsByCategoryOnTable: ReadonlyMap<string, number>;
+  categoryId: string;
+}): boolean {
+  const { categoryGuestCount, localCount, countsByCategoryOnTable, categoryId } =
+    input;
+  if (categoryGuestCount < CATEGORY_LARGE_MIN_N) {
+    return false;
+  }
+  if (localCount < 1 || localCount > CATEGORY_ISLAND_MAX) {
+    return false;
+  }
+  if (localCount >= categoryGuestCount) {
+    return false;
+  }
+  const local = countsByCategoryOnTable.get(categoryId) ?? localCount;
+  for (const [otherId, otherCount] of countsByCategoryOnTable) {
+    if (otherId === categoryId) {
+      continue;
+    }
+    if (otherCount > local) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Holgura operativa de plazas por mesa (ADR-024 / Fase 1b).
+ * L1 final usa capacidad efectiva C_max + E (p. ej. 18 en 9+9 con C=8, E=2).
+ */
+export const CATEGORY_TABLE_ELASTIC_EXTRA_SEATS = 2;
+
+/**
+ * Categorías de metadato (p. ej. columna Excel «Pareja») que NO deben entrar
+ * en L1–L3 / groupByCategory: las parejas ya van por D3 (acompanante_key).
+ * Misma exclusión que el informe PDF.
+ */
+export const EXCLUDED_GROUPING_CATEGORY_NAMES = new Set([
+  'pareja',
+  'parejas',
+]);
+
+export function isExcludedGroupingCategoryName(
+  categoryName: string | undefined | null,
+): boolean {
+  const normalized = categoryName?.trim().toLowerCase() ?? '';
+  return (
+    normalized.length > 0 && EXCLUDED_GROUPING_CATEGORY_NAMES.has(normalized)
+  );
+}
+
+/**
+ * Quita de cada invitado las categorías excluidas del agrupado (p. ej. Pareja).
+ * No muta el array original.
+ */
+export function stripExcludedGroupingCategories(
+  guests: Guest[],
+  categoryNameById: ReadonlyMap<string, string>,
+): Guest[] {
+  if (categoryNameById.size === 0) {
+    return guests;
+  }
+  return guests.map((guest) => {
+    const filtered = guest.categoriaIds.filter((categoryId) => {
+      const name = categoryNameById.get(categoryId);
+      return !isExcludedGroupingCategoryName(name);
+    });
+    if (filtered.length === guest.categoriaIds.length) {
+      return guest;
+    }
+    return { ...guest, categoriaIds: filtered };
+  });
+}
+
+/**
+ * Mínimo de mesas para N invitados con capacidad efectiva por mesa.
+ * En evaluación / Fase 1b: pasar C_max + {@link CATEGORY_TABLE_ELASTIC_EXTRA_SEATS}.
+ * En Fase 1a (capacidad rígida): pasar solo C_max.
+ */
 export function computeKMin(
   guestCount: number,
   maxTableCapacity: number,
@@ -32,6 +131,14 @@ export function computeKMin(
     return 0;
   }
   return Math.ceil(guestCount / maxTableCapacity);
+}
+
+/** Capacidad efectiva para L1 cuando la elasticidad ±E está permitida. */
+export function effectiveCapacityForKMin(
+  baseCapacity: number,
+  elasticExtraSeats: number = CATEGORY_TABLE_ELASTIC_EXTRA_SEATS,
+): number {
+  return baseCapacity + Math.max(0, elasticExtraSeats);
 }
 
 /** Límites L2 (ADR-024): cada mesa usada recibe entre floor(N/k) y ceil(N/k) miembros. */
@@ -190,6 +297,34 @@ export function analyzeCategoryDistributions(
       }
     }
 
+    let strandedIslandCount = 0;
+    for (const [tableId, localCount] of countsByTable) {
+      const tablemateIds = guestsByTable.get(tableId) ?? [];
+      const countsByCategoryOnTable = new Map<string, number>();
+      for (const mateId of tablemateIds) {
+        const mate = guestById.get(mateId);
+        if (mate === undefined) {
+          continue;
+        }
+        for (const mateCategoryId of mate.categoriaIds) {
+          countsByCategoryOnTable.set(
+            mateCategoryId,
+            (countsByCategoryOnTable.get(mateCategoryId) ?? 0) + 1,
+          );
+        }
+      }
+      if (
+        isStrandedCategoryIsland({
+          categoryGuestCount: categoryGuests.length,
+          localCount,
+          countsByCategoryOnTable,
+          categoryId,
+        })
+      ) {
+        strandedIslandCount += 1;
+      }
+    }
+
     analyses.push({
       categoryId,
       guestCount: categoryGuests.length,
@@ -198,7 +333,8 @@ export function analyzeCategoryDistributions(
       countsByTable,
       spread: counts.length > 0 ? Math.max(...counts) - Math.min(...counts) : 0,
       orphanCount,
-      relaxed: kUsed > kMin,
+      strandedIslandCount,
+      relaxed: kUsed !== kMin,
     });
   }
 
@@ -225,8 +361,12 @@ export function formatCategoryDistributionDetail(
         analysis.orphanCount === 0
           ? '0 huérfanos'
           : `${analysis.orphanCount} huérfano${analysis.orphanCount === 1 ? '' : 's'}`;
+      const islandLabel =
+        analysis.strandedIslandCount === 0
+          ? '0 islas descolgadas'
+          : `${analysis.strandedIslandCount} isla${analysis.strandedIslandCount === 1 ? '' : 's'} descolgada${analysis.strandedIslandCount === 1 ? '' : 's'} (≤${CATEGORY_ISLAND_MAX})`;
 
-      return `${analysis.categoryId}: ${mesasLabel} · ${reparto} · ${balanceLabel} · ${orphanLabel}`;
+      return `${analysis.categoryId}: ${mesasLabel} · ${reparto} · ${balanceLabel} · ${orphanLabel} · ${islandLabel}`;
     })
     .join(' · ');
 }
@@ -239,7 +379,7 @@ export function scoreCategoryGrouping(
   }
 
   let earned = 0;
-  const max = analyses.length * 3;
+  const max = analyses.length * 4;
 
   for (const analysis of analyses) {
     if (analysis.kUsed === analysis.kMin) {
@@ -249,6 +389,9 @@ export function scoreCategoryGrouping(
       earned += 1;
     }
     if (analysis.orphanCount === 0) {
+      earned += 1;
+    }
+    if (analysis.strandedIslandCount === 0) {
       earned += 1;
     }
   }
@@ -293,8 +436,8 @@ export function tableCategoryMixingPenalty(
     if (extra <= 0) {
       continue;
     }
-    // 2 categorías → 50k; 3 → 200k; 4 → 450k (evita M6/M7/M8 fragmentadas).
-    penalty += extra * extra * 50_000;
+    // 2 categorías → 150k; 3 → 600k (mezcla de grandes solo si es necesario).
+    penalty += extra * extra * 150_000;
   }
 
   return penalty;
@@ -310,9 +453,11 @@ export function categoryGroupingPenalty(
     analyses.reduce(
       (sum, analysis) =>
         sum +
-        Math.max(0, analysis.kUsed - analysis.kMin) * 50_000 +
+        Math.max(0, analysis.kUsed - analysis.kMin) * 200_000 +
+        Math.max(0, analysis.kMin - analysis.kUsed) * 200_000 +
         Math.max(0, analysis.spread - 1) * 100 +
-        analysis.orphanCount * 1_000,
+        analysis.orphanCount * 1_000 +
+        analysis.strandedIslandCount * 400,
       0,
     )
   );
@@ -320,12 +465,12 @@ export function categoryGroupingPenalty(
 
 /**
  * Clave lexicográfica ADR-024 (menor vector = mejor solución).
- * Prioriza: más categorías en k_min → menos exceso de mesas → huérfanos → spread → mezcla.
+ * Prioriza: k_min → |exceso/déficit mesas| → huérfanos → islas L3bis → spread → mezcla.
  */
 export function categoryGroupingLexScore(
   analyses: CategoryDistributionAnalysis[],
   mixingPenalty = 0,
-): readonly [number, number, number, number, number] {
+): readonly [number, number, number, number, number, number] {
   const categoriesAtKMin = analyses.filter(
     (analysis) => analysis.kUsed === analysis.kMin,
   ).length;
@@ -333,10 +478,12 @@ export function categoryGroupingLexScore(
   return [
     -categoriesAtKMin,
     analyses.reduce(
-      (sum, analysis) => sum + Math.max(0, analysis.kUsed - analysis.kMin),
+      (sum, analysis) =>
+        sum + Math.abs(analysis.kUsed - analysis.kMin),
       0,
     ),
     analyses.reduce((sum, analysis) => sum + analysis.orphanCount, 0),
+    analyses.reduce((sum, analysis) => sum + analysis.strandedIslandCount, 0),
     analyses.reduce(
       (sum, analysis) => sum + Math.max(0, analysis.spread - 1),
       0,

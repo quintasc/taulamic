@@ -25,11 +25,11 @@ describe('resolveCpSatTimeBudgetMs', () => {
   });
 
   it('amplia el presupuesto con agrupacion por categoria', () => {
-    expect(resolveCpSatTimeBudgetMs(baseInput, 0, 10, 8)).toBe(20_000);
+    expect(resolveCpSatTimeBudgetMs(baseInput, 0, 10, 8)).toBe(30_000);
   });
 
   it('amplia el presupuesto con muchos pares de categoria x mesas', () => {
-    expect(resolveCpSatTimeBudgetMs(baseInput, 607, 20)).toBe(20_000);
+    expect(resolveCpSatTimeBudgetMs(baseInput, 607, 20)).toBe(30_000);
   });
 
   it('define escalada ADR-024 con L1 duro tras intento blando', () => {

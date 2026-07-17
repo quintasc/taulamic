@@ -44,6 +44,10 @@ import { guestNamesMatch } from './guest-name-match';
 import {
   analyzeCategoryDistributions,
   categoryGroupingPenalty,
+  CATEGORY_TABLE_ELASTIC_EXTRA_SEATS,
+  computeKMin,
+  effectiveCapacityForKMin,
+  stripExcludedGroupingCategories,
   tableCategoryMixingPenalty,
 } from './category-grouping';
 import { buildSoftRulePlan, type SoftRulePlan } from './soft-rules';
@@ -62,9 +66,18 @@ const CATEGORY_INITIAL_ATTEMPT_CAP_MS = 9_000;
 const CATEGORY_PER_CATEGORY_HARD_L1_BUDGET_MS = 8_000;
 const CATEGORY_MINIMIZE_RETRY_BUDGET_MS = 12_000;
 /** Tope de wall-clock para la escalada ADR-024 (evita cortar el proxy HTTP). */
-const CATEGORY_RESOLVE_MAX_MS = 45_000;
-const TABLE_CAPACITY_ELASTIC_EXTRA_SEATS = 2;
+const CATEGORY_RESOLVE_MAX_MS = 75_000;
+const TABLE_CAPACITY_ELASTIC_EXTRA_SEATS = CATEGORY_TABLE_ELASTIC_EXTRA_SEATS;
+/**
+ * Penalización por silla elástica. Debe seguir disuadiendo 9-en-1-mesa (C=8)
+ * frente a 5+4; la preferencia isla→elástica la dan los pesos L3bis (lex de categoría).
+ */
 const TABLE_CAPACITY_ELASTICITY_PENALTY_FACTOR = 0.35;
+/** Reserva de wall-clock para Fase 1b (L3bis + elasticidad + k_min con C+E). */
+const PHASE_1B_RESERVE_MS = 22_000;
+
+/** ADR-023 §2bis: subfase de asignación invitado→mesa. */
+type TableAssignmentSubphase = '1a' | '1b';
 
 type CategoryAffinityPreset = {
   leftPattern: RegExp;
@@ -226,15 +239,15 @@ export function resolveCpSatTimeBudgetMs(
     return 3_000;
   }
   if (categoryPlanCount > 0 && softComplexity < 2_000) {
-    return 20_000;
+    return 30_000;
   }
   if (softComplexity < 2_000) {
     return DEFAULT_TIME_BUDGET_MS;
   }
   if (softComplexity < 15_000) {
-    return 20_000;
+    return 30_000;
   }
-  return 30_000;
+  return 45_000;
 }
 
 export function resolveCategoryRefinementReserveMs(
@@ -354,12 +367,25 @@ export class CpSatDistributionEngine implements DistributionEngine {
   async compute(
     input: DistributionEngineInput,
   ): Promise<DistributionEngineResult> {
-    const prepared = prepareDistributionMotorInput(
+    const categoryNameById = new Map(
+      (input.categoryCatalog ?? []).map((category) => [
+        category.id,
+        category.name,
+      ]),
+    );
+    const guestsForMotor = stripExcludedGroupingCategories(
       input.guests,
+      categoryNameById,
+    );
+    const prepared = prepareDistributionMotorInput(
+      guestsForMotor,
       input.softRules,
       input.explicitAffinityRelations,
     );
-    const engineInput = applyPreparedMotorInput(input, prepared);
+    const engineInput = applyPreparedMotorInput(
+      { ...input, guests: guestsForMotor },
+      prepared,
+    );
 
     const guestById = new Map(engineInput.guests.map((guest) => [guest.id, guest]));
     const violations: HardRuleViolation[] = [];
@@ -492,6 +518,7 @@ export class CpSatDistributionEngine implements DistributionEngine {
         requireFullAssignment,
         hardRelationConstraints,
         engineProfile,
+        tablePhase: '1a',
       });
     }
 
@@ -516,6 +543,7 @@ export class CpSatDistributionEngine implements DistributionEngine {
         requireFullAssignment,
         hardRelationConstraints,
         engineProfile,
+        tablePhase: '1a',
       });
     }
 
@@ -596,18 +624,39 @@ export class CpSatDistributionEngine implements DistributionEngine {
       engineProfile,
     } = parts;
 
+    /** L1 de selección final: k_min con C+E (PO: elasticidad puede bajar mesas). */
+    const kMinCapacity = effectiveCapacityForKMin(maxTableCapacity);
+
     let bestPhase: TableAssignmentPhase | null = null;
     let bestPenalty = Number.POSITIVE_INFINITY;
     let bestAnalyses: ReturnType<typeof analyzeCategoryDistributions> = [];
     let bestMixingPenalty = Number.POSITIVE_INFINITY;
-    const categoryRefinementReserveMs = resolveCategoryRefinementReserveMs(
-      softPlan.categoryGrouping?.plans.length ?? 0,
-    );
+    const needsElasticCompression =
+      softPlan.categoryGrouping !== undefined &&
+      softPlan.categoryGrouping.plans.some(
+        (plan) => computeKMin(plan.guestCount, kMinCapacity) < plan.kMin,
+      );
+    // Si hay que comprimir con C+E (10→1 mesa, etc.), no gastar el presupuesto
+    // en refinamiento L1 rígido de 1a; priorizar Fase 1b.
+    const categoryRefinementReserveMs = needsElasticCompression
+      ? Math.min(
+          6_000,
+          resolveCategoryRefinementReserveMs(
+            softPlan.categoryGrouping?.plans.length ?? 0,
+          ),
+        )
+      : resolveCategoryRefinementReserveMs(
+          softPlan.categoryGrouping?.plans.length ?? 0,
+        );
+    const phase1bReserveMs =
+      softPlan.categoryGrouping !== undefined ? PHASE_1B_RESERVE_MS : 0;
     const resolveStarted = Date.now();
     const resolveMaxMs = Math.min(
       Math.max(
         CATEGORY_RESOLVE_MAX_MS,
-        Math.min(timeBudgetMs, 20_000) + categoryRefinementReserveMs,
+        Math.min(timeBudgetMs, 20_000) +
+          categoryRefinementReserveMs +
+          phase1bReserveMs,
       ),
       120_000,
     );
@@ -631,8 +680,9 @@ export class CpSatDistributionEngine implements DistributionEngine {
         significantAnalyses.length > 0 &&
         significantAnalyses.every(
           (analysis) =>
-            analysis.kUsed <= analysis.kMin &&
+            analysis.kUsed === analysis.kMin &&
             analysis.orphanCount === 0 &&
+            analysis.strandedIslandCount === 0 &&
             analysis.spread <= 1,
         )
       );
@@ -640,7 +690,7 @@ export class CpSatDistributionEngine implements DistributionEngine {
 
     const attemptBudgetMs = (index: number, attempt: CategoryGroupingAttempt) => {
       const remainingForAttempts =
-        remainingResolveMs() - categoryRefinementReserveMs;
+        remainingResolveMs() - categoryRefinementReserveMs - phase1bReserveMs;
       if (remainingForAttempts <= 0) {
         return 1_000;
       }
@@ -691,7 +741,7 @@ export class CpSatDistributionEngine implements DistributionEngine {
       const analyses = analyzeCategoryDistributions(
         placements,
         input.guests,
-        maxTableCapacity,
+        kMinCapacity,
       );
       const mixingPenalty = tableCategoryMixingPenalty(
         placements,
@@ -706,8 +756,9 @@ export class CpSatDistributionEngine implements DistributionEngine {
         mixingPenalty === 0 &&
         significantAnalyses.every(
           (analysis) =>
-            analysis.kUsed <= analysis.kMin &&
+            analysis.kUsed === analysis.kMin &&
             analysis.orphanCount === 0 &&
+            analysis.strandedIslandCount === 0 &&
             analysis.spread <= 1,
         );
       const penalty = convergedGrouping
@@ -753,6 +804,7 @@ export class CpSatDistributionEngine implements DistributionEngine {
         hardCategoryL1Ids: attempt.hardCategoryL1Ids,
         boostCategoryL1Ids: attempt.boostCategoryL1Ids,
         boostCategoryFactor: attempt.boostCategoryFactor,
+        tablePhase: '1a',
       });
       considerPhase(phase);
       if (bestPenalty === 0) {
@@ -775,22 +827,23 @@ export class CpSatDistributionEngine implements DistributionEngine {
           const rightAnalysis = bestAnalyses.find(
             (entry) => entry.categoryId === right.categoryId,
           );
-          const leftExtra = Math.max(
-            0,
+          const leftExtra = Math.abs(
             (leftAnalysis?.kUsed ?? left.kMin) - left.kMin,
           );
-          const rightExtra = Math.max(
-            0,
+          const rightExtra = Math.abs(
             (rightAnalysis?.kUsed ?? right.kMin) - right.kMin,
           );
           const leftRatio = leftExtra / Math.max(1, left.kMin);
           const rightRatio = rightExtra / Math.max(1, right.kMin);
           const leftOrphans = leftAnalysis?.orphanCount ?? 0;
           const rightOrphans = rightAnalysis?.orphanCount ?? 0;
+          const leftIslands = leftAnalysis?.strandedIslandCount ?? 0;
+          const rightIslands = rightAnalysis?.strandedIslandCount ?? 0;
 
           return (
             rightRatio - leftRatio ||
             rightOrphans - leftOrphans ||
+            rightIslands - leftIslands ||
             rightExtra - leftExtra ||
             left.kMin - right.kMin ||
             right.guestCount - left.guestCount ||
@@ -843,6 +896,7 @@ export class CpSatDistributionEngine implements DistributionEngine {
           hardCategoryL3: true,
           hardCategoryL1Ids: new Set([plan.categoryId]),
           minimizeTablesForCategoryId: plan.categoryId,
+          tablePhase: '1a',
         });
 
         if (
@@ -881,6 +935,7 @@ export class CpSatDistributionEngine implements DistributionEngine {
             hardCategoryL3: true,
             hardCategoryL1Ids: new Set([plan.categoryId]),
             minimizeTablesForCategoryId: plan.categoryId,
+            tablePhase: '1a',
           });
           if (
             (minimizeRetry.solverStatus === 'OPTIMAL' ||
@@ -931,6 +986,7 @@ export class CpSatDistributionEngine implements DistributionEngine {
               hardCategoryL1Ids: new Set([plan.categoryId]),
               fixedKMinByCategory: new Map([[plan.categoryId, targetK]]),
               satisfactionOnly: true,
+              tablePhase: '1a',
             });
             if (
               feasibilityProbe.solverStatus === 'OPTIMAL' ||
@@ -982,6 +1038,7 @@ export class CpSatDistributionEngine implements DistributionEngine {
             hardCategoryL3: true,
             hardCategoryL1Ids: new Set([plan.categoryId]),
             fixedKMinByCategory: new Map([[plan.categoryId, bestMinimizedKUsed]]),
+            tablePhase: '1a',
           });
           if (
             lockCandidate.solverStatus === 'OPTIMAL' ||
@@ -1005,7 +1062,7 @@ export class CpSatDistributionEngine implements DistributionEngine {
         const candidateAnalyses = analyzeCategoryDistributions(
           candidatePlacements,
           input.guests,
-          maxTableCapacity,
+          kMinCapacity,
         );
         const focusNext = candidateAnalyses.find(
           (entry) => entry.categoryId === plan.categoryId,
@@ -1055,6 +1112,94 @@ export class CpSatDistributionEngine implements DistributionEngine {
       }
     }
 
+    // ADR-023 §2bis Fase 1b: L3bis + elasticidad ±2 + k_min con C+E
+    // (p. ej. familia 10 → 1 mesa; trabajo 12 → 6+6).
+    if (
+      softPlan.categoryGrouping !== undefined &&
+      bestPhase !== null &&
+      !resolveDeadlineReached() &&
+      !(bestMixingPenalty === 0 && significantCategoriesConverged(bestAnalyses))
+    ) {
+      const phase1bBudgetMs = Math.max(
+        4_000,
+        Math.min(phase1bReserveMs, remainingResolveMs(), Math.max(timeBudgetMs, phase1bReserveMs)),
+      );
+      // Orden: primero L1 elástico (factible); luego L1+L2; luego blando.
+      const phase1bAttempts: Array<{
+        hardCategoryL1: boolean;
+        hardCategoryL2: boolean;
+        hardCategoryL3: boolean;
+        stripPairTerms?: boolean;
+      }> = [
+        {
+          hardCategoryL1: true,
+          hardCategoryL2: false,
+          hardCategoryL3: true,
+          stripPairTerms: true,
+        },
+        {
+          hardCategoryL1: true,
+          hardCategoryL2: true,
+          hardCategoryL3: true,
+          stripPairTerms: true,
+        },
+        {
+          hardCategoryL1: true,
+          hardCategoryL2: true,
+          hardCategoryL3: true,
+        },
+        {
+          hardCategoryL1: false,
+          hardCategoryL2: false,
+          hardCategoryL3: true,
+        },
+      ];
+
+      for (const [index, attempt] of phase1bAttempts.entries()) {
+        if (resolveDeadlineReached()) {
+          break;
+        }
+        const attemptMs = Math.min(
+          phase1bBudgetMs,
+          Math.max(
+            3_000,
+            Math.floor(remainingResolveMs() / (phase1bAttempts.length - index)),
+          ),
+        );
+        const phase = await this.solveTableAssignment({
+          CpModel,
+          CpSolver,
+          weightedSum,
+          input,
+          solvableUnits,
+          guestById,
+          softPlan: attempt.stripPairTerms
+            ? {
+                pairTerms: [],
+                assignmentWeight: softPlan.assignmentWeight,
+                appliedRules: softPlan.appliedRules,
+                categoryGrouping: softPlan.categoryGrouping,
+              }
+            : softPlan,
+          timeBudgetMs: attemptMs,
+          requireFullAssignment,
+          hardRelationConstraints,
+          engineProfile,
+          hardCategoryL1: attempt.hardCategoryL1,
+          hardCategoryL2: attempt.hardCategoryL2,
+          hardCategoryL3: attempt.hardCategoryL3,
+          tablePhase: '1b',
+        });
+        considerPhase(phase);
+        if (
+          bestMixingPenalty === 0 &&
+          significantCategoriesConverged(bestAnalyses)
+        ) {
+          break;
+        }
+      }
+    }
+
     if (bestPhase !== null) {
       return bestPhase;
     }
@@ -1074,6 +1219,7 @@ export class CpSatDistributionEngine implements DistributionEngine {
       hardCategoryL1: false,
       hardCategoryL2: false,
       hardCategoryL3: true,
+      tablePhase: softPlan.categoryGrouping !== undefined ? '1b' : '1a',
     });
     considerPhase(softFallback);
     if (bestPhase !== null) {
@@ -1130,6 +1276,8 @@ export class CpSatDistributionEngine implements DistributionEngine {
     minimizeTablesForCategoryId?: string;
     fixedKMinByCategory?: ReadonlyMap<string, number>;
     satisfactionOnly?: boolean;
+    /** ADR-023 §2bis: 1a = rígido sin L3bis; 1b = elasticidad + islas. */
+    tablePhase?: TableAssignmentSubphase;
   }): Promise<{
     solverStatus: SolverStatus;
     solver: InstanceType<CpSatModule['CpSolver']>;
@@ -1160,7 +1308,12 @@ export class CpSatDistributionEngine implements DistributionEngine {
       minimizeTablesForCategoryId,
       fixedKMinByCategory,
       satisfactionOnly = false,
+      tablePhase = '1a',
     } = parts;
+
+    const tableElasticExtraSeats =
+      tablePhase === '1b' ? TABLE_CAPACITY_ELASTIC_EXTRA_SEATS : 0;
+    const enableIslandSoft = tablePhase === '1b';
 
     const model = new CpModel();
     const unitSizes = solvableUnits.map((unit) => unit.guestIds.length);
@@ -1184,18 +1337,18 @@ export class CpSatDistributionEngine implements DistributionEngine {
     const elasticExcessVars: IntVar[] = [];
     input.tables.forEach((table, tableIndex) => {
       const tableVars = assignVars.map((unitVars) => unitVars[tableIndex]);
-      const elasticCapacity = table.capacity + TABLE_CAPACITY_ELASTIC_EXTRA_SEATS;
+      const elasticCapacity = table.capacity + tableElasticExtraSeats;
       const seatedCount = model.newIntVar(
         0,
         elasticCapacity,
         `cap_fill_t${tableIndex}`,
       );
       model.addEquality(seatedCount, weightedSum(tableVars, unitSizes));
-      model.addLinearConstraint(
-        seatedCount,
-        0,
-        elasticCapacity,
-      );
+      model.addLinearConstraint(seatedCount, 0, elasticCapacity);
+
+      if (tableElasticExtraSeats <= 0) {
+        return;
+      }
 
       const exceedsBaseCapacity = model.newBoolVar(`cap_over_t${tableIndex}`);
       model.addLinearConstraint(
@@ -1211,7 +1364,7 @@ export class CpSatDistributionEngine implements DistributionEngine {
 
       const excess = model.newIntVar(
         0,
-        TABLE_CAPACITY_ELASTIC_EXTRA_SEATS,
+        tableElasticExtraSeats,
         `cap_excess_t${tableIndex}`,
       );
       model.addLinearConstraint(
@@ -1241,16 +1394,18 @@ export class CpSatDistributionEngine implements DistributionEngine {
     const objectiveWeights: number[] = solvableUnits.flatMap((unit) =>
       input.tables.map(() => unit.guestIds.length * softPlan.assignmentWeight),
     );
-    const elasticityPenaltyWeight = Math.max(
-      1,
-      Math.round(
-        softPlan.assignmentWeight * TABLE_CAPACITY_ELASTICITY_PENALTY_FACTOR,
-      ),
-    );
-    objectiveVars.push(...elasticExcessVars);
-    objectiveWeights.push(
-      ...elasticExcessVars.map(() => -elasticityPenaltyWeight),
-    );
+    if (elasticExcessVars.length > 0) {
+      const elasticityPenaltyWeight = Math.max(
+        1,
+        Math.round(
+          softPlan.assignmentWeight * TABLE_CAPACITY_ELASTICITY_PENALTY_FACTOR,
+        ),
+      );
+      objectiveVars.push(...elasticExcessVars);
+      objectiveWeights.push(
+        ...elasticExcessVars.map(() => -elasticityPenaltyWeight),
+      );
+    }
     const pairTermWeightScale =
       engineProfile === 'category_dominant'
         ? 0.9
@@ -1301,7 +1456,8 @@ export class CpSatDistributionEngine implements DistributionEngine {
           minimizeTablesForCategoryId,
           fixedKMinByCategory,
           assignmentWeight: softPlan.assignmentWeight,
-          tableElasticExtraSeats: TABLE_CAPACITY_ELASTIC_EXTRA_SEATS,
+          tableElasticExtraSeats,
+          enableIslandSoft,
           categoryAffinityMatrix,
         },
       );
@@ -1326,14 +1482,18 @@ export class CpSatDistributionEngine implements DistributionEngine {
     }
 
     if (softPlan.categoryGrouping !== undefined) {
+      // En 1b (elasticidad) packing bajo: no llenar huecos mezclando categorías
+      // si L1+elasticidad permiten mesas propias (p. ej. 10 en C+2, o 6+6).
       const packingFactor =
-        engineProfile === 'category_dominant'
-          ? hardCategoryL1
-            ? 1
-            : 0.9
-          : engineProfile === 'affinity_dominant'
-            ? 0.6
-            : 0.8;
+        tableElasticExtraSeats > 0
+          ? 0.2
+          : engineProfile === 'category_dominant'
+            ? hardCategoryL1
+              ? 1
+              : 0.9
+            : engineProfile === 'affinity_dominant'
+              ? 0.6
+              : 0.8;
       const packing = addTablePackingObjective(
         model,
         weightedSum,
@@ -1341,8 +1501,8 @@ export class CpSatDistributionEngine implements DistributionEngine {
         unitSizes,
         input.tables,
         Math.max(1, Math.floor(softPlan.assignmentWeight * packingFactor)),
-        0.2,
-        TABLE_CAPACITY_ELASTIC_EXTRA_SEATS,
+        CATEGORY_TABLE_ELASTIC_EXTRA_SEATS,
+        tableElasticExtraSeats,
       );
       objectiveVars.push(...packing.objectiveVars);
       objectiveWeights.push(...packing.objectiveWeights);

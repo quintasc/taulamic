@@ -2,63 +2,70 @@
 
 - Ultima actualizacion: **2026-07-17**
 - Sprint activo: **Post Sprint 10** (W5 cierre piloto)
-- **`main` @ `9d6fdb0`** (pusheado) — e2e API alineados a `DISTRIBUTION_ENGINE`
+- **`main` @ (este commit)** — ADR-024 L3bis + Fase 1a/1b + exclusión Pareja
 
 ## Frase clave
 
 ```text
-Retomo Taulamic. Estado 2026-07-17: e2e API ya no fuerzan motor v0; usan DISTRIBUTION_ENGINE (default v1 CP-SAT). Suite e2e 66/66 con CP-SAT. Pendiente: decision PO L3 anti-huerfano vs quorum 3; validacion PO visual; deuda sillas/afinidades API.
+Retomo Taulamic. Estado 2026-07-17: ADR-024 implementado en motor (L3≥2, L3bis, Fase 1a/1b, k_min con C+E, exclusión genérica Pareja/Parejas). Colores de categoría únicos en UI/PDF. Pendiente: validación PO visual; deuda sillas/afinidades API; Top-K.
 ```
 
-## Entregado hoy 2026-07-17
+## Entregado hoy 2026-07-17 (motor ADR-024 / sala)
 
-### E2E API alineados a `DISTRIBUTION_ENGINE`
+### Fase 1a / 1b (ADR-023 §2bis) — **implementado**
+
+| Subfase | Contenido |
+|---------|-----------|
+| **1a** | Capacidad rígida; L1–L3 duro; sin L3bis ni elasticidad |
+| **1b** | L3bis + elasticidad ±2 + `k_min = ceil(N/(C+E))`; packing tolera hasta 2 vacías |
+
+### L3 / L3bis / pureza / packing
+
+| Pieza | Regla |
+|-------|--------|
+| L3 duro | Anti-huérfano ≥2 |
+| L3bis | Islas ≤3 de categoría grande descolgada (blando, solo 1b) |
+| L1 elástico | ±2 puede bajar mesas (p. ej. 10→1 mesa; 12→6+6) |
+| Pureza | Mezclar dos categorías grandes (N≥6) solo si necesario (peso ×5) |
+| Packing | Hasta **2** sillas vacías sin penalizar |
+| Metadato Excel | **Pareja/Parejas** excluidas del agrupado L1–L3 (genérico; D3 via `acompanante_key`) |
+
+### UI validación
 
 | Área | Entrega |
 |------|---------|
-| Setup e2e | `setup-e2e.ts` deja de forzar `DISTRIBUTION_ENGINE=v0` |
-| Assertions | `expectedMotorVersion()` según env (`v1`/`cpsat` → `v1-cpsat`, `v0` → `v0-pilot`) |
-| Jest + WASM | `test:e2e` con `--experimental-vm-modules` (import dinámico or-tools-wasm) |
-| Verificación | Suite e2e API **66/66** con CP-SAT; regresión con `DISTRIBUTION_ENGINE=v0` OK |
-| Docs piloto | `docs/pilot/` y Project doc actualizados (E2E = config, no v0 fijo) |
+| Colores categoría | Lookup por índice ordenado (sin colisiones hash) — vista mesas + PDF |
 
-### Docs roadmap (commit previo `aec8ce1`)
+### Validación
 
-| Área | Entrega |
-|------|---------|
-| Roadmap MVP | Actualizado a 17 jul / W5 (14 días al hito) |
-| Contexto | Limpieza historial punteros main |
+| Check | Resultado |
+|-------|-----------|
+| Smoke multi6 / elastic-kmin | OK |
+| Repro evento real (11 mesas, sin Pareja en L1) | Trabajo 6+6; Familia novio 10 |
+| Script | `validate-l3bis-pilot80.cjs`, `smoke-elastic-kmin.cjs`, `smoke-real-event-no-pareja.cjs` |
+
+### E2E API (sesión previa, `9d6fdb0`)
+
+E2E respetan `DISTRIBUTION_ENGINE` (default CP-SAT).
 
 ## Pendiente inmediato
 
-1. **Decision PO L3** — alinear ADR-024 (≥2) vs quorum CP-SAT (≥3 al fragmentar); sin tocar L1/L2
-2. **Validación PO visual** — sillas, estrella, móvil (`guion-validacion-piloto-ui.md`)
-3. **Deuda técnica piloto** — unificar sillas API/local; persistencia API afinidades
+1. **Validación PO visual** — sillas, estrella, móvil (`guion-validacion-piloto-ui.md`)
+2. **Deuda técnica piloto** — unificar sillas API/local; persistencia API afinidades
+3. **Top-K / comparador** — diferido (ADR-023 §3)
 
 ## Historial reciente
 
 | Commit | Descripción |
 |--------|-------------|
+| *(este)* | feat: ADR-024 L3bis, Fase 1a/1b, exclusión Pareja, colores categoría |
 | `9d6fdb0` | test(api): e2e respetan DISTRIBUTION_ENGINE (CP-SAT por defecto) |
-| `aec8ce1` | docs: actualiza roadmap MVP a 17 jul (W5) y limpia historial de contexto |
-| `d66a1f8` | docs: fija puntero main en 13b79c7 |
-| `13b79c7` | docs: alinea puntero main a HEAD |
-| `6f242a8` | refactor(web): hooks/modales compartidos distribución, badge PAX y E2E categoría |
-| `50f779d` | docs: sincroniza GitHub Project #2 y contexto tras consolidación piloto |
-| `4dd7e39` | docs: consolidate current pilot scope and SDD traceability |
-| `9933ce7` | feat(ui): distribución por sillas, estrella presidencial y mejoras panel plano |
-
-## Sprint 10 (cerrado)
-
-- `sprint-10-cierre.md` · Sillas, estrella presidencial, panel plano mejorado
-
-## Sprint 09 (cerrado)
-
-- `sprint-09-cierre.md` · E2E robusto + drawer hamburguesa
+| `aec8ce1` | docs: actualiza roadmap MVP a 17 jul (W5) |
+| `6f242a8` | refactor(web): hooks/modales distribución, badge PAX |
 
 ## Referencias
 
+- `ADR-023` §2bis · `ADR-024` §1bis / k_min C+E
 - `guion-validacion-piloto-ui.md`
 - `docs/pilot/README.md`
-- `docs/sdd/SDD-GOVERNANZA-PROTECCION-SDD.md`
-- `apps/api/.env.example` (`DISTRIBUTION_ENGINE`)
+- `github-project-sprint-10.md`

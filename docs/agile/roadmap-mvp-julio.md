@@ -23,6 +23,7 @@ Mar 2026          Jun 2026                    Jul 2026 (W5)              31 jul
 | **Foco actual** | Validacion PO visual; deuda sillas/afinidades API; estabilizacion pre-hito |
 | **EP-11 / EP-12 / EP-13** | **Cerrados** (#22–#36) |
 | **EP-03 Motor CP-SAT async** | **Cerrado** (`d08d11a`; Project #2 Done) |
+| **ADR-024 / Fase 1a·1b** | **Hecho en código** (17 jul) — L3bis, k_min C+E, exclusión Pareja |
 | **EP-04 / EP-05 / EP-07 / EP-08** | **En curso** (manual HU-05 hecho; PDF parcial; OpenAPI piloto; Top-K pendiente) |
 | **Progreso piloto (DoD tecnico)** | **Cerrado** — flujo E2E + docs/pilot consolidados |
 | **Usuario real (#53)** | **Pospuesto** post-hito |

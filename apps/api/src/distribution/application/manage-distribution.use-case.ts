@@ -69,8 +69,9 @@ export class RunDistributionUseCase {
     const event = await this.requireEvent(eventId);
     this.assertDistributionEditable(event);
 
-    const [guests] = await Promise.all([
+    const [guests, categories] = await Promise.all([
       this.guestRepository.listGuests(eventId),
+      this.guestRepository.listCategories(eventId),
     ]);
 
     if (event.tables.length === 0) {
@@ -158,6 +159,10 @@ export class RunDistributionUseCase {
       softRules: prepared.softRules,
       explicitAffinityRelations: prepared.explicitAffinityRelations,
       categoryAffinityMatrix,
+      categoryCatalog: categories.map((category) => ({
+        id: category.id,
+        name: category.name,
+      })),
     });
     return proposal;
   }

@@ -24,6 +24,7 @@ export type RunDistributionAsyncJobInput = {
   softRules?: SoftRuleKind[];
   explicitAffinityRelations?: DistributionEngineInput['explicitAffinityRelations'];
   categoryAffinityMatrix?: DistributionEngineInput['categoryAffinityMatrix'];
+  categoryCatalog?: DistributionEngineInput['categoryCatalog'];
 };
 
 @Injectable()
@@ -62,6 +63,7 @@ export class RunDistributionAsyncService {
       softRules,
       explicitAffinityRelations,
       categoryAffinityMatrix,
+      categoryCatalog,
     } = input;
     const estimatedDurationMs = this.estimateComputeDurationMs(input);
     this.tracker.markComputing({
@@ -85,6 +87,7 @@ export class RunDistributionAsyncService {
         softRules,
         explicitAffinityRelations,
         categoryAffinityMatrix,
+        categoryCatalog,
       });
       this.tracker.markPersisting({
         eventId,

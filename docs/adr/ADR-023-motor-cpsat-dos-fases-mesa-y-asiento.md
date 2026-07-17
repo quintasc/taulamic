@@ -1,7 +1,7 @@
 # ADR-023 - Motor CP-SAT en dos fases: asignación por mesa y asiento intra-mesa
 
-- Estado: Aceptado
-- Fecha: 2026-07-07
+- Estado: Aceptado (enmienda Fase 1a/1b PO 2026-07-17)
+- Fecha: 2026-07-07 (enmienda 2026-07-17)
 - Evoluciona: `ADR-006` (activa su condición de revisión sobre uso extenso de CP-SAT)
 - Afecta: `ADR-007` (**Top-K diferido** a fase posterior; ver §3), `ADR-014` (queda sin efecto salvo reversión), `SDD-01` §16, HU-17, HU-18, HU-30
 - Relacionado: `ADR-009` (topología de asientos), `SDD-PILOTO-enmienda-HU05-fase2c-sillas-distribucion-estrella.md` (§4: exclusión `placement.seatId` que este ADR resuelve)
@@ -46,6 +46,26 @@ El problema se resuelve en dos fases encadenadas:
 - Cada subproblema tiene ≤ 12-50 personas, se resuelve en milisegundos y se paraleliza por mesa.
 
 La descomposición sacrifica una optimalidad global teórica marginal (la fase 1 no ve matices de asiento al repartir entre mesas) a cambio de mantener el modelo global tratable y cumplir los KPIs de tiempo. Casi todo el valor de proximidad reside en compartir mesa; el refinamiento fino es intra-mesa.
+
+### 2bis. Enmienda PO 2026-07-17 — Fase 1 en dos subfases (1a / 1b)
+
+La Fase 1 (invitado → mesa) se descompone a su vez para aligerar tiempo y estabilizar el piloto (~80+ invitados), sin confundirse con la Fase 2 de asientos:
+
+| Subfase | Objetivo | Incluye | Excluye (pasa a 1b) |
+|---------|----------|---------|---------------------|
+| **1a — Estructura** | Reparto base factible y estable | Capacidad **rígida** (sin elasticidad); duras §7.1; L1→L2; **L3 duro** (anti-huérfano ≥2); afinidades/packing esenciales | L3bis (islas); elasticidad ±2 |
+| **1b — Remedios de sala** | Ajuste fino preferible | **L3bis** (islas ≤3 de categoría grande descolgada); **elasticidad ±2** para absorber restos **y** alcanzar `k_min` con C+E (p. ej. 9+9) | Reabrir el problema global completo |
+
+**Contrato entre subfases:**
+
+1. **1a** devuelve una asignación con capacidad base, `k` acorde a `k_min` cuando sea factible, y **0 huérfanos L3**.
+2. **1b** parte de ese esqueleto (fijado o con libertad local acotada: pocas mesas/categorías) y solo aplica remedios: preferir +1/+2 sillas o reagrupar trozos ≥3 antes que islas ≤3 en mesa ajena.
+3. **1b no puede** “arreglar” una isla creando un solo (sigue mandando L3).
+4. La **Fase 2** (asientos) no cambia: corre sobre el resultado de 1a+1b.
+
+**Motivo:** modelar islas (muchos booleanos categoría×mesa×tamaño) y elasticidad en el mismo CP-SAT que L1–L3 hincha el modelo y, con *anytime* `FEASIBLE`, degrada L2/`k_min` en escenarios piloto. Separar 1b reduce variables en 1a y concentra presupuesto en el matiz de sala.
+
+**Estado de implementación:** Fase 1a/1b cableada en `CpSatDistributionEngine` (`tablePhase`: 1a = capacidad rígida + L1–L3 sin islas; 1b = L3bis + elasticidad ±2 con presupuesto reservado).
 
 ### 3. Top-K candidatas — **diferido** (decisión PO 2026-07-07)
 

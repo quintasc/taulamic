@@ -16,7 +16,11 @@ import {
   TABLE_DIAGRAM,
   getDiagramSeatPositions,
 } from '@/lib/distribution-table-diagram-layout';
-import { getCategoryColor, type CategoryColor } from '@/lib/category-colors';
+import {
+  buildCategoryColorLookup,
+  getCategoryColor,
+  type CategoryColor,
+} from '@/lib/category-colors';
 import type { DistributionTableGroup } from '@/lib/distribution-view';
 import type { jsPDF } from 'jspdf';
 
@@ -119,26 +123,40 @@ function hexToRgb(hex: string): [number, number, number] {
 
 function resolveCategoryPalette(
   categoryName: string | undefined | null,
-  options?: { presidential?: boolean; empty?: boolean },
+  options?: {
+    presidential?: boolean;
+    empty?: boolean;
+    colorLookup?: ReadonlyMap<string, CategoryColor>;
+  },
 ): CategoryColor {
   return getCategoryColor(categoryName, options);
 }
 
 function categoryPaletteToRgb(
   categoryName: string | undefined | null,
-  options?: { presidential?: boolean; empty?: boolean },
+  options?: {
+    presidential?: boolean;
+    empty?: boolean;
+    colorLookup?: ReadonlyMap<string, CategoryColor>;
+  },
 ): {
   fill: [number, number, number];
   border: [number, number, number];
   text: [number, number, number];
 } {
-  const palette = resolveCategoryPalette(categoryName, options);
+  const palette = resolveCategoryPalette(categoryName, {
+    ...options,
+    colorLookup: options?.colorLookup ?? pdfCategoryColorLookup,
+  });
   return {
     fill: hexToRgb(palette.fill),
     border: hexToRgb(palette.border),
     text: hexToRgb(palette.text),
   };
 }
+
+/** Lookup del informe en curso (colores únicos por categoría del evento). */
+let pdfCategoryColorLookup: ReadonlyMap<string, CategoryColor> | undefined;
 
 function formatPercent(value: number): string {
   if (!Number.isFinite(value)) {
@@ -2283,6 +2301,9 @@ export async function downloadDistributionReportPdf(
   const approxGuests = parseApproximateGuestCount(input.eventMeta);
   const guestNameById = buildGuestNameById(input);
   const categoryDispersion = buildCategoryDispersion(input);
+  pdfCategoryColorLookup = buildCategoryColorLookup(
+    categoryDispersion.map((category) => category.name),
+  );
   const categoryCount = categoryDispersion.filter(
     (category) => category.name.toLowerCase() !== 'sin categoría',
   ).length;
@@ -2468,5 +2489,6 @@ export async function downloadDistributionReportPdf(
   drawTableDetailsPages(doc, input, headerContext);
   drawPageNumbers(doc);
   doc.save(buildFileName(input.eventName));
+  pdfCategoryColorLookup = undefined;
 }
 

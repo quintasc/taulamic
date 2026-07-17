@@ -108,6 +108,19 @@ new CpSatDistributionEngine()
       8,
     );
 
+    for (const analysis of analyses) {
+      if (analysis.orphanCount > 0) {
+        failures.push(
+          `${analysis.categoryId}: ${analysis.orphanCount} huérfano(s)`,
+        );
+      }
+      if (analysis.guestCount >= 6 && analysis.strandedIslandCount > 0) {
+        failures.push(
+          `${analysis.categoryId}: ${analysis.strandedIslandCount} isla(s) L3bis`,
+        );
+      }
+    }
+
     const amigosNovia = analyses.find((entry) => entry.categoryId === AMIGOS_NOVIA);
     const amigosNovio = analyses.find((entry) => entry.categoryId === AMIGOS_NOVIO);
 

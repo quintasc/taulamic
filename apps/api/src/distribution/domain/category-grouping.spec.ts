@@ -6,7 +6,10 @@ import {
   computeBalancedCountBounds,
   computeKMin,
   categoryGroupingPenalty,
+  effectiveCapacityForKMin,
   isBalancedSplit,
+  isExcludedGroupingCategoryName,
+  stripExcludedGroupingCategories,
   tableCategoryMixingPenalty,
   wouldCreateAvoidableCategoryOrphan,
 } from './category-grouping';
@@ -43,10 +46,31 @@ function guest(
 describe('category-grouping (ADR-024)', () => {
   it('k_min para 9 invitados y mesas de 8 plazas es 2', () => {
     expect(computeKMin(9, 8)).toBe(2);
+    expect(computeKMin(18, 8)).toBe(3);
+    expect(computeKMin(18, 10)).toBe(2);
+    expect(effectiveCapacityForKMin(8)).toBe(10);
   });
 
   it('k_min para 15 invitados y mesas de 8 plazas es 2', () => {
     expect(computeKMin(15, 8)).toBe(2);
+  });
+
+  it('excluye la categoría metadato Pareja del agrupado', () => {
+    expect(isExcludedGroupingCategoryName('Pareja')).toBe(true);
+    expect(isExcludedGroupingCategoryName('Trabajo')).toBe(false);
+
+    const stripped = stripExcludedGroupingCategories(
+      [
+        guest('g1', 'Ana', {
+          categoriaIds: ['cat-trabajo', 'cat-pareja'],
+        }),
+      ],
+      new Map([
+        ['cat-trabajo', 'Trabajo'],
+        ['cat-pareja', 'Pareja'],
+      ]),
+    );
+    expect(stripped[0].categoriaIds).toEqual(['cat-trabajo']);
   });
 
   it('L2 con k=2 y N=15 exige conteos entre 7 y 8 por mesa', () => {
@@ -67,6 +91,7 @@ describe('category-grouping (ADR-024)', () => {
         countsByTable: new Map(),
         spread: 1,
         orphanCount: 0,
+        strandedIslandCount: 0,
         relaxed: true,
       },
     ];
@@ -79,6 +104,7 @@ describe('category-grouping (ADR-024)', () => {
         countsByTable: new Map(),
         spread: 1,
         orphanCount: 0,
+        strandedIslandCount: 0,
         relaxed: false,
       },
     ];
@@ -100,6 +126,7 @@ describe('category-grouping (ADR-024)', () => {
             countsByTable: new Map(),
             spread: 1,
             orphanCount: 0,
+            strandedIslandCount: 0,
             relaxed: false,
           },
         ],
@@ -116,6 +143,7 @@ describe('category-grouping (ADR-024)', () => {
             countsByTable: new Map(),
             spread: 1,
             orphanCount: 0,
+            strandedIslandCount: 0,
             relaxed: false,
           },
         ],
@@ -190,7 +218,64 @@ describe('category-grouping (ADR-024)', () => {
     const [analysis] = analyzeCategoryDistributions(placements, guests, 8);
     expect(analysis.kUsed).toBe(2);
     expect(analysis.orphanCount).toBe(1);
+    expect(analysis.strandedIslandCount).toBe(0);
     expect(analysis.spread).toBeGreaterThan(1);
+  });
+
+  it('detecta isla descolgada ≤3 de categoría grande donde no predomina', () => {
+    const amigos = Array.from({ length: 8 }, (_, index) =>
+      guest(`a${index}`, `Amigo ${index}`, { categoriaIds: ['amigos'] }),
+    );
+    const otros = Array.from({ length: 5 }, (_, index) =>
+      guest(`o${index}`, `Otro ${index}`, { categoriaIds: ['otros'] }),
+    );
+    const guests = [...amigos, ...otros];
+    const placements = [
+      ...amigos.slice(0, 6).map((entry) => ({
+        guestId: entry.id,
+        guestName: entry.nombre,
+        tableId: 't1',
+        tableLabel: 'Mesa 1',
+      })),
+      ...amigos.slice(6).map((entry) => ({
+        guestId: entry.id,
+        guestName: entry.nombre,
+        tableId: 't2',
+        tableLabel: 'Mesa 2',
+      })),
+      ...otros.map((entry) => ({
+        guestId: entry.id,
+        guestName: entry.nombre,
+        tableId: 't2',
+        tableLabel: 'Mesa 2',
+      })),
+    ];
+
+    const analyses = analyzeCategoryDistributions(placements, guests, 8);
+    const amigosAnalysis = analyses.find(
+      (entry) => entry.categoryId === 'amigos',
+    );
+    expect(amigosAnalysis?.strandedIslandCount).toBe(1);
+    expect(amigosAnalysis?.orphanCount).toBe(0);
+  });
+
+  it('no marca isla si la categoría es pequeña o predomina en la mesa', () => {
+    const guests = [
+      guest('g1', 'A', { categoriaIds: ['primos'] }),
+      guest('g2', 'B', { categoriaIds: ['primos'] }),
+      guest('g3', 'C', { categoriaIds: ['primos'] }),
+      guest('g4', 'D', { categoriaIds: ['otros'] }),
+    ];
+    const placements = guests.map((entry) => ({
+      guestId: entry.id,
+      guestName: entry.nombre,
+      tableId: 't1',
+      tableLabel: 'Mesa 1',
+    }));
+
+    const [analysis] = analyzeCategoryDistributions(placements, guests, 8);
+    expect(analysis.categoryId).toBe('primos');
+    expect(analysis.strandedIslandCount).toBe(0);
   });
 
   it('wouldCreateAvoidableCategoryOrphan bloquea huérfano evitable', () => {

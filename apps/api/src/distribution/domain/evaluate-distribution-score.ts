@@ -12,6 +12,8 @@ import type {
 import { areAffine } from './placement-units';
 import {
   analyzeCategoryDistributions,
+  CATEGORY_TABLE_ELASTIC_EXTRA_SEATS,
+  effectiveCapacityForKMin,
   formatCategoryDistributionDetail,
   scoreCategoryGrouping,
 } from './category-grouping';
@@ -28,7 +30,7 @@ const CRITERION_LABELS: Record<string, string> = {
 };
 
 const MAX_PROXIMITY_WEIGHT = PROXIMITY_WEIGHTS.adyacente;
-const TABLE_EMPTY_TOLERANCE_PERCENT = 0.2;
+const TABLE_EMPTY_TOLERANCE_SEATS = CATEGORY_TABLE_ELASTIC_EXTRA_SEATS;
 
 export type EvaluateDistributionScoreInput = {
   placements: GuestPlacement[];
@@ -170,6 +172,10 @@ function evaluateGroupByCategoryCriterion(
     ...tables.map((table) => table.capacity),
     0,
   );
+  const kMinCapacity = effectiveCapacityForKMin(
+    maxTableCapacity,
+    CATEGORY_TABLE_ELASTIC_EXTRA_SEATS,
+  );
   const scopedPlacements =
     scopeTableId === undefined
       ? placements
@@ -186,7 +192,7 @@ function evaluateGroupByCategoryCriterion(
   const analyses = analyzeCategoryDistributions(
     scopedPlacements,
     scopedGuests,
-    maxTableCapacity,
+    kMinCapacity,
   );
   const { earned, max } = scoreCategoryGrouping(analyses);
 
@@ -276,9 +282,7 @@ function evaluateTablePackingCriterion(
     return buildCriterion('tablePacking', 0, 0);
   }
 
-  const allowedEmptySeats = Math.floor(
-    scopedTable.capacity * TABLE_EMPTY_TOLERANCE_PERCENT,
-  );
+  const allowedEmptySeats = TABLE_EMPTY_TOLERANCE_SEATS;
   const maxPoints = Math.max(0, scopedTable.capacity - allowedEmptySeats);
   if (maxPoints <= 0) {
     return buildCriterion('tablePacking', 0, 0);

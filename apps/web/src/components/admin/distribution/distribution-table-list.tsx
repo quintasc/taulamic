@@ -28,6 +28,10 @@ import {
 } from '@/lib/distribution-dnd';
 import { useGuestPointerDropHighlightForTable } from '@/components/admin/distribution/use-guest-pointer-drop-highlight';
 import {
+  buildCategoryColorLookup,
+  type CategoryColor,
+} from '@/lib/category-colors';
+import {
   countTablesByStatus,
   DISTRIBUTION_TABLE_FILTER_OPTIONS,
   filterDistributionTableGroups,
@@ -276,6 +280,7 @@ function DistributionTableRow({
   presidentialChairs,
   setPresidentialChairs,
   guestsById,
+  colorLookup,
   affinityRelations,
   companionGroups,
   tableProximity,
@@ -311,6 +316,7 @@ function DistributionTableRow({
   presidentialChairs: Set<string>;
   setPresidentialChairs: React.Dispatch<React.SetStateAction<Set<string>>>;
   guestsById: Map<string, { nombre: string; categoryName?: string }>;
+  colorLookup: ReadonlyMap<string, CategoryColor>;
   affinityRelations: AffinityRelationInput[];
   companionGroups: CompanionGroupInput[];
   tableProximity: TableProximityPreference;
@@ -566,6 +572,7 @@ function DistributionTableRow({
                         chairId={chairId}
                         occupant={occupiedSeats[chairId]}
                         presidential={isPresidential}
+                        colorLookup={colorLookup}
                         className="h-5 w-6 shrink-0 text-[9px]"
                       />
                       <div className="min-w-0 flex-1">
@@ -654,6 +661,7 @@ function DistributionTableRow({
                 presidentialChairs={presidentialChairs}
                 tableId={group.tableId}
                 guestsById={guestsById}
+                colorLookup={colorLookup}
                 affinityRelations={affinityRelations}
                 companionGroups={companionGroups}
               />
@@ -718,6 +726,15 @@ export function DistributionTableList({
   onUpdateTable?: (tableId: string, draft: TableEditDraft) => Promise<boolean>;
 }) {
   const guestsById = useMemo(() => buildGuestsById(guests), [guests]);
+  const colorLookup = useMemo(
+    () =>
+      buildCategoryColorLookup(
+        guests.flatMap((guest) =>
+          (guest.categories ?? []).map((category) => category.name),
+        ),
+      ),
+    [guests],
+  );
   const [tableProximityByTableId, setTableProximityByTableId] = useState<
     Record<string, TableProximityPreference>
   >({});
@@ -1052,6 +1069,7 @@ export function DistributionTableList({
               presidentialChairs={presidentialChairs}
               setPresidentialChairs={setPresidentialChairs}
               guestsById={guestsById}
+              colorLookup={colorLookup}
               affinityRelations={affinityRelations}
               companionGroups={companionGroups}
               tableProximity={resolveTableProximityPreference(

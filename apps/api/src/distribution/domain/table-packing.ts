@@ -1,5 +1,6 @@
 import type { EventTable } from '../../events/domain/event-config';
 
+import { CATEGORY_TABLE_ELASTIC_EXTRA_SEATS } from './category-grouping';
 import { linkCategoryCountToTableIndicator } from './cp-sat-category-grouping';
 
 type CpSatModule = typeof import('or-tools-wasm/cp-sat');
@@ -12,7 +13,8 @@ type IntVar = ReturnType<CpModelInstance['newIntVar']>;
 
 /**
  * Penaliza plazas vacías en mesas ya usadas (Fase 1).
- * Incentiva llenar mesas abiertas en lugar de abrir otra a medias.
+ * Tolera hasta {@link CATEGORY_TABLE_ELASTIC_EXTRA_SEATS} vacías sin coste
+ * (alineado con holgura ±2: p. ej. 6 en mesa de 8 para un 6+6 puro).
  */
 export function addTablePackingObjective(
   model: CpModelInstance,
@@ -21,7 +23,7 @@ export function addTablePackingObjective(
   unitSizes: number[],
   tables: EventTable[],
   packWeight: number,
-  emptyTolerancePercent = 0.2,
+  emptyToleranceSeats: number = CATEGORY_TABLE_ELASTIC_EXTRA_SEATS,
   tableElasticExtraSeats = 0,
 ): { objectiveVars: IntVar[]; objectiveWeights: number[] } {
   if (packWeight <= 0) {
@@ -31,9 +33,9 @@ export function addTablePackingObjective(
   const objectiveVars: IntVar[] = [];
   const objectiveWeights: number[] = [];
   const elasticExtraSeats = Math.max(0, tableElasticExtraSeats);
+  const allowedEmptySeats = Math.max(0, emptyToleranceSeats);
 
   tables.forEach((table, tableIndex) => {
-    const allowedEmptySeats = Math.floor(table.capacity * emptyTolerancePercent);
     const effectiveCapacity = table.capacity + elasticExtraSeats;
     const tableVars = assignVars.map((unitVars) => unitVars[tableIndex]);
     const fillCount = model.newIntVar(

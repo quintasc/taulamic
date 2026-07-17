@@ -81,8 +81,7 @@ Retomo Taulamic. Estado 2026-07-12: refactor web distribución/plano (hooks comp
 
 | Commit | Descripción |
 |--------|-------------|
-| `8c820f0` | docs: alinea puntero main a HEAD |
-| `f8f9dd2` | docs: corrige hash main en contexto y project |
+| `13b79c7` | docs: alinea puntero main a HEAD |
 | `e66c132` | docs: sincroniza hash main y Project tras refactor web distribución |
 | `1c1be75` | docs: actualiza CONTEXTO-EJECUCION tras refactor web distribución |
 | `6f242a8` | refactor(web): hooks/modales compartidos distribución, badge PAX y E2E categoría |

@@ -29,12 +29,15 @@ import {
 } from '../domain/distribution-engine.port';
 import { prepareDistributionMotorInput } from '../domain/prepare-distribution-motor-input';
 import { RunDistributionAsyncService } from './run-distribution-async.service';
+import { DistributionCalculationTrackerService } from './distribution-calculation-tracker.service';
 import {
   DISTRIBUTION_REPOSITORY,
   type DistributionRepositoryPort,
 } from '../infrastructure/persistence/distribution.repository.port';
 
 const CALCULATING_STALE_MS = 4 * 60_000;
+/** Sin tracker en memoria: el job ya no corre (p. ej. reinicio de `npm run dev`). */
+const ORPHAN_CALCULATING_STALE_MS = 8_000;
 const CATEGORY_AFFINITY_RELATION_WEIGHT: Record<
   ExplicitCategoryAffinityRelation['type'],
   number
@@ -55,6 +58,7 @@ export class RunDistributionUseCase {
     @Inject(DISTRIBUTION_ENGINE)
     private readonly distributionEngine: DistributionEngine,
     private readonly runDistributionAsyncService: RunDistributionAsyncService,
+    private readonly calculationTracker: DistributionCalculationTrackerService,
     private readonly assertAdminActorUseCase: AssertAdminActorUseCase,
   ) {}
 
@@ -101,9 +105,16 @@ export class RunDistributionUseCase {
 
     if (existing?.status === 'calculating') {
       const startedAtMs = Date.parse(existing.createdAt);
-      const isStale =
-        Number.isFinite(startedAtMs) &&
-        Date.now() - startedAtMs > CALCULATING_STALE_MS;
+      const elapsedMs = Number.isFinite(startedAtMs)
+        ? Date.now() - startedAtMs
+        : 0;
+      const tracked = this.calculationTracker.get(eventId);
+      const trackerAlive =
+        tracked !== null && tracked.proposalId === existing.id;
+      const staleLimitMs = trackerAlive
+        ? CALCULATING_STALE_MS
+        : ORPHAN_CALCULATING_STALE_MS;
+      const isStale = elapsedMs > staleLimitMs;
       if (!isStale) {
         return existing;
       }

@@ -14,7 +14,13 @@ import { DistributionCalculationTrackerService } from './distribution-calculatio
 
 const ASYNC_ERROR_CODE = 'ASYNC_DISTRIBUTION_ERROR';
 const DEFAULT_CALCULATING_ESTIMATE_MS = 45_000;
+/** Timeout si el tracker en memoria sigue vivo (cálculo real largo). */
 const STALE_CALCULATION_TIMEOUT_MS = 4 * 60_000;
+/**
+ * Sin tracker = job huérfano (reinicio API / crash). No esperar 4 min:
+ * el proceso en memoria ya no existe.
+ */
+const ORPHAN_CALCULATION_TIMEOUT_MS = 8_000;
 
 @Injectable()
 export class GetDistributionCalculationStatusUseCase {
@@ -47,13 +53,17 @@ export class GetDistributionCalculationStatusUseCase {
     }
 
     if (proposal.status === 'calculating') {
-      if (tracked && tracked.proposalId === proposal.id) {
-        const trackedElapsedMs =
-          tracked.elapsedMs ?? this.elapsedMs(proposal.createdAt);
+      const elapsedMs = this.elapsedMs(proposal.createdAt);
+      const trackerAlive =
+        tracked !== null && tracked.proposalId === proposal.id;
+
+      if (trackerAlive) {
+        const trackedElapsedMs = tracked.elapsedMs ?? elapsedMs;
         if (trackedElapsedMs < STALE_CALCULATION_TIMEOUT_MS) {
           return tracked;
         }
-        const staleMessage = this.buildStaleCalculationMessage(trackedElapsedMs);
+        const staleMessage =
+          this.buildStaleCalculationMessage(trackedElapsedMs);
         const recoveredProposal = await this.recoverStaleCalculation(
           proposal,
           staleMessage,
@@ -66,21 +76,22 @@ export class GetDistributionCalculationStatusUseCase {
           staleMessage,
         );
       }
-      const elapsedMs = this.elapsedMs(proposal.createdAt);
-      if (elapsedMs >= STALE_CALCULATION_TIMEOUT_MS) {
-        const staleMessage = this.buildStaleCalculationMessage(elapsedMs);
+
+      if (elapsedMs >= ORPHAN_CALCULATION_TIMEOUT_MS) {
+        const orphanMessage = this.buildOrphanCalculationMessage();
         const recoveredProposal = await this.recoverStaleCalculation(
           proposal,
-          staleMessage,
+          orphanMessage,
         );
         return this.buildCompletedStatus(
           eventId,
           recoveredProposal,
           'failed',
           'failed',
-          staleMessage,
+          orphanMessage,
         );
       }
+
       return {
         eventId,
         proposalId: proposal.id,
@@ -166,6 +177,10 @@ export class GetDistributionCalculationStatusUseCase {
     return `El cálculo asíncrono no finalizó tras ${elapsedSeconds} s y se marcó como fallido. Puedes relanzar el cálculo.`;
   }
 
+  private buildOrphanCalculationMessage(): string {
+    return 'El cálculo se interrumpió (reinicio del servidor o pérdida del proceso). Relanza el cálculo.';
+  }
+
   private async recoverStaleCalculation(
     proposal: DistributionProposal,
     message: string,
@@ -174,7 +189,11 @@ export class GetDistributionCalculationStatusUseCase {
       (violation) => violation.code === ASYNC_ERROR_CODE,
     );
     const nextViolations = hasAsyncError
-      ? proposal.hardRuleViolations
+      ? proposal.hardRuleViolations.map((violation) =>
+          violation.code === ASYNC_ERROR_CODE
+            ? { ...violation, message }
+            : violation,
+        )
       : [
           ...proposal.hardRuleViolations,
           {
@@ -191,4 +210,3 @@ export class GetDistributionCalculationStatusUseCase {
     });
   }
 }
-

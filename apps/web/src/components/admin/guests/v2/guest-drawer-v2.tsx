@@ -189,15 +189,20 @@ export function GuestDrawerV2({
 
           <div>
             <label className="label-field" htmlFor="v2-companion">
-              Grupo / acompañante (post-piloto)
+              Grupo / acompañante
             </label>
             <input
               id="v2-companion"
               className="input-field"
-              placeholder="Ej. mesa familiar López"
+              placeholder="Ej. PAREJA_001 o mesa familiar López"
               value={companionGroup}
               onChange={(e) => setCompanionGroup(e.target.value)}
             />
+            <p className="mt-1 text-xs text-neutral-500">
+              Vista previa en Afinidades. Pendiente (misma entrega): alta y baja
+              real de pareja obligatoria (keepTogether) enlazando este grupo a
+              `acompananteKey` en API — hoy el candado en Afinidades no se borra.
+            </p>
           </div>
           <div>
             <label className="label-field" htmlFor="v2-notes">

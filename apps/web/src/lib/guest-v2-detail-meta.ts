@@ -5,6 +5,10 @@ export type GuestV2DetailMeta = {
   dietaryAlert?: boolean;
   mobilityAlert?: boolean;
   notes?: string;
+  /**
+   * Grupo local (preview). Hoy no escribe `acompananteKey` en API → no es keepTogether duro.
+   * Futuro: enlazar este valor (o un toggle) a `acompananteKey` para keepTogether desde alta manual.
+   */
   companionGroup?: string;
 };
 

@@ -1,12 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { SetupNavBar } from '@/components/admin/setup-nav-bar';
 import { PageHeader, SaveStatusIndicator, SectionLabel, useAutoSaveIndicator } from '@/components/ui';
 import { CustomSelect } from '@/components/ui/custom-select';
 import { preferencesApi, guestsApi, companionGroupsApi } from '@/lib/api';
-import { IconSliders, IconClose, IconChevronDown, IconChevronUp, IconLink, IconLinkOff } from '@/components/icons';
+import { IconSliders, IconClose, IconChevronDown, IconChevronUp, IconLink, IconLinkOff, IconLock } from '@/components/icons';
 import {
   loadEventUiMeta,
   markAffinitiesDraftSaved,
@@ -119,7 +119,15 @@ type GuestAffinityRelation = {
   guestA: string;
   guestB: string;
   type: RelationType;
+  /** Regla dura D3 (Excel / acompañante). No usa verde/rojo de afinidad. */
+  keepTogether?: boolean;
 };
+
+function guestPairKey(nameA: string, nameB: string): string {
+  return [nameA.trim().toLowerCase(), nameB.trim().toLowerCase()]
+    .sort()
+    .join('|');
+}
 
 type CategoryAffinityRelation = {
   id: string;
@@ -194,6 +202,8 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
     'alternateGender',
   ]);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const dragSourceRef = useRef<number | null>(null);
 
   // Relations state
   const [guestRelations, setGuestRelations] = useState<GuestAffinityRelation[]>(
@@ -338,12 +348,7 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
           }
         }
 
-        const autoRelations: Array<{
-          id: string;
-          guestA: string;
-          guestB: string;
-          type: 'afinidad';
-        }> = [];
+        const autoRelations: GuestAffinityRelation[] = [];
 
         for (const groupName of Object.keys(groups)) {
           const members = groups[groupName];
@@ -355,6 +360,8 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
                 guestA: members[i].name,
                 guestB: members[j].name,
                 type: 'afinidad',
+                // Meta local: aún no es keepTogether duro (falta acompananteKey en API).
+                keepTogether: false,
               });
             }
           }
@@ -362,16 +369,22 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
 
         // 2. Auto-generate companion/family relations from pre-seeded backend companion groups
         const apiGroups = companionGroupsRes?.groups || [];
+        const hardKeepTogetherKeys = new Set<string>();
         for (const group of apiGroups) {
           const names = group.guestNames || [];
           if (names.length < 2) continue;
+          const isHard = group.keepTogether !== false;
           for (let i = 0; i < names.length; i++) {
             for (let j = i + 1; j < names.length; j++) {
+              if (isHard) {
+                hardKeepTogetherKeys.add(guestPairKey(names[i], names[j]));
+              }
               autoRelations.push({
                 id: `auto-api-${group.key}-${i}-${j}`,
                 guestA: names[i],
                 guestB: names[j],
                 type: 'afinidad',
+                keepTogether: isHard,
               });
             }
           }
@@ -382,13 +395,32 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
           const existing = [...current];
           let updated = false;
           for (const auto of autoRelations) {
-            const exists = existing.some(
+            const existsIndex = existing.findIndex(
               (r) =>
-                (r.guestA.toLowerCase() === auto.guestA.toLowerCase() && r.guestB.toLowerCase() === auto.guestB.toLowerCase()) ||
-                (r.guestA.toLowerCase() === auto.guestB.toLowerCase() && r.guestB.toLowerCase() === auto.guestA.toLowerCase())
+                (r.guestA.toLowerCase() === auto.guestA.toLowerCase() &&
+                  r.guestB.toLowerCase() === auto.guestB.toLowerCase()) ||
+                (r.guestA.toLowerCase() === auto.guestB.toLowerCase() &&
+                  r.guestB.toLowerCase() === auto.guestA.toLowerCase()),
             );
-            if (!exists) {
+            if (existsIndex < 0) {
               existing.push(auto);
+              updated = true;
+            } else if (
+              auto.keepTogether &&
+              !existing[existsIndex].keepTogether
+            ) {
+              existing[existsIndex] = {
+                ...existing[existsIndex],
+                keepTogether: true,
+              };
+              updated = true;
+            }
+          }
+          // Marca keepTogether en relaciones ya guardadas que coinciden con pares duros del API.
+          for (let i = 0; i < existing.length; i += 1) {
+            const key = guestPairKey(existing[i].guestA, existing[i].guestB);
+            if (hardKeepTogetherKeys.has(key) && !existing[i].keepTogether) {
+              existing[i] = { ...existing[i], keepTogether: true };
               updated = true;
             }
           }
@@ -465,38 +497,102 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
     });
   }
 
-  function handleDragStart(e: React.DragEvent, index: number) {
-    setDraggedIndex(index);
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', String(index));
-  }
-
-  function handleDragOver(e: React.DragEvent, index: number) {
-    e.preventDefault();
-  }
-
-  function handleDrop(e: React.DragEvent, targetIndex: number) {
-    e.preventDefault();
-    if (draggedIndex === null || draggedIndex === targetIndex) return;
-
-    const activeCount = rulesOrder.filter(k => rules[k]).length;
-    if (draggedIndex >= activeCount || targetIndex >= activeCount) return;
+  function moveActiveRule(fromIndex: number, toIndex: number) {
+    const activeCount = rulesOrder.filter((k) => rules[k]).length;
+    if (
+      fromIndex < 0 ||
+      toIndex < 0 ||
+      fromIndex >= activeCount ||
+      toIndex >= activeCount ||
+      fromIndex === toIndex
+    ) {
+      return;
+    }
 
     const nextOrder = [...rulesOrder];
-    const [draggedKey] = nextOrder.splice(draggedIndex, 1);
-    nextOrder.splice(targetIndex, 0, draggedKey);
+    const [draggedKey] = nextOrder.splice(fromIndex, 1);
+    nextOrder.splice(toIndex, 0, draggedKey);
 
     setRulesOrder(nextOrder);
     persistRules(rules, nextOrder);
     markSaved();
   }
 
-  function handleDragEnd() {
+  function clearRuleDragState() {
+    dragSourceRef.current = null;
     setDraggedIndex(null);
+    setDragOverIndex(null);
   }
 
+  function handleRulePointerDown(
+    event: React.PointerEvent<HTMLButtonElement>,
+    index: number,
+  ) {
+    if (event.button !== 0) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    dragSourceRef.current = index;
+    setDraggedIndex(index);
+    setDragOverIndex(index);
+  }
+
+  function handleRulePointerMove(event: React.PointerEvent<HTMLButtonElement>) {
+    if (dragSourceRef.current === null) {
+      return;
+    }
+    const target = document
+      .elementFromPoint(event.clientX, event.clientY)
+      ?.closest<HTMLElement>('[data-rule-index]');
+    if (!target) {
+      return;
+    }
+    const nextIndex = Number(target.dataset.ruleIndex);
+    const activeCount = rulesOrder.filter((k) => rules[k]).length;
+    if (
+      Number.isInteger(nextIndex) &&
+      nextIndex >= 0 &&
+      nextIndex < activeCount
+    ) {
+      setDragOverIndex(nextIndex);
+    }
+  }
+
+  function handleRulePointerUp(event: React.PointerEvent<HTMLButtonElement>) {
+    const fromIndex = dragSourceRef.current;
+    const toIndex = dragOverIndex;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    clearRuleDragState();
+    if (fromIndex !== null && toIndex !== null) {
+      moveActiveRule(fromIndex, toIndex);
+    }
+  }
+
+  useEffect(() => {
+    if (draggedIndex === null) {
+      return;
+    }
+    const cancelDrag = () => clearRuleDragState();
+    window.addEventListener('blur', cancelDrag);
+    document.addEventListener('visibilitychange', cancelDrag);
+    return () => {
+      window.removeEventListener('blur', cancelDrag);
+      document.removeEventListener('visibilitychange', cancelDrag);
+    };
+  }, [draggedIndex]);
+
+  // keepTogether: bloqueado a propósito. Baja real (API/acompananteKey) + alta
+  // desde entrada manual → misma entrega diferida (CONTEXTO-EJECUCION).
   function removeRelation(id: string) {
     if (affinityTargetMode === 'guests') {
+      const target = guestRelations.find((relation) => relation.id === id);
+      if (target?.keepTogether) {
+        return;
+      }
       setGuestRelations((current) => {
         const next = current.filter((relation) => relation.id !== id);
         persistGuestRelations(next);
@@ -515,6 +611,10 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
 
   function updateRelationType(id: string, type: RelationType) {
     if (affinityTargetMode === 'guests') {
+      const target = guestRelations.find((relation) => relation.id === id);
+      if (target?.keepTogether) {
+        return;
+      }
       setGuestRelations((current) => {
         const next = current.map((relation) =>
           relation.id === id ? { ...relation, type } : relation,
@@ -598,6 +698,7 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
             leftName: relation.guestA,
             rightName: relation.guestB,
             type: relation.type,
+            keepTogether: Boolean(relation.keepTogether),
             leftHint: guestList.find((guest) => guest.name === relation.guestA)
               ?.category,
             rightHint: guestList.find((guest) => guest.name === relation.guestB)
@@ -608,6 +709,7 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
             leftName: relation.categoryA,
             rightName: relation.categoryB,
             type: relation.type,
+            keepTogether: false,
             leftHint: undefined,
             rightHint: undefined,
           })),
@@ -699,7 +801,7 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
           </span>
         </div>
         <p className="text-sm text-neutral-600">
-          Criterios opcionales que aplican a todo el evento. El orden define la prioridad — arrastra para reorganizar. Si no marcas ninguno, el motor distribuirá sin reglas adicionales.
+          Criterios opcionales que aplican a todo el evento. El orden define la prioridad — arrastra el asa para reorganizar. Si no marcas ninguno, el motor distribuirá sin reglas adicionales.
         </p>
         <div className="space-y-3">
           {rulesOrder.map((key, index) => {
@@ -707,31 +809,42 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
             if (!rule) return null;
             const active = Boolean(rules[key]);
             const isDragging = draggedIndex === index;
+            const isDropTarget =
+              dragOverIndex === index &&
+              draggedIndex !== null &&
+              draggedIndex !== index;
             const isDraggable = active && !rule.disabled;
 
             return (
-              <button
+              <div
                 key={key}
-                type="button"
-                draggable={isDraggable}
-                onDragStart={(e) => isDraggable && handleDragStart(e, index)}
-                onDragOver={(e) => isDraggable && handleDragOver(e, index)}
-                onDrop={(e) => isDraggable && handleDrop(e, index)}
-                onDragEnd={handleDragEnd}
-                onClick={() => !rule.disabled && toggleRule(key)}
-                disabled={rule.disabled}
+                data-rule-index={index}
                 className={`flex w-full items-center gap-3 rounded-xl border p-4 text-left transition duration-200 ${
                   rule.disabled
-                    ? 'border-neutral-200 bg-neutral-100/50 cursor-not-allowed opacity-60'
+                    ? 'border-neutral-200 bg-neutral-100/50 opacity-60'
                     : active
-                    ? 'border-primary-500 bg-primary-500/5 cursor-grab active:cursor-grabbing'
-                    : 'border-neutral-200 bg-neutral-0 hover:border-neutral-300'
-                } ${isDragging ? 'opacity-40 border-dashed border-primary-300' : ''}`}
+                      ? 'border-primary-500 bg-primary-500/5'
+                      : 'border-neutral-200 bg-neutral-0'
+                } ${isDragging ? 'opacity-40 border-dashed border-primary-300' : ''} ${
+                  isDropTarget ? 'ring-2 ring-primary-500/40' : ''
+                }`}
               >
-                {/* Drag Handle & Priority Badge (Active only) */}
                 {active ? (
                   <div className="flex items-center gap-2 shrink-0">
-                    <IconDragHandle className="text-neutral-400 cursor-grab active:cursor-grabbing" />
+                    <button
+                      type="button"
+                      aria-label={`Reordenar: ${rule.title}`}
+                      disabled={!isDraggable}
+                      onPointerDown={(event) =>
+                        isDraggable && handleRulePointerDown(event, index)
+                      }
+                      onPointerMove={handleRulePointerMove}
+                      onPointerUp={handleRulePointerUp}
+                      onPointerCancel={clearRuleDragState}
+                      className="touch-none inline-flex cursor-grab items-center justify-center rounded-md p-1 text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-600 active:cursor-grabbing disabled:cursor-not-allowed"
+                    >
+                      <IconDragHandle />
+                    </button>
                     <span className="flex h-5 w-5 items-center justify-center rounded-full bg-neutral-900 text-[10px] font-bold text-neutral-0">
                       {index + 1}
                     </span>
@@ -743,19 +856,27 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
                   </div>
                 )}
 
-                {/* Title & Description */}
-                <div className="flex-1 min-w-0">
-                  <span className="block text-sm font-medium text-neutral-900">
-                    {rule.title}
-                  </span>
-                  <span className="mt-0.5 block text-xs text-neutral-500">
-                    {rule.description}
-                  </span>
-                </div>
-
-                {/* Toggle Switch */}
-                <Toggle checked={active} disabled={rule.disabled} />
-              </button>
+                <button
+                  type="button"
+                  onClick={() => !rule.disabled && toggleRule(key)}
+                  disabled={rule.disabled}
+                  className={`flex min-w-0 flex-1 items-center gap-3 text-left ${
+                    rule.disabled
+                      ? 'cursor-not-allowed'
+                      : 'cursor-pointer'
+                  }`}
+                >
+                  <div className="min-w-0 flex-1">
+                    <span className="block text-sm font-medium text-neutral-900">
+                      {rule.title}
+                    </span>
+                    <span className="mt-0.5 block text-xs text-neutral-500">
+                      {rule.description}
+                    </span>
+                  </div>
+                  <Toggle checked={active} disabled={rule.disabled} />
+                </button>
+              </div>
             );
           })}
         </div>
@@ -793,7 +914,7 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
         </div>
         <p className="text-sm text-neutral-600">
           {affinityTargetMode === 'guests'
-            ? 'Marca qué invitados deben sentarse juntos y qué invitados deben evitarse.'
+            ? 'Marca afinidades o incompatibilidades. El candado gris indica pareja u acompañante obligatorio en la misma mesa (Excel).'
             : 'Marca qué categorías tienen afinidad o incompatibilidad para guiar las mesas híbridas.'}
           {!PILOT_COLLABORATIVE_MODE_ENABLED ? (
             <span className="mt-1 block text-xs text-neutral-500">
@@ -825,6 +946,16 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
 
                   {/* Relation Badge Select Dropdown */}
                   <div className="justify-self-center relative relation-select-container">
+                    {rel.keepTogether ? (
+                      <span
+                        className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-neutral-100 pl-3 pr-3 py-1.5 text-xs font-semibold text-neutral-800"
+                        title="Pareja u acompañante obligatorio en la misma mesa (keepTogether)"
+                      >
+                        <IconLock className="h-3.5 w-3.5 text-neutral-800 fill-none stroke-current shrink-0" />
+                        <span>juntos</span>
+                      </span>
+                    ) : (
+                      <>
                     <button
                       type="button"
                       onClick={() => setActiveDropdownId(activeDropdownId === rel.id ? null : rel.id)}
@@ -890,6 +1021,8 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
                         </button>
                       </div>
                     )}
+                      </>
+                    )}
                   </div>
 
                   {/* Right entity + Remove button */}
@@ -903,6 +1036,14 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 text-sm font-bold text-neutral-0 shrink-0">
                       {getInitials(rel.rightName)}
                     </div>
+                    {rel.keepTogether ? (
+                      <span
+                        className="ml-2 inline-flex h-7 w-7 items-center justify-center text-neutral-400"
+                        title="No se puede quitar: viene del Excel / acompañante"
+                      >
+                        <IconLock className="h-3.5 w-3.5 fill-none stroke-current" />
+                      </span>
+                    ) : (
                     <button
                       type="button"
                       onClick={() => removeRelation(rel.id)}
@@ -911,6 +1052,7 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
                     >
                       <IconClose className="h-4 w-4" />
                     </button>
+                    )}
                   </div>
                 </div>
 
@@ -929,6 +1071,16 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
                   {/* Relation select indented (avatar 40px + gap 12px = 52px) */}
                   <div className="pl-[52px] flex">
                     <div className="relative relation-select-container">
+                      {rel.keepTogether ? (
+                        <span
+                          className="inline-flex items-center gap-1 rounded-full border border-neutral-300 bg-neutral-100 px-2.5 py-1.5 text-xs font-semibold text-neutral-800"
+                          title="Pareja u acompañante obligatorio en la misma mesa (keepTogether)"
+                        >
+                          <IconLock className="h-3.5 w-3.5 text-neutral-800 fill-none stroke-current shrink-0" />
+                          <span>juntos</span>
+                        </span>
+                      ) : (
+                        <>
                       <button
                         type="button"
                         onClick={() => setActiveDropdownId(activeDropdownId === rel.id ? null : rel.id)}
@@ -988,6 +1140,8 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
                           </button>
                         </div>
                       )}
+                        </>
+                      )}
                     </div>
                   </div>
 
@@ -1001,7 +1155,15 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
                     </span>
                   </div>
 
-                  {/* Delete button (top right, always visible) */}
+                  {/* Delete / lock (top right) */}
+                  {rel.keepTogether ? (
+                    <span
+                      className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center text-neutral-500"
+                      title="No se puede quitar: viene del Excel / acompañante"
+                    >
+                      <IconLock className="h-4 w-4 fill-none stroke-current" />
+                    </span>
+                  ) : (
                   <button
                     type="button"
                     onClick={() => removeRelation(rel.id)}
@@ -1010,6 +1172,7 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
                   >
                     <IconClose className="h-4.5 w-4.5" />
                   </button>
+                  )}
                 </div>
               </div>
               );
@@ -1058,6 +1221,8 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
                   value={newEntityA}
                   onChange={setNewEntityA}
                   clearable
+                  searchable={affinityTargetMode === 'guests'}
+                  searchPlaceholder="Buscar por nombre o apellido"
                   options={entityOptionsA}
                   placeholder={leftPlaceholder}
                 />
@@ -1070,6 +1235,8 @@ export function PreferencesAffinityView({ eventId }: { eventId: string }) {
                   value={newEntityB}
                   onChange={setNewEntityB}
                   clearable
+                  searchable={affinityTargetMode === 'guests'}
+                  searchPlaceholder="Buscar por nombre o apellido"
                   options={entityOptionsB}
                   placeholder={rightPlaceholder}
                 />

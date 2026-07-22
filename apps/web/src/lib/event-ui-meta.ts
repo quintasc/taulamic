@@ -41,6 +41,11 @@ export type EventUiMeta = {
     guestA: string;
     guestB: string;
     type: 'afinidad' | 'incompatibilidad';
+    /**
+     * Pareja/acompañante con keepTogether duro (Excel / D3).
+     * Futuro: también asignable desde alta manual vía `acompananteKey`.
+     */
+    keepTogether?: boolean;
   }>;
   categoryAffinityRelations?: Array<{
     id: string;

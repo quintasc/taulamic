@@ -1,8 +1,12 @@
 import type { EventTable } from '../../events/domain/event-config';
 import type { Guest } from '../../guest-import/domain/guest';
 import type { SoftRuleKind } from './distribution-engine.port';
-import type { DistributionProposal } from './distribution.types';
+import type { DistributionProposal, GuestPlacement } from './distribution.types';
 import { wouldCreateAvoidableCategoryOrphan } from './category-grouping';
+import {
+  UpdateGuestSeatError,
+  updateGuestSeatInProposal,
+} from './update-guest-seat-in-proposal';
 
 export class MoveGuestError extends Error {
   constructor(
@@ -20,11 +24,6 @@ export class MoveGuestError extends Error {
     this.name = 'MoveGuestError';
   }
 }
-
-import {
-  UpdateGuestSeatError,
-  updateGuestSeatInProposal,
-} from './update-guest-seat-in-proposal';
 
 export type MoveGuestInProposalInput = {
   guestId: string;
@@ -95,11 +94,31 @@ export function moveGuestInProposal(
     );
   }
 
+  if (
+    input.seatIndex !== undefined &&
+    (input.seatIndex < 0 || input.seatIndex >= table.capacity)
+  ) {
+    throw new MoveGuestError(
+      'TABLE_FULL',
+      'El asiento indicado no es valido para esta mesa.',
+    );
+  }
+
+  const swapOccupant =
+    input.seatIndex === undefined
+      ? undefined
+      : proposal.placements.find(
+          (placement) =>
+            placement.guestId !== input.guestId &&
+            placement.tableId === input.tableId &&
+            placement.seatIndex === input.seatIndex,
+        );
+
   const assignedOnTarget = proposal.placements.filter(
     (placement) => placement.tableId === input.tableId,
   ).length;
 
-  if (assignedOnTarget >= table.capacity) {
+  if (!swapOccupant && assignedOnTarget >= table.capacity) {
     throw new MoveGuestError(
       'TABLE_FULL',
       'La mesa no tiene plazas libres.',
@@ -115,8 +134,89 @@ export function moveGuestInProposal(
     );
   }
 
-  assertIncompatibilityRule(proposal, guest, input.guests, input.tableId);
-  assertCategoryGroupingRule(proposal, guest, input);
+  assertIncompatibilityRule(
+    proposal,
+    guest,
+    input.guests,
+    input.tableId,
+    swapOccupant?.guestId,
+  );
+
+  if (swapOccupant) {
+    const swapGuest = input.guests.find(
+      (item) => item.id === swapOccupant.guestId,
+    );
+    if (!swapGuest) {
+      throw new MoveGuestError(
+        'GUEST_NOT_ASSIGNED',
+        'El invitado con el que se intercambia no esta disponible.',
+      );
+    }
+    assertIncompatibilityRule(
+      proposal,
+      swapGuest,
+      input.guests,
+      currentPlacement.tableId,
+      input.guestId,
+    );
+  }
+
+  assertCategoryGroupingRule(proposal, guest, input, {
+    leavingGuestId: swapOccupant?.guestId,
+  });
+
+  if (swapOccupant) {
+    const swapGuest = input.guests.find(
+      (item) => item.id === swapOccupant.guestId,
+    );
+    if (swapGuest) {
+      assertCategoryGroupingRule(
+        proposal,
+        swapGuest,
+        {
+          ...input,
+          guestId: swapOccupant.guestId,
+          tableId: currentPlacement.tableId,
+          seatIndex: currentPlacement.seatIndex,
+        },
+        { leavingGuestId: input.guestId },
+      );
+    }
+  }
+
+  if (swapOccupant) {
+    return {
+      ...proposal,
+      placements: proposal.placements.map((placement) => {
+        if (placement.guestId === input.guestId) {
+          return withTableAndSeat(
+            placement,
+            table.id,
+            table.label,
+            input.seatIndex!,
+          );
+        }
+        if (placement.guestId === swapOccupant.guestId) {
+          if (currentPlacement.seatIndex !== undefined) {
+            return withTableAndSeat(
+              placement,
+              currentPlacement.tableId,
+              currentPlacement.tableLabel,
+              currentPlacement.seatIndex,
+            );
+          }
+          const { seatIndex: _seatIndex, seatLabel: _seatLabel, ...rest } =
+            placement;
+          return {
+            ...rest,
+            tableId: currentPlacement.tableId,
+            tableLabel: currentPlacement.tableLabel,
+          };
+        }
+        return placement;
+      }),
+    };
+  }
 
   const placements = proposal.placements.map((placement, index) =>
     index === placementIndex
@@ -143,20 +243,38 @@ export function moveGuestInProposal(
   };
 }
 
+function withTableAndSeat(
+  placement: GuestPlacement,
+  tableId: string,
+  tableLabel: string,
+  seatIndex: number,
+): GuestPlacement {
+  return {
+    ...placement,
+    tableId,
+    tableLabel,
+    seatIndex,
+    seatLabel: `S${seatIndex + 1}`,
+  };
+}
+
 function assertCategoryGroupingRule(
   proposal: DistributionProposal,
   guest: Guest,
   input: MoveGuestInProposalInput,
+  options?: { leavingGuestId?: string },
 ): void {
   if (!input.softRules?.includes('groupByCategory')) {
     return;
   }
 
-  const hypotheticalPlacements = proposal.placements.map((placement) =>
-    placement.guestId === guest.id
-      ? { ...placement, tableId: input.tableId }
-      : placement,
-  );
+  const hypotheticalPlacements = proposal.placements
+    .filter((placement) => placement.guestId !== options?.leavingGuestId)
+    .map((placement) =>
+      placement.guestId === guest.id
+        ? { ...placement, tableId: input.tableId }
+        : placement,
+    );
   const hypotheticalProposal: DistributionProposal = {
     ...proposal,
     placements: hypotheticalPlacements,
@@ -183,11 +301,14 @@ function assertIncompatibilityRule(
   guest: Guest,
   guests: Guest[],
   tableId: string,
+  excludeGuestId?: string,
 ): void {
   const tablemates = proposal.placements
     .filter(
       (placement) =>
-        placement.tableId === tableId && placement.guestId !== guest.id,
+        placement.tableId === tableId &&
+        placement.guestId !== guest.id &&
+        placement.guestId !== excludeGuestId,
     )
     .map((placement) => guests.find((item) => item.id === placement.guestId))
     .filter((item): item is Guest => item !== undefined);

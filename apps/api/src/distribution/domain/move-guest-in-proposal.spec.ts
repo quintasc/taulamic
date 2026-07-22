@@ -170,4 +170,112 @@ describe('moveGuestInProposal', () => {
       }),
     ).toThrow(MoveGuestError);
   });
+
+  it('intercambia asientos entre mesas cuando el destino esta ocupado', () => {
+    const proposal: DistributionProposal = {
+      ...baseProposal(),
+      placements: [
+        {
+          guestId: 'g1',
+          guestName: 'Ana Garcia',
+          tableId: 't1',
+          tableLabel: 'Mesa 1',
+          seatIndex: 0,
+          seatLabel: 'S1',
+        },
+        {
+          guestId: 'g2',
+          guestName: 'Luis Perez',
+          tableId: 't2',
+          tableLabel: 'Mesa 2',
+          seatIndex: 1,
+          seatLabel: 'S2',
+        },
+      ],
+    };
+
+    const updated = moveGuestInProposal(proposal, {
+      guestId: 'g1',
+      tableId: 't2',
+      seatIndex: 1,
+      guests,
+      tables,
+    });
+
+    expect(updated.placements).toEqual(
+      expect.arrayContaining([
+        {
+          guestId: 'g1',
+          guestName: 'Ana Garcia',
+          tableId: 't2',
+          tableLabel: 'Mesa 2',
+          seatIndex: 1,
+          seatLabel: 'S2',
+        },
+        {
+          guestId: 'g2',
+          guestName: 'Luis Perez',
+          tableId: 't1',
+          tableLabel: 'Mesa 1',
+          seatIndex: 0,
+          seatLabel: 'S1',
+        },
+      ]),
+    );
+  });
+
+  it('permite intercambiar con mesa llena si el asiento destino esta ocupado', () => {
+    const proposal: DistributionProposal = {
+      ...baseProposal(),
+      placements: [
+        {
+          guestId: 'g1',
+          guestName: 'Ana Garcia',
+          tableId: 't1',
+          tableLabel: 'Mesa 1',
+          seatIndex: 0,
+          seatLabel: 'S1',
+        },
+        {
+          guestId: 'g2',
+          guestName: 'Luis Perez',
+          tableId: 't2',
+          tableLabel: 'Mesa 2',
+          seatIndex: 0,
+          seatLabel: 'S1',
+        },
+        {
+          guestId: 'g3',
+          guestName: 'Pepe Ruiz',
+          tableId: 't2',
+          tableLabel: 'Mesa 2',
+          seatIndex: 1,
+          seatLabel: 'S2',
+        },
+      ],
+    };
+
+    const updated = moveGuestInProposal(proposal, {
+      guestId: 'g1',
+      tableId: 't2',
+      seatIndex: 0,
+      guests,
+      tables: tables.map((table) =>
+        table.id === 't2' ? { ...table, capacity: 2 } : table,
+      ),
+    });
+
+    expect(
+      updated.placements.find((placement) => placement.guestId === 'g1'),
+    ).toMatchObject({
+      tableId: 't2',
+      seatIndex: 0,
+    });
+    expect(
+      updated.placements.find((placement) => placement.guestId === 'g2'),
+    ).toMatchObject({
+      tableId: 't1',
+      seatIndex: 0,
+    });
+  });
 });

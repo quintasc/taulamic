@@ -54,6 +54,21 @@ E2E respetan `DISTRIBUTION_ENGINE` (default CP-SAT).
 2. **Deuda técnica piloto** — unificar sillas API/local; persistencia API afinidades
 3. **Top-K / comparador** — diferido (ADR-023 §3)
 
+## Deuda diferida (keepTogether / D3)
+
+Hoy en Afinidades las parejas Excel (`acompananteKey` → `keepTogether`) se muestran como chip gris «juntos» **no editable ni borrable** (solo UX; la regla dura vive en API).
+
+**Hacer juntos, cuando toque:**
+
+1. **Alta** de keepTogether desde entrada manual (enlazar `companionGroup` → `acompananteKey` en API).
+2. **Baja / eliminación** de esas reglas duras desde Afinidades (y/o ficha invitado), persistiendo el cambio en servidor — no solo quitando la fila del meta local.
+
+Hasta entonces: no ofrecer borrado engañoso en UI.
+
+## Deuda diferida (auth)
+
+Cuando se implemente autenticación JWT/RBAC (post-piloto): preferir **JWT en cookie `HttpOnly`** (y `Secure` / `SameSite` adecuados) frente a guardar el token en `localStorage`, para reducir riesgo XSS. El contrato OpenAPI puede seguir documentando Bearer si hace falta para clientes no browser; el admin web usaría la cookie.
+
 ## Historial reciente
 
 | Commit | Descripción |

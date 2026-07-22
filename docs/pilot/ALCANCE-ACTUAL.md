@@ -183,3 +183,4 @@ Limitación común: no accesible desde `apps/web` en el piloto actual.
 | UI floor-plans | Cablear subida/deteción de plano imagen |
 | E2E motor v1 | Cobertura automatizada del motor por defecto en producción |
 | Tests PDF / `PUT seat` | Sin evidencia automatizada localizada |
+| Auth JWT | Post-piloto: cookie **HttpOnly** (ver ADR-003 / CONTEXTO-EJECUCION) |

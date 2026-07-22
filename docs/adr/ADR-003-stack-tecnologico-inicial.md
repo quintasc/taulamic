@@ -22,6 +22,7 @@ Se elige el siguiente stack base:
 - **Cola y cache:** Redis + BullMQ
 - **Documentos PDF:** generacion server-side (motor PDF en backend/worker)
 - **Autenticacion y roles:** JWT + RBAC
+  - **Implementacion web (cuando toque):** emitir el JWT en cookie **`HttpOnly`** (+ `Secure` en producción, `SameSite` estricto/lax según flujo), no en `localStorage`. Reduce exfiltración por XSS. API clients no browser pueden seguir con `Authorization: Bearer`.
 - **Tests:** Jest (backend) + pruebas e2e web
 
 ## Motivos de la decision

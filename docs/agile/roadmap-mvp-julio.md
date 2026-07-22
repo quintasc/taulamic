@@ -152,7 +152,7 @@ pie showData
 |--------|-----------------|-------|----------|-----------|
 | Plano EP-11 | #22–#26 + ADR-016 UI | Fase A/B + UX jul | persistencia layout API | drag accesorios `(x,y)` |
 | Excel EP-12 | #27–#31 | 5 | — | — |
-| Preferencias EP-13 | #32–#36 | 5 API | UI afinidades | persistencia API reglas |
+| Preferencias EP-13 | #32–#36 | 5 API | UI afinidades | persistencia API reglas; CRUD keepTogether (alta manual + baja dura) |
 | Evento EP-01 | #1, #15 | 2 | — | — |
 | Invitados EP-02 | #2 + UI manual | 1 + UI | — | — |
 | Distribucion | CP-SAT async ADR-023/024 | motor + score + async | — | Top-K (post-piloto) |

@@ -25,6 +25,7 @@ import {
   acceptGuestDragOver,
   clearGuestDrag,
   getActiveGuestDrag,
+  readGuestDragData,
 } from '@/lib/distribution-dnd';
 import { useGuestPointerDropHighlightForTable } from '@/components/admin/distribution/use-guest-pointer-drop-highlight';
 import {
@@ -234,26 +235,21 @@ function DistributionExpandAllButton({
 function buildMoveTableOptions(
   tableGroups: DistributionTableGroup[],
   chairMappings: Record<string, string>,
-  sourceTableId: string,
 ): MoveGuestTableOption[] {
-  return tableGroups
-    .filter(
-      (group) => group.tableId === sourceTableId || group.freeSeats > 0,
-    )
-    .map((group) => {
-      const effectiveSeatCapacity = Math.max(group.capacity, group.assignedCount);
-      return {
-        tableId: group.tableId,
-        tableLabel: group.tableLabel,
-        capacity: effectiveSeatCapacity,
-        freeSeats: group.freeSeats,
-        occupiedSeats: buildOccupiedChairsForTable(
-          effectiveSeatCapacity,
-          group.guests.filter((guest) => guest.guestId),
-          chairMappings,
-        ),
-      };
-    });
+  return tableGroups.map((group) => {
+    const effectiveSeatCapacity = Math.max(group.capacity, group.assignedCount);
+    return {
+      tableId: group.tableId,
+      tableLabel: group.tableLabel,
+      capacity: effectiveSeatCapacity,
+      freeSeats: group.freeSeats,
+      occupiedSeats: buildOccupiedChairsForTable(
+        effectiveSeatCapacity,
+        group.guests.filter((guest) => guest.guestId),
+        chairMappings,
+      ),
+    };
+  });
 }
 
 function DistributionTableRow({
@@ -542,23 +538,38 @@ function DistributionTableRow({
                       onDragOver={(e) => {
                         if (editable) {
                           e.preventDefault();
+                          e.stopPropagation();
+                          if (e.dataTransfer) {
+                            e.dataTransfer.dropEffect = 'move';
+                          }
                         }
                       }}
                       onDrop={(e) => {
                         if (!editable) return;
                         e.preventDefault();
-                        const payload = getActiveGuestDrag();
+                        e.stopPropagation();
+                        const payload =
+                          getActiveGuestDrag() ??
+                          readGuestDragData(e.dataTransfer);
                         clearGuestDrag();
                         if (!payload) return;
                         const seatIndex = chairIdToSeatIndex(chairId);
                         if (seatIndex === null) return;
 
                         if (payload.sourceTableId === group.tableId) {
-                          onUpdateGuestSeat?.(payload.guestId, seatIndex);
+                          void Promise.resolve(
+                            onUpdateGuestSeat?.(payload.guestId, seatIndex),
+                          );
                           return;
                         }
 
-                        onMoveGuest?.(payload.guestId, group.tableId, seatIndex);
+                        void Promise.resolve(
+                          onMoveGuest?.(
+                            payload.guestId,
+                            group.tableId,
+                            seatIndex,
+                          ),
+                        );
                       }}
                       className={`relative flex items-center gap-2 rounded-lg border px-2 py-1.5 transition ${
                         isPresidential
@@ -870,7 +881,6 @@ export function DistributionTableList({
     return buildMoveTableOptions(
       tableGroups,
       chairMappings,
-      moveGuest.sourceTableId,
     );
   }, [chairMappings, moveGuest, tableGroups]);
 
@@ -908,11 +918,37 @@ export function DistributionTableList({
 
   return (
     <GuestPointerDragLayer
-      onDrop={(guestId, targetTableId) => {
-        if (!editable || !onMoveGuest) {
+      onDrop={(guestId, targetTableId, chair) => {
+        if (!editable) {
           return;
         }
         focusMutationTable(targetTableId);
+
+        if (chair) {
+          const seatIndex = chairIdToSeatIndex(chair);
+          if (seatIndex === null) {
+            setDraggingGuestId(null);
+            return;
+          }
+          const sourceTableId =
+            tableGroups.find((group) =>
+              group.guests.some((guest) => guest.guestId === guestId),
+            )?.tableId ?? '';
+
+          const mutation =
+            sourceTableId === targetTableId
+              ? onUpdateGuestSeat?.(guestId, seatIndex)
+              : onMoveGuest?.(guestId, targetTableId, seatIndex);
+
+          void Promise.resolve(mutation).finally(() =>
+            setDraggingGuestId(null),
+          );
+          return;
+        }
+
+        if (!onMoveGuest) {
+          return;
+        }
         void Promise.resolve(onMoveGuest(guestId, targetTableId)).finally(
           () => setDraggingGuestId(null),
         );

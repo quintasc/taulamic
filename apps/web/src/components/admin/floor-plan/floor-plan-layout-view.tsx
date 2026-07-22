@@ -21,6 +21,7 @@ import {
   acceptGuestDragOver,
   clearGuestDrag,
   getActiveGuestDrag,
+  readGuestDragData,
 } from '@/lib/distribution-dnd';
 import { wasGuestPointerDragRecent } from '@/lib/guest-pointer-drag';
 import {
@@ -316,14 +317,26 @@ function TableGuestsPanel({
                 onDragOver={(e) => {
                   if (editable) {
                     e.preventDefault();
+                    e.stopPropagation();
+                    if (e.dataTransfer) {
+                      e.dataTransfer.dropEffect = 'move';
+                    }
                   }
                 }}
                 onDrop={(e) => {
                   if (!editable) return;
                   e.preventDefault();
-                  const payload = getActiveGuestDrag();
+                  e.stopPropagation();
+                  const payload =
+                    getActiveGuestDrag() ?? readGuestDragData(e.dataTransfer);
+                  clearGuestDrag();
                   if (!payload) return;
-                  handleGuestDroppedOnChair(payload.guestId, payload.sourceTableId, group.tableId, chairId);
+                  handleGuestDroppedOnChair(
+                    payload.guestId,
+                    payload.sourceTableId,
+                    group.tableId,
+                    chairId,
+                  );
                 }}
                 className={`relative flex items-center gap-3 rounded-xl border p-2 transition ${
                   isPresidential

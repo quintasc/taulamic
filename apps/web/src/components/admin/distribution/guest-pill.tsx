@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { setGuestDragData, clearGuestDrag } from '@/lib/distribution-dnd';
 import {
@@ -38,31 +38,44 @@ export function GuestPill({
   onDragStart?: () => void;
   onDragEnd?: () => void;
 }) {
-  const [usePointerDrag, setUsePointerDrag] = useState(
+  const [coarsePointer, setCoarsePointer] = useState(
     () =>
       typeof window !== 'undefined' &&
       window.matchMedia('(pointer: coarse)').matches,
   );
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const media = window.matchMedia('(pointer: coarse)');
+    const sync = () => setCoarsePointer(media.matches);
+    sync();
+    media.addEventListener('change', sync);
+    return () => media.removeEventListener('change', sync);
+  }, []);
+
   const canRemove = removable && Boolean(guestId) && Boolean(onRemove);
   const canMove = Boolean(guestId) && Boolean(onMove) && !removing;
   const canDrag =
     draggable && Boolean(guestId) && Boolean(sourceTableId) && !removing;
-  const html5Drag = canDrag && !usePointerDrag;
+  // HTML5 siempre activo con ratón. Si se desactiva por (pointer:coarse) en
+  // híbridos, el ratón no puede arrastrar (solo touch arma el pointer-drag).
+  const html5Drag = canDrag;
 
   const isRow = variant === 'row';
 
   const pillClass = isRow
     ? `flex min-w-0 items-center justify-between w-full text-xs font-semibold text-neutral-800 ${
         canDrag
-          ? `select-none transition-opacity ${usePointerDrag ? 'touch-none' : 'cursor-grab active:cursor-grabbing'}`
+          ? `select-none transition-opacity ${coarsePointer ? 'touch-none' : 'cursor-grab active:cursor-grabbing'}`
           : ''
       } ${dragging ? 'opacity-40' : ''}`
     : `inline-flex items-center gap-0.5 rounded-full border border-neutral-200 bg-neutral-50 text-[13px] font-medium text-neutral-800 ${
         canRemove ? 'pl-3 pr-1.5 py-1' : 'px-3 py-1.5'
       } ${
         canDrag
-          ? `select-none transition-[border-color,background-color,opacity,box-shadow] hover:border-neutral-300 hover:bg-white ${usePointerDrag ? 'touch-none' : 'cursor-default'}`
+          ? `select-none transition-[border-color,background-color,opacity,box-shadow] hover:border-neutral-300 hover:bg-white ${coarsePointer ? 'touch-none' : 'cursor-grab active:cursor-grabbing'}`
           : ''
       } ${dragging ? 'opacity-45 shadow-sm ring-1 ring-primary-500/25' : ''}`;
 
@@ -162,6 +175,10 @@ export function GuestPill({
     },
     onDragStart: (event: React.DragEvent) => {
       if (!html5Drag || !guestId || !sourceTableId) {
+        event.preventDefault();
+        return;
+      }
+      if (isGuestPointerDragSessionActive()) {
         event.preventDefault();
         return;
       }

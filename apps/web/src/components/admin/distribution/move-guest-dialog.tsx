@@ -53,14 +53,15 @@ export function MoveGuestDialog({
     return Array.from({ length: selectedTable.capacity }, (_, index) => {
       const chairId = `S${index + 1}`;
       const occupant = selectedTable.occupiedSeats[chairId];
-      const occupiedByOther =
-        occupant !== undefined && occupant.guestId !== guestId;
 
       return {
         chairId,
         seatIndex: index,
         occupant,
-        disabled: occupiedByOther,
+        isCurrent:
+          occupant !== undefined && occupant.guestId === guestId,
+        isSwap:
+          occupant !== undefined && occupant.guestId !== guestId,
       };
     });
   }, [guestId, selectedTable]);
@@ -73,7 +74,9 @@ export function MoveGuestDialog({
         hint:
           table.freeSeats > 0
             ? `${table.freeSeats} libre${table.freeSeats === 1 ? '' : 's'}`
-            : undefined,
+            : table.tableId === sourceTableId
+              ? undefined
+              : 'Intercambiar',
       })),
     [sourceTableId, tables],
   );
@@ -82,18 +85,22 @@ export function MoveGuestDialog({
     () =>
       seatOptions.map((option) => ({
         value: option.chairId,
-        label: option.occupant
-          ? option.occupant.guestId === guestId
-            ? `${option.chairId} (actual)`
-            : `${option.chairId} · ${option.occupant.guestName}`
-          : `${option.chairId} · Libre`,
-        disabled: option.disabled,
+        label: option.isCurrent
+          ? `${option.chairId} (actual)`
+          : option.occupant
+            ? `${option.chairId} · Intercambiar con ${option.occupant.guestName}`
+            : `${option.chairId} · Libre`,
       })),
-    [guestId, seatOptions],
+    [seatOptions],
   );
-  const firstFreeChairId = useMemo(() => {
-    const free = seatOptions.find((option) => !option.disabled);
-    return free?.chairId ?? seatOptions[0]?.chairId ?? '';
+
+  const preferredChairId = useMemo(() => {
+    const free = seatOptions.find((option) => !option.occupant);
+    if (free) {
+      return free.chairId;
+    }
+    const swap = seatOptions.find((option) => option.isSwap);
+    return swap?.chairId ?? seatOptions[0]?.chairId ?? '';
   }, [seatOptions]);
 
   useEffect(() => {
@@ -110,21 +117,25 @@ export function MoveGuestDialog({
     }
 
     const currentValid = seatOptions.some(
-      (option) => option.chairId === targetChairId && !option.disabled,
+      (option) => option.chairId === targetChairId,
     );
     if (!currentValid) {
-      setTargetChairId(firstFreeChairId);
+      setTargetChairId(preferredChairId);
     }
-  }, [firstFreeChairId, open, seatOptions, selectedTable, targetChairId]);
+  }, [open, preferredChairId, seatOptions, selectedTable, targetChairId]);
 
   const seatIndex = chairIdToSeatIndex(targetChairId);
+  const selectedSeat = seatOptions.find(
+    (option) => option.chairId === targetChairId,
+  );
+  const isSwap = Boolean(selectedSeat?.isSwap);
+  const isSameSeat = Boolean(selectedSeat?.isCurrent);
   const busy = Boolean(movingGuestId);
   const canConfirm =
     selectedTable !== null &&
     seatIndex !== null &&
-    seatOptions.some(
-      (option) => option.chairId === targetChairId && !option.disabled,
-    );
+    selectedSeat !== undefined &&
+    !isSameSeat;
 
   return (
     <AdminModalShell
@@ -141,11 +152,12 @@ export function MoveGuestDialog({
         className="card-admin pointer-events-auto w-full max-w-md shadow-lg"
       >
           <h2 id={titleId} className="text-lg font-semibold text-neutral-900">
-            Mover a…
+            Mover o intercambiar
           </h2>
           <p id={descriptionId} className="mt-2 text-sm text-neutral-600">
             Elige mesa y silla para{' '}
             <span className="font-medium text-neutral-800">{guestName}</span>.
+            Si la silla está ocupada, se intercambiarán los asientos.
           </p>
 
           <div className="mt-4 space-y-4">
@@ -208,7 +220,13 @@ export function MoveGuestDialog({
                 onConfirm(targetTableId, seatIndex);
               }}
             >
-              {movingGuestId ? 'Moviendo…' : 'Mover'}
+              {movingGuestId
+                ? isSwap
+                  ? 'Intercambiando…'
+                  : 'Moviendo…'
+                : isSwap
+                  ? 'Intercambiar'
+                  : 'Mover'}
             </button>
           </div>
         </div>

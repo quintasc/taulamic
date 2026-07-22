@@ -30,6 +30,11 @@ import {
 import { downloadDistributionReportPdf } from '@/lib/distribution-report-pdf';
 import { getSetupNav } from '@/lib/setup-flow';
 import { adminRoutes } from '@/lib/routes';
+import {
+  clearDistributionCalculationSession,
+  readDistributionCalculationSession,
+  writeDistributionCalculationSession,
+} from '@/lib/distribution-calculation-session';
 import { DISTRIBUTION_COPY } from '@/lib/ui-copy';
 
 const CALCULATION_PHASE_LABEL: Record<
@@ -42,6 +47,20 @@ const CALCULATION_PHASE_LABEL: Record<
   completed: 'Completado',
   failed: 'Falló',
 };
+
+const ASYNC_DISTRIBUTION_ERROR = 'ASYNC_DISTRIBUTION_ERROR';
+
+function isFailedEmptyProposal(
+  proposal: DistributionProposal | null,
+): boolean {
+  if (!proposal || proposal.status === 'calculating') {
+    return false;
+  }
+  const asyncError = proposal.hardRuleViolations.some(
+    (violation) => violation.code === ASYNC_DISTRIBUTION_ERROR,
+  );
+  return asyncError && proposal.stats.assignedCount === 0;
+}
 
 export default function DistributionPage() {
   const params = useParams<{ eventId: string }>();
@@ -61,6 +80,8 @@ export default function DistributionPage() {
   const [mutationError, setMutationError] = useState<string | null>(null);
   const [calculationStatus, setCalculationStatus] =
     useState<DistributionCalculationStatus | null>(null);
+  /** Cálculo en curso recordado al navegar (session) o mientras se reconecta. */
+  const [resumingCalculation, setResumingCalculation] = useState(false);
   const [companionGroups, setCompanionGroups] = useState<
     Array<{ guestIds: string[]; keepTogether: boolean }>
   >([]);
@@ -83,7 +104,7 @@ export default function DistributionPage() {
   const refreshDistribution = useCallback(
     async (options?: { silent?: boolean }) => {
       if (!eventId) {
-        return;
+        return null;
       }
       try {
         const latest = await distributionApi.get(eventId);
@@ -91,14 +112,18 @@ export default function DistributionPage() {
         if (!options?.silent) {
           setError(null);
         }
+        return latest;
       } catch (err) {
         if (err instanceof ApiError && err.status === 404) {
           setProposal(null);
-          return;
+          clearDistributionCalculationSession(eventId);
+          setResumingCalculation(false);
+          return null;
         }
         if (!options?.silent) {
           setError('No se pudo cargar la distribución.');
         }
+        return null;
       }
     },
     [eventId],
@@ -111,7 +136,36 @@ export default function DistributionPage() {
       }
       try {
         const current = await distributionApi.status(eventId);
-        setCalculationStatus(current);
+        setCalculationStatus((previous) => {
+          // No mezclar progreso de un intento anterior (p. ej. failed al 100%).
+          if (
+            previous?.proposalId &&
+            current.proposalId &&
+            previous.proposalId !== current.proposalId &&
+            current.state === 'calculating' &&
+            (previous.progressPercent ?? 0) > (current.progressPercent ?? 0)
+          ) {
+            return {
+              ...current,
+              progressPercent: Math.min(current.progressPercent ?? 5, 12),
+            };
+          }
+          if (
+            previous?.proposalId &&
+            current.proposalId &&
+            previous.proposalId === current.proposalId &&
+            current.state === 'calculating'
+          ) {
+            return {
+              ...current,
+              progressPercent: Math.max(
+                previous.progressPercent ?? 0,
+                current.progressPercent ?? 0,
+              ),
+            };
+          }
+          return current;
+        });
         return current;
       } catch (err) {
         if (!options?.silent) {
@@ -127,46 +181,211 @@ export default function DistributionPage() {
     [eventId],
   );
 
+  const applyCalculationTerminalStatus = useCallback(
+    async (latestStatus: DistributionCalculationStatus) => {
+      if (!eventId) {
+        return;
+      }
+      if (latestStatus.state === 'calculating') {
+        setResumingCalculation(true);
+        if (latestStatus.proposalId) {
+          writeDistributionCalculationSession(eventId, {
+            proposalId: latestStatus.proposalId,
+            startedAt: latestStatus.startedAt ?? new Date().toISOString(),
+          });
+        }
+        return;
+      }
+
+      clearDistributionCalculationSession(eventId);
+      setResumingCalculation(false);
+      const latest = await refreshDistribution({ silent: true });
+      if (latestStatus.state === 'failed') {
+        setError(
+          latestStatus.message ??
+            'El cálculo de distribución falló. Puedes relanzarlo.',
+        );
+      } else if (isFailedEmptyProposal(latest)) {
+        const asyncMessage = latest?.hardRuleViolations.find(
+          (violation) => violation.code === ASYNC_DISTRIBUTION_ERROR,
+        )?.message;
+        setError(
+          asyncMessage ??
+            'El cálculo de distribución falló. Puedes relanzarlo.',
+        );
+      }
+    },
+    [eventId, refreshDistribution],
+  );
+
   useEffect(() => {
     if (!eventId) {
       return;
     }
 
+    let cancelled = false;
+
     void guestsApi
       .list(eventId)
       .then((response) => {
-        setGuests(response.guests);
-        setGuestTotal(response.total);
+        if (!cancelled) {
+          setGuests(response.guests);
+          setGuestTotal(response.total);
+        }
       })
       .catch(() => {
-        setGuests([]);
-        setGuestTotal(0);
+        if (!cancelled) {
+          setGuests([]);
+          setGuestTotal(0);
+        }
       });
 
     void companionGroupsApi
       .list(eventId)
-      .then((response) => setCompanionGroups(response.groups))
-      .catch(() => setCompanionGroups([]));
+      .then((response) => {
+        if (!cancelled) {
+          setCompanionGroups(response.groups);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setCompanionGroups([]);
+        }
+      });
 
-    void refreshDistribution({ silent: true }).finally(() => setLoading(false));
-  }, [eventId, refreshDistribution]);
+    async function hydrate() {
+      setLoading(true);
+      const session = readDistributionCalculationSession(eventId);
+      if (session) {
+        setResumingCalculation(true);
+      }
+
+      try {
+        // status primero: puede recuperar jobs huérfanos en disco
+        const latestStatus = await distributionApi
+          .status(eventId)
+          .catch(() => null);
+        if (cancelled) {
+          return;
+        }
+
+        if (latestStatus) {
+          setCalculationStatus(latestStatus);
+        }
+
+        let latest: DistributionProposal | null = null;
+        try {
+          latest = await distributionApi.get(eventId);
+          if (!cancelled) {
+            setProposal(latest);
+          }
+        } catch (err) {
+          if (err instanceof ApiError && err.status === 404) {
+            if (!cancelled) {
+              setProposal(null);
+            }
+          } else if (!cancelled && !session) {
+            setError('No se pudo cargar la distribución.');
+          }
+        }
+
+        if (cancelled) {
+          return;
+        }
+
+        if (
+          latestStatus?.state === 'calculating' ||
+          latest?.status === 'calculating'
+        ) {
+          setResumingCalculation(true);
+          const proposalId =
+            latestStatus?.proposalId ?? latest?.id ?? session?.proposalId;
+          if (proposalId) {
+            writeDistributionCalculationSession(eventId, {
+              proposalId,
+              startedAt:
+                latestStatus?.startedAt ??
+                latest?.createdAt ??
+                session?.startedAt ??
+                new Date().toISOString(),
+            });
+          }
+          setError(null);
+          return;
+        }
+
+        if (session && !latestStatus && !latest) {
+          setResumingCalculation(true);
+          setError(
+            'No se pudo reconectar con el cálculo en curso. Reintentando…',
+          );
+          return;
+        }
+
+        clearDistributionCalculationSession(eventId);
+        setResumingCalculation(false);
+
+        if (latestStatus?.state === 'failed') {
+          setError(
+            latestStatus.message ??
+              'El cálculo de distribución falló. Puedes relanzarlo.',
+          );
+        } else if (isFailedEmptyProposal(latest)) {
+          const asyncMessage = latest?.hardRuleViolations.find(
+            (violation) => violation.code === ASYNC_DISTRIBUTION_ERROR,
+          )?.message;
+          setError(
+            asyncMessage ??
+              'El cálculo de distribución falló. Puedes relanzarlo.',
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void hydrate();
+    return () => {
+      cancelled = true;
+    };
+  }, [eventId]);
 
   useEffect(() => {
-    if (!eventId || proposal?.status !== 'calculating') {
-      if (proposal?.status !== 'calculating') {
-        setCalculationStatus(null);
-      }
+    if (!eventId) {
+      return;
+    }
+
+    const shouldPoll =
+      proposal?.status === 'calculating' || resumingCalculation;
+    if (!shouldPoll) {
       return;
     }
 
     const poll = async () => {
       const latestStatus = await refreshCalculationStatus({ silent: true });
       if (!latestStatus) {
+        setError(
+          'No se pudo reconectar con el cálculo en curso. Reintentando…',
+        );
         return;
       }
-      if (latestStatus.state !== 'calculating') {
-        await refreshDistribution({ silent: true });
+      if (latestStatus.state === 'calculating') {
+        setError(null);
+        setResumingCalculation(true);
+        if (latestStatus.proposalId) {
+          writeDistributionCalculationSession(eventId, {
+            proposalId: latestStatus.proposalId,
+            startedAt: latestStatus.startedAt ?? new Date().toISOString(),
+          });
+        }
+        if (proposal?.status !== 'calculating') {
+          await refreshDistribution({ silent: true });
+        }
+        return;
       }
+      await applyCalculationTerminalStatus(latestStatus);
     };
 
     void poll();
@@ -178,8 +397,10 @@ export default function DistributionPage() {
   }, [
     eventId,
     proposal?.status,
+    resumingCalculation,
     refreshCalculationStatus,
     refreshDistribution,
+    applyCalculationTerminalStatus,
   ]);
 
   const tableGroups = useMemo(() => {
@@ -208,6 +429,20 @@ export default function DistributionPage() {
     }
     setRunning(true);
     setError(null);
+    // Reinicio inmediato: evita que la barra baje desde el 100% del intento anterior.
+    setCalculationStatus({
+      eventId,
+      proposalId: null,
+      state: 'calculating',
+      phase: 'queued',
+      progressPercent: 5,
+      startedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      elapsedMs: 0,
+      estimatedRemainingMs: null,
+      message: 'Iniciando cálculo…',
+    });
+    setResumingCalculation(true);
     try {
       const affinityMeta = loadEventUiMeta(eventId);
       const affinityRelations = affinityMeta.affinityRelations ?? [];
@@ -229,12 +464,34 @@ export default function DistributionPage() {
       );
       setProposal(result);
       if (result.status === 'calculating') {
+        setResumingCalculation(true);
+        writeDistributionCalculationSession(eventId, {
+          proposalId: result.id,
+          startedAt: result.createdAt,
+        });
+        setCalculationStatus((current) => ({
+          eventId,
+          proposalId: result.id,
+          state: 'calculating',
+          phase: 'queued',
+          progressPercent: Math.min(current?.progressPercent ?? 5, 8),
+          startedAt: result.createdAt,
+          updatedAt: result.createdAt,
+          elapsedMs: 0,
+          estimatedRemainingMs: null,
+          message: 'Cálculo en cola.',
+        }));
         await refreshCalculationStatus({ silent: true });
+      } else {
+        clearDistributionCalculationSession(eventId);
+        setResumingCalculation(false);
       }
       const guestsResponse = await guestsApi.list(eventId);
       setGuests(guestsResponse.guests);
       setGuestTotal(guestsResponse.total);
     } catch (err) {
+      setResumingCalculation(false);
+      setCalculationStatus(null);
       setError(
         err instanceof ApiError
           ? err.message
@@ -379,8 +636,11 @@ export default function DistributionPage() {
     tableGroups,
   ]);
 
-  const isCalculating = proposal?.status === 'calculating';
-  const hasCalculatedView = proposal !== null && !isCalculating;
+  const isCalculating =
+    proposal?.status === 'calculating' || resumingCalculation;
+  const failedEmptyProposal = isFailedEmptyProposal(proposal);
+  const hasCalculatedView =
+    proposal !== null && !isCalculating && !failedEmptyProposal;
   const allTables = useMemo(
     () =>
       (event?.tables ?? []).map((table) => ({
@@ -452,8 +712,9 @@ export default function DistributionPage() {
       ) : isCalculating ? (
         <div className="space-y-3 rounded-xl border border-primary-500/35 bg-primary-100/30 p-4">
           <p className="text-sm font-medium text-neutral-900">
-            Cálculo en curso. La propuesta se actualiza automáticamente al
-            terminar.
+            {proposal?.status === 'calculating'
+              ? 'Cálculo en curso. Puedes salir de esta pantalla: al volver se retoma el progreso.'
+              : 'Reconectando con el cálculo en curso…'}
           </p>
           <div className="space-y-1">
             <p className="text-sm font-semibold text-primary-600">
@@ -461,6 +722,7 @@ export default function DistributionPage() {
             </p>
             <div className="h-3 w-full overflow-hidden rounded-full border border-primary-300 bg-neutral-0">
               <div
+                key={calculationStatus?.proposalId ?? 'starting'}
                 className="h-full rounded-full bg-primary-500 transition-[width] duration-700 ease-out"
                 style={{ width: `${visibleProgressPercent}%` }}
               />
@@ -515,8 +777,16 @@ export default function DistributionPage() {
         />
       ) : (
         <EmptyState
-          title="Sin distribución calculada"
-          description={DISTRIBUTION_COPY.emptyStateDescription}
+          title={
+            failedEmptyProposal
+              ? 'Cálculo interrumpido'
+              : 'Sin distribución calculada'
+          }
+          description={
+            failedEmptyProposal
+              ? 'El cálculo anterior no terminó. Relanza para obtener una propuesta.'
+              : DISTRIBUTION_COPY.emptyStateDescription
+          }
           action={
             <button
               type="button"
@@ -529,8 +799,16 @@ export default function DistributionPage() {
                 DISTRIBUTION_COPY.calculating
               ) : (
                 <ResponsiveButtonLabel
-                  short={DISTRIBUTION_COPY.calculate.short}
-                  full={DISTRIBUTION_COPY.calculate.full}
+                  short={
+                    failedEmptyProposal
+                      ? 'Relanzar'
+                      : DISTRIBUTION_COPY.calculate.short
+                  }
+                  full={
+                    failedEmptyProposal
+                      ? 'Relanzar cálculo'
+                      : DISTRIBUTION_COPY.calculate.full
+                  }
                 />
               )}
             </button>

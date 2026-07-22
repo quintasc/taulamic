@@ -19,5 +19,6 @@ export { SectionLabel } from './section-label';
 export { StatCard } from './stat-card';
 export { AdminModalShell } from './admin-modal-shell';
 export { CustomSelect, type CustomSelectOption } from './custom-select';
+export { DatePicker } from './date-picker';
 export { UploadZone } from './upload-zone';
 export { MobileHorizontalScroll } from './mobile-horizontal-scroll';

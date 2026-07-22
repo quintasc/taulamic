@@ -3,6 +3,7 @@
 import { SetupNavBar } from '@/components/admin/setup-nav-bar';
 import {
   Alert,
+  DatePicker,
   FormField,
   PageHeader,
   PreferenceOption,
@@ -15,6 +16,7 @@ import {
 } from '@/lib/event-ui-meta';
 import { PILOT_COLLABORATIVE_MODE_ENABLED } from '@/lib/pilot-features';
 import { PILOT_COPY, SETUP_NAV_COPY } from '@/lib/ui-copy';
+
 
 export function EventConfigView() {
   const {
@@ -64,19 +66,17 @@ export function EventConfigView() {
           />
         </FormField>
 
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid min-w-0 gap-5 sm:grid-cols-2">
           <FormField
             id="event-date"
             label="Fecha"
             hint="Debe ser hoy o una fecha futura."
           >
-            <input
+            <DatePicker
               id="event-date"
-              type="date"
-              className="input-field"
               value={date}
               min={getMinEventDateIso()}
-              onChange={(e) => handleDateChange(e.target.value)}
+              onChange={handleDateChange}
             />
             {dateError ? (
               <p className="mt-1 text-xs text-error-500" role="alert">

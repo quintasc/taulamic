@@ -109,6 +109,8 @@ Traducir SDD-01 en trabajo ejecutable en GitHub Issues, priorizado por valor y r
 - HU-48 Accesorios plano: pared/muro y columna (EP-11 ampliacion).
 - HU-49 Importar contactos desde Outlook, Gmail o export WhatsApp (EP-12 ampliacion).
 - HU-50 Canal WhatsApp para invitaciones / formulario importable (EP-09 ampliacion).
+- HU-51 Explorar verticales empresas y aulas (BF-05).
+- HU-52 Evaluar motor CP-SAT/Wasm en navegador del cliente (BF-06; spike, no adopcion).
 
 ## 3) Priorizacion sugerida (orden de ejecucion)
 

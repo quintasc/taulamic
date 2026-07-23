@@ -83,8 +83,45 @@ Estas mejoras **no forman parte del SDD piloto**. Requieren gate PO/SDD antes de
 
 ---
 
+## BF-05 — Verticales empresas y aulas
+
+**Idea:** extender el producto más allá del caso dominante boda/cena social hacia:
+
+- **Empresas** — cenas de empresa, eventos corporativos (categorías por departamento, protocolo distinto).
+- **Aulas** — formación / salas con disposición distinta (filas, capacidad pedagógica, menos «pareja keepTogether»).
+
+**Contexto actual:** el SDD y el piloto asumen evento social tipo boda; «cenas de empresa» aparece como escenario similar en docs de producto, **sin** requisitos ni UX propios de vertical.
+
+**Criterios previos a spec:**
+
+1. Qué cambia de verdad vs boda (categorías, reglas duras/blandas, plano, copy, plantilla Excel).
+2. Un solo producto multi-plantilla vs perfiles de evento configurables.
+3. Gate PO/SDD antes de ampliar alcance funcional.
+
+**Épica relacionada:** nueva (p. ej. EP-17 «Verticales») o amplitud de EP-01/EP-12/EP-13.
+
+---
+
+## BF-06 — Evaluar CP-SAT / Wasm en el navegador del cliente
+
+**Idea:** spike técnico: ejecutar (parte de) el motor de distribución con WebAssembly **en el cliente**, no solo en el proceso Node del backend.
+
+**Contexto actual:** ADR-023 usa `or-tools-wasm` **en servidor** (API Nest). El cálculo async es in-process; no hay solver en el browser.
+
+**Criterios previos a spec / spike:**
+
+1. Factibilidad (tamaño del bundle Wasm, tiempo de arranque, memoria en móvil).
+2. Privacidad / no subir lista completa vs offload de CPU del servidor.
+3. Paridad con motor servidor (mismas reglas) y estrategia de fallback.
+4. No sustituir ADR-023 sin decisión explícita; este ítem es **evaluación**, no adopción.
+
+**Relacionado:** ADR-023, EP-08, worker/async post-piloto.
+
+---
+
 ## Referencias
 
 - `docs/sdd/SDD-02-backlog-inicial.md` — épicas MVP
 - `docs/agile/refactor-ui-mobile-admin.md` — deuda técnica UI admin
 - `docs/adr/ADR-019-responsive-y-mobile-invitado.md`
+- `docs/adr/ADR-023-motor-cpsat-dos-fases-mesa-y-asiento.md`

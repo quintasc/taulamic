@@ -184,3 +184,4 @@ Limitación común: no accesible desde `apps/web` en el piloto actual.
 | E2E motor v1 | Cobertura automatizada del motor por defecto en producción |
 | Tests PDF / `PUT seat` | Sin evidencia automatizada localizada |
 | Auth JWT | Post-piloto: cookie **HttpOnly** (ver ADR-003 / CONTEXTO-EJECUCION) |
+| BF-05 / BF-06 | Verticales empresas-aulas; spike Wasm en cliente — `backlog-mejoras-post-piloto.md` |

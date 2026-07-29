@@ -105,7 +105,7 @@ npm run dev:clean
 
 ## Despliegue del piloto (servidor Monlau)
 
-Resumen del proceso seguido en el servidor Linux del centro. Detalle paso a paso: [`docs/Despliegue.pdf`](docs/Despliegue.pdf).
+Resumen del proceso seguido en el servidor Linux del centro:
 
 1. **Clonar / copiar** el repositorio al servidor (`git clone https://github.com/quintasc/taulamic.git`).
 2. **Entorno:** Ubuntu con Docker, Docker Compose, Nginx y Plesk. El proyecto corre en contenedores para aislarlo del resto de apps del host.

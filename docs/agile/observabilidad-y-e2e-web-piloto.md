@@ -22,7 +22,8 @@
 - Config: `apps/web/playwright.config.ts`
 - Tests: `apps/web/e2e/pilot-flow.spec.ts`
 - Helpers: `apps/web/e2e/helpers/pilot-flow.ts`
-- Excel fixture: `docs/pilot/invitados-validacion-manual.xlsx`
+- Excel fixture E2E: `apps/web/e2e/fixtures/invitados-e2e.xlsx` (4 invitados)
+- Excel demo piloto (80 invitados): `docs/pilot/invitados-piloto-80.xlsx`
 
 ### Comandos
 

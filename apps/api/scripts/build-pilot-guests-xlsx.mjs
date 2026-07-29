@@ -1,6 +1,8 @@
 /**
- * Regenera docs/pilot/invitados-validacion-manual.xlsx alineado con
+ * Regenera apps/web/e2e/fixtures/invitados-e2e.xlsx alineado con
  * GUEST_TEMPLATE_DOWNLOAD_COLUMNS (sin preferencia_control).
+ * Dataset corto para Playwright (4 invitados, 2 parejas).
+ * El Excel de demo del piloto (80 invitados) es docs/pilot/invitados-piloto-80.xlsx.
  */
 import ExcelJS from 'exceljs';
 import { writeFile } from 'node:fs/promises';
@@ -85,7 +87,7 @@ const INSTRUCTIONS = [
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const outputPath = join(
   __dirname,
-  '../../../docs/pilot/invitados-validacion-manual.xlsx',
+  '../../../apps/web/e2e/fixtures/invitados-e2e.xlsx',
 );
 
 const workbook = new ExcelJS.Workbook();

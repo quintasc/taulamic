@@ -4,10 +4,10 @@ import { type Page, expect } from '@playwright/test';
 
 import { SAVE_STATUS_COPY } from '../../src/lib/ui-copy';
 
-/** Excel de referencia del piloto (4 invitados, 2 parejas). */
+/** Excel de referencia E2E (4 invitados, 2 parejas). */
 export const PILOT_GUESTS_XLSX = path.resolve(
   __dirname,
-  '../../../../docs/pilot/invitados-validacion-manual.xlsx',
+  '../fixtures/invitados-e2e.xlsx',
 );
 
 const CONFIG_URL = /\/admin\/events\/[^/]+\/config$/;

@@ -106,6 +106,11 @@ El piloto evaluable demuestra un flujo admin de punta a punta: configurar el eve
 | Visión de producto previa | [`PRD-v1.md`](../product/PRD-v1.md) |
 | **Referencia vigente del piloto evaluable** | Esta carpeta (`docs/pilot/`) |
 
+## Material de prueba
+
+- Excel de 80 invitados para importacion: [`invitados-piloto-80.xlsx`](invitados-piloto-80.xlsx)
+- Ejemplo de informe PDF generado por la aplicacion: [`evidencias/informe-distribucion-ejemplo-2026-07-20.pdf`](evidencias/informe-distribucion-ejemplo-2026-07-20.pdf)
+
 ## Ruta de lectura recomendada
 
 1. Este documento — resumen del piloto.

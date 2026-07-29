@@ -23,6 +23,11 @@ El piloto esta desplegado y accesible en:
 
 El piloto **no tiene login**. El acceso es directo al panel organizador (actor admin por cabecera interna). No hay usuario ni contrasena de prueba.
 
+### Material de prueba y evidencias
+
+- **Excel de invitados (80 filas)** para importar en el flujo piloto: [`docs/pilot/invitados-piloto-80.xlsx`](docs/pilot/invitados-piloto-80.xlsx)
+- **Ejemplo de informe PDF** generado por Taulamic tras una distribucion: [`docs/pilot/evidencias/informe-distribucion-ejemplo-2026-07-20.pdf`](docs/pilot/evidencias/informe-distribucion-ejemplo-2026-07-20.pdf)
+
 ## Stack tecnologico
 
 | Area | Tecnologias |

@@ -2,17 +2,136 @@
 
 **Distribucion inteligente de mesas para eventos.**
 
-Repositorio de especificacion y codigo (SDD + Agile) para definir y construir Taulamic: una aplicacion de distribucion de personas en eventos (bodas, cenas de empresa, clases y otros escenarios similares).
+Taulamic es una aplicacion web que ayuda a organizar la distribucion de invitados en mesas (bodas, cenas de empresa, aulas y escenarios similares), teniendo en cuenta capacidad, acompanantes, afinidades e incompatibilidades. Este repositorio contiene el codigo del piloto, la especificacion (SDD) y la documentacion Agile/ADR del proyecto.
 
 - **Marca:** Taulamic
-- **Dominio:** `taulamic.com` (registrado)
+- **Dominio registrado:** `taulamic.com`
 - **Repositorio:** [quintasc/taulamic](https://github.com/quintasc/taulamic)
 - **Mercado inicial:** Espana
 - **GitHub Project:** [Taulamic](https://github.com/users/quintasc/projects/2)
 
+## Acceso al piloto
+
+El piloto esta desplegado y accesible en:
+
+- **Aplicacion:** [https://taulamic.alumnes-monlau.com/](https://taulamic.alumnes-monlau.com/)
+- **Video explicativo del piloto:** [ver en SharePoint](https://monlaues-my.sharepoint.com/:v:/g/personal/quintasc_monlau_com/IQCg_nzxvrJnSpKRlfhX2-pWAfq5Q2Sho7dRHnqAS1W60Mk?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=UhTkyr)
+- **Presentacion (PPT) usada en la defensa:** [ver en SharePoint](https://monlaues-my.sharepoint.com/:p:/g/personal/quintasc_monlau_com/IQCSp8oqymqnSa-eVZQ26InAAZgSNktyQDMQa9fzqPS6-YE?e=SeUZa6)
+- **OpenAPI (servidor):** [https://taulamic.alumnes-monlau.com/api/docs](https://taulamic.alumnes-monlau.com/api/docs)
+
+### Usuario y contrasena de prueba
+
+El piloto **no tiene login**. El acceso es directo al panel organizador (actor admin por cabecera interna). No hay usuario ni contrasena de prueba.
+
+## Stack tecnologico
+
+| Area | Tecnologias |
+|------|-------------|
+| Lenguaje | TypeScript (frontend y backend) |
+| Frontend | Next.js, React, Tailwind CSS, jsPDF |
+| Backend / API | NestJS, REST, OpenAPI, class-validator, ExcelJS |
+| Motor | CP-SAT (OR-Tools via `or-tools-wasm`), motor v0 como alternativa por configuracion |
+| Datos (piloto) | Repositorios JSON y ficheros en `uploads/` (volumen Docker en servidor) |
+| Calidad | Jest, Supertest, Playwright, smokes; Sentry opcional |
+| Despliegue piloto | Ubuntu, Docker Compose, Nginx (Plesk), HTTPS |
+
+Detalle de decisiones: `docs/adr/ADR-003-stack-tecnologico-inicial.md`.
+
+## Funcionalidades principales (piloto)
+
+- Crear y configurar un evento (admin unico).
+- Definir espacio del salon y mesas (forma, capacidad, plano).
+- Importar invitados por Excel y alta manual.
+- Definir afinidades, incompatibilidades y reglas blandas (p. ej. agrupar por categoria).
+- Calcular distribucion con motor CP-SAT (async, con progreso) y ajuste manual de asientos.
+- Confirmar propuesta y descargar informe PDF (generado en el navegador).
+- Documentacion OpenAPI de la API.
+
+Alcance evaluable y limitaciones: `docs/pilot/README.md` y `docs/pilot/ALCANCE-ACTUAL.md`.
+
+## Estructura del proyecto
+
+```text
+taulamic/
+├── apps/
+│   ├── api/          # Backend NestJS (API, motor, persistencia piloto)
+│   └── web/          # Frontend Next.js (admin piloto)
+├── docs/             # SDD, ADR, Agile, piloto, UX, arquitectura
+├── package.json      # Scripts de monorepo (dev, install:apps, …)
+└── README.md
+```
+
+- Convencion: Clean Architecture pragmatica por modulo/feature (`docs/adr/ADR-015-clean-architecture-pragmatica-y-features.md`).
+- Inventario documental detallado: seccion **Estructura inicial** mas abajo.
+
+## Instalacion y ejecucion (local)
+
+### Arrancar todo (recomendado)
+
+Desde la **raiz** del repositorio:
+
+```bash
+npm install
+npm run install:apps   # primera vez, o tras cambios de dependencias
+npm run dev
+```
+
+- API: `http://localhost:3000/api/v1` · OpenAPI: `http://localhost:3000/api/docs`
+- Web: `http://localhost:3001` (proxy `/api/v1` → API)
+
+Solo API o solo web: `npm run dev:api` · `npm run dev:web`
+
+### Arrancar por app (alternativa)
+
+**API:**
+
+```bash
+cd apps/api
+npm install
+npm run start:dev
+```
+
+**Web admin piloto:**
+
+```bash
+cd apps/web
+npm install
+npm run dev:clean
+```
+
+(`dev:clean` en web borra `.next` antes de arrancar; recomendado en OneDrive.)
+
+- Handoff UX: `docs/ux/handoff-figma-a-frontend.md`
+
+## Despliegue del piloto (servidor Monlau)
+
+Resumen del proceso seguido en el servidor Linux del centro (detalle en el documento interno *Despliegue.pdf*).
+
+1. **Clonar / copiar** el repositorio al servidor (`git clone https://github.com/quintasc/taulamic.git`).
+2. **Entorno:** Ubuntu con Docker, Docker Compose, Nginx y Plesk. El proyecto corre en contenedores para aislarlo del resto de apps del host.
+3. **Dominio / carpeta:** ruta del vhost alineada con el nombre correcto del dominio (`taulamic.alumnes-monlau.com`), gestionado con Plesk.
+4. **Contenedores (Compose):**
+   - API NestJS: build TypeScript y arranque en puerto interno **3000**.
+   - Web Next.js: build de produccion y arranque en puerto interno **3001**.
+   - Publicacion solo en localhost del servidor: `127.0.0.1:3100` (API) y `127.0.0.1:3101` (web). No se exponen a Internet; Nginx hace de puerta.
+   - Reinicio automatico de contenedores si caen o reinicia el servidor.
+5. **Datos persistentes:** volumen Docker para que eventos, invitados, planos, etc. no se pierdan al reconstruir imagenes.
+6. **Arranque tipico** (en la carpeta del dominio, con el compose de produccion del servidor):
+
+```bash
+docker compose -f compose.production.yml up -d --build
+```
+
+7. **Nginx:** HTTPS del dominio → web (`3101`); `/api/docs` → API (`3100`); la web proxyfica `/api/v1` hacia la API. Timeout de proxy ampliado porque el calculo de distribucion puede tardar minutos.
+8. **Comprobaciones:** home, API, OpenAPI, certificado HTTPS, DNS y contenedores activos.
+
+URL publica resultante: [https://taulamic.alumnes-monlau.com/](https://taulamic.alumnes-monlau.com/).
+
+> Nota: el fichero `compose.production.yml` y la config Nginx del host viven en el servidor de despliegue; el desarrollo local sigue con `npm run dev` (seccion anterior).
+
 ## Objetivo del repositorio
 
-Este repositorio guarda decisiones de producto y tecnologia antes de programar en grande, usando enfoque SDD (Spec-Driven Development).
+Este repositorio guarda decisiones de producto y tecnologia antes de programar en grande, usando enfoque SDD (Spec-Driven Development), junto con el codigo del piloto evaluable.
 
 **Regla obligatoria:** el SDD es la fuente de verdad funcional. Ver `docs/sdd/SDD-GOVERNANZA-PROTECCION-SDD.md`.
 
@@ -77,49 +196,6 @@ El SDD inicial y las enmiendas se conservan como historial de evolucion. La carp
 - `docs/agile/CONTEXTO-EJECUCION.md`: punto de reanudacion rapido (estado, siguiente accion, frase para Cursor).
 - `docs/agile/sprint-01-plan.md`: plan de trabajo y cierre para Sprint 01.
 - `docs/agile/sprint-02-plan.md`: plan de trabajo para Sprint 02 (configuracion inteligente y captura asistida).
-
-## Estructura de codigo
-
-- `apps/api/`: API NestJS (Sprint 02, HU-31 carga de plano).
-- `apps/web/`: Frontend Next.js admin piloto (W5, Figma Make).
-- Convencion arquitectonica: Clean Architecture pragmatica por modulo/feature (ADR-015).
-
-### Arrancar todo (recomendado)
-
-Desde la **raíz** del repositorio:
-
-```bash
-npm install
-npm run install:apps   # primera vez, o tras cambios de dependencias
-npm run dev
-```
-
-- API: `http://localhost:3000/api/v1` · OpenAPI: `http://localhost:3000/api/docs`
-- Web: `http://localhost:3001` (proxy `/api/v1` → API)
-
-Solo API o solo web: `npm run dev:api` · `npm run dev:web`
-
-### Arrancar por app (alternativa)
-
-**API:**
-
-```bash
-cd apps/api
-npm install
-npm run start:dev
-```
-
-**Web admin piloto:**
-
-```bash
-cd apps/web
-npm install
-npm run dev:clean
-```
-
-(`dev:clean` en web borra `.next` antes de arrancar; recomendado en OneDrive.)
-
-- Handoff UX: `docs/ux/handoff-figma-a-frontend.md`
 
 ## Como usar este repositorio
 

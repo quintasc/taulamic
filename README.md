@@ -14,10 +14,10 @@ Taulamic es una aplicacion web que ayuda a organizar la distribucion de invitado
 
 El piloto esta desplegado y accesible en:
 
-- **Aplicacion:** [https://taulamic.alumnes-monlau.com/](https://taulamic.alumnes-monlau.com/)
-- **Video explicativo del piloto:** [ver en SharePoint](https://monlaues-my.sharepoint.com/:v:/g/personal/quintasc_monlau_com/IQCg_nzxvrJnSpKRlfhX2-pWAfq5Q2Sho7dRHnqAS1W60Mk?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=UhTkyr)
-- **Presentacion (PPT) usada en la defensa:** [ver en SharePoint](https://monlaues-my.sharepoint.com/:p:/g/personal/quintasc_monlau_com/IQCSp8oqymqnSa-eVZQ26InAAZgSNktyQDMQa9fzqPS6-YE?e=SeUZa6)
-- **OpenAPI (servidor):** [https://taulamic.alumnes-monlau.com/api/docs](https://taulamic.alumnes-monlau.com/api/docs)
+- **Aplicacion:** [Piloto en produccion](https://taulamic.alumnes-monlau.com/)
+- **Video explicativo del piloto:** [Video del piloto](https://monlaues-my.sharepoint.com/:v:/g/personal/quintasc_monlau_com/IQCg_nzxvrJnSpKRlfhX2-pWAfq5Q2Sho7dRHnqAS1W60Mk?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=UhTkyr)
+- **Presentacion (PPT) usada en la defensa:** [Presentacion PPT](https://monlaues-my.sharepoint.com/:p:/g/personal/quintasc_monlau_com/IQCSp8oqymqnSa-eVZQ26InAAZgSNktyQDMQa9fzqPS6-YE?e=SeUZa6)
+- **OpenAPI (servidor):** [Documentacion OpenAPI](https://taulamic.alumnes-monlau.com/api/docs)
 
 ### Usuario y contrasena de prueba
 

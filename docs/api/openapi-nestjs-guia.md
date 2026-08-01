@@ -7,7 +7,18 @@ Usar `@nestjs/swagger` como documentacion oficial de API en este proyecto.
 Resultado esperado:
 
 - UI interactiva en `/api/docs`
-- Especificacion OpenAPI JSON en `/api-json`
+- Especificacion OpenAPI JSON en `/api-json` (runtime)
+- Copia versionada en `docs/api/openapi.json` (repo + CI)
+
+### Regenerar el JSON versionado
+
+Desde `apps/api` (o `npm run docs:openapi` en la raiz del monorepo):
+
+```bash
+npm run docs:openapi
+```
+
+El workflow `.github/workflows/openapi.yml` regenera el documento en CI y falla si el fichero commiteado no coincide. Tras cambiar controladores/DTOs/Swagger, ejecuta el script y incluye el JSON en el PR.
 
 ## 2) Paquetes sugeridos
 

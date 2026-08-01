@@ -1,0 +1,4785 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1": {
+      "get": {
+        "operationId": "AppController_getHello",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/floor-plans": {
+      "post": {
+        "operationId": "FloorPlansController_upload",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "evt_123",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadFloorPlanResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Archivo invalido, formato no soportado o tamano excedido. Permite reintento inmediato."
+          }
+        },
+        "summary": "Subir plano del salon (JPG, PNG o PDF)",
+        "tags": [
+          "floor-plans"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/floor-plans/{floorPlanId}/detect": {
+      "post": {
+        "operationId": "FloorPlansController_detect",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "evt_123",
+              "type": "string"
+            }
+          },
+          {
+            "name": "floorPlanId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "550e8400-e29b-41d4-a716-446655440000",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetectTablesResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Plano no encontrado para el evento indicado."
+          }
+        },
+        "summary": "Detectar mesas candidatas en un plano subido",
+        "tags": [
+          "floor-plans"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/floor-plans/{floorPlanId}/draft": {
+      "get": {
+        "operationId": "FloorPlansController_getDraft",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "floorPlanId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LayoutDraftResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Plano no encontrado."
+          }
+        },
+        "summary": "Obtener borrador editable de mesas",
+        "tags": [
+          "floor-plans"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/floor-plans/{floorPlanId}/draft/tables": {
+      "post": {
+        "operationId": "FloorPlansController_addDraftTable",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "floorPlanId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertDraftTableDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LayoutDraftResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Layout ya confirmado."
+          }
+        },
+        "summary": "Anadir mesa al borrador",
+        "tags": [
+          "floor-plans"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/floor-plans/{floorPlanId}/draft/tables/{tableId}": {
+      "put": {
+        "operationId": "FloorPlansController_updateDraftTable",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "floorPlanId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tableId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertDraftTableDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LayoutDraftResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Mesa o plano no encontrado."
+          },
+          "409": {
+            "description": "Layout ya confirmado."
+          }
+        },
+        "summary": "Editar mesa del borrador",
+        "tags": [
+          "floor-plans"
+        ]
+      },
+      "delete": {
+        "operationId": "FloorPlansController_removeDraftTable",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "floorPlanId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tableId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Mesa eliminada del borrador."
+          },
+          "404": {
+            "description": "Mesa o plano no encontrado."
+          },
+          "409": {
+            "description": "Layout ya confirmado."
+          }
+        },
+        "summary": "Eliminar mesa del borrador",
+        "tags": [
+          "floor-plans"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/floor-plans/{floorPlanId}/draft/tables/{tableId}/seat-topology": {
+      "get": {
+        "operationId": "FloorPlansController_getDraftTableSeatTopology",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "floorPlanId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tableId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableSeatTopologyDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Mesa o plano no encontrado."
+          }
+        },
+        "summary": "Topologia de asientos de una mesa del borrador (recalcula al cambiar forma/capacidad)",
+        "tags": [
+          "floor-plans"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/floor-plans/{floorPlanId}/draft/confirm": {
+      "post": {
+        "operationId": "FloorPlansController_confirmDraft",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "floorPlanId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmLayoutDraftDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfirmedLayoutResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Confirmacion explicita requerida o borrador vacio."
+          },
+          "409": {
+            "description": "Layout ya confirmado."
+          }
+        },
+        "summary": "Confirmar explicitamente la configuracion final de mesas",
+        "tags": [
+          "floor-plans"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/floor-plans/{floorPlanId}/confirmed": {
+      "get": {
+        "operationId": "FloorPlansController_getConfirmed",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "floorPlanId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfirmedLayoutResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Plano o configuracion no encontrados."
+          }
+        },
+        "summary": "Consultar configuracion confirmada",
+        "tags": [
+          "floor-plans"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/floor-plans/{floorPlanId}/layout-versions": {
+      "get": {
+        "operationId": "FloorPlansController_listLayoutVersions",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "floorPlanId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LayoutVersionListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Listar versiones persistidas del layout",
+        "tags": [
+          "floor-plans"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/floor-plans/{floorPlanId}/layout-versions/{version}": {
+      "get": {
+        "operationId": "FloorPlansController_getLayoutVersion",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "floorPlanId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfirmedLayoutResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Version no encontrada."
+          }
+        },
+        "summary": "Consultar una version persistida del layout",
+        "tags": [
+          "floor-plans"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/table-shapes": {
+      "get": {
+        "operationId": "TableShapesController_getCatalog",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "evt_123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableShapeCatalogResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Catalogo configurable de formas de mesa (HU-29)",
+        "tags": [
+          "table-shapes"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/table-shapes/{shape}/seat-topology": {
+      "get": {
+        "operationId": "TableShapesController_getSeatTopologyPreview",
+        "parameters": [
+          {
+            "name": "shape",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "enum": [
+                "redonda",
+                "rectangular",
+                "imperial",
+                "ovalada"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "capacity",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": 8,
+              "type": "number"
+            }
+          },
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "evt_123"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableSeatTopologyDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Forma o capacidad invalida para la topologia."
+          }
+        },
+        "summary": "Vista previa de topologia de asientos por forma y capacidad",
+        "tags": [
+          "table-shapes"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/guest-import/template": {
+      "get": {
+        "description": "Genera un archivo .xlsx con hoja invitados (encabezados oficiales y filas de ejemplo) e instrucciones de uso.",
+        "operationId": "GuestImportController_downloadTemplate",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "evt_123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Plantilla Excel descargable.",
+            "content": {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Descargar plantilla Excel v1 de invitados",
+        "tags": [
+          "guest-import"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/guest-import/validate": {
+      "post": {
+        "description": "Parsea el .xlsx y devuelve errores por fila, campo y codigo (XLS-001..007).",
+        "operationId": "GuestImportController_validate",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "evt_123",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestImportValidationResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Archivo ausente, formato invalido o tamano excedido."
+          }
+        },
+        "summary": "Validar archivo Excel de invitados",
+        "tags": [
+          "guest-import"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/guest-import/import": {
+      "post": {
+        "description": "Valida filas validas, hace upsert por correo y normaliza categorias del evento. Las filas con error se rechazan sin bloquear las validas.",
+        "operationId": "GuestImportController_import",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "evt_123",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestImportBatchResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Archivo ausente, formato invalido o tamano excedido."
+          }
+        },
+        "summary": "Importar invitados desde Excel",
+        "tags": [
+          "guest-import"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/guest-import/suggestions": {
+      "get": {
+        "description": "Devuelve sugerencias generadas desde notas internas del Excel sin aplicarlas automaticamente.",
+        "operationId": "GuestImportController_listSuggestions",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestrictionSuggestionListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Listar sugerencias de restricciones pendientes",
+        "tags": [
+          "guest-import"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/guest-import/suggestions/{suggestionId}/accept": {
+      "post": {
+        "operationId": "GuestImportController_acceptSuggestion",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "suggestionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestrictionSuggestionDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Aceptar sugerencia y aplicar restriccion con origen trazado",
+        "tags": [
+          "guest-import"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/guest-import/suggestions/{suggestionId}/reject": {
+      "post": {
+        "operationId": "GuestImportController_rejectSuggestion",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "suggestionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestrictionSuggestionDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Rechazar sugerencia pendiente",
+        "tags": [
+          "guest-import"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/guest-import/suggestions/{suggestionId}": {
+      "put": {
+        "operationId": "GuestImportController_updateSuggestion",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "suggestionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRestrictionSuggestionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestrictionSuggestionDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Editar sugerencia pendiente antes de confirmar",
+        "tags": [
+          "guest-import"
+        ]
+      }
+    },
+    "/api/v1/events": {
+      "post": {
+        "operationId": "EventConfigController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEventDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventDetailResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Crear evento (HU-01)",
+        "tags": [
+          "events"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}": {
+      "get": {
+        "operationId": "EventConfigController_get",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "evt_123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventDetailResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Evento no encontrado."
+          }
+        },
+        "summary": "Consultar evento con mesas y capacidad total disponible",
+        "tags": [
+          "events"
+        ]
+      },
+      "put": {
+        "operationId": "EventConfigController_update",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEventDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventDetailResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Evento no encontrado."
+          }
+        },
+        "summary": "Actualizar datos base del evento",
+        "tags": [
+          "events"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/tables": {
+      "post": {
+        "operationId": "EventConfigController_addTable",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertEventTableDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventDetailResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Evento no encontrado."
+          },
+          "409": {
+            "description": "Plan aprobado; mesas bloqueadas."
+          }
+        },
+        "summary": "Anadir mesa al evento con forma y capacidad",
+        "tags": [
+          "events"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/tables/{tableId}": {
+      "put": {
+        "operationId": "EventConfigController_updateTable",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tableId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertEventTableDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventDetailResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Evento o mesa no encontrados."
+          },
+          "409": {
+            "description": "Plan aprobado; mesas bloqueadas."
+          }
+        },
+        "summary": "Editar mesa (capacidad/forma) antes de aprobar plan final",
+        "tags": [
+          "events"
+        ]
+      },
+      "delete": {
+        "operationId": "EventConfigController_removeTable",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tableId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Mesa eliminada."
+          },
+          "404": {
+            "description": "Evento o mesa no encontrados."
+          },
+          "409": {
+            "description": "Plan aprobado; mesas bloqueadas."
+          }
+        },
+        "summary": "Eliminar mesa del evento",
+        "tags": [
+          "events"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/room-setup": {
+      "get": {
+        "operationId": "EventConfigController_getRoomSetup",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "evt_123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoomSetupResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Evento no encontrado o sin room-setup guardado."
+          }
+        },
+        "summary": "Consultar configuracion del salon (plano Fase A)",
+        "tags": [
+          "events"
+        ]
+      },
+      "put": {
+        "operationId": "EventConfigController_upsertRoomSetup",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "evt_123",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertRoomSetupDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoomSetupResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Evento no encontrado."
+          },
+          "409": {
+            "description": "Plan aprobado; room-setup bloqueado."
+          }
+        },
+        "summary": "Guardar configuracion del salon (plano Fase A)",
+        "tags": [
+          "events"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/preference-control-mode": {
+      "get": {
+        "operationId": "EventsController_getMode",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "evt_123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventPreferenceModeResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Consultar modo de control de preferencias del evento",
+        "tags": [
+          "events"
+        ]
+      },
+      "put": {
+        "description": "Persiste el modo con historial versionado. No elimina preferencias ya registradas.",
+        "operationId": "EventsController_updateMode",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-taulamic-actor-role",
+            "in": "header",
+            "description": "Rol del actor: admin o guest. Por defecto admin.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEventPreferenceModeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventPreferenceModeResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Actualizar modo de control de preferencias del evento",
+        "tags": [
+          "events"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/preference-control-mode/permissions": {
+      "get": {
+        "description": "Pensado para UI: indica si el actor puede editar preferencias y mensaje de feedback.",
+        "operationId": "EventsController_getPermissions",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "actorRole",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "admin",
+                "guest"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreferencePermissionsResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Consultar permisos de edicion segun modo y rol",
+        "tags": [
+          "events"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/preference-control-mode/revisions": {
+      "get": {
+        "operationId": "EventsController_listRevisions",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreferenceControlModeRevisionListDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Historial auditado de cambios de modo",
+        "tags": [
+          "events"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/governance-audit": {
+      "get": {
+        "description": "Historico unificado de cambios de modo y excepciones de acompanantes (quien/cuando/antes/despues). Solo admin.",
+        "operationId": "EventGovernanceAuditController_listAudit",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "evt_123",
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-taulamic-actor-role",
+            "in": "header",
+            "description": "Rol del actor: admin o guest. Por defecto admin.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GovernanceAuditListResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Solo administradores (ADMIN_REQUIRED)."
+          }
+        },
+        "summary": "Consultar auditoria de gobernanza del evento",
+        "tags": [
+          "event-governance-audit"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/guests": {
+      "get": {
+        "description": "Admin ve datos completos; rol guest oculta telefono, direccion y observaciones sensibles.",
+        "operationId": "GuestsController_list",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "actorRole",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "admin",
+                "guest"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestListResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Evento no encontrado."
+          }
+        },
+        "summary": "Listar invitados del evento (HU-02/03 piloto)",
+        "tags": [
+          "guests"
+        ]
+      },
+      "post": {
+        "operationId": "GuestsController_create",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-taulamic-actor-role",
+            "in": "header",
+            "description": "Solo admin en piloto.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertGuestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestViewDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Solo admin."
+          },
+          "404": {
+            "description": "Evento no encontrado."
+          },
+          "409": {
+            "description": "Correo duplicado en el evento."
+          }
+        },
+        "summary": "Registrar invitado manualmente (admin)",
+        "tags": [
+          "guests"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/guests/categories": {
+      "get": {
+        "operationId": "GuestsController_listCategories",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestCategoryListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Listar categorias de invitados del evento",
+        "tags": [
+          "guests"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/guests/{guestId}": {
+      "get": {
+        "operationId": "GuestsController_get",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "guestId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "actorRole",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "admin",
+                "guest"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestViewDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Evento o invitado no encontrado."
+          }
+        },
+        "summary": "Consultar invitado por id",
+        "tags": [
+          "guests"
+        ]
+      },
+      "put": {
+        "operationId": "GuestsController_update",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "guestId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-taulamic-actor-role",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertGuestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestViewDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Solo admin."
+          },
+          "404": {
+            "description": "Evento o invitado no encontrado."
+          },
+          "409": {
+            "description": "Correo duplicado en el evento."
+          }
+        },
+        "summary": "Actualizar datos base del invitado (admin)",
+        "tags": [
+          "guests"
+        ]
+      },
+      "delete": {
+        "operationId": "GuestsController_remove",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "guestId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-taulamic-actor-role",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Invitado eliminado."
+          },
+          "403": {
+            "description": "Solo admin."
+          },
+          "404": {
+            "description": "Evento o invitado no encontrado."
+          }
+        },
+        "summary": "Eliminar invitado del evento (admin)",
+        "tags": [
+          "guests"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/distribution/run": {
+      "post": {
+        "operationId": "DistributionController_run",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "evt_550e8400",
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-taulamic-actor-role",
+            "in": "header",
+            "description": "Debe ser admin para ejecutar el motor.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunDistributionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DistributionProposalDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Solo admin puede ejecutar el motor."
+          },
+          "404": {
+            "description": "Evento no encontrado."
+          },
+          "409": {
+            "description": "Plan aprobado o distribucion ya confirmada."
+          }
+        },
+        "summary": "Iniciar cálculo asíncrono de distribución y marcar propuesta como calculating",
+        "tags": [
+          "distribution"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/distribution": {
+      "get": {
+        "operationId": "DistributionController_getLatest",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "evt_550e8400",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DistributionProposalDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sin propuesta o evento inexistente."
+          }
+        },
+        "summary": "Obtener la ultima propuesta de distribucion",
+        "tags": [
+          "distribution"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/distribution/status": {
+      "get": {
+        "operationId": "DistributionController_getStatus",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "evt_550e8400",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DistributionCalculationStatusDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Evento inexistente."
+          }
+        },
+        "summary": "Obtener estado del cálculo de distribución en segundo plano",
+        "tags": [
+          "distribution"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/distribution/confirm": {
+      "post": {
+        "operationId": "DistributionController_confirm",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "evt_550e8400",
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-taulamic-actor-role",
+            "in": "header",
+            "description": "Debe ser admin para confirmar.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DistributionProposalDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Solo admin puede confirmar."
+          },
+          "404": {
+            "description": "Sin propuesta o evento inexistente."
+          },
+          "409": {
+            "description": "Invitados sin asignar, violaciones o ya confirmada."
+          }
+        },
+        "summary": "Confirmar distribucion piloto y aprobar plan del evento",
+        "tags": [
+          "distribution"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/distribution/placements/{guestId}/unassign": {
+      "post": {
+        "operationId": "DistributionController_unassignGuest",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "evt_550e8400",
+              "type": "string"
+            }
+          },
+          {
+            "name": "guestId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "guest-1",
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-taulamic-actor-role",
+            "in": "header",
+            "description": "Debe ser admin.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DistributionProposalDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Solo admin puede desasignar."
+          },
+          "404": {
+            "description": "Sin propuesta o evento inexistente."
+          },
+          "409": {
+            "description": "Propuesta confirmada o invitado no asignado."
+          }
+        },
+        "summary": "Desasignar invitado de su mesa (propuesta en borrador)",
+        "tags": [
+          "distribution"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/distribution/placements/{guestId}": {
+      "put": {
+        "operationId": "DistributionController_assignGuest",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "evt_550e8400",
+              "type": "string"
+            }
+          },
+          {
+            "name": "guestId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "guest-1",
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-taulamic-actor-role",
+            "in": "header",
+            "description": "Debe ser admin.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignGuestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DistributionProposalDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Solo admin puede asignar."
+          },
+          "404": {
+            "description": "Sin propuesta o evento inexistente."
+          },
+          "409": {
+            "description": "Propuesta confirmada, mesa llena o regla dura."
+          }
+        },
+        "summary": "Asignar invitado sin asignar a una mesa (propuesta en borrador)",
+        "tags": [
+          "distribution"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/distribution/placements/{guestId}/move": {
+      "post": {
+        "operationId": "DistributionController_moveGuest",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "evt_550e8400",
+              "type": "string"
+            }
+          },
+          {
+            "name": "guestId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "guest-1",
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-taulamic-actor-role",
+            "in": "header",
+            "description": "Debe ser admin.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignGuestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DistributionProposalDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Solo admin puede mover."
+          },
+          "404": {
+            "description": "Sin propuesta o evento inexistente."
+          },
+          "409": {
+            "description": "Propuesta confirmada, mesa llena o regla dura."
+          }
+        },
+        "summary": "Mover invitado asignado a otra mesa (propuesta en borrador)",
+        "tags": [
+          "distribution"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/distribution/placements/{guestId}/seat": {
+      "put": {
+        "operationId": "DistributionController_updateGuestSeat",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "evt_550e8400",
+              "type": "string"
+            }
+          },
+          {
+            "name": "guestId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "guest-1",
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-taulamic-actor-role",
+            "in": "header",
+            "description": "Debe ser admin.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateGuestSeatDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DistributionProposalDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Solo admin puede cambiar el asiento."
+          },
+          "404": {
+            "description": "Sin propuesta o evento inexistente."
+          },
+          "409": {
+            "description": "Propuesta confirmada, asiento invalido o invitado no asignado."
+          }
+        },
+        "summary": "Cambiar asiento de un invitado en su mesa (propuesta en borrador)",
+        "tags": [
+          "distribution"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/guests/{guestId}/restrictions": {
+      "get": {
+        "operationId": "GuestPreferencesController_listRestrictions",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "evt_123",
+              "type": "string"
+            }
+          },
+          {
+            "name": "guestId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "guest-uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestRestrictionListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Listar restricciones de un invitado",
+        "tags": [
+          "guest-preferences"
+        ]
+      },
+      "post": {
+        "description": "En modo anfitrion_exclusivo solo admins pueden editar. En colaborativo, invitados autorizados tambien.",
+        "operationId": "GuestPreferencesController_addRestriction",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "guestId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-taulamic-actor-role",
+            "in": "header",
+            "description": "Rol del actor: admin o guest. Por defecto admin.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddGuestRestrictionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestRestrictionDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Operacion no permitida segun modo del evento (PREF-001)."
+          }
+        },
+        "summary": "Anadir restriccion manual de invitado",
+        "tags": [
+          "guest-preferences"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/companion-groups": {
+      "get": {
+        "description": "Agrupa invitados por acompanante_key. Por defecto keepTogether=true salvo excepcion explicita.",
+        "operationId": "GuestCompanionsController_listGroups",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "evt_123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanionGroupListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Listar grupos de acompanantes del evento",
+        "tags": [
+          "guest-companions"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/companion-groups/{groupKey}/evaluation": {
+      "get": {
+        "description": "Detecta incompatibilidades duras entre miembros cuando keepTogether=true.",
+        "operationId": "GuestCompanionsController_evaluateGroup",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "evt_123",
+              "type": "string"
+            }
+          },
+          {
+            "name": "groupKey",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "PAREJA_001",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanionGroupEvaluationDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Evaluar si un grupo puede sentarse junto",
+        "tags": [
+          "guest-companions"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/companion-groups/{groupKey}/separate": {
+      "post": {
+        "description": "Solo administradores. Persiste motivo auditado con origen admin.",
+        "operationId": "GuestCompanionsController_separateGroup",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "evt_123",
+              "type": "string"
+            }
+          },
+          {
+            "name": "groupKey",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "PAREJA_001",
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-taulamic-actor-role",
+            "in": "header",
+            "description": "Rol del actor: admin o guest. Por defecto admin.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SeparateCompanionGroupDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanionGroupListResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Solo administradores (ADMIN_REQUIRED)."
+          }
+        },
+        "summary": "Registrar excepcion explicita para no sentar juntos",
+        "tags": [
+          "guest-companions"
+        ]
+      }
+    },
+    "/api/v1/events/{eventId}/companion-groups/{groupKey}/revert-separation": {
+      "post": {
+        "description": "Solo administradores.",
+        "operationId": "GuestCompanionsController_revertSeparation",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "evt_123",
+              "type": "string"
+            }
+          },
+          {
+            "name": "groupKey",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "PAREJA_001",
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-taulamic-actor-role",
+            "in": "header",
+            "description": "Rol del actor: admin o guest. Por defecto admin.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanionGroupListResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Solo administradores (ADMIN_REQUIRED)."
+          }
+        },
+        "summary": "Revertir excepcion y volver a regla juntos por defecto",
+        "tags": [
+          "guest-companions"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Taulamic API",
+    "description": "API REST del piloto MVP julio (DECISION-002). Contrato OpenAPI 3 para evento, mesas, invitados, Excel, plano, preferencias y motor v0.",
+    "version": "1.0-pilot",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "events",
+      "description": "EP-01: configuracion de evento, mesas y modo de preferencias (piloto julio)."
+    },
+    {
+      "name": "guests",
+      "description": "EP-02: captura manual de invitados con datos base MVP."
+    },
+    {
+      "name": "guest-import",
+      "description": "EP-12: plantilla Excel, validacion e importacion por lotes."
+    },
+    {
+      "name": "distribution",
+      "description": "EP-03: distribucion automatica (motor v1 CP-SAT por defecto; v0-pilot como fallback) y confirmacion."
+    },
+    {
+      "name": "floor-plans",
+      "description": "EP-11: importacion de plano, borrador y layout confirmado."
+    },
+    {
+      "name": "table-shapes",
+      "description": "EP-01 HU-29: catalogo de formas y topologia de asientos."
+    },
+    {
+      "name": "guest-preferences",
+      "description": "EP-13: restricciones y permisos de preferencias por invitado."
+    },
+    {
+      "name": "guest-companions",
+      "description": "EP-13 HU-40: grupos de acompanantes y excepciones."
+    },
+    {
+      "name": "event-governance-audit",
+      "description": "EP-13/#35: auditoria de cambios de gobernanza del evento."
+    }
+  ],
+  "servers": [
+    {
+      "url": "/api/v1",
+      "description": "API v1 piloto"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "taulamic-actor-role": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-taulamic-actor-role",
+        "description": "Rol del actor en piloto (admin | guest). Obligatorio en operaciones admin."
+      },
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "description": "Reservado para auth completa post-piloto (EP-06)."
+      }
+    },
+    "schemas": {
+      "UploadFloorPlanResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "eventId": {
+            "type": "string",
+            "example": "evt_123"
+          },
+          "originalName": {
+            "type": "string",
+            "example": "salon-boda.pdf"
+          },
+          "mimeType": {
+            "type": "string",
+            "example": "application/pdf"
+          },
+          "sizeBytes": {
+            "type": "number",
+            "example": 245760
+          },
+          "status": {
+            "type": "string",
+            "example": "uploaded"
+          }
+        },
+        "required": [
+          "id",
+          "eventId",
+          "originalName",
+          "mimeType",
+          "sizeBytes",
+          "status"
+        ]
+      },
+      "DetectedTableDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "label": {
+            "type": "string",
+            "example": "Mesa 1"
+          },
+          "shape": {
+            "type": "string",
+            "enum": [
+              "redonda",
+              "rectangular",
+              "imperial",
+              "ovalada"
+            ],
+            "example": "redonda"
+          },
+          "estimatedCapacity": {
+            "type": "number",
+            "example": 10
+          },
+          "confidence": {
+            "type": "number",
+            "example": 0.85,
+            "description": "Nivel de confianza entre 0 y 1"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "shape",
+          "estimatedCapacity",
+          "confidence"
+        ]
+      },
+      "DetectTablesResponseDto": {
+        "type": "object",
+        "properties": {
+          "floorPlanId": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "eventId": {
+            "type": "string",
+            "example": "evt_123"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "completed",
+              "partial",
+              "failed"
+            ],
+            "example": "completed"
+          },
+          "tables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DetectedTableDto"
+            }
+          },
+          "manualFallbackAvailable": {
+            "type": "boolean",
+            "example": true
+          },
+          "detectedAt": {
+            "type": "string",
+            "example": "2026-06-18T10:15:30.000Z"
+          },
+          "message": {
+            "type": "string",
+            "example": "Deteccion parcial: revisa forma y capacidad antes de confirmar."
+          }
+        },
+        "required": [
+          "floorPlanId",
+          "eventId",
+          "status",
+          "tables",
+          "manualFallbackAvailable",
+          "detectedAt"
+        ]
+      },
+      "EditableLayoutTableDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "label": {
+            "type": "string",
+            "example": "Mesa 1"
+          },
+          "shape": {
+            "type": "string",
+            "enum": [
+              "redonda",
+              "rectangular",
+              "imperial",
+              "ovalada"
+            ],
+            "example": "redonda"
+          },
+          "estimatedCapacity": {
+            "type": "number",
+            "example": 10
+          },
+          "confidence": {
+            "type": "number",
+            "example": 0.85
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "detected",
+              "manual",
+              "detected_edited"
+            ],
+            "example": "detected"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "shape",
+          "estimatedCapacity",
+          "origin"
+        ]
+      },
+      "LayoutDraftResponseDto": {
+        "type": "object",
+        "properties": {
+          "floorPlanId": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "eventId": {
+            "type": "string",
+            "example": "evt_123"
+          },
+          "status": {
+            "type": "string",
+            "example": "draft"
+          },
+          "tables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EditableLayoutTableDto"
+            }
+          },
+          "updatedAt": {
+            "type": "string",
+            "example": "2026-06-18T10:15:30.000Z"
+          }
+        },
+        "required": [
+          "floorPlanId",
+          "eventId",
+          "status",
+          "tables",
+          "updatedAt"
+        ]
+      },
+      "UpsertDraftTableDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "example": "Mesa 3"
+          },
+          "shape": {
+            "type": "string",
+            "enum": [
+              "redonda",
+              "rectangular",
+              "imperial",
+              "ovalada"
+            ],
+            "example": "redonda"
+          },
+          "estimatedCapacity": {
+            "type": "number",
+            "example": 10
+          }
+        },
+        "required": [
+          "label",
+          "shape",
+          "estimatedCapacity"
+        ]
+      },
+      "SeatRefDto": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "number",
+            "example": 0
+          },
+          "label": {
+            "type": "string",
+            "example": "S1"
+          }
+        },
+        "required": [
+          "index",
+          "label"
+        ]
+      },
+      "SeatProximityDto": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "number",
+            "example": 0
+          },
+          "to": {
+            "type": "number",
+            "example": 1
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "adyacente",
+              "enfrente",
+              "mismo_lateral"
+            ],
+            "example": "adyacente"
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "kind"
+        ]
+      },
+      "TableSeatTopologyDto": {
+        "type": "object",
+        "properties": {
+          "shape": {
+            "type": "string",
+            "enum": [
+              "redonda",
+              "rectangular",
+              "imperial",
+              "ovalada"
+            ],
+            "example": "redonda"
+          },
+          "capacity": {
+            "type": "number",
+            "example": 8
+          },
+          "seats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SeatRefDto"
+            }
+          },
+          "proximities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SeatProximityDto"
+            }
+          }
+        },
+        "required": [
+          "shape",
+          "capacity",
+          "seats",
+          "proximities"
+        ]
+      },
+      "ConfirmLayoutDraftDto": {
+        "type": "object",
+        "properties": {
+          "confirmed": {
+            "type": "boolean",
+            "example": true,
+            "description": "Debe ser true para confirmar explicitamente la configuracion."
+          }
+        },
+        "required": [
+          "confirmed"
+        ]
+      },
+      "LayoutTableAuditDto": {
+        "type": "object",
+        "properties": {
+          "wasAutoDetected": {
+            "type": "boolean",
+            "example": true
+          },
+          "wasManuallyCorrected": {
+            "type": "boolean",
+            "example": true
+          },
+          "detectionConfidence": {
+            "type": "number",
+            "example": 0.85
+          }
+        },
+        "required": [
+          "wasAutoDetected",
+          "wasManuallyCorrected"
+        ]
+      },
+      "PersistedLayoutTableDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "label": {
+            "type": "string",
+            "example": "Mesa 1"
+          },
+          "shape": {
+            "type": "string",
+            "enum": [
+              "redonda",
+              "rectangular",
+              "imperial",
+              "ovalada"
+            ],
+            "example": "redonda"
+          },
+          "estimatedCapacity": {
+            "type": "number",
+            "example": 10
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "detected",
+              "manual",
+              "detected_edited"
+            ],
+            "example": "detected_edited"
+          },
+          "audit": {
+            "$ref": "#/components/schemas/LayoutTableAuditDto"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "shape",
+          "estimatedCapacity",
+          "origin",
+          "audit"
+        ]
+      },
+      "ConfirmedLayoutResponseDto": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "number",
+            "example": 1
+          },
+          "floorPlanId": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "eventId": {
+            "type": "string",
+            "example": "evt_123"
+          },
+          "status": {
+            "type": "string",
+            "example": "confirmed"
+          },
+          "configurationOrigin": {
+            "type": "string",
+            "enum": [
+              "manual",
+              "imported_edited"
+            ],
+            "example": "imported_edited"
+          },
+          "tables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PersistedLayoutTableDto"
+            }
+          },
+          "confirmedAt": {
+            "type": "string",
+            "example": "2026-06-18T10:20:00.000Z"
+          }
+        },
+        "required": [
+          "version",
+          "floorPlanId",
+          "eventId",
+          "status",
+          "configurationOrigin",
+          "tables",
+          "confirmedAt"
+        ]
+      },
+      "LayoutVersionSummaryDto": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "number",
+            "example": 1
+          },
+          "confirmedAt": {
+            "type": "string",
+            "example": "2026-06-18T10:20:00.000Z"
+          },
+          "configurationOrigin": {
+            "type": "string",
+            "enum": [
+              "manual",
+              "imported_edited"
+            ],
+            "example": "imported_edited"
+          },
+          "tableCount": {
+            "type": "number",
+            "example": 2
+          }
+        },
+        "required": [
+          "version",
+          "confirmedAt",
+          "configurationOrigin",
+          "tableCount"
+        ]
+      },
+      "LayoutVersionListResponseDto": {
+        "type": "object",
+        "properties": {
+          "floorPlanId": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "eventId": {
+            "type": "string",
+            "example": "evt_123"
+          },
+          "latestVersion": {
+            "type": "number",
+            "example": 1
+          },
+          "versions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LayoutVersionSummaryDto"
+            }
+          }
+        },
+        "required": [
+          "floorPlanId",
+          "eventId",
+          "latestVersion",
+          "versions"
+        ]
+      },
+      "TableShapeCatalogEntryDto": {
+        "type": "object",
+        "properties": {
+          "shape": {
+            "type": "string",
+            "enum": [
+              "redonda",
+              "rectangular",
+              "imperial",
+              "ovalada"
+            ],
+            "example": "redonda"
+          },
+          "label": {
+            "type": "string",
+            "example": "Redonda"
+          },
+          "description": {
+            "type": "string",
+            "example": "Asientos en circulo. Vecindad: adyacente en el arco, enfrente en el diametro opuesto."
+          },
+          "minCapacity": {
+            "type": "number",
+            "example": 2
+          },
+          "maxCapacity": {
+            "type": "number",
+            "example": 50
+          }
+        },
+        "required": [
+          "shape",
+          "label",
+          "description",
+          "minCapacity",
+          "maxCapacity"
+        ]
+      },
+      "TableShapeCatalogResponseDto": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "example": "evt_123"
+          },
+          "shapes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TableShapeCatalogEntryDto"
+            }
+          }
+        },
+        "required": [
+          "eventId",
+          "shapes"
+        ]
+      },
+      "GuestImportRowErrorDto": {
+        "type": "object",
+        "properties": {
+          "row": {
+            "type": "number",
+            "example": 3
+          },
+          "field": {
+            "type": "string",
+            "example": "correo"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "XLS-001",
+              "XLS-002",
+              "XLS-003",
+              "XLS-004",
+              "XLS-005",
+              "XLS-006",
+              "XLS-007"
+            ],
+            "example": "XLS-002"
+          },
+          "message": {
+            "type": "string",
+            "example": "Formato de correo invalido."
+          }
+        },
+        "required": [
+          "row",
+          "field",
+          "code",
+          "message"
+        ]
+      },
+      "GuestImportValidationResponseDto": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "example": "evt_123"
+          },
+          "valid": {
+            "type": "boolean",
+            "example": false
+          },
+          "totalRows": {
+            "type": "number",
+            "example": 2
+          },
+          "validRows": {
+            "type": "number",
+            "example": 1
+          },
+          "invalidRows": {
+            "type": "number",
+            "example": 1
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GuestImportRowErrorDto"
+            }
+          }
+        },
+        "required": [
+          "eventId",
+          "valid",
+          "totalRows",
+          "validRows",
+          "invalidRows",
+          "errors"
+        ]
+      },
+      "GuestImportBatchResponseDto": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "example": "evt_123"
+          },
+          "totalRows": {
+            "type": "number",
+            "example": 2
+          },
+          "created": {
+            "type": "number",
+            "example": 2
+          },
+          "updated": {
+            "type": "number",
+            "example": 0
+          },
+          "rejected": {
+            "type": "number",
+            "example": 0
+          },
+          "categoriesEnsured": {
+            "type": "number",
+            "example": 1
+          },
+          "suggestionsGenerated": {
+            "type": "number",
+            "example": 2
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GuestImportRowErrorDto"
+            }
+          },
+          "detailMetaByCorreo": {
+            "type": "object",
+            "example": {
+              "ana@ejemplo.com": {
+                "dietaryAlert": true,
+                "mobilityAlert": false,
+                "notes": "Intolerancia lactosa"
+              }
+            }
+          }
+        },
+        "required": [
+          "eventId",
+          "totalRows",
+          "created",
+          "updated",
+          "rejected",
+          "categoriesEnsured",
+          "suggestionsGenerated",
+          "errors",
+          "detailMetaByCorreo"
+        ]
+      },
+      "RestrictionSuggestionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string",
+            "example": "evt_123"
+          },
+          "guestId": {
+            "type": "string"
+          },
+          "guestName": {
+            "type": "string",
+            "example": "Ana Garcia"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "intolerancia_alimentaria",
+              "incompatibilidad",
+              "afinidad"
+            ]
+          },
+          "targetHint": {
+            "type": "object",
+            "nullable": true,
+            "example": "Juan Perez"
+          },
+          "sourceText": {
+            "type": "string",
+            "example": "No sentar con Juan Perez"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "accepted",
+              "rejected"
+            ]
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "reviewedAt": {
+            "type": "object",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "eventId",
+          "guestId",
+          "guestName",
+          "kind",
+          "targetHint",
+          "sourceText",
+          "status",
+          "createdAt",
+          "reviewedAt"
+        ]
+      },
+      "RestrictionSuggestionListResponseDto": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "example": "evt_123"
+          },
+          "suggestions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RestrictionSuggestionDto"
+            }
+          }
+        },
+        "required": [
+          "eventId",
+          "suggestions"
+        ]
+      },
+      "UpdateRestrictionSuggestionDto": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "intolerancia_alimentaria",
+              "incompatibilidad",
+              "afinidad"
+            ]
+          },
+          "targetHint": {
+            "type": "object",
+            "nullable": true
+          }
+        }
+      },
+      "CreateEventDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Boda Ana y Luis"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "EventTableDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "label": {
+            "type": "string",
+            "example": "Mesa 1"
+          },
+          "shape": {
+            "type": "string",
+            "enum": [
+              "redonda",
+              "rectangular",
+              "imperial",
+              "ovalada"
+            ],
+            "example": "redonda"
+          },
+          "capacity": {
+            "type": "number",
+            "example": 10
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2026-06-21T10:00:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "example": "2026-06-21T10:00:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "shape",
+          "capacity",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "EventCapacitySummaryDto": {
+        "type": "object",
+        "properties": {
+          "tableCount": {
+            "type": "number",
+            "example": 3
+          },
+          "totalCapacity": {
+            "type": "number",
+            "example": 28
+          },
+          "byShape": {
+            "type": "object",
+            "example": {
+              "redonda": {
+                "tableCount": 2,
+                "totalCapacity": 18
+              },
+              "rectangular": {
+                "tableCount": 1,
+                "totalCapacity": 10
+              }
+            }
+          }
+        },
+        "required": [
+          "tableCount",
+          "totalCapacity",
+          "byShape"
+        ]
+      },
+      "EventDetailResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "evt_550e8400-e29b-41d4-a716-446655440000"
+          },
+          "name": {
+            "type": "string",
+            "example": "Boda Ana y Luis"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "configuring",
+              "plan_approved"
+            ],
+            "example": "configuring"
+          },
+          "tables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventTableDto"
+            }
+          },
+          "capacitySummary": {
+            "$ref": "#/components/schemas/EventCapacitySummaryDto"
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2026-06-21T10:00:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "example": "2026-06-21T10:00:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "status",
+          "tables",
+          "capacitySummary",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "UpdateEventDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Boda Ana y Luis"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpsertEventTableDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "example": "Mesa 1"
+          },
+          "shape": {
+            "type": "string",
+            "enum": [
+              "redonda",
+              "rectangular",
+              "imperial",
+              "ovalada"
+            ],
+            "example": "redonda"
+          },
+          "estimatedCapacity": {
+            "type": "number",
+            "example": 10
+          }
+        },
+        "required": [
+          "label",
+          "shape",
+          "estimatedCapacity"
+        ]
+      },
+      "RoomSetupResponseDto": {
+        "type": "object",
+        "properties": {
+          "shape": {
+            "type": "string",
+            "enum": [
+              "rectangular",
+              "round",
+              "oval"
+            ],
+            "example": "rectangular"
+          },
+          "widthM": {
+            "type": "number",
+            "example": 25
+          },
+          "lengthM": {
+            "type": "number",
+            "example": 15
+          },
+          "radiusM": {
+            "type": "number",
+            "example": 12
+          },
+          "placedAccessories": {
+            "example": [
+              "mesa-presidencial"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "updatedAt": {
+            "type": "string",
+            "example": "2026-06-21T12:00:00.000Z"
+          }
+        },
+        "required": [
+          "shape",
+          "widthM",
+          "lengthM",
+          "radiusM",
+          "placedAccessories",
+          "updatedAt"
+        ]
+      },
+      "UpsertRoomSetupDto": {
+        "type": "object",
+        "properties": {
+          "shape": {
+            "type": "string",
+            "enum": [
+              "rectangular",
+              "round",
+              "oval"
+            ],
+            "example": "rectangular"
+          },
+          "widthM": {
+            "type": "number",
+            "example": 25
+          },
+          "lengthM": {
+            "type": "number",
+            "example": 15
+          },
+          "radiusM": {
+            "type": "number",
+            "example": 12
+          },
+          "placedAccessories": {
+            "example": [
+              "mesa-presidencial"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "shape",
+          "widthM",
+          "lengthM",
+          "radiusM",
+          "placedAccessories"
+        ]
+      },
+      "EventPreferenceModeResponseDto": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "example": "evt_123"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "colaborativo",
+              "anfitrion_exclusivo"
+            ],
+            "example": "colaborativo"
+          },
+          "version": {
+            "type": "number",
+            "example": 1
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "eventId",
+          "mode",
+          "version",
+          "updatedAt"
+        ]
+      },
+      "PreferencePermissionsResponseDto": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "example": "evt_123"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "colaborativo",
+              "anfitrion_exclusivo"
+            ]
+          },
+          "actorRole": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "guest"
+            ]
+          },
+          "canEditGuestPreferences": {
+            "type": "boolean",
+            "example": true
+          },
+          "feedbackMessage": {
+            "type": "object",
+            "nullable": true,
+            "example": "Las preferencias de asiento solo las gestiona el anfitrion en este evento."
+          }
+        },
+        "required": [
+          "eventId",
+          "mode",
+          "actorRole",
+          "canEditGuestPreferences",
+          "feedbackMessage"
+        ]
+      },
+      "UpdateEventPreferenceModeDto": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "colaborativo",
+              "anfitrion_exclusivo"
+            ],
+            "example": "anfitrion_exclusivo"
+          }
+        },
+        "required": [
+          "mode"
+        ]
+      },
+      "PreferenceControlModeRevisionDto": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "number",
+            "example": 1
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "colaborativo",
+              "anfitrion_exclusivo"
+            ]
+          },
+          "previousMode": {
+            "type": "string",
+            "enum": [
+              "colaborativo",
+              "anfitrion_exclusivo"
+            ],
+            "nullable": true
+          },
+          "actorRole": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "guest"
+            ],
+            "example": "admin"
+          },
+          "changedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "version",
+          "mode",
+          "previousMode",
+          "actorRole",
+          "changedAt"
+        ]
+      },
+      "PreferenceControlModeRevisionListDto": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "example": "evt_123"
+          },
+          "revisions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PreferenceControlModeRevisionDto"
+            }
+          }
+        },
+        "required": [
+          "eventId",
+          "revisions"
+        ]
+      },
+      "GovernanceAuditEntryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string",
+            "example": "evt_123"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "preference_mode_changed",
+              "companion_separation_changed",
+              "distribution_placement_changed"
+            ]
+          },
+          "actorRole": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "guest"
+            ]
+          },
+          "changedAt": {
+            "type": "string"
+          },
+          "before": {
+            "type": "object",
+            "nullable": true,
+            "description": "Estado anterior. Null en primer cambio de modo."
+          },
+          "after": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "eventId",
+          "type",
+          "actorRole",
+          "changedAt",
+          "before",
+          "after"
+        ]
+      },
+      "GovernanceAuditListResponseDto": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "example": "evt_123"
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GovernanceAuditEntryDto"
+            }
+          }
+        },
+        "required": [
+          "eventId",
+          "entries"
+        ]
+      },
+      "GuestCategoryViewDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "example": "Familia novia"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "GuestViewDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string",
+            "example": "evt_123"
+          },
+          "nombre": {
+            "type": "string",
+            "example": "Ana Garcia Lopez"
+          },
+          "correo": {
+            "type": "object",
+            "example": "ana.garcia@ejemplo.com",
+            "nullable": true
+          },
+          "telefono": {
+            "type": "object",
+            "example": "+34600111222",
+            "nullable": true
+          },
+          "direccion": {
+            "type": "object",
+            "nullable": true
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GuestCategoryViewDto"
+            }
+          },
+          "observaciones": {
+            "type": "object",
+            "nullable": true
+          },
+          "acompananteKey": {
+            "type": "object",
+            "nullable": true
+          },
+          "separarAcompanante": {
+            "type": "object",
+            "nullable": true
+          },
+          "preferenciaControl": {
+            "type": "string",
+            "enum": [
+              "colaborativo",
+              "anfitrion_exclusivo"
+            ],
+            "nullable": true
+          },
+          "restrictionCount": {
+            "type": "number",
+            "example": 1
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "eventId",
+          "nombre",
+          "categories",
+          "restrictionCount",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "GuestListResponseDto": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "example": "evt_123"
+          },
+          "total": {
+            "type": "number",
+            "example": 12
+          },
+          "guests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GuestViewDto"
+            }
+          }
+        },
+        "required": [
+          "eventId",
+          "total",
+          "guests"
+        ]
+      },
+      "GuestCategoryListResponseDto": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "example": "evt_123"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GuestCategoryViewDto"
+            }
+          }
+        },
+        "required": [
+          "eventId",
+          "categories"
+        ]
+      },
+      "UpsertGuestDto": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "example": "Ana Garcia Lopez"
+          },
+          "correo": {
+            "type": "string",
+            "example": "ana.garcia@ejemplo.com"
+          },
+          "telefono": {
+            "type": "string",
+            "example": "+34600111222"
+          },
+          "direccion": {
+            "type": "string",
+            "example": "Calle Mayor 1, Madrid"
+          },
+          "categoryNames": {
+            "example": [
+              "Familia novia"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "observaciones": {
+            "type": "string",
+            "example": "Intolerancia lactosa"
+          },
+          "acompananteKey": {
+            "type": "string",
+            "example": "PAREJA_001"
+          },
+          "separarAcompanante": {
+            "type": "object",
+            "example": false
+          },
+          "preferenciaControl": {
+            "type": "string",
+            "enum": [
+              "colaborativo",
+              "anfitrion_exclusivo"
+            ]
+          }
+        },
+        "required": [
+          "nombre",
+          "correo",
+          "telefono"
+        ]
+      },
+      "ExplicitAffinityRelationDto": {
+        "type": "object",
+        "properties": {
+          "guestA": {
+            "type": "string",
+            "example": "Inés Blanco"
+          },
+          "guestB": {
+            "type": "string",
+            "example": "Blanca Gómez"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "afinidad",
+              "incompatibilidad"
+            ]
+          }
+        },
+        "required": [
+          "guestA",
+          "guestB",
+          "type"
+        ]
+      },
+      "ExplicitCategoryAffinityRelationDto": {
+        "type": "object",
+        "properties": {
+          "categoryA": {
+            "type": "string",
+            "example": "Amigos novia"
+          },
+          "categoryB": {
+            "type": "string",
+            "example": "Amigos novio"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "afinidad",
+              "incompatibilidad"
+            ]
+          }
+        },
+        "required": [
+          "categoryA",
+          "categoryB",
+          "type"
+        ]
+      },
+      "RunDistributionDto": {
+        "type": "object",
+        "properties": {
+          "softRules": {
+            "type": "array",
+            "description": "Reglas blandas activas en orden de prioridad (posicion 1 = mas prioritaria). Corresponde al orden de la pantalla de afinidades (HU-17).",
+            "example": [
+              "keepFamiliesTogether",
+              "groupByCategory",
+              "singlesTable"
+            ],
+            "items": {
+              "type": "string",
+              "enum": [
+                "groupByCategory",
+                "keepFamiliesTogether",
+                "singlesTable",
+                "separateKnownIncompatibles",
+                "groupByAge",
+                "alternateGender"
+              ]
+            }
+          },
+          "explicitAffinityRelations": {
+            "description": "Afinidades/incompatibilidades opcionales dibujadas en la pantalla Afinidades (por nombre). Las parejas del Excel (acompanante_key) se elevan a regla dura D3 en el motor y no deben enviarse aquí.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExplicitAffinityRelationDto"
+            }
+          },
+          "categoryAffinityRelations": {
+            "description": "Afinidades/incompatibilidades entre categorías (por nombre de categoría) para guiar mezclas híbridas en Fase 1.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExplicitCategoryAffinityRelationDto"
+            }
+          }
+        }
+      },
+      "GuestPlacementDto": {
+        "type": "object",
+        "properties": {
+          "guestId": {
+            "type": "string",
+            "example": "guest-1"
+          },
+          "guestName": {
+            "type": "string",
+            "example": "Ana Garcia"
+          },
+          "tableId": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "tableLabel": {
+            "type": "string",
+            "example": "Mesa 1"
+          },
+          "seatIndex": {
+            "type": "number",
+            "description": "Asiento intra-mesa (Fase 2, ADR-023); ausente en motor v0.",
+            "example": 2
+          },
+          "seatLabel": {
+            "type": "string",
+            "description": "Etiqueta del asiento (Fase 2, ADR-023); ausente en motor v0.",
+            "example": "S3"
+          }
+        },
+        "required": [
+          "guestId",
+          "guestName",
+          "tableId",
+          "tableLabel"
+        ]
+      },
+      "HardRuleViolationDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "NO_VALID_TABLE"
+          },
+          "message": {
+            "type": "string",
+            "example": "No hay mesa valida que respete capacidad e incompatibilidades."
+          },
+          "guestIds": {
+            "example": [
+              "guest-1"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "guestIds"
+        ]
+      },
+      "DistributionStatsDto": {
+        "type": "object",
+        "properties": {
+          "assignedCount": {
+            "type": "number",
+            "example": 8
+          },
+          "unassignedCount": {
+            "type": "number",
+            "example": 0
+          },
+          "tableCount": {
+            "type": "number",
+            "example": 3
+          },
+          "totalCapacity": {
+            "type": "number",
+            "example": 24
+          }
+        },
+        "required": [
+          "assignedCount",
+          "unassignedCount",
+          "tableCount",
+          "totalCapacity"
+        ]
+      },
+      "ManualPlacementWarningDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "COMPANION_SEPARATED"
+          },
+          "message": {
+            "type": "string"
+          },
+          "guestIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "guestIds"
+        ]
+      },
+      "CompatibilityCriterionScoreDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "example": "groupByCategory"
+          },
+          "label": {
+            "type": "string",
+            "example": "Agrupar por categoría"
+          },
+          "earnedPoints": {
+            "type": "number",
+            "example": 8
+          },
+          "maxPoints": {
+            "type": "number",
+            "example": 10
+          },
+          "percent": {
+            "type": "number",
+            "example": 80,
+            "description": "Porcentaje 0-100 con un decimal."
+          },
+          "detail": {
+            "type": "string",
+            "example": "62 de 80 invitados con alguien de su categoría en la mesa",
+            "description": "Aclaracion legible del criterio para la UI."
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "earnedPoints",
+          "maxPoints",
+          "percent"
+        ]
+      },
+      "DistributionCompatibilityScoreDto": {
+        "type": "object",
+        "properties": {
+          "globalPercent": {
+            "type": "number",
+            "example": 78.5,
+            "description": "Compatibilidad global de la propuesta (0-100)."
+          },
+          "earnedPoints": {
+            "type": "number",
+            "example": 42
+          },
+          "maxPoints": {
+            "type": "number",
+            "example": 53
+          },
+          "criteria": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CompatibilityCriterionScoreDto"
+            }
+          }
+        },
+        "required": [
+          "globalPercent",
+          "earnedPoints",
+          "maxPoints",
+          "criteria"
+        ]
+      },
+      "TableAffinityScoreDto": {
+        "type": "object",
+        "properties": {
+          "tableId": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "earnedPoints": {
+            "type": "number",
+            "example": 4
+          },
+          "maxPoints": {
+            "type": "number",
+            "example": 4
+          },
+          "percent": {
+            "type": "number",
+            "example": 100
+          },
+          "detail": {
+            "type": "string",
+            "example": "4 de 4 invitados con vínculos cumplidos en la mesa"
+          }
+        },
+        "required": [
+          "tableId",
+          "earnedPoints",
+          "maxPoints",
+          "percent",
+          "detail"
+        ]
+      },
+      "DistributionProposalDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "dist_550e8400"
+          },
+          "eventId": {
+            "type": "string",
+            "example": "evt_550e8400"
+          },
+          "motorVersion": {
+            "type": "string",
+            "example": "v1-cpsat"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "calculating",
+              "draft",
+              "confirmed"
+            ],
+            "example": "draft"
+          },
+          "placements": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GuestPlacementDto"
+            }
+          },
+          "unassignedGuestIds": {
+            "example": [],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "hardRuleViolations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HardRuleViolationDto"
+            }
+          },
+          "stats": {
+            "$ref": "#/components/schemas/DistributionStatsDto"
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2026-06-21T12:00:00.000Z"
+          },
+          "confirmedAt": {
+            "type": "object",
+            "example": null,
+            "nullable": true
+          },
+          "manualWarnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ManualPlacementWarningDto"
+            }
+          },
+          "appliedSoftRules": {
+            "type": "array",
+            "description": "Reglas blandas usadas al calcular la propuesta.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "groupByCategory",
+                "keepFamiliesTogether",
+                "singlesTable",
+                "separateKnownIncompatibles",
+                "groupByAge",
+                "alternateGender"
+              ]
+            }
+          },
+          "compatibilityScore": {
+            "$ref": "#/components/schemas/DistributionCompatibilityScoreDto"
+          },
+          "tableAffinityScores": {
+            "description": "Afinidad por mesa (parejas y afinidades declaradas).",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TableAffinityScoreDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "eventId",
+          "motorVersion",
+          "status",
+          "placements",
+          "unassignedGuestIds",
+          "hardRuleViolations",
+          "stats",
+          "createdAt",
+          "confirmedAt"
+        ]
+      },
+      "DistributionCalculationStatusDto": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "example": "evt_550e8400"
+          },
+          "proposalId": {
+            "type": "object",
+            "example": "dist_550e8400",
+            "nullable": true
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "idle",
+              "calculating",
+              "draft",
+              "confirmed",
+              "failed"
+            ],
+            "example": "calculating"
+          },
+          "phase": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "computing",
+              "persisting",
+              "completed",
+              "failed"
+            ],
+            "example": "computing"
+          },
+          "progressPercent": {
+            "type": "number",
+            "example": 42
+          },
+          "startedAt": {
+            "type": "object",
+            "example": "2026-07-10T10:20:00.000Z",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "object",
+            "example": "2026-07-10T10:20:12.000Z",
+            "nullable": true
+          },
+          "elapsedMs": {
+            "type": "object",
+            "example": 12000,
+            "nullable": true,
+            "description": "Milisegundos transcurridos desde el inicio del cálculo."
+          },
+          "estimatedRemainingMs": {
+            "type": "object",
+            "example": 18000,
+            "nullable": true,
+            "description": "Estimación de milisegundos restantes; null si no aplica."
+          },
+          "message": {
+            "type": "string",
+            "example": "Resolviendo distribución con CP-SAT."
+          }
+        },
+        "required": [
+          "eventId",
+          "state",
+          "phase",
+          "progressPercent"
+        ]
+      },
+      "AssignGuestDto": {
+        "type": "object",
+        "properties": {
+          "tableId": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "seatIndex": {
+            "type": "number",
+            "example": 0,
+            "description": "Indice de asiento (0 = S1)."
+          }
+        },
+        "required": [
+          "tableId"
+        ]
+      },
+      "UpdateGuestSeatDto": {
+        "type": "object",
+        "properties": {
+          "seatIndex": {
+            "type": "number",
+            "example": 0,
+            "description": "Indice de asiento (0 = S1)."
+          }
+        },
+        "required": [
+          "seatIndex"
+        ]
+      },
+      "GuestRestrictionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "intolerancia_alimentaria",
+              "incompatibilidad",
+              "afinidad"
+            ]
+          },
+          "targetHint": {
+            "type": "object",
+            "nullable": true
+          },
+          "description": {
+            "type": "string"
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "manual",
+              "suggested"
+            ]
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "targetHint",
+          "description",
+          "origin",
+          "createdAt"
+        ]
+      },
+      "GuestRestrictionListResponseDto": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "example": "evt_123"
+          },
+          "guestId": {
+            "type": "string"
+          },
+          "restrictions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GuestRestrictionDto"
+            }
+          }
+        },
+        "required": [
+          "eventId",
+          "guestId",
+          "restrictions"
+        ]
+      },
+      "AddGuestRestrictionDto": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "intolerancia_alimentaria",
+              "incompatibilidad",
+              "afinidad"
+            ]
+          },
+          "targetHint": {
+            "type": "object",
+            "nullable": true,
+            "example": "Juan Perez"
+          },
+          "description": {
+            "type": "string",
+            "example": "Prefiere sentar con Maria Lopez"
+          }
+        },
+        "required": [
+          "kind",
+          "description"
+        ]
+      },
+      "CompanionSeparationExceptionDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string"
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "excel",
+              "admin"
+            ]
+          },
+          "recordedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason",
+          "origin",
+          "recordedAt"
+        ]
+      },
+      "CompanionGroupDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "example": "PAREJA_001"
+          },
+          "guestIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "guestNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "keepTogether": {
+            "type": "boolean",
+            "description": "Si el grupo debe sentarse junto segun regla vigente."
+          },
+          "exception": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CompanionSeparationExceptionDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "key",
+          "guestIds",
+          "guestNames",
+          "keepTogether",
+          "exception"
+        ]
+      },
+      "CompanionGroupListResponseDto": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "example": "evt_123"
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CompanionGroupDto"
+            }
+          }
+        },
+        "required": [
+          "eventId",
+          "groups"
+        ]
+      },
+      "CompanionPlacementBlockerDto": {
+        "type": "object",
+        "properties": {
+          "guestId": {
+            "type": "string"
+          },
+          "guestName": {
+            "type": "string"
+          },
+          "otherGuestId": {
+            "type": "string"
+          },
+          "otherGuestName": {
+            "type": "string"
+          },
+          "restrictionKind": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "guestId",
+          "guestName",
+          "otherGuestId",
+          "otherGuestName",
+          "restrictionKind"
+        ]
+      },
+      "CompanionGroupEvaluationDto": {
+        "type": "object",
+        "properties": {
+          "groupKey": {
+            "type": "string",
+            "example": "PAREJA_001"
+          },
+          "keepTogether": {
+            "type": "boolean"
+          },
+          "canKeepTogether": {
+            "type": "boolean"
+          },
+          "explanation": {
+            "type": "object",
+            "nullable": true
+          },
+          "blockers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CompanionPlacementBlockerDto"
+            }
+          }
+        },
+        "required": [
+          "groupKey",
+          "keepTogether",
+          "canKeepTogether",
+          "explanation",
+          "blockers"
+        ]
+      },
+      "SeparateCompanionGroupDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "example": "Separacion solicitada por los novios por conflicto familiar."
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      }
+    }
+  }
+}

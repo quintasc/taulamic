@@ -10,6 +10,13 @@ Taulamic es una aplicacion web que ayuda a organizar la distribucion de invitado
 - **Mercado inicial:** Espana
 - **GitHub Project:** [Taulamic](https://github.com/users/quintasc/projects/2)
 
+## Empieza aquí (mapa de docs)
+
+Índice por rol y qué se actualiza solo: **[`docs/README.md`](docs/README.md)**.
+
+- Arquitectura operativa del piloto (cliente/API/motor/persistencia): [`docs/arquitectura/arquitectura-operativa-piloto.md`](docs/arquitectura/arquitectura-operativa-piloto.md)
+- Contrato OpenAPI versionado: [`docs/api/openapi.json`](docs/api/openapi.json) — regenerar con `npm run docs:openapi` (CI comprueba que no esté desfasado respecto al código)
+
 ## Acceso al piloto
 
 El piloto esta desplegado y accesible en:
@@ -142,12 +149,16 @@ Este repositorio guarda decisiones de producto y tecnologia antes de programar e
 
 ## Documentacion vigente del piloto
 
+Mapa de entrada: [`docs/README.md`](docs/README.md).
+
 La referencia actual para evaluacion y docencia se encuentra en:
 
 - `docs/pilot/README.md`
 - `docs/pilot/ALCANCE-ACTUAL.md`
 - `docs/pilot/EVOLUCION-DEL-ALCANCE.md`
 - `docs/pilot/TRAZABILIDAD.md`
+- `docs/arquitectura/arquitectura-operativa-piloto.md`
+- `docs/api/openapi.json` (contrato exportado; ver workflow OpenAPI en CI)
 
 El SDD inicial y las enmiendas se conservan como historial de evolucion. La carpeta `docs/pilot` consolida el alcance real actualmente evaluable.
 
@@ -187,7 +198,10 @@ El SDD inicial y las enmiendas se conservan como historial de evolucion. La carp
 - `docs/adr/ADR-013-ia-asistiva-en-producto.md`: decision de uso de IA como asistencia.
 - `docs/adr/ADR-014-evaluacion-ga-complementario.md`: decision de evaluar GA por benchmark.
 - `docs/adr/ADR-015-clean-architecture-pragmatica-y-features.md`: Clean Architecture pragmatica y modulos por feature.
+- `docs/arquitectura/arquitectura-operativa-piloto.md`: como corre el piloto (cliente, API, motor async, persistencia JSON).
 - `docs/arquitectura/patrones-diseno-mvp.md`: guia practica de patrones en este dominio.
+- `docs/api/openapi.json`: contrato OpenAPI exportado (mantener con `npm run docs:openapi`).
+- `docs/README.md`: mapa "empieza aqui".
 - `docs/arquitectura/estudio-estrategia-optimizacion-asientos.md`: disertacion comparativa IA vs optimizacion clasica.
 - `docs/arquitectura/comparativa-ga-sa-cpsat.md`: protocolo comparativo entre estrategias.
 - `docs/arquitectura/decision-motor-para-principiantes.md`: explicacion sencilla de la decision del motor.

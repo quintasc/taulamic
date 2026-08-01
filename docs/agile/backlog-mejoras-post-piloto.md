@@ -119,9 +119,55 @@ Estas mejoras **no forman parte del SDD piloto**. Requieren gate PO/SDD antes de
 
 ---
 
+## BF-07 — Mejorar el sistema de logging (post-piloto)
+
+**Idea:** pasar del logging mínimo actual (Nest `Logger` puntual + Sentry opcional para errores) a una estrategia de logs más útil en operación, sin sustituir Sentry como monitorización de fallos.
+
+**Contexto actual:** no hay logger estructurado centralizado ni política uniforme de trazas; ver `docs/agile/observabilidad-y-e2e-web-piloto.md` y la arquitectura operativa del piloto.
+
+**Criterios previos a spec:**
+
+1. Qué eventos de negocio y técnicos deben registrarse (p. ej. `eventId`, fase del motor, fallos de persistencia) y con qué nivel.
+2. Formato estructurado (JSON u otro) y destino (stdout/Docker, fichero, servicio externo).
+3. **No** volcar datos personales sensibles en logs (nombres, contactos, afinidades, parentescos) — coordinar con BF-08.
+4. Relación con Sentry: errores/alertas vs audit trail operativo; evitar duplicar esfuerzo.
+5. Gate PO/ops antes de adoptar librería (Pino/Winston/etc.) o infraestructura de logs.
+
+**Épica relacionada:** observabilidad / ops post-piloto (complementa auth, BD y worker cuando existan).
+
+---
+
+## BF-08 — Protección de datos personales y cumplimiento LOPD / LOPDGDD (RGPD)
+
+**Idea:** revisar y reforzar que la información sensible que Taulamic recoge y trata quede **bien protegida y sea privada**, cumpliendo la normativa aplicable en España (**LOPD** en lenguaje habitual; marco vigente **LOPDGDD** + **RGPD**).
+
+**Datos de especial atención en este producto:**
+
+- Datos de **personas** (identidad de invitados).
+- **Contactos** (teléfono, email u otros medios).
+- **Parentescos** / grupos de acompañantes y relaciones familiares.
+- **Afinidades e incompatibilidades** (preferencias sociales que pueden ser sensibles).
+
+**Contexto actual (piloto):** persistencia en ficheros JSON/`uploads/`, parte de configuración en `localStorage`, sin login de producto ni modelo de consentimiento/retención documentado como producto; actor admin por cabecera interna. No asumir cumplimiento completo hasta esta revisión.
+
+**Criterios previos a spec / revisión:**
+
+1. Inventario de datos personales tratados (qué, para qué, dónde se almacenan, quién accede).
+2. Bases de legitimación, minimización, retención y derecho de acceso/supresión/rectificación.
+3. Medidas técnicas: cifrado en tránsito/reposo, control de acceso (auth), segregación por evento, backups.
+4. Que **logs, Sentry, PDF y exportaciones** no filtren más datos de los necesarios (enlace con BF-07).
+5. Política de privacidad / aviso informativo alineado con el producto real (no solo texto genérico).
+6. Gate legal/PO + decisión SDD/ADR si implica cambios de alcance o arquitectura (p. ej. auth, PostgreSQL).
+
+**Épica relacionada:** seguridad y privacidad post-piloto; encaja con auth JWT/RBAC y migración de persistencia cuando se acometan.
+
+---
+
 ## Referencias
 
 - `docs/sdd/SDD-02-backlog-inicial.md` — épicas MVP
 - `docs/agile/refactor-ui-mobile-admin.md` — deuda técnica UI admin
+- `docs/agile/observabilidad-y-e2e-web-piloto.md` — Sentry / observabilidad piloto
 - `docs/adr/ADR-019-responsive-y-mobile-invitado.md`
 - `docs/adr/ADR-023-motor-cpsat-dos-fases-mesa-y-asiento.md`
+- `docs/arquitectura/arquitectura-operativa-piloto.md` — runtime y persistencia actuales

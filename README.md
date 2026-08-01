@@ -78,6 +78,20 @@ taulamic/
 
 ## Instalacion y ejecucion (local)
 
+### Requisitos
+
+- [Git](https://git-scm.com/)
+- [Node.js](https://nodejs.org/) **20** o superior (incluye `npm`)
+
+### Descargar el proyecto
+
+```bash
+git clone https://github.com/quintasc/taulamic.git
+cd taulamic
+```
+
+(Alternativa: descarga ZIP desde GitHub → *Code* → *Download ZIP*, descomprime y entra en la carpeta.)
+
 ### Arrancar todo (recomendado)
 
 Desde la **raiz** del repositorio:

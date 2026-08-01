@@ -57,12 +57,37 @@ Notas:
 - **No inventes** APIs, archivos, comportamientos, resultados de tests ni estado del repo. Si no lo sabes, dilo o compruébalo en el código/docs.
 - Atiende a **best practices** del stack del proyecto (TypeScript, NestJS, Next.js, pruebas, seguridad básica) sin sobreingeniería.
 
-## Comentarios en el código
+## Estilo de código (legibilidad)
 
-- **No** comentes lo obvio ni el “qué” que ya dice el código.
-- Añade comentarios **solo** cuando una parte sea especialmente compleja de entender (invariante no trivial, workaround, algoritmo denso, contrato sutil con el SDD/motor).
+Al generar o modificar código, prioriza que un técnico pueda leerlo sin adivinar:
+
+### Nomenclatura
+
+- Usa nombres **descriptivos** (intención clara en el identificador).
+- Respeta las **convenciones del lenguaje y del stack** del archivo (TypeScript/Nest/Next ya usados en el repo: `camelCase` para variables/funciones, `PascalCase` para tipos/clases/componentes, `SCREAMING_SNAKE` o `camelCase` const exportada según el entorno del módulo, etc.). Alinea con el código vecino.
+- **Funciones y métodos:** verbos o sintagmas verbales (`calculateDistribution`, `assignGuestToTable`).
+- **Variables, propiedades y tipos:** sustantivos o sintagmas nominales (`guestCount`, `softRules`, `DistributionProposal`).
+- Booleanos: prefijos claros (`isReady`, `hasConflict`, `canConfirm`).
+- Evita abreviaturas opacas (`tmp`, `x1`, `data2`) salvo convenciones muy locales ya establecidas (p. ej. índices de bucle cortos).
+
+### Constantes y números mágicos
+
+- Evita literales numéricos/string opacos en lógica de negocio (`4`, `0.15`, `'v1'` sueltos) cuando el significado no sea obvio en contexto.
+- Prefiere **constantes con nombre descriptivo** (o enums/uniones tipadas) cerca del dominio que las usa.
+- Excepciones razonables: `0`/`1` en bucles o offsets triviales; literales de test evidentes; valores exigidos por una API externa ya documentada junto al uso.
+
+### SOLID (pragmático)
+
+- Aplica SOLID **cuando encaje** con el módulo y el ADR-015 (Clean Architecture pragmática): responsabilidades claras, dependencias hacia abstracciones donde ya hay puertos/Strategy, etc.
+- **No** sobrecargues el proyecto: no inventes capas, interfaces o factories vacías “por SOLID”. El MVP/piloto prioriza claridad y tests del SDD frente a pureza académica.
+- Ante duda, mira el módulo vecino (p. ej. `distribution`) y sigue el mismo nivel de abstracción.
+
+### Comentarios
+
+- Comentarios **útiles** para alguien técnico: invariantes no triviales, workarounds, algoritmos densos, contrato sutil con SDD/motor.
+- **No** comentes trivialidades ni el “qué” que ya dicen nombres y tipos.
 - Prefiere nombres claros y funciones pequeñas frente a comentarios largos.
 
 ## No duplicar aquí
 
-No copies el contenido completo del SDD, ADRs o guías UX. Enlaza y aplica. Detalle de estilo UI: `.cursor/rules/guia-estilo-ux.mdc`. Protección funcional detallada: `.cursor/rules/sdd-proteccion-funcional.mdc`.
+No copies el contenido completo del SDD, ADRs o guías UX. Enlaza y aplica. Detalle de estilo UI: `.cursor/rules/guia-estilo-ux.mdc`. Estilo de código (resumen Cursor): `.cursor/rules/estilo-codigo-legibilidad.mdc`. Protección funcional detallada: `.cursor/rules/sdd-proteccion-funcional.mdc`.

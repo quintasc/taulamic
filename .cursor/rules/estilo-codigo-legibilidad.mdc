@@ -1,0 +1,28 @@
+---
+description: Nomenclatura descriptiva, constantes, SOLID pragmatico y comentarios utiles
+alwaysApply: true
+---
+
+# Estilo de codigo (legibilidad)
+
+Detalle canonico: `AGENTS.md` (seccion **Estilo de codigo**). ADR-015 para capas.
+
+## Nomenclatura
+
+- Nombres descriptivos; convenciones del lenguaje/stack del archivo (TS/Nest/Next) y del codigo vecino.
+- Funciones/metodos: **verbos** (`assignGuestToTable`). Variables/tipos: **sustantivos** (`guestCount`).
+- Booleanos claros (`isReady`, `hasConflict`). Evitar abreviaturas opacas.
+
+## Constantes
+
+- Evitar numeros/strings magicos en logica de negocio; usar constantes o tipos con nombre.
+- Excepcion: `0`/`1` triviales, literales evidentes en tests, contratos de API externos documentados.
+
+## SOLID pragmatico
+
+- Aplicar cuando encaje (SRP, puertos/Strategy ya existentes). No inventar capas ni interfaces vacias "por SOLID".
+
+## Comentarios
+
+- Solo si aportan a un tecnico (invariante, workaround, algoritmo denso, contrato SDD/motor).
+- No comentar lo obvio; preferir nombres claros.

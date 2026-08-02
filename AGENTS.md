@@ -82,6 +82,13 @@ Al generar o modificar código, prioriza que un técnico pueda leerlo sin adivin
 - **No** sobrecargues el proyecto: no inventes capas, interfaces o factories vacías “por SOLID”. El MVP/piloto prioriza claridad y tests del SDD frente a pureza académica.
 - Ante duda, mira el módulo vecino (p. ej. `distribution`) y sigue el mismo nivel de abstracción.
 
+### Evitar código spaghetti
+
+- Evita lógica enmarañada, “god” controllers/páginas o ficheros que mezclan HTTP, reglas de negocio y persistencia sin límite.
+- Prefiere módulos por feature, use cases y dominio (ADR-015): el controller/orquestador solo coordina; la regla de negocio vive fuera.
+- Extrae funciones/métodos pequeños con una responsabilidad clara cuando un bloque crezca o se vuelva difícil de seguir.
+- No confundir esto con sobreingeniería: estructurar lo suficiente para mantener y testear, sin capas vacías.
+
 ### Comentarios
 
 - Comentarios **útiles** para alguien técnico: invariantes no triviales, workarounds, algoritmos densos, contrato sutil con SDD/motor.

@@ -1,5 +1,5 @@
 ---
-description: Nomenclatura descriptiva, constantes, SOLID pragmatico y comentarios utiles
+description: Nomenclatura, constantes, SOLID pragmatico, anti-spaghetti y comentarios utiles
 alwaysApply: true
 ---
 
@@ -21,6 +21,12 @@ Detalle canonico: `AGENTS.md` (seccion **Estilo de codigo**). ADR-015 para capas
 ## SOLID pragmatico
 
 - Aplicar cuando encaje (SRP, puertos/Strategy ya existentes). No inventar capas ni interfaces vacias "por SOLID".
+
+## Evitar codigo spaghetti
+
+- No mezclar HTTP, negocio y persistencia en un solo bloque enmarañado; evitar god controllers/paginas.
+- Preferir feature + use case + dominio (ADR-015); extraer funciones pequenas cuando un bloque deje de ser legible.
+- Estructurar lo suficiente para mantener/testear; no es excusa para sobreingenieria.
 
 ## Comentarios
 

@@ -7,7 +7,7 @@
 ## Frase clave
 
 ```text
-Retomo Taulamic. Estado 2026-08-02: ADR-024 en motor; distribución page adelgazada (useDistributionPage). Pendiente: validación PO visual; deuda sillas/afinidades API; Top-K. Refactor oportunista UI: ver sección más abajo.
+Retomo Taulamic. Estado 2026-08-02: ADR-024 en motor; distribución page adelgazada (useDistributionPage). Deuda motor: L2 categoría (p. ej. Trabajo 10+2) con 10 mesas justas en piloto80 — ver CONTEXTO. Pendiente: validación PO visual; sillas/afinidades API; Top-K.
 ```
 
 ## Entregado hoy 2026-07-17 (motor ADR-024 / sala)
@@ -53,6 +53,26 @@ E2E respetan `DISTRIBUTION_ENGINE` (default CP-SAT).
 1. **Validación PO visual** — sillas, estrella, móvil (`guion-validacion-piloto-ui.md`)
 2. **Deuda técnica piloto** — unificar sillas API/local; persistencia API afinidades
 3. **Top-K / comparador** — diferido (ADR-023 §3)
+4. **Deuda motor ADR-024** — L2 degradado con mesas justas (ver sección siguiente)
+
+## Deuda motor — L2 categoría con salón justo de mesas (2026-08-02)
+
+**Síntoma (piloto 80, `docs/pilot/invitados-piloto-80.xlsx`):** con **Trabajo = 12** y mesas de capacidad 8, el organizador espera **6+6** (ADR-024 L1/L2). En UI se observó un reparto degradado tipo **9+3** (mesa por encima de 8 vía elasticidad + isla pequeña).
+
+**Repro script (`CpSatDistributionEngine`, `groupByCategory` ± `keepFamiliesTogether`, budget ~90 s):**
+
+| Mesas × 8 | Reparto Trabajo |
+|-----------|-----------------|
+| 15 o 11 | **6+6** (OK) |
+| **10** (justo: 80/8) | **10+2** (L2 roto; misma clase de fallo) |
+
+**Causa probable:** con inventario de mesas **sin holgura**, el solver prioriza asignación global + `keepTogether` y **relaja** el equilibrio L2 de categoría grande; la elasticidad ±2 permite concentrar de más en una mesa.
+
+**No es:** bug de la page/UI ni preferencia ADR de mezclar Trabajo con Otros (mezcla grandes es cara; el ADR prioriza bolsillos propios 6+6).
+
+**Mitigación temporal:** añadir 1–2 mesas de holgura y recalcular.
+
+**Cuando se acometa:** endurecer L2 / selección de propuesta en salón justo; ampliar `validate-l3bis-pilot80.cjs` (hoy usa 15 mesas y no detecta el caso de 10). Relacionado: ADR-024, ADR-023 §2bis.
 
 ## Deuda diferida (keepTogether / D3)
 

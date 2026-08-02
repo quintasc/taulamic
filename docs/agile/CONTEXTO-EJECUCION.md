@@ -1,13 +1,13 @@
 # Contexto de ejecucion — punto de reanudacion
 
-- Ultima actualizacion: **2026-07-17**
+- Ultima actualizacion: **2026-08-02**
 - Sprint activo: **Post Sprint 10** (W5 cierre piloto)
-- **`main` @ `3447809`** — ADR-024 L3bis + Fase 1a/1b + exclusión Pareja
+- **`main` @ `5a080c3`** — refactor web: orquestación distribución en `useDistributionPage`
 
 ## Frase clave
 
 ```text
-Retomo Taulamic. Estado 2026-07-17: ADR-024 implementado en motor (L3≥2, L3bis, Fase 1a/1b, k_min con C+E, exclusión genérica Pareja/Parejas). Colores de categoría únicos en UI/PDF. Pendiente: validación PO visual; deuda sillas/afinidades API; Top-K.
+Retomo Taulamic. Estado 2026-08-02: ADR-024 en motor; distribución page adelgazada (useDistributionPage). Pendiente: validación PO visual; deuda sillas/afinidades API; Top-K. Refactor oportunista UI: ver sección más abajo.
 ```
 
 ## Entregado hoy 2026-07-17 (motor ADR-024 / sala)
@@ -69,14 +69,30 @@ Hasta entonces: no ofrecer borrado engañoso en UI.
 
 Cuando se implemente autenticación JWT/RBAC (post-piloto): preferir **JWT en cookie `HttpOnly`** (y `Secure` / `SameSite` adecuados) frente a guardar el token en `localStorage`, para reducir riesgo XSS. El contrato OpenAPI puede seguir documentando Bearer si hace falta para clientes no browser; el admin web usaría la cookie.
 
+## Refactor oportunista UI (no proyecto aparte)
+
+**Hecho:** Fase A — `distribution/page.tsx` orquesta vía `hooks/use-distribution-page.ts` (commit `5a080c3`).
+
+**Pendiente — solo al tocar esa zona** (no abrir refactor masivo sin feature/bug):
+
+| Si tocas… | Aprovecha para… |
+|-----------|-----------------|
+| Afinidades (`preferences-affinity-view.tsx`) | Extraer tipos/utils + hook de meta local (`event-ui-meta` / softRules); dejar la view como composición UI. **No** unificar aún persistencia API (deuda piloto aparte). |
+| Lista de mesas en distribución (`distribution-table-list.tsx`) | Partir DnD, sillas y storage local (`taulamic:*`) en hooks/libs. |
+| Layout del plano (`floor-plan-layout-view.tsx` / `floor-plan-setup.ts`) | Separar canvas/DnD vs persistencia local; constantes de layout con nombre. |
+| Pesos/umbrales CP-SAT | Nombrar literales mágicos al editar el motor. |
+| Shims `@deprecated` sin imports | Borrar en el mismo PR. |
+
+Alineado con `AGENTS.md` (anti-spaghetti + sin sobreingeniería) y ADR-021.
+
 ## Historial reciente
 
 | Commit | Descripción |
 |--------|-------------|
-| *(este)* `3447809` | feat: ADR-024 L3bis, Fase 1a/1b, exclusión Pareja, colores categoría |
+| `5a080c3` | refactor(web): orquesta distribución en useDistributionPage |
+| `fae0b36` | docs: directriz anti-código spaghetti en AGENTS |
+| `3447809` | feat: ADR-024 L3bis, Fase 1a/1b, exclusión Pareja, colores categoría |
 | `9d6fdb0` | test(api): e2e respetan DISTRIBUTION_ENGINE (CP-SAT por defecto) |
-| `aec8ce1` | docs: actualiza roadmap MVP a 17 jul (W5) |
-| `6f242a8` | refactor(web): hooks/modales distribución, badge PAX |
 
 ## Referencias
 

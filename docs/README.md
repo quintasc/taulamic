@@ -86,7 +86,7 @@ El listado archivo a archivo del README de la raíz se retiró a favor de este m
 | [`adr/`](adr/) | Decisiones de arquitectura |
 | [`arquitectura/`](arquitectura/) | Runtime del piloto, patrones, estudios del motor |
 | [`agile/`](agile/) | Decisiones de ejecución, sprints, contexto, políticas de tests |
-| [`agile/backlog-mejoras-post-piloto.md`](agile/backlog-mejoras-post-piloto.md) | Ideas post-piloto (logging, LOPD/privacidad, verticales, etc.); no comprometidas sin gate PO/SDD |
+| [`agile/backlog-mejoras-post-piloto.md`](agile/backlog-mejoras-post-piloto.md) | Ideas post-piloto (logging, LOPD/privacidad, multi-usuario concurrente BF-09, verticales, etc.); no comprometidas sin gate PO/SDD |
 | [`api/`](api/) | OpenAPI exportado + guía NestJS |
 | [`product/`](product/) | PRD y especificaciones de producto |
 | [`ux/`](ux/) | Handoff Figma → frontend |

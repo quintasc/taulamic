@@ -21,6 +21,7 @@
 | #53 Organizador real | `Todo` | Post-piloto |
 | **#54** Deuda motor L2 mesas justas | `Todo` / Ready | Nuevo 2026-08-02 |
 | **#55** Sillas API + afinidades API | `Todo` / Ready | Nuevo 2026-08-02 |
+| **#56** Escalabilidad multi-usuario (BF-09) | `Todo` / Backlog | Nuevo 2026-08-02 — concurrencia post-éxito |
 | Docs `docs/pilot/` | `Done` | Draft Project sincronizado |
 
 ## Prioridad operativa (desde CONTEXTO)

@@ -163,11 +163,42 @@ Estas mejoras **no forman parte del SDD piloto**. Requieren gate PO/SDD antes de
 
 ---
 
+## BF-09 — Escalabilidad multi-usuario concurrente (post-éxito)
+
+**Idea:** analizar y preparar el comportamiento del sistema si el producto tiene éxito y **varios usuarios / organizadores** acceden a la web **de forma concurrente** (no solo un admin de piloto).
+
+Esto es **distinto** de los NFR de latencia del motor/API (p95 en SDD-01 / ADR-023): aquí el foco es **concurrencia, aislamiento y ops**, no solo “que el solver sea rápido”.
+
+**Contexto actual (piloto):** un organizador / pocos usos; JSON en `uploads/`; jobs de distribución async **en memoria del proceso** Node (sin cola BullMQ/Redis); sin multi-tenant ni auth de producto. Reiniciar API pierde jobs en curso. Ver `docs/arquitectura/arquitectura-operativa-piloto.md` y ADR-002 (worker/cola previstos a largo plazo).
+
+**Riesgos si se escala sin rediseño:**
+
+- Contención y corrupción/condiciones de carrera en ficheros JSON.
+- Jobs de cálculo que se pisan o se pierden entre instancias/reinicios.
+- Falta de aislamiento entre eventos/organizadores.
+- Imposible repartir carga horizontalmente con el tracker in-process actual.
+
+**Criterios previos a spec / spike:**
+
+1. Modelo de usuarios y tenancy (un organizador ≈ N eventos; varios orgs concurrentes).
+2. Persistencia concurrente-safe (p. ej. PostgreSQL) y migrar fuera de JSON de piloto.
+3. Cola de jobs durable (Redis/BullMQ u equivalente) para `distribution/run`.
+4. Auth/sesiones (enlace EP-06 / deuda auth HttpOnly en CONTEXTO) y límites por usuario.
+5. Pruebas de carga concurrente (escenarios: K organizadores, M cálculos a la vez) y criterios de aceptación (errores, latencia, jobs perdidos = 0).
+6. Observabilidad (enlace BF-07) para diagnosticar contención.
+7. Gate PO/arquitectura + ADR antes de cambiar el runtime del piloto.
+
+**Épica relacionada:** ops / plataforma post-piloto; ADR-002, EP-06, EP-03 (async), BF-07, BF-08. Issue: [#56](https://github.com/quintasc/taulamic/issues/56).
+
+---
+
 ## Referencias
 
 - `docs/sdd/SDD-02-backlog-inicial.md` — épicas MVP
 - `docs/agile/refactor-ui-mobile-admin.md` — deuda técnica UI admin
 - `docs/agile/observabilidad-y-e2e-web-piloto.md` — Sentry / observabilidad piloto
+- `docs/adr/ADR-002-arquitectura-monolito-modular-worker.md`
 - `docs/adr/ADR-019-responsive-y-mobile-invitado.md`
 - `docs/adr/ADR-023-motor-cpsat-dos-fases-mesa-y-asiento.md`
 - `docs/arquitectura/arquitectura-operativa-piloto.md` — runtime y persistencia actuales
+- `docs/sdd/SDD-01-borrador-mvp.md` §9 — NFR de latencia (complementarios, no sustituyen este ítem)

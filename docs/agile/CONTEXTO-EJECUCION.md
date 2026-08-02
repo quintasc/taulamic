@@ -89,6 +89,10 @@ Hasta entonces: no ofrecer borrado engañoso en UI.
 
 Cuando se implemente autenticación JWT/RBAC (post-piloto): preferir **JWT en cookie `HttpOnly`** (y `Secure` / `SameSite` adecuados) frente a guardar el token en `localStorage`, para reducir riesgo XSS. El contrato OpenAPI puede seguir documentando Bearer si hace falta para clientes no browser; el admin web usaría la cookie.
 
+## Deuda diferida (escalabilidad multi-usuario)
+
+Si el producto crece a **varios organizadores concurrentes**, el runtime del piloto (JSON + jobs in-process) no basta. Analizar concurrencia, BD, cola de jobs, tenancy y pruebas de carga — **BF-09** en `backlog-mejoras-post-piloto.md` · [#56](https://github.com/quintasc/taulamic/issues/56) (distinto de p95 del motor en ADR-023).
+
 ## Refactor oportunista UI (no proyecto aparte)
 
 **Hecho:** Fase A — `distribution/page.tsx` orquesta vía `hooks/use-distribution-page.ts` (commit `5a080c3`).

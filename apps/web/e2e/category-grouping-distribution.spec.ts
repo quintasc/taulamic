@@ -48,6 +48,7 @@ test.describe('Distribución — reparto proporcional por categoría (ADR-024)',
     await expect(page.getByText('Compatibilidad')).toBeVisible();
     await expect(page.getByText('100%').first()).toBeVisible();
     await expect(page.getByRole('button', { name: 'En uso 2' })).toBeVisible();
-    await expect(page.getByText('66.7%').first()).toBeVisible();
+    // Afinidad por mesa (score acotado + packing local): 2/8 pax → 73.3% con la fórmula actual.
+    await expect(page.getByText('73.3%').first()).toBeVisible();
   });
 });

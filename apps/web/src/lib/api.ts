@@ -105,6 +105,13 @@ export type TableAffinityScore = {
   detail: string;
 };
 
+export type HardRuleViolation = {
+  code: string;
+  message: string;
+  guestIds?: string[];
+  tableId?: string;
+};
+
 export type DistributionProposal = {
   id: string;
   motorVersion: string;
@@ -118,12 +125,14 @@ export type DistributionProposal = {
     seatLabel?: string;
   }>;
   unassignedGuestIds: string[];
+  hardRuleViolations: HardRuleViolation[];
   stats: {
     assignedCount: number;
     unassignedCount: number;
     tableCount: number;
     totalCapacity: number;
   };
+  createdAt: string;
   confirmedAt: string | null;
   appliedSoftRules?: string[];
   compatibilityScore?: DistributionCompatibilityScore;

@@ -51,9 +51,9 @@ E2E respetan `DISTRIBUTION_ENGINE` (default CP-SAT).
 ## Pendiente inmediato
 
 1. **Validación PO visual** — sillas, estrella, móvil (`guion-validacion-piloto-ui.md`)
-2. **Deuda técnica piloto** — unificar sillas API/local; persistencia API afinidades
-3. **Top-K / comparador** — diferido (ADR-023 §3)
-4. **Deuda motor ADR-024** — L2 degradado con mesas justas (ver sección siguiente)
+2. **Deuda técnica piloto** — unificar sillas API/local; persistencia API afinidades — [#55](https://github.com/quintasc/taulamic/issues/55)
+3. **Top-K / comparador** — diferido (ADR-023 §3) — #11 / #12
+4. **Deuda motor ADR-024** — L2 degradado con mesas justas — [#54](https://github.com/quintasc/taulamic/issues/54) (ver sección siguiente)
 
 ## Deuda motor — L2 categoría con salón justo de mesas (2026-08-02)
 
@@ -72,7 +72,7 @@ E2E respetan `DISTRIBUTION_ENGINE` (default CP-SAT).
 
 **Mitigación temporal:** añadir 1–2 mesas de holgura y recalcular.
 
-**Cuando se acometa:** endurecer L2 / selección de propuesta en salón justo; ampliar `validate-l3bis-pilot80.cjs` (hoy usa 15 mesas y no detecta el caso de 10). Relacionado: ADR-024, ADR-023 §2bis.
+**Cuando se acometa:** endurecer L2 / selección de propuesta en salón justo; ampliar `validate-l3bis-pilot80.cjs` (hoy usa 15 mesas y no detecta el caso de 10). Relacionado: ADR-024, ADR-023 §2bis. Issue: [#54](https://github.com/quintasc/taulamic/issues/54).
 
 ## Deuda diferida (keepTogether / D3)
 

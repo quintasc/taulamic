@@ -2,7 +2,7 @@
 
 - Ultima actualizacion: **2026-08-03**
 - Sprint activo: **Post Sprint 10** (piloto evaluable cerrado técnicamente; W5)
-- **`main` @ `1c702c8`** — BF-10/#57 acoplamiento Nest; CONTEXTO y Project al 2026-08-03.
+- **`main` @ `24c4e1f`** — BF-10/#57 acoplamiento Nest; CONTEXTO y Project al 2026-08-03.
 
 ## Frase clave
 

@@ -50,7 +50,7 @@ Notas:
 
 - OpenAPI **no** se auto-commitea en push: CI regenera y **falla** si el JSON del repo está desfasado; regenerarlo en el PR solo tras permiso del usuario.
 - SDD, ADR, ALCANCE y el mapa **no** se regeneran solos; la valoración de necesidad es obligatoria aunque el único comando sea OpenAPI.
-- Detalle para humanos: `docs/README.md` → sección homónima.
+- Detalle para humanos: `docs/README.md` → sección **Mantener documentación**.
 
 ## Comunicación
 

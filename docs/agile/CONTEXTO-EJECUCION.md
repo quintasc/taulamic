@@ -75,6 +75,10 @@ La estructura `src/<feature>/` (ADR-015) es válida; hay **acoplamiento** que co
 
 Alineado con `AGENTS.md` (anti-spaghetti + sin sobreingeniería) y ADR-021.
 
+## Criterio tests (recordatorio)
+
+Unit dominio · integration al tocar adaptadores · e2e = flujo SDD · contrato = OpenAPI. Detalle: `politica-validacion-tests-y-cobertura.md` § «Donde colocar cada tipo de test». Aplicar al tocar persistencia / #55 / motor — no reestructurar la suite en seco.
+
 ## Histórico — motor ADR-024 / sala (entregado 2026-07-17)
 
 Referencia; no es el trabajo del día.
@@ -126,3 +130,4 @@ Referencia; no es el trabajo del día.
 - `docs/README.md` (rutas rápidas)
 - `github-project-sprint-10.md`
 - `backlog-mejoras-post-piloto.md` (BF-07…BF-10)
+- `politica-validacion-tests-y-cobertura.md` (colocación unit / integration / e2e / OpenAPI)

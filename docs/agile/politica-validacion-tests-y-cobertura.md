@@ -2,7 +2,7 @@
 
 - Estado: **Vigente**
 - Alcance: desarrollo, revisiones, CI y cierre de issues/sprints
-- Fecha: 2026-06-17
+- Fecha: 2026-06-17 (criterio de colocacion de tests: 2026-08-03)
 - Relacionado con: `docs/sdd/SDD-GOVERNANZA-PROTECCION-SDD.md`
 
 ## 1) Objetivo
@@ -33,6 +33,19 @@ En muchos equipos, cuando dicen *“no se acepta si no supera el 85%”*, se ref
 - ni un 85% de requisitos del SDD cumplidos (eso debe ser **100%** de los criterios de la issue, salvo decision explicita).
 
 **Cobertura alta sin tests alineados al SDD puede dar falsa seguridad.** Por eso en Taulamic usamos un modelo en capas.
+
+### Donde colocar cada tipo de test (criterio corto)
+
+No es un refactor de la suite actual; se **aplica al tocar** persistencia, [#55](https://github.com/quintasc/taulamic/issues/55), motor o adaptadores — no en seco.
+
+| Tipo | Donde / que | Notas |
+|------|-------------|--------|
+| **Unitario** | `domain/` (reglas, motor, validadores) | Preferido; mayoria actual |
+| **Integration** | adaptadores (`infrastructure/`) al cambiar persistencia/IO | Fichero, BD futura, Excel real; no inventar carpeta vacia |
+| **E2E** | `test/*.e2e-spec.ts` (API) y Playwright (web) | Flujos y criterios del **SDD**/issue |
+| **Contrato** | `docs/api/openapi.json` + CI de export | No Pact por modulo Nest salvo varios consumidores |
+
+Los e2e HTTP actuales siguen siendo validos; no renombrar en masa ni exigir “contract suite” por feature.
 
 ## 3) Modelo de validacion en capas
 

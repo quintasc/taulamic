@@ -2,7 +2,7 @@
 
 - Ultima actualizacion: **2026-08-03**
 - Sprint activo: **Post Sprint 10** (piloto evaluable cerrado técnicamente; W5)
-- **`main` @** (actualizar tras push) — BF-10/#57 + refresco CONTEXTO / Project.
+- **`main` @ `1c702c8`** — BF-10/#57 acoplamiento Nest; CONTEXTO y Project al 2026-08-03.
 
 ## Frase clave
 
@@ -109,6 +109,7 @@ Referencia; no es el trabajo del día.
 
 | Commit | Descripción |
 |--------|-------------|
+| `1c702c8` | docs: BF-10/#57 + refresco CONTEXTO |
 | `664635d` | docs: reordena mapa `docs/README` |
 | `4026d17` | docs: AGENTS canónico; rule estilo por globs |
 | `24fe03e` | docs: BF-09 multi-usuario (#56) |

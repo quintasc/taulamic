@@ -1,7 +1,7 @@
 # GitHub Project — actualización post-piloto (última revisión: 2026-08-03)
 
 **Project:** https://github.com/users/quintasc/projects/2  
-**`main` @ `664635d`:** mapa docs; BF-09/#56; *local:* BF-10/#57. Ver `CONTEXTO-EJECUCION.md`.
+**`main` @ `1c702c8`:** BF-10/#57; CONTEXTO 2026-08-03. Ver `CONTEXTO-EJECUCION.md`.
 
 ## Resumen de estado (2026-08-03)
 

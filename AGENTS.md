@@ -13,6 +13,8 @@ Las reglas específicas de Cursor viven en `.cursor/rules/` y **complementan** e
 6. Al retomar trabajo, consulta el estado operativo en `docs/agile/CONTEXTO-EJECUCION.md`.
 7. Checklist de docs derivados: ver sección **Documentación al cerrar un cambio** más abajo (y mapa en `docs/README.md`).
 
+**Orden de lectura por rol o tarea:** `docs/README.md` → sección **Rutas rápidas** (no duplicar esas rutas aquí).
+
 ## Cómo trabajar
 
 - Deriva tests del SDD; no adaptes el SDD para que pasen tests.
@@ -97,4 +99,4 @@ Al generar o modificar código, prioriza que un técnico pueda leerlo sin adivin
 
 ## No duplicar aquí
 
-No copies el contenido completo del SDD, ADRs o guías UX. Enlaza y aplica. Detalle de estilo UI: `.cursor/rules/guia-estilo-ux.mdc`. Estilo de código (resumen Cursor): `.cursor/rules/estilo-codigo-legibilidad.mdc`. Protección funcional detallada: `.cursor/rules/sdd-proteccion-funcional.mdc`.
+No copies el contenido completo del SDD, ADRs o guías UX. Enlaza y aplica. Detalle de estilo UI: `.cursor/rules/guia-estilo-ux.mdc` (apunta a `docs/ux/`). Estilo de código: canónico en este archivo; la rule Cursor `.cursor/rules/estilo-codigo-legibilidad.mdc` solo es un puntero (globs `*.{ts,tsx}`). Protección funcional: `.cursor/rules/sdd-proteccion-funcional.mdc` → gobernanza SDD.

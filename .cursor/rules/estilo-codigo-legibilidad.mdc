@@ -1,34 +1,12 @@
 ---
-description: Nomenclatura, constantes, SOLID pragmatico, anti-spaghetti y comentarios utiles
-alwaysApply: true
+description: Estilo de codigo (legibilidad) — puntero a AGENTS.md; aplica al tocar TypeScript
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
 ---
 
 # Estilo de codigo (legibilidad)
 
-Detalle canonico: `AGENTS.md` (seccion **Estilo de codigo**). ADR-015 para capas.
+**Canónico:** `AGENTS.md` → sección **Estilo de código (legibilidad)**.
+Capas / Clean Architecture pragmática: `docs/adr/ADR-015-clean-architecture-pragmatica-y-features.md`.
 
-## Nomenclatura
-
-- Nombres descriptivos; convenciones del lenguaje/stack del archivo (TS/Nest/Next) y del codigo vecino.
-- Funciones/metodos: **verbos** (`assignGuestToTable`). Variables/tipos: **sustantivos** (`guestCount`).
-- Booleanos claros (`isReady`, `hasConflict`). Evitar abreviaturas opacas.
-
-## Constantes
-
-- Evitar numeros/strings magicos en logica de negocio; usar constantes o tipos con nombre.
-- Excepcion: `0`/`1` triviales, literales evidentes en tests, contratos de API externos documentados.
-
-## SOLID pragmatico
-
-- Aplicar cuando encaje (SRP, puertos/Strategy ya existentes). No inventar capas ni interfaces vacias "por SOLID".
-
-## Evitar codigo spaghetti
-
-- No mezclar HTTP, negocio y persistencia en un solo bloque enmarañado; evitar god controllers/paginas.
-- Preferir feature + use case + dominio (ADR-015); extraer funciones pequenas cuando un bloque deje de ser legible.
-- Estructurar lo suficiente para mantener/testear; no es excusa para sobreingenieria.
-
-## Comentarios
-
-- Solo si aportan a un tecnico (invariante, workaround, algoritmo denso, contrato SDD/motor).
-- No comentar lo obvio; preferir nombres claros.
+Al generar o modificar `.ts` / `.tsx` (incluye tests `*.spec.ts`, e2e, etc.): aplica esa sección. No reescribas ni rebajes esas normas aquí.

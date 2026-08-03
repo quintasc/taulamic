@@ -192,13 +192,41 @@ Esto es **distinto** de los NFR de latencia del motor/API (p95 en SDD-01 / ADR-0
 
 ---
 
+## BF-10 — Desacoplar features Nest (límites de módulo)
+
+**Idea:** reducir el acoplamiento estructural entre módulos del monolito Nest (`apps/api`) sin cambiar el alcance funcional del SDD. La organización por features (ADR-015) es correcta; la deuda es **imports cruzados y hubs** que dificultan evolucionar Guest, RSVP, multi-usuario o extraer un worker.
+
+**Contexto actual (piloto):** aceptable para MVP. Problemas conocidos:
+
+- `GUEST_REPOSITORY` / dominio Guest viven en **`guest-import`** y lo consumen guests, preferences, companions y distribution.
+- **Distribution** importa domain de events, guest-import y floor-plans.
+- **Events** toca lógica/persistencia de distribution (p. ej. reconciliar al quitar mesa) en lugar de orquestar solo vía application de distribution.
+- Use cases de permisos/auditoría importados `application` → `application` entre features; ciclo Nest `events` ↔ `event-governance-audit` (`forwardRef`).
+- Sin enforcement de boundaries (no Nx/ESLint import rules).
+
+**Distinto de:** BF-09 (runtime concurrente JSON/jobs); refactor UI en CONTEXTO; #54 motor L2.
+
+**Criterios previos a spec / spike:**
+
+1. Extraer agregado **Guest** (puerto + módulo) fuera de `guest-import`; import Excel queda como adaptador/use cases.
+2. Events no importa `distribution/domain` ni infra: reconciliación vía use case exportado de distribution (o puerto).
+3. Auth/governance como módulo transversal o puertos; dejar de esparcir `Assert*UseCase` acoplados a events.
+4. Valorar reglas de import (ESLint) entre features.
+5. Gate: solo al tocar esas zonas o al acometer BF-09 / RSVP / migración BD — **no** refactor masivo sin feature.
+6. ADR-015 / ADR-002: enmienda solo si cambia la convención de carpetas o los límites.
+
+**Épica relacionada:** mantenimiento arquitectura API; ADR-015, ADR-002. Issue: [#57](https://github.com/quintasc/taulamic/issues/57).
+
+---
+
 ## Referencias
 
 - `docs/sdd/SDD-02-backlog-inicial.md` — épicas MVP
 - `docs/agile/refactor-ui-mobile-admin.md` — deuda técnica UI admin
 - `docs/agile/observabilidad-y-e2e-web-piloto.md` — Sentry / observabilidad piloto
 - `docs/adr/ADR-002-arquitectura-monolito-modular-worker.md`
+- `docs/adr/ADR-015-clean-architecture-pragmatica-y-features.md`
 - `docs/adr/ADR-019-responsive-y-mobile-invitado.md`
 - `docs/adr/ADR-023-motor-cpsat-dos-fases-mesa-y-asiento.md`
 - `docs/arquitectura/arquitectura-operativa-piloto.md` — runtime y persistencia actuales
-- `docs/sdd/SDD-01-borrador-mvp.md` §9 — NFR de latencia (complementarios, no sustituyen este ítem)
+- `docs/sdd/SDD-01-borrador-mvp.md` §9 — NFR de latencia (complementarios, no sustituyen BF-09)

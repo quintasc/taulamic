@@ -1,9 +1,9 @@
-# GitHub Project — actualización post-piloto (última revisión: 2026-08-02)
+# GitHub Project — actualización post-piloto (última revisión: 2026-08-03)
 
 **Project:** https://github.com/users/quintasc/projects/2  
-**`main` @ `7e31eed`:** deuda motor L2 documentada en CONTEXTO; refactor `useDistributionPage` (`5a080c3`)
+**`main` @ `664635d`:** mapa docs; BF-09/#56; *local:* BF-10/#57. Ver `CONTEXTO-EJECUCION.md`.
 
-## Resumen de estado (2026-08-02)
+## Resumen de estado (2026-08-03)
 
 | Área | Estado en Project | Notas |
 |------|-------------------|-------|
@@ -19,9 +19,10 @@
 | EP-06 Auth | `Todo` / Backlog | Post-piloto; cookie HttpOnly en CONTEXTO |
 | Post-piloto MEJ (#44–#52) | `Done` | |
 | #53 Organizador real | `Todo` | Post-piloto |
-| **#54** Deuda motor L2 mesas justas | `Todo` / Ready | Nuevo 2026-08-02 |
-| **#55** Sillas API + afinidades API | `Todo` / Ready | Nuevo 2026-08-02 |
-| **#56** Escalabilidad multi-usuario (BF-09) | `Todo` / Backlog | Nuevo 2026-08-02 — concurrencia post-éxito |
+| **#54** Deuda motor L2 mesas justas | `Todo` / Ready | 2026-08-02 |
+| **#55** Sillas API + afinidades API | `Todo` / Ready | 2026-08-02 |
+| **#56** Escalabilidad multi-usuario (BF-09) | `Todo` / Backlog | 2026-08-02 |
+| **#57** Desacoplar features Nest (BF-10) | `Todo` / Backlog | 2026-08-03 |
 | Docs `docs/pilot/` | `Done` | Draft Project sincronizado |
 
 ## Prioridad operativa (desde CONTEXTO)
@@ -33,11 +34,12 @@
 
 Detalle: `docs/agile/CONTEXTO-EJECUCION.md`.
 
-## Actualización Project #2 (2026-08-02)
+## Actualización Project #2 (2026-08-02…03)
 
 | Acción | Resultado |
 |--------|-----------|
 | Issues #54, #55 creados y añadidos al Project | Status Todo, Flujo Ready |
+| #56 BF-09, #57 BF-10 | Todo / Backlog |
 | Comentario en #10 | ADR-024 + deuda L2 + Top-K pendiente |
 | Comentario en #9 | OpenAPI JSON/CI; auth pendiente |
 | Flujo → Done | #1, #2, #7 (Status ya era Done) |

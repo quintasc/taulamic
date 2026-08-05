@@ -2,7 +2,7 @@
 
 - Ultima actualizacion: **2026-08-05**
 - Sprint activo: **Post Sprint 10** (piloto evaluable cerrado técnicamente; W5)
-- **`main` @ `pending`** — BF-11/#58 + BF-12/#59 (ORM) diferidos; ADR-003.
+- **`main` @ `1fe57a2`** — BF-12/#59 ORM spike; BF-11/#58; ADR-003.
 
 ## Frase clave
 
@@ -121,6 +121,7 @@ Referencia; no es el trabajo del día.
 
 | Commit | Descripción |
 |--------|-------------|
+| `1fe57a2` | docs: BF-12/#59 spike ORM |
 | `a756cb0` | docs: BF-11/#58 Zod/Joi |
 | `1c702c8` | docs: BF-10/#57 + refresco CONTEXTO |
 | `664635d` | docs: reordena mapa `docs/README` |

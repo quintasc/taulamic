@@ -219,12 +219,34 @@ Esto es **distinto** de los NFR de latencia del motor/API (p95 en SDD-01 / ADR-0
 
 ---
 
+## BF-11 — Valorar Zod o Joi (validación) post-piloto
+
+**Idea:** el piloto valida HTTP con **`class-validator` + `class-transformer`** (DTOs Nest) y validadores de dominio a mano. **No** migrar ahora a Zod/Joi. Sí **reevaluar** si el proyecto cambia en los casos siguientes.
+
+**Contexto actual:** Nest + OpenAPI alimentado por DTOs; coste de migración alto; beneficio bajo sin schemas compartidos API↔web (ver evaluación 2026-08-05 en conversación de arquitectura).
+
+**Cuándo abrir spike / ADR (post-piloto o cambio de filosofía):**
+
+1. Contrato tipado compartido frontend↔API (paquete común, generación de cliente, menos DTOs duplicados).
+2. Nuevo módulo grande (p. ej. RSVP / portal invitado) donde convenga schemas composables **sin** big-bang del resto.
+3. Dolor real con `class-validator` (mantenimiento, tipado, reflect-metadata) documentado en issues.
+4. Cambio de filosofía de stack (p. ej. menos Nest “clásico”, más validación funcional / tRPC-like) — entonces enmendar **ADR-003** con aprobación explícita.
+
+**Fuera de alcance ahora:** sustituir la suite de DTOs del piloto; adoptar Zod “por moda”.
+
+**Criterios del spike (si se abre):** comparar Zod vs Joi vs seguir `class-validator`; impacto OpenAPI/Swagger; plan de convivencia o migración por feature; gate PO/arquitectura.
+
+**Épica relacionada:** stack / calidad API; ADR-003, ADR-005 (OpenAPI), ADR-015. Issue: [#58](https://github.com/quintasc/taulamic/issues/58).
+
+---
+
 ## Referencias
 
 - `docs/sdd/SDD-02-backlog-inicial.md` — épicas MVP
 - `docs/agile/refactor-ui-mobile-admin.md` — deuda técnica UI admin
 - `docs/agile/observabilidad-y-e2e-web-piloto.md` — Sentry / observabilidad piloto
 - `docs/adr/ADR-002-arquitectura-monolito-modular-worker.md`
+- `docs/adr/ADR-003-stack-tecnologico-inicial.md`
 - `docs/adr/ADR-015-clean-architecture-pragmatica-y-features.md`
 - `docs/adr/ADR-019-responsive-y-mobile-invitado.md`
 - `docs/adr/ADR-023-motor-cpsat-dos-fases-mesa-y-asiento.md`

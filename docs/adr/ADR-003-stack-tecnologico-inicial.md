@@ -56,7 +56,8 @@ Reevaluar cuando:
 
 - cambie el equipo o experiencia tecnica,
 - cambie fuerte el volumen o patrones de uso,
-- cambien requisitos de coste/plataforma.
+- cambien requisitos de coste/plataforma,
+- se plantee sustituir o complementar la validacion HTTP actual (`class-validator` en DTOs Nest) por **Zod**, **Joi** u otro schema library — tipicamente si hay contrato tipado compartido API↔frontend, un modulo grande nuevo, o cambio de filosofia de stack. Detalle y criterios: `docs/agile/backlog-mejoras-post-piloto.md` (BF-11). No migrar el piloto en seco.
 
 ## Comentarios para principiantes
 

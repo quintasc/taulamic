@@ -1,9 +1,9 @@
-# GitHub Project — actualización post-piloto (última revisión: 2026-08-03)
+# GitHub Project — actualización post-piloto (última revisión: 2026-08-05)
 
 **Project:** https://github.com/users/quintasc/projects/2  
-**`main` @ `1c702c8`:** BF-10/#57; CONTEXTO 2026-08-03. Ver `CONTEXTO-EJECUCION.md`.
+**Ver** `CONTEXTO-EJECUCION.md` (SHA de `main` allí).
 
-## Resumen de estado (2026-08-03)
+## Resumen de estado (2026-08-05)
 
 | Área | Estado en Project | Notas |
 |------|-------------------|-------|
@@ -23,6 +23,7 @@
 | **#55** Sillas API + afinidades API | `Todo` / Ready | 2026-08-02 |
 | **#56** Escalabilidad multi-usuario (BF-09) | `Todo` / Backlog | 2026-08-02 |
 | **#57** Desacoplar features Nest (BF-10) | `Todo` / Backlog | 2026-08-03 |
+| **#58** Valorar Zod/Joi (BF-11) | `Todo` / Backlog | 2026-08-05 — no migrar piloto |
 | Docs `docs/pilot/` | `Done` | Draft Project sincronizado |
 
 ## Prioridad operativa (desde CONTEXTO)
@@ -39,7 +40,7 @@ Detalle: `docs/agile/CONTEXTO-EJECUCION.md`.
 | Acción | Resultado |
 |--------|-----------|
 | Issues #54, #55 creados y añadidos al Project | Status Todo, Flujo Ready |
-| #56 BF-09, #57 BF-10 | Todo / Backlog |
+| #56 BF-09, #57 BF-10, #58 BF-11 | Todo / Backlog |
 | Comentario en #10 | ADR-024 + deuda L2 + Top-K pendiente |
 | Comentario en #9 | OpenAPI JSON/CI; auth pendiente |
 | Flujo → Done | #1, #2, #7 (Status ya era Done) |

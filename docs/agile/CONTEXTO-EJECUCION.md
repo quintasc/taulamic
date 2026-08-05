@@ -59,6 +59,10 @@ Si el producto crece a **varios organizadores concurrentes**, el runtime del pil
 
 La estructura `src/<feature>/` (ADR-015) es válida; hay **acoplamiento** que conviene tratar al evolucionar la API: Guest anclado en `guest-import`, distribution cruzado con events/floor-plans, permisos/auditoría entre application layers. Detalle y criterios — **BF-10** en `backlog-mejoras-post-piloto.md` · [#57](https://github.com/quintasc/taulamic/issues/57). **No** abrir refactor masivo sin feature/bug o sin acometer BF-09/RSVP/BD.
 
+## Deuda diferida (validación Zod/Joi)
+
+Piloto: **`class-validator`** en DTOs Nest. Valorar Zod o Joi solo post-piloto / si hay contrato compartido API↔web, módulo grande nuevo, dolor real con class-validator, o cambio de filosofía de stack — **BF-11** en `backlog-mejoras-post-piloto.md` · [#58](https://github.com/quintasc/taulamic/issues/58) (y condiciones en ADR-003). **No** migrar en seco.
+
 ## Refactor oportunista UI (no proyecto aparte)
 
 **Hecho:** Fase A — `distribution/page.tsx` orquesta vía `hooks/use-distribution-page.ts` (commit `5a080c3`).
@@ -129,5 +133,5 @@ Referencia; no es el trabajo del día.
 - `docs/pilot/README.md`
 - `docs/README.md` (rutas rápidas)
 - `github-project-sprint-10.md`
-- `backlog-mejoras-post-piloto.md` (BF-07…BF-10)
+- `backlog-mejoras-post-piloto.md` (BF-07…BF-11)
 - `politica-validacion-tests-y-cobertura.md` (colocación unit / integration / e2e / OpenAPI)

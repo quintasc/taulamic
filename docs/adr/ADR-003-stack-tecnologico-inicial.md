@@ -58,6 +58,7 @@ Reevaluar cuando:
 - cambie fuerte el volumen o patrones de uso,
 - cambien requisitos de coste/plataforma,
 - se plantee sustituir o complementar la validacion HTTP actual (`class-validator` en DTOs Nest) por **Zod**, **Joi** u otro schema library — tipicamente si hay contrato tipado compartido API↔frontend, un modulo grande nuevo, o cambio de filosofia de stack. Detalle y criterios: `docs/agile/backlog-mejoras-post-piloto.md` (BF-11). No migrar el piloto en seco.
+- se acometa la migracion de persistencia piloto (JSON) a **PostgreSQL** y haya que elegir acceso a datos (**Prisma**, TypeORM, Drizzle, SQL, …). PostgreSQL ya esta en esta decision; el ORM no. Detalle: `docs/agile/backlog-mejoras-post-piloto.md` (BF-12). Mantener puertos Repository (ADR-015).
 
 ## Comentarios para principiantes
 

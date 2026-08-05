@@ -240,6 +240,35 @@ Esto es **distinto** de los NFR de latencia del motor/API (p95 en SDD-01 / ADR-0
 
 ---
 
+## BF-12 — Spike ORM al migrar a PostgreSQL (Prisma / TypeORM / Drizzle / …)
+
+**Idea:** ADR-003 y el SDD ya fijan **PostgreSQL** post-piloto. **No** está decidido el acceso a datos (ORM o SQL). Al acometer la migración desde JSON/`uploads/`, abrir un **spike + ADR** que compare opciones; **Prisma** es candidato válido, no la única.
+
+**Contexto actual:** repositorios fichero (`File*Repository`) detrás de puertos (ADR-015). Dominio sin ORM.
+
+**Candidatos a valorar (no exhaustivo):**
+
+| Opción | Encaje típico |
+|--------|----------------|
+| **Prisma** | DX, migraciones, tipado; adaptador en `infrastructure/` |
+| **TypeORM** | Muy usado con Nest; entidades/decoradores |
+| **Drizzle** | SQL-like, ligero |
+| **`pg` / SQL** | Control fino, más código a mano |
+
+**Criterios del spike:**
+
+1. Mantener **puertos Repository** en domain/application; ORM solo en infrastructure (no filtrar Prisma al dominio).
+2. Migraciones, transacciones (eventos + invitados + distribución), testcontainers o equivalente.
+3. Impacto en BF-09 (concurrencia), BF-08 (LOPD), auth (EP-06).
+4. Coste de migración desde JSON y curva del equipo.
+5. Gate PO/arquitectura + ADR de persistencia (nuevo o enmienda ADR-003) **antes** de adoptar librería.
+
+**Fuera de alcance ahora:** elegir Prisma (u otro) en seco; reescribir repositorios del piloto sin feature de migración BD.
+
+**Épica relacionada:** persistencia post-piloto; ADR-002, ADR-003, ADR-015, BF-09, BF-08. Issue: [#59](https://github.com/quintasc/taulamic/issues/59).
+
+---
+
 ## Referencias
 
 - `docs/sdd/SDD-02-backlog-inicial.md` — épicas MVP

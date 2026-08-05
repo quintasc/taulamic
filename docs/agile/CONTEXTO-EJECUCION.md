@@ -1,13 +1,13 @@
 # Contexto de ejecucion — punto de reanudacion
 
-- Ultima actualizacion: **2026-08-03**
+- Ultima actualizacion: **2026-08-05**
 - Sprint activo: **Post Sprint 10** (piloto evaluable cerrado técnicamente; W5)
-- **`main` @ `a756cb0`** � BF-11/#58 Zod/Joi diferido; ADR-003 condiciones.
+- **`main` @ `pending`** — BF-11/#58 + BF-12/#59 (ORM) diferidos; ADR-003.
 
 ## Frase clave
 
 ```text
-Retomo Taulamic. Estado 2026-08-03: piloto evaluable OK; ADR-024 en motor; distribución page con useDistributionPage. Siguiente: validación PO visual (guion). Luego #55 sillas/afinidades API; Top-K #11/#12; deuda L2 mesas justas #54. Diferido: BF-09/#56 multi-usuario, BF-10/#57 acoplamiento Nest.
+Retomo Taulamic. Estado 2026-08-05: piloto evaluable OK; ADR-024 en motor; distribución page con useDistributionPage. Siguiente: validación PO visual (guion). Luego #55 sillas/afinidades API; Top-K #11/#12; deuda L2 mesas justas #54. Diferido: BF-09/#56 multi-usuario, BF-10/#57 Nest, BF-11/#58 Zod, BF-12/#59 ORM.
 ```
 
 ## Pendiente inmediato
@@ -63,6 +63,10 @@ La estructura `src/<feature>/` (ADR-015) es válida; hay **acoplamiento** que co
 
 Piloto: **`class-validator`** en DTOs Nest. Valorar Zod o Joi solo post-piloto / si hay contrato compartido API↔web, módulo grande nuevo, dolor real con class-validator, o cambio de filosofía de stack — **BF-11** en `backlog-mejoras-post-piloto.md` · [#58](https://github.com/quintasc/taulamic/issues/58) (y condiciones en ADR-003). **No** migrar en seco.
 
+## Deuda diferida (ORM / PostgreSQL)
+
+PostgreSQL está en ADR-003; el acceso (Prisma, TypeORM, Drizzle, SQL, …) **no**. Spike + ADR al migrar fuera de JSON — **BF-12** en `backlog-mejoras-post-piloto.md` · [#59](https://github.com/quintasc/taulamic/issues/59). ORM solo como adaptador tras puertos Repository (ADR-015).
+
 ## Refactor oportunista UI (no proyecto aparte)
 
 **Hecho:** Fase A — `distribution/page.tsx` orquesta vía `hooks/use-distribution-page.ts` (commit `5a080c3`).
@@ -117,6 +121,7 @@ Referencia; no es el trabajo del día.
 
 | Commit | Descripción |
 |--------|-------------|
+| `a756cb0` | docs: BF-11/#58 Zod/Joi |
 | `1c702c8` | docs: BF-10/#57 + refresco CONTEXTO |
 | `664635d` | docs: reordena mapa `docs/README` |
 | `4026d17` | docs: AGENTS canónico; rule estilo por globs |
@@ -133,5 +138,5 @@ Referencia; no es el trabajo del día.
 - `docs/pilot/README.md`
 - `docs/README.md` (rutas rápidas)
 - `github-project-sprint-10.md`
-- `backlog-mejoras-post-piloto.md` (BF-07…BF-11)
+- `backlog-mejoras-post-piloto.md` (BF-07…BF-12)
 - `politica-validacion-tests-y-cobertura.md` (colocación unit / integration / e2e / OpenAPI)

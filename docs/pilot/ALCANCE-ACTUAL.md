@@ -1,6 +1,6 @@
 # Alcance actual del piloto evaluable
 
-Última revisión documental: **2026-07-17**. Describe exclusivamente la realidad verificable del código y las pruebas.
+Última revisión documental: **2026-08-06**. Describe exclusivamente la realidad verificable del código y las pruebas.
 
 Leyenda de estados: ver [`README.md`](README.md#limitaciones-conocidas).
 
@@ -125,7 +125,7 @@ Leyenda de estados: ver [`README.md`](README.md#limitaciones-conocidas).
 
 | Área | Capacidad | Estado | Persistencia | Limitaciones | Evidencia |
 |------|-----------|--------|--------------|--------------|-----------|
-| Pruebas | E2E API flujo piloto | Implementado | — | Motor forzado a v0 | [`pilot-flow.e2e-spec.ts`](../../apps/api/test/pilot-flow.e2e-spec.ts) |
+| Pruebas | E2E API flujo piloto | Implementado | — | Motor segun `DISTRIBUTION_ENGINE` (default **v1**) | [`pilot-flow.e2e-spec.ts`](../../apps/api/test/pilot-flow.e2e-spec.ts) |
 | Pruebas | E2E Playwright flujo admin | Implementado | — | Sin PDF ni `PUT seat` | [`pilot-flow.spec.ts`](../../apps/web/e2e/pilot-flow.spec.ts), [`guion-validacion-piloto-ui.md`](../agile/guion-validacion-piloto-ui.md) |
 | Pruebas | Specs dominio distribución | Implementado | — | — | [`apps/api/src/distribution/domain/*.spec.ts`](../../apps/api/src/distribution/domain/) |
 | Pruebas | Smoke/benchmark CP-SAT | Experimental | — | Manual post-build | [`scripts/smoke-cpsat-*.cjs`](../../apps/api/scripts/), [`benchmark-motor.cjs`](../../apps/api/scripts/benchmark-motor.cjs) |
@@ -167,8 +167,9 @@ Limitación común: no accesible desde `apps/web` en el piloto actual.
 2. **Afinidades:** funcionalidad operativa al calcular; configuración con persistencia incompleta (`localStorage`).
 3. **Sillas:** API canónica; estado local auxiliar (`guestChairs`, `presidentialChairs`) pendiente de unificar.
 4. **PDF:** generado en frontend; no persistido como documento backend; no sustituye documento de cocina.
-5. **Motor:** CP-SAT v1 en producción; tests E2E API validan contrato con v0.
+5. **Motor:** CP-SAT v1 por defecto en API y E2E (respetan `DISTRIBUTION_ENGINE`); v0 activable por env.
 6. **Cálculo async:** en proceso Node; timeout de recuperación si el job se estanca (~4 min).
+7. **Deuda L2 mesas justas:** con salón justo (p. ej. 10×8 y Trabajo=12) el reparto L2 puede degradarse — issue [#54](https://github.com/quintasc/taulamic/issues/54).
 
 ---
 
@@ -176,12 +177,12 @@ Limitación común: no accesible desde `apps/web` en el piloto actual.
 
 | Ítem | Descripción |
 |------|-------------|
-| Unificación sillas | Consolidar `seatIndex` API y mapeos `localStorage` |
-| Persistencia afinidades | Centralizar configuración de relaciones/reglas en API |
+| Unificación sillas | Consolidar `seatIndex` API y mapeos `localStorage` — [#55](https://github.com/quintasc/taulamic/issues/55) |
+| Persistencia afinidades | Centralizar configuración de relaciones/reglas en API — [#55](https://github.com/quintasc/taulamic/issues/55) |
+| L2 categoría / mesas justas | Deuda motor ADR-024 — [#54](https://github.com/quintasc/taulamic/issues/54) |
 | HU-08 cocina | Documento específico para cocina pendiente |
 | UI auditoría | Consulta de histórico de gobernanza para admin |
 | UI floor-plans | Cablear subida/deteción de plano imagen |
-| E2E motor v1 | Cobertura automatizada del motor por defecto en producción |
-| Tests PDF / `PUT seat` | Sin evidencia automatizada localizada |
+| Tests PDF / `PUT seat` | Sin evidencia automatizada localizada completa |
 | Auth JWT | Post-piloto: cookie **HttpOnly** (ver ADR-003 / CONTEXTO-EJECUCION) |
-| BF-05 / BF-06 | Verticales empresas-aulas; spike Wasm en cliente — `backlog-mejoras-post-piloto.md` |
+| BF-05…BF-13 | Backlog post-piloto (`backlog-mejoras-post-piloto.md`) |

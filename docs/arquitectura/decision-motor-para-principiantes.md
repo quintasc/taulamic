@@ -1,55 +1,51 @@
 # Decision del motor explicada para principiantes
 
-> **Vigencia:** documento **histórico / introductorio** (estrategia híbrida heurística + SA + Top-K).  
-> **Runtime del piloto hoy:** motor **CP-SAT** por defecto (ADR-023, ADR-024) · vista operativa: [`arquitectura-operativa-piloto.md`](arquitectura-operativa-piloto.md).  
-> Top-K (N=3) y SA como baseline **no** están en el piloto evaluable; ver ADR-023 §3 y backlog post-piloto.
+> **Vigencia:** texto actualizado **2026-08-06** al runtime del piloto.  
+> Detalle técnico: [`ADR-023`](../adr/ADR-023-motor-cpsat-dos-fases-mesa-y-asiento.md), [`ADR-024`](../adr/ADR-024-reparto-proporcional-por-categoria.md), [`arquitectura-operativa-piloto.md`](arquitectura-operativa-piloto.md).  
+> Estudios previos (heurística + SA + Top-K): históricos; ver cabeceras en esta carpeta y ADR-006.
 
 ## 1) La pregunta simple
 
-Como calculamos la mejor distribucion de mesas sin tardar horas?
+Como calculamos una buena distribucion de mesas sin tardar horas?
 
-## 2) La respuesta corta
+## 2) La respuesta corta (piloto hoy)
 
-No vamos a probar todas las combinaciones (seria demasiado lento).
-Vamos a usar un metodo por pasos que da soluciones muy buenas en poco tiempo.
+No probamos todas las combinaciones.
+Usamos un **solver de restricciones CP-SAT** (OR-Tools via Wasm en el servidor) que:
 
-## 3) Que NO vamos a hacer
+1. Asigna invitados a **mesas** (fase 1, con reglas de categoria ADR-024).
+2. Asigna **sillas** dentro de cada mesa (fase 2).
+3. Corre en **segundo plano** en la API (job async); la UI consulta el progreso.
 
-- No usar IA generativa como "cerebro principal" del calculo.
+Hay un motor **v0** (heuristica) solo como **fallback** por configuracion, no como camino principal del piloto.
+
+## 3) Que NO hacemos en el piloto
+
+- No usar IA generativa como cerebro del calculo.
 - No usar fuerza bruta.
-- No usar computacion cuantica en esta fase.
+- No devolver Top-K candidatas (queda diferido: ADR-007 / issues #11–#12).
+- No usar cola Redis/BullMQ aun (tracker in-process).
 
-## 4) Que SI vamos a hacer
+## 4) Que SI hacemos
 
-1. Crear una primera propuesta valida rapido (heuristica).
-2. Mejorarla automaticamente para subir la calidad (metaheuristica).
-3. Si hay tiempo y el caso es pequeno, afinar aun mas con metodo exacto.
-4. Guardar las mejores N propuestas (por defecto 3) para que el admin elija.
-5. Tener en cuenta la forma de cada mesa para calcular cercanias reales.
+1. Cumplir reglas duras (capacidad, incompatibilidades, acompanantes juntos, etc.).
+2. Optimizar con pesos blandos (afinidades, categorias, packing…).
+3. Permitir **ajuste manual** despues (mover, desasignar, sillas).
+4. Confirmar una propuesta y generar PDF en el navegador.
 
 ## 5) Por que esta decision es buena
 
-- Es gratis (sin depender de APIs de pago para calcular).
-- Es rapida para el usuario.
-- Respeta reglas importantes (capacidad, incompatibilidades, accesibilidad).
-- Se puede mejorar con el tiempo sin tirar lo construido.
-- Permite comparar varias opciones buenas antes de aprobar.
+- Coste de licencia cero (OR-Tools / Apache 2.0).
+- Respeto fuerte de restricciones frente a un LLM.
+- Evolucion documentada desde la estrategia hibrida SA (ADR-006) hacia CP-SAT (ADR-023).
 
-## 6) Ejemplo muy simple
+## 6) Frase para una reunion
 
-Imagina que haces grupos para una cena:
+"En el piloto el motor principal es CP-SAT en dos fases (mesa y silla), asincrono en la API; el admin puede retocar a mano y confirmar. Top-K y worker/cola quedan para despues."
 
-- primero haces un reparto inicial "razonable",
-- luego mueves personas para que esten mejor acompanadas,
-- y al final revisas algun caso conflictivo con mas detalle.
+## 7) Referencias
 
-Eso mismo hace el motor, pero automaticamente y a gran escala.
-
-## 7) Frase para contar la decision en una reunion
-
-"Usaremos optimizacion clasica por fases (rapida + mejora + afinado opcional), porque da buen resultado, coste cero de licencias y mantiene buena experiencia de uso."
-
-## 8) Referencias tecnicas
-
-- `docs/arquitectura/estudio-estrategia-optimizacion-asientos.md`
-- `docs/adr/ADR-006-estrategia-optimizacion-motor-asignacion.md`
+- `docs/adr/ADR-023-motor-cpsat-dos-fases-mesa-y-asiento.md`
+- `docs/adr/ADR-024-reparto-proporcional-por-categoria.md`
+- `docs/arquitectura/arquitectura-operativa-piloto.md`
+- Historico: `estudio-estrategia-optimizacion-asientos.md`, `ADR-006`

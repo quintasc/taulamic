@@ -1,7 +1,9 @@
 # ADR-007 - Conservacion de Top-K soluciones candidatas
 
-- Estado: Aceptado
+- Estado: Aceptado (**diferido en el piloto evaluable** — ADR-023 §3; issues #11/#12)
 - Fecha: 2026-06-17
+
+> **Vigencia:** decision de producto vigente a largo plazo; **no** implementada en el piloto (una sola propuesta). Runtime: [`../arquitectura/arquitectura-operativa-piloto.md`](../arquitectura/arquitectura-operativa-piloto.md).
 
 ## Contexto
 

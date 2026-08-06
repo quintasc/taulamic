@@ -1,7 +1,11 @@
 # ADR-006 - Estrategia de optimizacion del motor de asignacion
 
-- Estado: Aceptado
+- Estado: Aceptado (**superseded en runtime del piloto** por ADR-023 / ADR-024)
 - Fecha: 2026-06-17
+
+> **Vigencia:** este ADR describia la estrategia hibrida (heuristica + SA + CP-SAT opcional + Top-K). El **piloto evaluable** ejecuta **CP-SAT en dos fases** como motor por defecto.  
+> **Leer:** [`ADR-023-motor-cpsat-dos-fases-mesa-y-asiento.md`](ADR-023-motor-cpsat-dos-fases-mesa-y-asiento.md), [`ADR-024-reparto-proporcional-por-categoria.md`](ADR-024-reparto-proporcional-por-categoria.md), [`../arquitectura/arquitectura-operativa-piloto.md`](../arquitectura/arquitectura-operativa-piloto.md).  
+> Top-K sigue en ADR-007 / ADR-023 §3 (**diferido**). GA: ADR-014 / EP-15.
 
 ## Contexto
 

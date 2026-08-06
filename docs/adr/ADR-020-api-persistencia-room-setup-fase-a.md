@@ -1,19 +1,13 @@
 # ADR-020 — API persistencia room setup (plano Fase A)
 
-- **Estado:** Aceptado (contrato; implementación pendiente)
-- **Fecha:** 2026-06-21
-- **Relacionado:** `ADR-016`, `SDD-01D`, validación piloto `evidencias-piloto/sesion-2026-06-21.md`
-- **Sustituye en piloto:** solo `localStorage` web (`taulamic:floorPlanSetup`)
+- **Estado:** Aceptado — **implementado parcialmente en piloto** (API + dual write / cache local; ver ALCANCE)
+- **Fecha:** 2026-06-21 (estado implementación revisado 2026-08-06)
+- **Relacionado:** `ADR-016`, `SDD-01D`, `docs/pilot/ALCANCE-ACTUAL.md`
+- **Sustituye en piloto:** solo `localStorage` web como fuente única (`taulamic:floorPlanSetup`)
 
 ## Contexto
 
-Fase A del plano (forma, medidas, accesorios) persiste hoy en **localStorage** del navegador. Eso impide:
-
-- Recuperar el salón entre dispositivos o sesiones futuras (post-auth).
-- Validar consistencia servidor-side antes de distribución.
-- Marcar checklist setup con fuente única de verdad.
-
-El roadmap W2 (jun 2026) prioriza este endpoint.
+Fase A del plano (forma, medidas, accesorios) **persiste en API** en el piloto, con cache/meta local coexistente (dual write). El texto original de este ADR describia el problema cuando solo existia localStorage.
 
 ## Decisión
 

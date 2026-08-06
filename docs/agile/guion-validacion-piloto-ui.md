@@ -1,16 +1,17 @@
-# Guion de validacion manual — Piloto UI (MVP julio)
+# Guion de validacion manual — Piloto UI (MVP julio / post-hito)
 
-- **Estado:** Vigente (post-UX #40–#41)
-- **Fecha:** 2026-06-24
-- **Referencias:** `DECISION-002`, `ADR-018`, `guia-estilo-taulamic.md` §6–7, `handoff-figma-a-frontend.md`, `apps/web/e2e/pilot-flow.spec.ts`
+- **Estado:** Vigente (alineado a piloto evaluable CP-SAT + HU-05)
+- **Fecha:** 2026-08-06
+- **Referencias:** `DECISION-002`, `ADR-018`, `ADR-023`, `ADR-024`, `guia-estilo-taulamic.md` §6–7, `docs/pilot/ALCANCE-ACTUAL.md`, `apps/web/e2e/pilot-flow.spec.ts`, `CONTEXTO-EJECUCION.md`
 - **Entorno:** API `:3000`, Web `:3001` (`npm run dev` desde raíz, o `dev:api` + `dev:web`)
+- **Motor:** CP-SAT **v1** por defecto (`DISTRIBUTION_ENGINE`); no exigir v0
 - **Orden setup piloto:** Config → Invitados → Tarjetas (🔒) → Plano → Mesas → Afinidades → Distribución
 
-Este guion valida el **mismo flujo funcional** que el E2E backend, pero desde la interfaz admin, con el **orden y criterios** del piloto jun 2026 y los **patrones UX vigentes** (guardado implicito, `SetupNavBar`, toasts). Marca cada paso al completarlo.
+Este guion valida el **flujo admin evaluable** desde la interfaz, con patrones UX vigentes (guardado implícito, `SetupNavBar`, toasts) y capacidades ya en código (ajuste manual HU-05, sillas/estrella). Marca cada paso al completarlo.
 
-> **Nota:** La sesion `evidencias-piloto/sesion-2026-06-21.md` uso un guion anterior (con boton «Guardar»). Esta version sustituye ese guion para la **validacion post-UX**.
+> **Histórico:** versiones de jun 2026 asumían motor v0 y ✕/+/drag fuera de alcance. Quedan obsoletas para PO.
 >
-> **MEJ-08 (post-piloto):** validacion de ✕/+ y ajuste manual en `guion-validacion-mej-08-ui.md` — el piloto julio deja ✕/+ fuera de alcance (seccion I).
+> **Detalle MEJ-08:** `guion-validacion-mej-08-ui.md` (complementario). Este guion **incluye** ✕/+/mover como esperados.
 
 ---
 
@@ -32,7 +33,8 @@ Comprueba estos comportamientos en los pasos indicados:
 
 - [ ] API y web en marcha sin errores en consola
 - [ ] Navegador en ventana de incognito o sin datos previos de Taulamic (recomendado)
-- [ ] **Opcion A — Excel:** plantilla descargada desde la UI; 4 invitados con 2 parejas (`PAREJA_001`, `PAREJA_002`)
+- [ ] **Opcion A — Excel corto:** plantilla UI; 4 invitados con 2 parejas (`PAREJA_001`, `PAREJA_002`)
+- [ ] **Opcion Abis — Excel demo:** [`docs/pilot/invitados-piloto-80.xlsx`](../pilot/invitados-piloto-80.xlsx) (opcional, evento grande)
 - [ ] **Opcion B — Manual:** anotar un nombre de prueba para alta manual en paso 8
 
 ---
@@ -55,7 +57,7 @@ Comprueba estos comportamientos en los pasos indicados:
 | # | Paso | Ruta / accion | Resultado esperado | OK |
 |---|------|---------------|-------------------|-----|
 | 7 | Plantilla Excel | `/guests` → Descargar | Plantilla **sin** columna `preferencia_control`; toast o confirmacion de descarga | [ ] |
-| 8a | Importar Excel | `/guests` → Subir | 4 invitados sin errores; toast exito; checklist «Invitados» marcado | [ ] |
+| 8a | Importar Excel | `/guests` → Subir | Invitados sin errores; toast exito; checklist «Invitados» marcado | [ ] |
 | 8b | *(alternativa)* Alta manual | `/guests` → Añadir invitado (drawer) | Formulario crea invitado via API; toast; aparece en lista | [ ] |
 | 9 | Bloqueo avance | `/guests` con 0 invitados | «Siguiente» bloqueado con hint «Añade al menos un invitado…» | [ ] |
 | 10 | RSVP mock | `/guests` | Iconos confirmado / rechazado / pendiente; clic cambia estado (meta local) | [ ] |
@@ -98,61 +100,65 @@ Comprueba estos comportamientos en los pasos indicados:
 | # | Paso | Ruta / accion | Resultado esperado | OK |
 |---|------|---------------|-------------------|-----|
 | 21 | KPIs coherentes | `/admin/events/[id]` | Invitados, Mesas/plazas coherentes con datos cargados | [ ] |
-| 22 | Afinidad honesta | Dashboard | Texto **«No calculado en piloto»** (sin % falso) | [ ] |
+| 22 | Afinidad honesta | Dashboard | Texto **«No calculado en piloto»** (sin % falso) si aplica | [ ] |
 | 23 | Progreso setup | Dashboard | Checklist 5/6 antes de distribuir; barra setup refleja pasos reales (Tarjetas no cuenta) | [ ] |
 | 24 | Nav orden | Sidebar | Orden: Config → Invitados → Tarjetas (🔒) → Plano → Mesas → Afinidades → Distribucion | [ ] |
 
 ---
 
-## G. Distribucion y plano Fase B (pasos 25–31)
+## G. Distribucion, ajuste manual y plano (pasos 25–34)
 
 | # | Paso | Ruta / accion | Resultado esperado | OK |
 |---|------|---------------|-------------------|-----|
-| 25 | Calcular | `/distribution` → Calcular | Propuesta motor v0; parejas en misma mesa | [ ] |
-| 26 | Afinidad en tabla | `/distribution` | Columna Afinidad: **«N/D piloto»** (no porcentaje real) | [ ] |
-| 27 | Acordeon mesas | `/distribution` | Expandir mesa → pills con nombres; mesas vacias visibles | [ ] |
-| 28 | Ver en plano | `/floor-plan/layout` | Mesas con color por ocupacion; contador n/cap | [ ] |
-| 29 | Invitados al clic | `/floor-plan/layout` | Clic en mesa → panel con pills (**solo lectura**; sin ✕ ni drag) | [ ] |
-| 30 | Botones post-MVP | `/floor-plan/layout` | «Guardar posiciones» / «Restablecer» **deshabilitados** | [ ] |
-| 31 | Confirmar | `/distribution` → Confirmar | Estado confirmado; checklist setup 6/6 (100 %) | [ ] |
+| 25 | Calcular | `/distribution` → Calcular | Propuesta **CP-SAT** (async + progreso); parejas Excel en misma mesa cuando aplica | [ ] |
+| 26 | Compatibilidad / score | `/distribution` | Columna o indicadores de compatibilidad/score de mesa coherentes (no inventar % falso de «afinidad global») | [ ] |
+| 27 | Acordeon mesas | `/distribution` | Expandir mesa → pills / sillas S1…Sn; mesas vacias visibles | [ ] |
+| 28 | Sillas / estrella | `/distribution` | Asientos visibles; estrella presidencial operable (meta local OK) | [ ] |
+| 29 | Desasignar (✕) | Mesa con invitado | ✕ desasigna; persiste en API (`draft`) | [ ] |
+| 30 | Asignar / mover | + o drag / dialogo | Mover entre mesas o asignar desde sin asignar; score se recalcula | [ ] |
+| 31 | Ver en plano | `/floor-plan/layout` | Mesas con color por ocupacion; contador n/cap | [ ] |
+| 32 | Panel invitados | `/floor-plan/layout` | Clic en mesa → panel con invitados; **ajuste manual** coherente con distribucion (no solo lectura) | [ ] |
+| 33 | Posiciones canvas | `/floor-plan/layout` | Guardar/restablecer posiciones segun UI vigente (si habilitado; si no, anotar) | [ ] |
+| 34 | Confirmar | `/distribution` → Confirmar | Estado confirmado; checklist setup 6/6 (100 %); PDF descargable (jsPDF) | [ ] |
 
 ---
 
-## H. Bloqueos y regresion (pasos 32–33)
+## H. Bloqueos y regresion (pasos 35–36)
 
 | # | Paso | Ruta / accion | Resultado esperado | OK |
 |---|------|---------------|-------------------|-----|
-| 32 | Post-confirmacion | `/tables` → intentar añadir mesa | API rechaza cambio (**409**); mensaje coherente con E2E | [ ] |
-| 33 | Persistencia sesion | Recargar pestaña | Mismos datos en la misma sesion (`sessionStorage` + API) | [ ] |
+| 35 | Post-confirmacion | `/tables` → intentar añadir mesa | API rechaza cambio (**409**); mensaje coherente con E2E | [ ] |
+| 36 | Persistencia sesion | Recargar pestaña | Mismos datos en la misma sesion (`sessionStorage` + API) | [ ] |
 
 ---
 
-## I. Fuera de alcance (no debe funcionar en piloto)
+## I. Fuera de alcance / deshabilitado (piloto)
 
-Marca ✅ si el comportamiento es el esperado (ausente o deshabilitado):
+Marca ✅ si el comportamiento es el esperado:
 
 | Comportamiento | Esperado piloto | OK |
 |----------------|-----------------|-----|
 | Boton «Guardar» en Config / Plano / Afinidades | Ausente (auto-save) | [ ] |
 | Modo colaborativo en config | Deshabilitado | [ ] |
-| ✕ / + en pills de distribucion | No visible / no operativo | [ ] |
-| Drag invitado entre mesas | No operativo | [ ] |
-| Drag posiciones de mesas en canvas | Botones deshabilitados | [ ] |
-| Lista «sin asignar» al clic KPI | No implementada (post-piloto) | [ ] |
+| Top-K / comparador de candidatas | No en UI | [ ] |
+| Drag posiciones de mesas en canvas (si botones deshabilitados) | Coherente con UI | [ ] |
 | Bloqueo de invitados | Sin UI | [ ] |
-| Recuperar eventos entre sesiones | No (decision MVP) | [ ] |
+| Recuperar eventos entre sesiones (multi-dispositivo) | No (sin auth/BD) | [ ] |
 | Tarjetas / invitaciones diseno | Candado (HU-10 post-piloto) | [ ] |
+
+**Nota:** ✕ / + / drag entre mesas **sí** forman parte del piloto evaluable (sección G).
 
 ---
 
-## Criterios de exito (DECISION-002)
+## Criterios de exito
 
 - [ ] Flujo completado en **< 30 min** con ayuda minima
 - [ ] Orden setup respetado sin saltos obligatorios confusos
 - [ ] KPI setup progresa de 0 % a 100 % de forma coherente
-- [ ] Sin porcentajes de afinidad presentados como dato real
+- [ ] Motor CP-SAT / async verificados; sin exigir v0
+- [ ] Ajuste manual (✕/+/mover) verificado
 - [ ] Patrones UX § transversal verificados (nav, auto-save, toasts, bloqueos)
-- [ ] Evidencias en `docs/agile/evidencias-piloto/` (nueva sesion post-UX)
+- [ ] Evidencias en `docs/agile/evidencias-piloto/` (nueva sesion)
 
 ---
 
@@ -172,19 +178,16 @@ Marca ✅ si el comportamiento es el esperado (ausente o deshabilitado):
 | Web build | `cd apps/web && npm run build` |
 | **Web E2E (Playwright)** | `cd apps/web && npm run test:e2e` → `pilot-flow.spec.ts` |
 
-**Cobertura Playwright (2026-06-21):** test «A–G setup admin de punta a punta» cubre pasos A, B (Excel), D, E, F (parcial), G; patrones UX alta manual; paso C Tarjetas bloqueado. Ver `evidencias-mej-10-validacion.md` §Smoke.
-
-El E2E API **no sustituye** esta validacion UI; la complementa.
+El E2E API usa el motor segun `DISTRIBUTION_ENGINE` (default **v1**). **No sustituye** esta validacion UI; la complementa.
 
 ### Playwright vs validacion manual
 
 | | Playwright | Guion manual + evidencias |
 |---|------------|---------------------------|
-| **Proposito** | Regresion automatica del flujo feliz | Cierre DoD piloto (DECISION-002) |
-| **Obligatorio cierre julio** | Recomendado en CI | **Si** |
+| **Proposito** | Regresion automatica del flujo feliz | Cierre DoD / validacion PO |
 | **Documentacion** | `docs/agile/observabilidad-y-e2e-web-piloto.md` | `docs/agile/evidencias-piloto/` |
 
-**Regla:** ejecuta Playwright en desarrollo/CI; la **validacion manual con evidencias** sigue siendo requisito de cierre.
+**Regla:** ejecuta Playwright en desarrollo/CI; la **validacion manual con evidencias** sigue siendo requisito de cierre PO.
 
 ---
 

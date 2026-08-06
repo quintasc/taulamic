@@ -1,13 +1,13 @@
 # Contexto de ejecucion — punto de reanudacion
 
-- Ultima actualizacion: **2026-08-05**
+- Ultima actualizacion: **2026-08-06**
 - Sprint activo: **Post Sprint 10** (piloto evaluable cerrado técnicamente; W5)
-- **`main` @ `0174b84`** — BF-13/#60 Outbox diferido; ADR-002.
+- **`main` @ `df40993`** — docs: guion PO, ADR-006/007/020 y ALCANCE alineados a CP-SAT.
 
 ## Frase clave
 
 ```text
-Retomo Taulamic. Estado 2026-08-05: piloto evaluable OK; ADR-024 en motor; distribución page con useDistributionPage. Siguiente: validación PO visual (guion). Luego #55 sillas/afinidades API; Top-K #11/#12; deuda L2 mesas justas #54. Diferido: BF-09/#56 multi-usuario, BF-10/#57 Nest, BF-11/#58 Zod, BF-12/#59 ORM, BF-13 Outbox.
+Retomo Taulamic. Estado 2026-08-06: piloto evaluable OK; ADR-024 en motor; distribución page con useDistributionPage. Siguiente: validación PO visual (guion). Luego #55 sillas/afinidades API; Top-K #11/#12; deuda L2 mesas justas #54. Diferido: BF-09/#56 multi-usuario, BF-10/#57 Nest, BF-11/#58 Zod, BF-12/#59 ORM, BF-13 Outbox.
 ```
 
 ## Pendiente inmediato
@@ -125,6 +125,9 @@ Referencia; no es el trabajo del día.
 
 | Commit | Descripción |
 |--------|-------------|
+| `df40993` | docs: alinea guion PO, ADR y ALCANCE al piloto CP-SAT |
+| `7426748` | docs: marca vigencia de docs de arquitectura vs piloto CP-SAT |
+| `777bb2d` | docs: Mermaid arquitectura operativa piloto |
 | `0174b84` | docs: BF-13/#60 Outbox |
 | `1fe57a2` | docs: BF-12/#59 spike ORM |
 | `a756cb0` | docs: BF-11/#58 Zod/Joi |

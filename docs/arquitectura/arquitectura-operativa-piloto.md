@@ -2,6 +2,8 @@
 
 Visión corta de **cómo corre Taulamic hoy** (código del piloto), no la arquitectura objetivo a largo plazo. Para alcance funcional ver [`../pilot/ALCANCE-ACTUAL.md`](../pilot/ALCANCE-ACTUAL.md).
 
+**Documento canónico del runtime del piloto** (frente a estudios históricos del motor en esta carpeta).
+
 Última revisión documental: **2026-08-06**. Este documento **no** se regenera en CI; se actualiza a mano cuando cambie el runtime.
 
 Los diagramas usan [Mermaid](https://mermaid.live) (GitHub / VS Code los renderizan).

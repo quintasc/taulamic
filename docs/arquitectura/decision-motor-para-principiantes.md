@@ -1,5 +1,9 @@
 # Decision del motor explicada para principiantes
 
+> **Vigencia:** documento **histórico / introductorio** (estrategia híbrida heurística + SA + Top-K).  
+> **Runtime del piloto hoy:** motor **CP-SAT** por defecto (ADR-023, ADR-024) · vista operativa: [`arquitectura-operativa-piloto.md`](arquitectura-operativa-piloto.md).  
+> Top-K (N=3) y SA como baseline **no** están en el piloto evaluable; ver ADR-023 §3 y backlog post-piloto.
+
 ## 1) La pregunta simple
 
 Como calculamos la mejor distribucion de mesas sin tardar horas?

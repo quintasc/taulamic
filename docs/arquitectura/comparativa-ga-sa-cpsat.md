@@ -1,5 +1,8 @@
 # Comparativa tecnica - GA vs SA vs CP-SAT
 
+> **Vigencia:** plan de **benchmark** (EP-15 / #20). La hipótesis “SA = baseline MVP” **no** refleja el piloto actual: el default en código es **CP-SAT** (ADR-023).  
+> GA y Top-K siguen **pendientes**. Runtime: [`arquitectura-operativa-piloto.md`](arquitectura-operativa-piloto.md).
+
 ## 1) Objetivo
 
 Definir como comparar de forma objetiva tres enfoques de optimizacion para el motor:

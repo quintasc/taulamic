@@ -95,7 +95,7 @@ La UI Swagger (`/api/docs`) se regenera al arrancar Nest; el JSON versionado es 
 | [`pilot/`](pilot/) | Alcance evaluable, evidencias, evolución, trazabilidad |
 | [`sdd/`](sdd/) | Spec-Driven Development (fuente de verdad funcional) |
 | [`adr/`](adr/) | Decisiones de arquitectura |
-| [`arquitectura/`](arquitectura/) | Runtime del piloto, patrones, estudios del motor |
+| [`arquitectura/`](arquitectura/) | Runtime del piloto (canónico: `arquitectura-operativa-piloto.md` + Mermaid); estudios/patrones del motor (algunos históricos — ver cabeceras de vigencia) |
 | [`agile/`](agile/) | Ejecución, sprints, CONTEXTO, tests; ideas post-piloto: [`backlog-mejoras-post-piloto.md`](agile/backlog-mejoras-post-piloto.md) (BF-09…BF-13, LOPD, etc.) |
 | [`api/`](api/) | OpenAPI exportado + guía NestJS |
 | [`product/`](product/) | PRD y especificaciones |

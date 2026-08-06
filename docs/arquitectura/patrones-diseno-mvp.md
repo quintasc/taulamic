@@ -1,5 +1,8 @@
 # Patrones de diseno para este proyecto (MVP)
 
+> **Vigencia:** guía alineada con ADR-004 / ADR-015. En el **piloto evaluable** aplican de forma pragmática sobre todo **Strategy** (motor), **Repository** (JSON) y reglas de dominio; no hay cola BullMQ, Factory de documentos completa, máquina de estados hasta `Publicado` ni RBAC de producto (invitado/salón).  
+> Runtime: [`arquitectura-operativa-piloto.md`](arquitectura-operativa-piloto.md). Cola/worker y Outbox: ADR-002 y backlog BF-09 / BF-13.
+
 ## 1) Objetivo
 
 Definir patrones de diseno concretos para evitar caos tecnico a medida que crece la app.

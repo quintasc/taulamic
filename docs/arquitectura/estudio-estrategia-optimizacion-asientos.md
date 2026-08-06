@@ -1,5 +1,9 @@
 # Estudio de estrategia para optimizar distribucion de asientos
 
+> **Vigencia:** estudio **histórico** previo a ADR-023. La decisión recomendada aquí (heurística + SA + CP-SAT opcional + Top-K) fue **superseded** en runtime por **CP-SAT en dos fases** como motor principal.  
+> **Leer primero:** [`../adr/ADR-023-motor-cpsat-dos-fases-mesa-y-asiento.md`](../adr/ADR-023-motor-cpsat-dos-fases-mesa-y-asiento.md), [`../adr/ADR-024-reparto-proporcional-por-categoria.md`](../adr/ADR-024-reparto-proporcional-por-categoria.md), [`arquitectura-operativa-piloto.md`](arquitectura-operativa-piloto.md).  
+> La §9 (worker Redis/BD) describe arquitectura **objetivo**, no el piloto JSON in-process.
+
 ## 1) Objetivo del estudio
 
 Justificar tecnicamente que estrategia conviene para calcular una buena distribucion de invitados sin evaluar todas las combinaciones posibles.

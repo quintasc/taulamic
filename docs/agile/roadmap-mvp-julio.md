@@ -1,35 +1,40 @@
 # Roadmap MVP julio — Vista grafica
 
-> **Hoy:** 17 jul 2026 · **Hito piloto:** 31 jul 2026 · **Decision:** [DECISION-002](DECISION-002-mvp-julio-piloto-funcional.md)  
-> Plan detallado (historico): [mvp-julio-plan.md](mvp-julio-plan.md) · Estado operativo: [CONTEXTO-EJECUCION.md](CONTEXTO-EJECUCION.md) · Alcance vigente: [docs/pilot/README.md](../pilot/README.md)  
-> Commits referencia recientes: `d08d11a` (CP-SAT async) · `9933ce7` (sillas/estrella) · `4dd7e39` (docs/pilot) · `6f242a8` (refactor web)
+> **Snapshot:** cierre del hito julio · **Fecha del documento:** 31 jul 2026  
+> **Hito piloto:** 31 jul 2026 · **Decision:** [DECISION-002](DECISION-002-mvp-julio-piloto-funcional.md)  
+> Plan detallado (historico): [mvp-julio-plan.md](mvp-julio-plan.md) · **Estado vivo (ago+):** [CONTEXTO-EJECUCION.md](CONTEXTO-EJECUCION.md) · Alcance: [docs/pilot/README.md](../pilot/README.md)  
+> Commits referencia fin julio: `3447809` (ADR-024) · `6f242a8` / refactor distribucion · `4dd7e39` (docs/pilot) · `d08d11a` (CP-SAT async) · `9933ce7` (sillas/estrella) · fixes UX distribucion (`9ec7629`, `c5601be`) · material demo (`83ca637`)
 
-## Donde estamos ahora
+Este archivo describe el **MVP julio hasta el 31 jul**. No incorpora el trabajo de agosto 2026 en adelante (issues #54–#60, BF-09…13, etc.): eso vive en CONTEXTO y el backlog post-piloto.
+
+## Donde estabamos al cierre (31 jul 2026)
 
 ```
-Mar 2026          Jun 2026                    Jul 2026 (W5)              31 jul
-|---- SDD/backlog ----|-- nucleo piloto HECHO --|-- CP-SAT + cierre --|-- hito --|
+Mar 2026          Jun 2026                    Jul 2026                         31 jul
+|---- SDD/backlog ----|-- nucleo piloto HECHO --|-- CP-SAT + cierre W5-W6 --|-- hito --|
                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
                        EP-11..13 API UI motor E2E HECHO (jun)
-                                              ^^^^^^^^^^^^^^^^^^^
-                                         W3-W4 plano + sillas + motor CP-SAT
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                         W3-W5 entregas + estabilizacion W6
                                                             ^^^^^^^^
-                                                       validacion PO + estabilizacion
+                                              hito tecnico CERRADO; PO visual pendiente
 ```
 
-| Indicador | Valor |
-|-----------|-------|
-| **Posicion temporal** | Semana **W5** de 6 (14–20 jul) — **14 dias al hito** |
-| **Foco actual** | Validacion PO visual; deuda sillas/afinidades API; estabilizacion pre-hito |
-| **EP-11 / EP-12 / EP-13** | **Cerrados** (#22–#36) |
-| **EP-03 Motor CP-SAT async** | **Cerrado** (`d08d11a`; Project #2 Done) |
-| **ADR-024 / Fase 1a·1b** | **Hecho en código** (17 jul) — L3bis, k_min C+E, exclusión Pareja |
-| **EP-04 / EP-05 / EP-07 / EP-08** | **En curso** (manual HU-05 hecho; PDF parcial; OpenAPI piloto; Top-K pendiente) |
-| **Progreso piloto (DoD tecnico)** | **Cerrado** — flujo E2E + docs/pilot consolidados |
+| Indicador | Valor (31 jul) |
+|-----------|----------------|
+| **Posicion temporal** | **Fin W6** — hito **31 jul** alcanzado en alcance tecnico |
+| **Foco al cierre** | Piloto evaluable documentado; estabilizacion UX distribucion; material demo (Excel 80 + PDF ejemplo) |
+| **EP-11 / EP-12 / EP-13** | **Cerrados** (#22–#36) en nucleo; afinidades UI hecha, persistencia API reglas **pendiente** |
+| **EP-03 Motor CP-SAT async** | **Cerrado** (`d08d11a` + ADR-024 `3447809`) |
+| **ADR-024 / Fase 1a·1b** | **Hecho en codigo** (17 jul) — L3bis, k_min C+E, exclusion Pareja |
+| **EP-04 / EP-05 / EP-07 / EP-08** | Manual HU-05 hecho; PDF parcial; OpenAPI piloto; Top-K **post-piloto** |
+| **Progreso piloto (DoD tecnico)** | **Cerrado** — flujo E2E + `docs/pilot/` consolidados |
+| **Validacion PO visual** | **Pendiente** al 31 jul (guion) — sigue abierta post-hito |
+| **Deuda sillas / afinidades API** | **Pendiente** al 31 jul (luego #55 en ago) |
 | **Usuario real (#53)** | **Pospuesto** post-hito |
-| **Dias hasta piloto** | **14 dias** |
+| **Dias hasta piloto** | **0** (hito alcanzado) |
 
-**Estado por color:** `HECHO` · `EN CURSO` · `PLANIFICADO` · `POSPILOTO`
+**Estado por color:** `HECHO` · `EN CURSO` · `PENDIENTE_AL_HITO` · `POSPILOTO`
 
 ---
 
@@ -39,7 +44,7 @@ Copia o visualiza este bloque en GitHub, VS Code o [mermaid.live](https://mermai
 
 ```mermaid
 gantt
-    title Roadmap Taulamic — MVP julio piloto (actualizado 17 jul 2026)
+    title Roadmap Taulamic — MVP julio piloto (snapshot 31 jul 2026)
     dateFormat YYYY-MM-DD
     axisFormat %d %b
 
@@ -74,22 +79,24 @@ gantt
 
     section Julio W5 motor y docs
     EP-03 CP-SAT async ADR-023   :done, cpsat, 2026-07-01, 2026-07-10
-    ADR-024 reparto categoria    :done, cat24, 2026-07-05, 2026-07-10
+    ADR-024 reparto categoria    :done, cat24, 2026-07-05, 2026-07-17
     Score compatibilidad mesa    :done, score, 2026-07-05, 2026-07-10
     PDF organizador frontend     :done, pdf, 2026-07-07, 2026-07-12
     Docs pilot consolidacion     :done, docp, 2026-07-12, 2026-07-12
-    Refactor web distrib/plano   :done, refweb, 2026-07-12, 2026-07-12
-    E2E categoria piloto plano   :done, e2ejul, 2026-07-12, 2026-07-17
+    Refactor web distribucion    :done, refweb, 2026-07-12, 2026-07-17
+    E2E CP-SAT por defecto       :done, e2ecp, 2026-07-17, 2026-07-17
+    Material demo Excel+PDF      :done, demo, 2026-07-20, 2026-07-22
 
     section Cierre piloto W5-W6
-    API persistencia layout      :active, layout, 2026-06-23, 2026-07-25
-    Deuda sillas afinidades API  :crit, deuda, 2026-07-14, 2026-07-28
-    Validacion PO visual guion  :active, pov, 2026-07-14, 2026-07-25
-    Estabilizacion y fixes       :active, fix, 2026-07-14, 2026-07-30
-    Prueba piloto usuario real   :post, test, 2026-08-01, 2026-12-31
-    Hito MVP piloto              :milestone, mvp, 2026-07-31, 0d
+    Estabilizacion UX distribucion :done, fix, 2026-07-14, 2026-07-22
+    keepTogether UX + JWT nota     :done, kt, 2026-07-22, 2026-07-22
+    Hito MVP piloto tecnico        :milestone, mvp, 2026-07-31, 0d
+    Validacion PO visual guion     :crit, pov, 2026-07-14, 2026-07-31
+    Deuda sillas afinidades API    :crit, deuda, 2026-07-14, 2026-07-31
+    Persistencia layout API dual   :done, layout, 2026-06-23, 2026-07-25
 
     section Post-piloto ago+
+    Prueba piloto usuario real   :post, test, 2026-08-01, 2026-12-31
     HU-05 versionado rico HU-06  :post, 2026-08-01, 2026-10-31
     Drag posiciones mesas ADR-016:post2, 2026-08-01, 2026-10-31
     PostgreSQL auth motor EP-08  :post3, 2026-08-01, 2026-12-31
@@ -102,7 +109,7 @@ gantt
 
 ```mermaid
 timeline
-    title Hitos Taulamic 2026
+    title Hitos Taulamic 2026 (hasta 31 jul)
     section Hecho (jun)
         Mar-Jun : SDD-00 SDD-01 backlog ADRs
         Jun : EP-11..13 Excel preferencias plano API
@@ -112,54 +119,55 @@ timeline
         2 jul : Plano UX pulido layout desktop/movil
         5 jul : Stepper desktop Config CLS autoguardado
         7 jul : Sprint 10 sillas estrella presidencial
-        10 jul : CP-SAT async ADR-023 ADR-024 categoria
-        12 jul : docs/pilot consolidacion refactor web distribucion
-    section En curso (jul W5-W6)
-        14-25 jul : Validacion PO visual deuda API sillas/afinidades
-        14-30 jul : Estabilizacion fixes pre-hito
-        31 jul : Hito MVP piloto
+        10-17 jul : CP-SAT async ADR-023 ADR-024 categoria
+        12-17 jul : docs/pilot consolidacion refactor web
+        17-22 jul : E2E CP-SAT default; fixes drag/rehidratacion
+        20-22 jul : Excel 80 + PDF ejemplo; README piloto
+    section Cierre hito (31 jul)
+        31 jul : Hito MVP piloto TECNICO alcanzado
+        Pendiente al hito : Validacion PO visual; deuda sillas/afinidades API
     section Post-piloto
-        Ago+ : Usuario real #53 versionado HU-06 Top-K PostgreSQL
+        Ago+ : Ver CONTEXTO-EJECUCION (estado vivo)
 ```
 
 ---
 
-## Matriz semanal (estado vivo)
+## Matriz semanal (julio, cerrada)
 
-| Semana | Fechas | Entregable clave | Estado |
-|--------|--------|------------------|--------|
+| Semana | Fechas | Entregable clave | Estado al 31 jul |
+|--------|--------|------------------|------------------|
 | **W1** | 18–22 jun | Nucleo piloto + refinamiento UX | **HECHO** |
 | **W2** | 23–29 jun | Validacion manual; issues post-piloto; cierre DoD | **HECHO** |
 | **W3** | 30 jun – 6 jul | Plano UX pulido; stepper; autoguardado Config | **HECHO** |
 | **W4** | 7–13 jul | Sprint 10 sillas/estrella; afinidades UI | **HECHO** |
-| **W5** | 14–20 jul | CP-SAT async; docs/pilot; refactor web; E2E jul | **EN CURSO** *(hoy 17 jul)* |
-| **W6** | 21–31 jul | Validacion PO; estabilizacion; cierre hito 31 jul | **PLANIFICADO** |
-| Post | ago 2026+ | Usuario real #53; MVP SDD completo | **Pospuesto** |
+| **W5** | 14–20 jul | CP-SAT async; ADR-024; docs/pilot; refactor; E2E | **HECHO** |
+| **W6** | 21–31 jul | Estabilizacion UX; material demo; **hito tecnico** | **HECHO** (PO visual y deuda sillas API = **PENDIENTE_AL_HITO**) |
+| Post | ago 2026+ | Usuario real #53; MVP SDD completo; ver CONTEXTO | **Pospuesto / vivo en CONTEXTO** |
 
 ---
 
-## Progreso por bloque funcional
+## Progreso por bloque funcional (31 jul)
 
 ```mermaid
 pie showData
-    title Entregables MVP julio por estado (17 jul)
-    "Hecho" : 28
-    "En curso" : 4
+    title Entregables MVP julio por estado (31 jul 2026)
+    "Hecho" : 30
+    "Pendiente al hito" : 2
     "Pospuesto post-hito" : 1
 ```
 
-| Bloque | Issues / ambito | Hecho | En curso | Pendiente |
-|--------|-----------------|-------|----------|-----------|
-| Plano EP-11 | #22–#26 + ADR-016 UI | Fase A/B + UX jul | persistencia layout API | drag accesorios `(x,y)` |
-| Excel EP-12 | #27–#31 | 5 | — | — |
-| Preferencias EP-13 | #32–#36 | 5 API | UI afinidades | persistencia API reglas; CRUD keepTogether (alta manual + baja dura) |
-| Evento EP-01 | #1, #15 | 2 | — | — |
+| Bloque | Issues / ambito | Hecho (jul) | Pendiente al hito | Post-piloto |
+|--------|-----------------|-------------|-------------------|-------------|
+| Plano EP-11 | #22–#26 + ADR-016 UI | Fase A/B + UX jul; dual write layout | — | drag accesorios `(x,y)` rico |
+| Excel EP-12 | #27–#31 | 5 + demo 80 filas | — | — |
+| Preferencias EP-13 | #32–#36 | 5 API + UI afinidades + keepTogether UX | persistencia API reglas; CRUD keepTogether duro | — |
+| Evento EP-01 | #1, #15 | 2 + date picker propio | — | — |
 | Invitados EP-02 | #2 + UI manual | 1 + UI | — | — |
-| Distribucion | CP-SAT async ADR-023/024 | motor + score + async | — | Top-K (post-piloto) |
-| Distribucion UI | sillas estrella refactor | Sprint 10 + `6f242a8` | validacion PO | unificar sillas API |
-| Validacion + E2E | guion + Playwright | piloto + categoria + plano movil | PO visual pendiente | — |
-| Docs | ADR pilot TRAZABILIDAD | `docs/pilot/` `4dd7e39` | — | — |
-| Documentos EP-05 | PDF organizador | frontend parcial HU-08 | cocina/publicacion | persistencia backend |
+| Distribucion | CP-SAT async ADR-023/024 | motor + score + async + swap mesas | — | Top-K; deuda L2 mesas justas (ago #54) |
+| Distribucion UI | sillas estrella refactor | Sprint 10 + refactor + fixes jul | validacion PO; unificar sillas API | — |
+| Validacion + E2E | guion + Playwright | piloto + categoria + plano movil + CP-SAT default | **PO visual** | — |
+| Docs | ADR pilot TRAZABILIDAD | `docs/pilot/` + README ampliado | — | — |
+| Documentos EP-05 | PDF organizador | frontend parcial HU-08 + PDF ejemplo | cocina/publicacion | persistencia backend |
 
 ---
 
@@ -167,14 +175,14 @@ pie showData
 
 | Nivel | Fecha objetivo | Que incluye |
 |-------|----------------|-------------|
-| **MVP julio (piloto)** | **31 jul 2026** | Admin completo + **CP-SAT v1** + distribucion por sillas + PDF parcial — ver [`docs/pilot/`](../pilot/README.md) |
+| **MVP julio (piloto)** | **31 jul 2026** | Admin completo + **CP-SAT v1** + distribucion por sillas + PDF parcial — ver [`docs/pilot/`](../pilot/README.md). Hito **tecnico** cerrado; PO visual y unificacion sillas API quedaron abiertas. |
 | **MVP SDD completo** | Post-piloto | Todo `SDD-01-borrador-mvp.md` — sin rebaja de requisitos |
 
 ---
 
-## Como mantener el roadmap al dia
+## Como mantener este documento
 
-1. Al cerrar una issue GitHub o merge relevante, actualizar la matriz semanal y barras `done` del Gantt.
-2. Sincronizar foco activo con [CONTEXTO-EJECUCION.md](CONTEXTO-EJECUCION.md).
-3. Si cambia el calendario, editar primero `mvp-julio-plan.md` y luego este archivo (fechas Gantt).
+1. Este archivo es el **snapshot del hito julio**. No lo uses como “donde estamos hoy” tras ago 2026.
+2. Estado operativo vivo: [CONTEXTO-EJECUCION.md](CONTEXTO-EJECUCION.md).
+3. Si solo corriges hechos de julio (fechas/commits), actualiza Gantt y matriz; no mezcles entregas de agosto sin renombrar el documento.
 4. Cumplimiento piloto vs SDD-01: `docs/sdd/SDD-PILOTO-alineacion-y-huecos.md`.

@@ -66,7 +66,8 @@ Reevaluar cuando:
 
 - el volumen de eventos concurrentes crezca mucho,
 - el equipo aumente y necesite despliegues independientes por dominio,
-- o existan cuellos de botella persistentes en el backend principal.
+- existan cuellos de botella persistentes en el backend principal,
+- tras PostgreSQL + cola durable, haga falta publicacion fiable negocio↔jobs/integraciones (**Transactional Outbox**). Valorar en spike; no confundir con “solo BullMQ”. Detalle: `docs/agile/backlog-mejoras-post-piloto.md` (BF-13).
 
 ## Comentarios para principiantes
 

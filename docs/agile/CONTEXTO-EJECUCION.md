@@ -7,7 +7,7 @@
 ## Frase clave
 
 ```text
-Retomo Taulamic. Estado 2026-08-05: piloto evaluable OK; ADR-024 en motor; distribución page con useDistributionPage. Siguiente: validación PO visual (guion). Luego #55 sillas/afinidades API; Top-K #11/#12; deuda L2 mesas justas #54. Diferido: BF-09/#56 multi-usuario, BF-10/#57 Nest, BF-11/#58 Zod, BF-12/#59 ORM.
+Retomo Taulamic. Estado 2026-08-05: piloto evaluable OK; ADR-024 en motor; distribución page con useDistributionPage. Siguiente: validación PO visual (guion). Luego #55 sillas/afinidades API; Top-K #11/#12; deuda L2 mesas justas #54. Diferido: BF-09/#56 multi-usuario, BF-10/#57 Nest, BF-11/#58 Zod, BF-12/#59 ORM, BF-13 Outbox.
 ```
 
 ## Pendiente inmediato
@@ -66,6 +66,10 @@ Piloto: **`class-validator`** en DTOs Nest. Valorar Zod o Joi solo post-piloto /
 ## Deuda diferida (ORM / PostgreSQL)
 
 PostgreSQL está en ADR-003; el acceso (Prisma, TypeORM, Drizzle, SQL, …) **no**. Spike + ADR al migrar fuera de JSON — **BF-12** en `backlog-mejoras-post-piloto.md` · [#59](https://github.com/quintasc/taulamic/issues/59). ORM solo como adaptador tras puertos Repository (ADR-015).
+
+## Deuda diferida (Outbox)
+
+Tras PostgreSQL + cola (BF-09 / ADR-002), **valorar** Transactional Outbox para publicación fiable de jobs/integraciones — **BF-13** en `backlog-mejoras-post-piloto.md` · [#60](https://github.com/quintasc/taulamic/issues/60). No implementar en el piloto JSON; distinto de “solo BullMQ”.
 
 ## Refactor oportunista UI (no proyecto aparte)
 
@@ -139,5 +143,5 @@ Referencia; no es el trabajo del día.
 - `docs/pilot/README.md`
 - `docs/README.md` (rutas rápidas)
 - `github-project-sprint-10.md`
-- `backlog-mejoras-post-piloto.md` (BF-07…BF-12)
+- `backlog-mejoras-post-piloto.md` (BF-07…BF-13)
 - `politica-validacion-tests-y-cobertura.md` (colocación unit / integration / e2e / OpenAPI)

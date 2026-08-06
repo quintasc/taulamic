@@ -25,6 +25,7 @@
 | **#57** Desacoplar features Nest (BF-10) | `Todo` / Backlog | 2026-08-03 |
 | **#58** Valorar Zod/Joi (BF-11) | `Todo` / Backlog | 2026-08-05 — no migrar piloto |
 | **#59** Spike ORM PostgreSQL (BF-12) | `Todo` / Backlog | 2026-08-05 — Prisma candidato, no decidido |
+| **#60** Valorar Outbox (BF-13) | `Todo` / Backlog | 2026-08-06 — post PostgreSQL+cola |
 | Docs `docs/pilot/` | `Done` | Draft Project sincronizado |
 
 ## Prioridad operativa (desde CONTEXTO)
@@ -41,7 +42,7 @@ Detalle: `docs/agile/CONTEXTO-EJECUCION.md`.
 | Acción | Resultado |
 |--------|-----------|
 | Issues #54, #55 creados y añadidos al Project | Status Todo, Flujo Ready |
-| #56 BF-09, #57 BF-10, #58 BF-11, #59 BF-12 | Todo / Backlog |
+| #56 BF-09 … #60 BF-13 | Todo / Backlog |
 | Comentario en #10 | ADR-024 + deuda L2 + Top-K pendiente |
 | Comentario en #9 | OpenAPI JSON/CI; auth pendiente |
 | Flujo → Done | #1, #2, #7 (Status ya era Done) |

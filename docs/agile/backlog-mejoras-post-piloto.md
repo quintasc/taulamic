@@ -269,6 +269,27 @@ Esto es **distinto** de los NFR de latencia del motor/API (p95 en SDD-01 / ADR-0
 
 ---
 
+## BF-13 — Valorar patrón Outbox (post-piloto)
+
+**Idea:** al disponer de **PostgreSQL + cola** (ADR-002/003, BF-09), **valorar** si hace falta **Transactional Outbox** (escribir el mensaje/job en la misma transacción que el cambio de negocio y publicarlo después de forma fiable). Distinto de “solo encolar en BullMQ”: outbox evita perder eventos si falla el publish tras commit.
+
+**Contexto actual:** no hay outbox ni bus de eventos. Jobs de distribución async **in-process**; sin transacciones BD. Event Sourcing/CQRS siguen diferidos (`patrones-diseno-mvp.md`).
+
+**Cuándo abrir spike (no ahora):**
+
+1. Migración a PostgreSQL en curso o hecha (enlace BF-12).
+2. Cola durable Redis/BullMQ (o equivalente) para `distribution/run` / documentos / notificaciones.
+3. Integraciones con efectos laterales (email/WhatsApp RSVP, webhooks) donde “commit OK + publish fallido” sea riesgo real.
+4. Multi-instancia API (BF-09) donde el tracker in-process ya no basta.
+
+**Criterios del spike:** outbox vs “encolar en la misma petición tras persistir”; idempotencia del consumer; tabla/poller o CDC; coste vs beneficio; ADR (enmienda ADR-002 o ADR nuevo) con gate PO/arquitectura.
+
+**Fuera de alcance ahora:** implementar outbox en el piloto JSON; adoptar event-driven completo.
+
+**Épica relacionada:** ops / mensajería fiable; ADR-002, ADR-003, BF-09, BF-12, EP-09 (RSVP). Issue: [#60](https://github.com/quintasc/taulamic/issues/60).
+
+---
+
 ## Referencias
 
 - `docs/sdd/SDD-02-backlog-inicial.md` — épicas MVP
